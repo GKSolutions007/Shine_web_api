@@ -466,8 +466,8 @@ namespace SampWebApi.Controllers
                                 GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
                                 OrgPrice = DDT2.Rows[k]["BaseUomPrice"].ToString(),
                                 BatchNo = DDT2.Rows[k]["BatchNo"].ToString(),
-                                PKD = DDT2.Rows[k]["PKD"].ToString(),
-                                Expiry = DDT2.Rows[k]["Expiry"].ToString(),
+                                PKD = !string.IsNullOrEmpty(DDT2.Rows[k]["PKD"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["PKD"]).ToString("dd/MM/yyyy") : "",
+                                Expiry = !string.IsNullOrEmpty(DDT2.Rows[k]["Expiry"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["Expiry"]).ToString("dd/MM/yyyy") : "",
                                 InvYN = DDT2.Rows[k]["TrackInventory"].ToString() == "True" ? "1" : "0",
                                 BatchYN = DDT2.Rows[k]["TrackBatch"].ToString() == "True" ? "1" : "0",
                                 PKDYN = DDT2.Rows[k]["TrackPDK"].ToString() == "True" ? "1" : "0",
@@ -1374,56 +1374,64 @@ namespace SampWebApi.Controllers
         [Route("api/invoice/PDFGenerate")]
         public IHttpActionResult PDFGenerate(string DocID, string TransID = "", string ConfigID = "", string PrinterID = "", string TransName = "")
         {
-            string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "PDF\\";// System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "PDF\\";
-            string FileLocationwithname = "";
-
-            if (!string.IsNullOrEmpty(pdfFilePath))
+            try
             {
-                //DownloadFile df = new DownloadFile();
-                // df.DownloadFiles(@"E:\Print Document\PrintSpool\full.pdf");
-                //GKSDownload gksd = new GKSDownload();
+                string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "PDF\\";// System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "PDF\\";
+                string FileLocationwithname = "";
 
-                //DownloadFiles(@"E:\Print Document\PrintSpool\half.pdf");
-                //tpm.TransName = "Invoice";
-                //ConfigID = "1";
-                DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
-
-                PrintBase PB = new PrintBase { GKS_BL = bl };
-                //DataTable dt = objBL.BL_ExecuteParamSP("uspgetID", dtTName.Rows[0][0].ToString(), DocID);
-                if (Convert.ToInt32(DocID) > 0)
+                if (!string.IsNullOrEmpty(pdfFilePath))
                 {
-                    if (!string.IsNullOrEmpty(ConfigID.ToString()))
-                    {
-                        FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
-                        //PB.PrintAndPreview(Convert.ToInt32(TransID), Convert.ToInt32(dt.Rows[0][0].ToString()), true, false, false, "");
+                    //DownloadFile df = new DownloadFile();
+                    // df.DownloadFiles(@"E:\Print Document\PrintSpool\full.pdf");
+                    //GKSDownload gksd = new GKSDownload();
 
+                    //DownloadFiles(@"E:\Print Document\PrintSpool\half.pdf");
+                    //tpm.TransName = "Invoice";
+                    //ConfigID = "1";
+                    DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
+
+                    PrintBase PB = new PrintBase { GKS_BL = bl };
+                    //DataTable dt = objBL.BL_ExecuteParamSP("uspgetID", dtTName.Rows[0][0].ToString(), DocID);
+                    if (Convert.ToInt32(DocID) > 0)
+                    {
+                        if (!string.IsNullOrEmpty(ConfigID.ToString()))
+                        {
+                            FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
+                            //PB.PrintAndPreview(Convert.ToInt32(TransID), Convert.ToInt32(dt.Rows[0][0].ToString()), true, false, false, "");
+
+                        }
                     }
                 }
+                //Build the File Path.
+                //string path = Server.MapPath("~/Files/") + fileName;
+                //string path = @"E:\Print Document\PrintSpool\" + fileName;
+
+                //if (!string.IsNullOrEmpty(FileLocationwithname))
+                //{
+                string pathwithFileName = FileLocationwithname;// @"E:\Print Document\PrintSpool\half.pdf";
+                                                               //Read the File data into Byte Array.
+                byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
+                string exts = Path.GetExtension(pathwithFileName);
+                string ctype = GetMimeType(exts);
+                string fileName = Path.GetFileName(pathwithFileName);
+                //string pth = pathwithFileName.Replace(Filena, "");
+                //Send the File to Download.
+                //return File(bytes, "application/pdf", fileName);
+                //Directory.Delete(pth, true);
+
+                //return File(bytes, ctype, fileName);
+                return Ok(fileName);
+                //}
+                //else
+                //{
+                //    return File(null,"");
+                //}
             }
-            //Build the File Path.
-            //string path = Server.MapPath("~/Files/") + fileName;
-            //string path = @"E:\Print Document\PrintSpool\" + fileName;
-
-            //if (!string.IsNullOrEmpty(FileLocationwithname))
-            //{
-            string pathwithFileName = FileLocationwithname;// @"E:\Print Document\PrintSpool\half.pdf";
-                                                           //Read the File data into Byte Array.
-            byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
-            string exts = Path.GetExtension(pathwithFileName);
-            string ctype = GetMimeType(exts);
-            string fileName = Path.GetFileName(pathwithFileName);
-            //string pth = pathwithFileName.Replace(Filena, "");
-            //Send the File to Download.
-            //return File(bytes, "application/pdf", fileName);
-            //Directory.Delete(pth, true);
-
-            //return File(bytes, ctype, fileName);
-            return Ok(fileName);
-            //}
-            //else
-            //{
-            //    return File(null,"");
-            //}
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PDFGenerate", "SaveFileinLocation", ex.Message);
+            }
+            return null;
         }
         public IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 

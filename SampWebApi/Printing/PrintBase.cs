@@ -661,7 +661,7 @@ namespace SampWebApi.Printing
             }
             catch (Exception Ex)
             {
-                //GKS_BL.BL_LogFileWrite("PrintBase", "SaveFileinLocation", Ex.Message);
+                GKS_BL.BL_WriteErrorMsginLog("PrintBase", "SaveFileinLocation", Ex.Message);
                 throw Ex;
                 //GKS_BL.BL_ExceptionMsg("Mail Unable to Process that time", Ex.Message, Ex);
             }
