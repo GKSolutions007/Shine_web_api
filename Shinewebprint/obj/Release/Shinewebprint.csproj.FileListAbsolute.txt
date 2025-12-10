@@ -1,0 +1,11 @@
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\Shinewebprint.dll
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\Shinewebprint.pdb
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\BouncyCastle.Cryptography.dll
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\itextsharp.dll
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\BouncyCastle.Cryptography.xml
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\bin\Release\itextsharp.xml
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\obj\Release\Shinewebprint.csproj.AssemblyReference.cache
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\obj\Release\Shinewebprint.csproj.CoreCompileInputs.cache
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\obj\Release\Shineweb.B6D469D3.Up2Date
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\obj\Release\Shinewebprint.dll
+D:\2025\shineweb_api\shaineweb.api\Shinewebprint\obj\Release\Shinewebprint.pdb

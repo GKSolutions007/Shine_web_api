@@ -1,0 +1,11 @@
+D:\SampWebApi\BuinessLayer\bin\Release\net8.0\BuinessLayer.deps.json
+D:\SampWebApi\BuinessLayer\bin\Release\net8.0\BuinessLayer.dll
+D:\SampWebApi\BuinessLayer\bin\Release\net8.0\BuinessLayer.pdb
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.AssemblyInfoInputs.cache
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.AssemblyInfo.cs
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.csproj.CoreCompileInputs.cache
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.dll
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\refint\BuinessLayer.dll
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\BuinessLayer.pdb
+D:\SampWebApi\BuinessLayer\obj\Release\net8.0\ref\BuinessLayer.dll
