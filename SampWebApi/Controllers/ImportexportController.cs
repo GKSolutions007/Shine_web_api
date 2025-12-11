@@ -3671,10 +3671,10 @@ namespace SampWebApi.Controllers
             }
             else
             {
-                if (!objBL.NumberValidate(dr.ItemArray[5].ToString()))
+                if (!objBL.BL_NumericWithDecimal(dr.ItemArray[5].ToString()))
                 {
                     IsValid = false;
-                    RowError += "* Invalid Format. Numeric only allowed\n";
+                    RowError += "* Price : Invalid Format. Numeric only allowed\n";
                 }
             }
             if (string.IsNullOrEmpty(dr.ItemArray[6].ToString()))
@@ -3684,10 +3684,15 @@ namespace SampWebApi.Controllers
             }
             else
             {
-                if (!objBL.NumberValidate(dr.ItemArray[6].ToString()))
+                if (!objBL.BL_NumericWithDecimal(dr.ItemArray[6].ToString()))
                 {
                     IsValid = false;
-                    RowError += "* Invalid Format. Numeric only allowed\n";
+                    RowError += "* Qty : Invalid Format. Numeric only allowed\n";
+                }
+                else if(objBL.BL_dValidation(dr.ItemArray[6].ToString()) <= 0)
+                {
+                    IsValid = false;
+                    RowError += "* Qty should be greater than 0\n";
                 }
             }
             if (string.IsNullOrEmpty(dr.ItemArray[7].ToString()))
@@ -3706,7 +3711,7 @@ namespace SampWebApi.Controllers
                 else
                 {
                     TaxID = Convert.ToInt32(dt.Rows[0][0].ToString());
-                    TaxPern = Convert.ToDecimal(dt.Rows[0][2].ToString());//base uom
+                    TaxPern = Convert.ToDecimal(dt.Rows[0][2].ToString());//Tax %
                 }
             }
             return RowError;
@@ -4005,7 +4010,7 @@ namespace SampWebApi.Controllers
                 }
                 else
                 {
-                    if (objBL.BL_dValidation(dtCheck.Rows[0]["UOM Qty *"].ToString()) < 0)
+                    if (objBL.BL_dValidation(dtCheck.Rows[0]["UOM Qty *"].ToString()) <= 0)
                     {
                         RowError += "UOM Qty *: UOM Qty should be greater than or equal to 0 only\n";
                     }
