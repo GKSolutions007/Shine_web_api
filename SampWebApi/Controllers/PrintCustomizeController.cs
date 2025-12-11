@@ -116,7 +116,7 @@ namespace SampWebApi.Controllers
                         drr["FontSize"] = !string.IsNullOrEmpty(c.FontSize) ? (object)Math.Round(Convert.ToDecimal(c.FontSize.Replace("px", ""))) : (object)"9";// "9";// c.FontSize ?? (object)DBNull.Value;
                         drr["FontStyle"] = "65";// c.FontStyle ?? (object)DBNull.Value;
                         drr["Type"] = ContentType;// c.Type ?? (object)DBNull.Value;
-                        drr["Footer"] = 0;// c.Footer ?? (object)DBNull.Value;
+                        drr["Footer"] = c.IsFooter ?? (object)0;// c.Footer ?? (object)DBNull.Value;
                         drr["Bold"] = c.Bold ?? (object)0;
                         drr["Italic"] = c.Italic ?? (object)0;
                         drr["Underline"] = 0;// c.Underline ?? (object)DBNull.Value;
