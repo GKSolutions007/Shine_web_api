@@ -100,6 +100,7 @@ namespace SampWebApi.Printing
             string RetunPath = "";
             try
             {
+                this.nCopies = 2;
                 SetGlobalValues(nTranType, nTranId, ConfigID);
                 RetunPath = SaveFileinLocation();
             }
@@ -109,14 +110,24 @@ namespace SampWebApi.Printing
             }
             return RetunPath;
         }
-        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished)
+        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished,int Copies)
         {
             string RetunPath = "";
             try
             {
-                SetGlobalValues(nTranType, nTranId, ConfigID);
-                //RetunPath = SaveFileinLocation();
-                DocWiseGeneratePDF(IsFinished);
+                this.nCopies = Copies;
+                bool TEMPFINISH = IsFinished;
+               
+                for (int i = 1; i <= Copies; i++)
+                {
+                    if (TEMPFINISH)
+                    {
+                        if (i == Copies) IsFinished = true; else IsFinished = false;
+                    }
+                    SetGlobalValues(nTranType, nTranId, ConfigID);
+                    DocWiseGeneratePDF(IsFinished);
+                    this.nCopies--;
+                }
             }
             catch (Exception ex)
             {
@@ -698,7 +709,7 @@ namespace SampWebApi.Printing
                             return;
                         }
                         string pdfFileTempPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempGroupPDFPath\\";// Application.StartupPath
-                        string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Group PDF\\";
+                        string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\pdf\\";
                         string strFileName = Convert.ToString(dtMailData.Rows[5][0]) + "_" + DateTime.Now.ToString("yyyyMMddHHmmssffff");
                         //Temporary Store in Physically
                         if (!Directory.Exists(pdfFilePath))
@@ -1269,7 +1280,7 @@ namespace SampWebApi.Printing
                 if (dtGetConfigPage.Rows.Count > 0)
                 {
                     //Header Label Printing
-                    DataRow[] drHeader = dtGetConfigPage.Select(dtGetConfigPage.Columns[14].ColumnName + "= 'Label' AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Header'");
+                    DataRow[] drHeader = dtGetConfigPage.Select(dtGetConfigPage.Columns[14].ColumnName + "= 'Label' AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Header' AND " + dtGetConfigPage.Columns[9].ColumnName + " <> 'Copytype'");
                     if (drHeader.Length > 0)
                     {
                         foreach (DataRow row in drHeader)
@@ -2357,7 +2368,7 @@ namespace SampWebApi.Printing
                 }
                 else if (Mode == "Copytype")
                 {
-                    string strCopyType = nCopies == 1 ? "Original" : nCopies == 2 ? "Duplicate" : nCopies == 2 ? "Triplicate" : "Original";
+                    string strCopyType = nCopies == 1 ? "Original" : nCopies == 2 ? "Duplicate" : nCopies >= 3 ? "Triplicate" : "Original";
                     g.DrawString(strCopyType, fontControl, blackBrush, drawRect, strFrmt);
                 }
                 else if (Mode == "gksBarCode" || Mode == "gksQRCode")

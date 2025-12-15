@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -141,7 +143,7 @@ namespace SampWebApi.Controllers
                     }
                     string strOSVal = "0", strOSType = "Cr", ACDay = "0";
                     DataTable dtPartyOs = bl.BL_ExecuteParamSP("uspPartyReportData", 2, DDT.Rows[i]["FAID"].ToString(), 1);
-                    if(dtPartyOs.Rows.Count > 0)
+                    if (dtPartyOs.Rows.Count > 0)
                     {
                         strOSVal = dtPartyOs.Rows[0]["OSBAL"].ToString();
                         strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
@@ -572,7 +574,7 @@ namespace SampWebApi.Controllers
                     PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
                     BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
                     TrkInv = dtProdinfo.Rows[0]["TrackInventory"].ToString();
-                }   
+                }
                 DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
                 if (dtBatch.Rows.Count > 0)
                 {
@@ -760,7 +762,7 @@ namespace SampWebApi.Controllers
 
             DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, InvoiceID);
             string invjson = JsonConvert.SerializeObject(DDT);
-            return Ok(invjson);            
+            return Ok(invjson);
         }
         [HttpPost]
         [Route("api/invoice/verifycreditlimit")]
@@ -770,7 +772,7 @@ namespace SampWebApi.Controllers
             foreach (PasswordSettingAppconfig item in lstPWD.lstConfigPasswords)
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, item.ID);                
+                DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, item.ID);
                 if (DDT.Rows.Count > 0)
                 {
                     string decryptpwd = clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
@@ -782,7 +784,7 @@ namespace SampWebApi.Controllers
                             MsgID = "1",
                             ID = item.ID
                         });
-                    }                    
+                    }
                 }
                 else
                 {
@@ -796,7 +798,7 @@ namespace SampWebApi.Controllers
             }
             return Ok(list);
         }
-            [HttpPost]
+        [HttpPost]
         [Route("api/invoice/save")]
         public IHttpActionResult Save(SalesModel listTrans)
         {
@@ -838,7 +840,7 @@ namespace SampWebApi.Controllers
                     dtProd.Columns.Add("TempBatchInvId", typeof(int));
                     dtProd.Columns.Add("UomCR", typeof(decimal));
                     dtProd.Columns.Add("DiffAmt", typeof(decimal));
-                    
+
                 }
                 DataTable dtTempBachInfo = new DataTable();
                 DataColumn column = new DataColumn("Serial");
@@ -884,7 +886,7 @@ namespace SampWebApi.Controllers
                 dtSerialInfo.Columns.Add("Serial", typeof(string));
                 //paymentmode
 
-                dtMop.Columns.Add("AccId",typeof(int));
+                dtMop.Columns.Add("AccId", typeof(int));
                 dtMop.Columns.Add("PayModeId", typeof(int));
                 dtMop.Columns.Add("Cheque_OR_DDNumber_OR_NEFTId", typeof(string));
                 dtMop.Columns.Add("BankAccNo", typeof(string));
@@ -951,17 +953,17 @@ namespace SampWebApi.Controllers
                             dtRow["ExpiryDate"] = Convert.ToString(dtProducts.Rows[i]["Expiry"]);
                             dtRow["InventoryPrice"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["OrgPrice"]));
                             dtRow["MRP"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"]));
-                            dtRow["UomCR"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ConvFact"]));                            
+                            dtRow["UomCR"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ConvFact"]));
                             dtRow["InvQtyType"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["QtyType"]));
                             dtRow["TempBatchInvId"] = 0;
-                            dtRow["DiffAmt"]= bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"]));
+                            dtRow["DiffAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"]));
                             dtProd.Rows.Add(dtRow);
                             nSerial++;
                         }
                     }
                     nSerial = 1;
                     for (int i = 0; i < dtPaymodeDetails.Rows.Count; i++)
-                    {                        
+                    {
                         int nPayMode = bl.BL_nValidation(Convert.ToString(dtPaymodeDetails.Rows[i]["Mode"]));
                         decimal dAmt = bl.BL_dValidation(dtPaymodeDetails.Rows[i]["Amt"].ToString());
                         if (dAmt > 0)
@@ -1129,8 +1131,8 @@ namespace SampWebApi.Controllers
                                             for (int nTaxComp = 0; nTaxComp < dtTaxCompInfo.Rows.Count; nTaxComp++)
                                             {
                                                 ValidtoCalc = true;
-                                                    //nTaxTypeID == 1 && bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][1]) == 1 ||
-                                                     //       nTaxTypeID == 2 && bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][1]) == 2 ? false : true;
+                                                //nTaxTypeID == 1 && bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][1]) == 1 ||
+                                                //       nTaxTypeID == 2 && bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][1]) == 2 ? false : true;
                                                 DataRow dr = dtGSTInfo.NewRow();
                                                 dr["TransID"] = 15;
                                                 dr["TransIdentID"] = nBillScopeID;
@@ -1187,7 +1189,7 @@ namespace SampWebApi.Controllers
                                     {
                                         string msg = "";
                                         int nCheck;
-                                        
+
                                         if (int.TryParse(dtCheck.Rows[0][0].ToString(), out nCheck))
                                         {
                                             if (nCheck == 11)
@@ -1198,7 +1200,7 @@ namespace SampWebApi.Controllers
                                         else
                                         {
                                             string[] strErrorList = dtCheck.Rows[0][0].ToString().Split('$');
-                                            
+
                                             if ("DocumentStatus" == strErrorList[0].Trim())
                                             {
                                                 msg = "Adjusted document status changed";
@@ -1212,7 +1214,7 @@ namespace SampWebApi.Controllers
                                                 msg = "Account de-active in multipayment mode popup";
                                             }
                                             else
-                                            {                                                
+                                            {
                                                 msg = dtCheck.Rows[0][0].ToString();
                                                 msg = msg + " , " + dtCheck.Rows[0][1].ToString() + " , " + dtCheck.Rows[0][2].ToString();
                                             }
@@ -1253,7 +1255,7 @@ namespace SampWebApi.Controllers
                                  bl.BL_dValidation(listTrans.RoundOffAmt), bl.BL_dValidation(listTrans.WriteOffAmt), 0, bl.BL_dValidation(listTrans.TradeDiscPern), bl.BL_dValidation(listTrans.TradeDiscAmt),
                                  bl.BL_dValidation(listTrans.TotalProdDiscAmt), bl.BL_dValidation(listTrans.AddnlDiscPern), bl.BL_dValidation(listTrans.AddnlDiscAmt),
                                  bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), bl.BL_dValidation(listTrans.TotalDiscAmt),
-                                 bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), dtDocument, dtProd, dtSerialInfo,dtTempBachInfo, 1, bl.BL_nValidation(listTrans.CurrentStatus), null,
+                                 bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), dtDocument, dtProd, dtSerialInfo, dtTempBachInfo, 1, bl.BL_nValidation(listTrans.CurrentStatus), null,
                                  0, bl.BL_nValidation(listTrans.TCSTaxAmt), bl.BL_nValidation(listTrans.TDSAmount), 0,
                                  listTrans.Remarks, listTrans.Narration, bl.BL_nValidation(listTrans.DraftID), bl.BL_nValidation(listTrans.FilterTypeID), bl.BL_dValidation(listTrans.DiffValueGross), bl.BL_dValidation(listTrans.DiffValueNet));
                         if (dtResult.Columns.Count > 1)
@@ -1263,7 +1265,7 @@ namespace SampWebApi.Controllers
                             {
                                 ID = 0.ToString(),
                                 MsgID = "1",
-                                Message ="Draft : "+ dtResult.Rows[0][0].ToString()
+                                Message = "Draft : " + dtResult.Rows[0][0].ToString()
                             });
                             return Ok(list);
                         }
@@ -1326,7 +1328,7 @@ namespace SampWebApi.Controllers
                         {
                             ID = 1.ToString(),
                             MsgID = "1",
-                            Message ="Cancel : "+ ErrorMsg
+                            Message = "Cancel : " + ErrorMsg
                         });
                         return Ok(list);
                     }
@@ -1372,7 +1374,8 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/invoice/PDFGenerate")]
-        public IHttpActionResult PDFGenerate(string DocID, string TransID = "", string ConfigID = "", string PrinterID = "", string TransName = "")
+        public IHttpActionResult PDFGenerate(string DocID, string TransID = "", string ConfigID = "", string PrinterID = "",
+            string TransName = "", string Copies = "1")
         {
             try
             {
@@ -1381,58 +1384,75 @@ namespace SampWebApi.Controllers
 
                 if (!string.IsNullOrEmpty(pdfFilePath))
                 {
-                    //DownloadFile df = new DownloadFile();
-                    // df.DownloadFiles(@"E:\Print Document\PrintSpool\full.pdf");
-                    //GKSDownload gksd = new GKSDownload();
-
-                    //DownloadFiles(@"E:\Print Document\PrintSpool\half.pdf");
-                    //tpm.TransName = "Invoice";
-                    //ConfigID = "1";
                     DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
-
                     PrintBase PB = new PrintBase { GKS_BL = bl };
-                    //DataTable dt = objBL.BL_ExecuteParamSP("uspgetID", dtTName.Rows[0][0].ToString(), DocID);
                     if (Convert.ToInt32(DocID) > 0)
                     {
                         if (!string.IsNullOrEmpty(ConfigID.ToString()))
                         {
-                            FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
-                            //PB.PrintAndPreview(Convert.ToInt32(TransID), Convert.ToInt32(dt.Rows[0][0].ToString()), true, false, false, "");
-
+                            //FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
+                            PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Convert.ToInt32(ConfigID), true, bl.BL_nValidation(Copies));
+                            FileLocationwithname = PB.GroupPDFoutputPath;
                         }
                     }
                 }
-                //Build the File Path.
-                //string path = Server.MapPath("~/Files/") + fileName;
-                //string path = @"E:\Print Document\PrintSpool\" + fileName;
-
-                //if (!string.IsNullOrEmpty(FileLocationwithname))
-                //{
-                string pathwithFileName = FileLocationwithname;// @"E:\Print Document\PrintSpool\half.pdf";
-                                                               //Read the File data into Byte Array.
-                byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
+                string pathwithFileName = FileLocationwithname;
                 string exts = Path.GetExtension(pathwithFileName);
                 string ctype = GetMimeType(exts);
                 string fileName = Path.GetFileName(pathwithFileName);
-                //string pth = pathwithFileName.Replace(Filena, "");
-                //Send the File to Download.
-                //return File(bytes, "application/pdf", fileName);
-                //Directory.Delete(pth, true);
-
-                //return File(bytes, ctype, fileName);
                 return Ok(fileName);
-                //}
-                //else
-                //{
-                //    return File(null,"");
-                //}
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("PDFGenerate", "SaveFileinLocation", ex.Message);
             }
             return null;
         }
+
+        [HttpGet]
+        [Route("api/transactionprint/generateprint")]
+        public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",string Copies="1")
+        {
+            DataView dtView = new DataView(bl.BL_StringSplitCommaHyphen(DocValue.Trim()));
+            DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
+            int nTransrange = 0;
+            if (dtDocIDs.Rows.Count > 0)
+            {
+                if (!Convert.ToString(dtDocIDs.Rows[0][0]).Contains("Range Should be"))
+                {
+                    string Outputfile = "";
+                    for (int nCount = 0; nCount < dtDocIDs.Rows.Count; nCount++)
+                    {
+                        int Ident = 0;
+                        nTransrange = bl.BL_nValidation(dtDocIDs.Rows[nCount][0]);
+                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange);
+                        if (dtID.Rows.Count > 0)
+                        {
+                            Ident = bl.BL_nValidation(dtID.Rows[0][0]);
+                        }
+                        PrintBase Print = new PrintBase
+                        {
+                            GKS_BL = bl
+                        };
+                        Print.GroupPDFPB(TransID, Ident, ConfigID, (nCount + 1) == dtDocIDs.Rows.Count,bl.BL_nValidation(Copies));
+                        if ((nCount + 1) == dtDocIDs.Rows.Count)
+                            Outputfile = Print.GroupPDFoutputPath;
+                    }
+                    string pathwithFileName = Outputfile;
+                    //byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
+                    string exts = Path.GetExtension(pathwithFileName);
+                    string fileName = Path.GetFileName(pathwithFileName);
+                    return Ok(fileName);
+                }
+                else
+                {
+                    //obj_mdi.ShowMessage(Convert.ToString(dtDocIDs.Rows[0][0]), GKSShineBL.ToolStripErrorMsg);
+                }
+            }
+            return Ok();
+        }
+
+
         public IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         public string GetMimeType(string extension)
