@@ -20,7 +20,7 @@ using Spire.Pdf;
 using SampWebApi.DALHelper;
 using Zen.Barcode;
 using System.Drawing.Imaging;
-using clsEncryptDecrypt = BuinessLayer.clsEncryptDecrypt;
+using System.Security.Cryptography;
 namespace SampWebApi.Printing
 {
     public class PrintBase
@@ -61,7 +61,8 @@ namespace SampWebApi.Printing
         private PaperSource PaperSource;
         private SolidBrush blackBrush = new SolidBrush(Color.Black);
         int nA = 0, nR = 0, nG = 0, nB = 0;
-        private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, string strSMTPServer, string strSubject);
+        private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, 
+            string strToID, string strSMTPServer, string strSubject, DataTable dtMailData);
         private delegate void delegatePrintTrigger();
         string dtp;
         int nPrint;
@@ -82,7 +83,7 @@ namespace SampWebApi.Printing
 
             LoadLineFeedandIncludeCut(configId);
         }
-        public void SendEmail(int nTranType, int nTranId, string strMachineName, string strMailID, int ConfigID)
+        public void SendEmail(int nTranType, int nTranId, string strMailID, int ConfigID)
         {
             try
             {
@@ -219,7 +220,7 @@ namespace SampWebApi.Printing
                 {
                     if (strPrintCust == null)
                     {
-                        SendEmail(nTranType, nTranId, strMachineName, null, 0);
+                        SendEmail(nTranType, nTranId, strMachineName,  0);
                     }
                 }
             }
@@ -548,7 +549,7 @@ namespace SampWebApi.Printing
                                 //Obj_MDI.ShowMessage("Mail Can't send !!! Not Available MXDW", GKS_BL.ToolStripErrorMsg);
                                 return;
                             }
-                            string pdfFilePath = ConfigurationManager.ConnectionStrings["PrintDoc"].ConnectionString + "\\Mail Transfer\\";
+                            string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Mail Transfer\\";
 
                             ///string pdfFilePath = @"D:\HOST\ResetPwd" + "\\Mail Transfer\\";
 
@@ -578,7 +579,8 @@ namespace SampWebApi.Printing
                             delegateMailTrigger delMailrigger = new delegateMailTrigger(MailTransfer);//(attachmentMail, spirePdfCreater, dtAdminData);
                             IAsyncResult iarMail = delMailrigger.BeginInvoke(pdfFilePath, strFileName, dtMailData.Rows[0][0].ToString(),
                                (dtMailData.Rows[1][0].ToString()), strTOMailID, dtMailData.Rows[3][0].ToString(),
-                            dtMailData.Rows[4][0].ToString() + "_" + dtMailData.Rows[5][0].ToString() + "_" + dtMailData.Rows[7][0].ToString()//subject
+                            dtMailData.Rows[4][0].ToString() + "_" + dtMailData.Rows[5][0].ToString() + "_" + dtMailData.Rows[7][0].ToString(),//subject
+                            dtMailData
                                , new AsyncCallback(IAsyncResultMailTrigger), "Unable to Print");
                             delMailrigger -= MailTransfer;
 
@@ -1056,7 +1058,8 @@ namespace SampWebApi.Printing
         /// Validation Success to send mail
         /// </summary>
         /// <param name="strPath">Path Where to locate Attachment file</param>
-        private void MailTransfer(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, string strsmtpServer, string strSubject)
+        private void MailTransfer(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, 
+            string strsmtpServer, string strSubject,DataTable dtMailData)
         {
             try
             {
@@ -1080,11 +1083,16 @@ namespace SampWebApi.Printing
                             //    Directory.CreateDirectory(pdfFilePath);
                             //}
                             //Load .xps file form your local executable path
-                            spirePdfCreater.LoadFromXPS(pdfFilePath + strFileName + ".xps");//xps
+                            //spirePdfCreater.LoadFromXPS(pdfFilePath + strFileName + ".xps");//xps
                             //convert to pdf file.
-                            spirePdfCreater.SaveToFile(pdfFilePath + strFileName + ".pdf");
+                            //spirePdfCreater.SaveToFile(pdfFilePath + strFileName + ".pdf");
+                            using (PdfSharp.Xps.XpsModel.XpsDocument pdfXpsDoc = PdfSharp.Xps.XpsModel.XpsDocument.Open(pdfFilePath + strFileName + ".xps"))
+                            {
+                                PdfSharp.Xps.XpsConverter.Convert(pdfXpsDoc, pdfFilePath + strFileName + ".pdf", 0);
+                            }
                             //set file Extension
                             strFileName = strFileName + ".pdf";
+                            
                         }
                         //Mail Triggering
                         using (MailMessage mail = new MailMessage())
@@ -1093,14 +1101,47 @@ namespace SampWebApi.Printing
                             {
                                 using (Attachment attachment = new Attachment(pdfFilePath + strFileName))
                                 {
+                                    string CustomerName = "";
+                                    string InvNo = "";
+                                    string InvDate = "17-Dec-2025";
+                                    string CompName = "";
+                                    string CompMobNo = "";
+                                    string CompEMail = "";
+                                    if (dtMailData.Rows.Count == 12)
+                                    {
+                                        CustomerName = dtMailData.Rows[7][0].ToString();
+                                        InvNo = dtMailData.Rows[10][0].ToString();
+                                        InvDate= dtMailData.Rows[11][0].ToString();
+                                        CompName = dtMailData.Rows[4][0].ToString();
+                                        CompMobNo = dtMailData.Rows[8][0].ToString();
+                                        CompEMail = dtMailData.Rows[9][0].ToString();
+                                    }
                                     mail.From = new MailAddress(strFromId);
                                     mail.To.Add(strToID);
                                     mail.Subject = strSubject;
+                                    mail.IsBodyHtml = true;
+                                    mail.Body = @"Dear <b>"+ CustomerName + @",</b><br/><br/>
+
+Greetings from <b>" + CompName + @".</b><br/><br/>
+
+    Please find attached the invoice  <b>[" + InvNo + @"]</b> dated  <b>[" + InvDate + @"]</b> for your recent purchase with us.<br/><br/>
+
+We request you to kindly verify the details and let us know if you have any questions or require further clarification.
+The payment terms are as discussed, and we would appreciate your cooperation in processing the payment within the due date.<br/><br/>
+
+Thank you for your continued support and trust in our services.<br/><br/>
+
+Warm regards,<br/>
+<b>" + CompName + @"</b><br/>
+📞 <b>" + CompMobNo + @"</b><br/>
+📧 <b>"+ CompEMail + @"</b>
+";
                                     mail.Attachments.Add(attachment);
                                     SmtpServer.Port = 587;
                                     SmtpServer.Host = strsmtpServer;//"smtp.gmail.com"
                                     SmtpServer.UseDefaultCredentials = false;
-                                    SmtpServer.Credentials = new System.Net.NetworkCredential(strFromId, clsEncryptDecrypt.Decrypt(strPassword));
+                                    string MailPassword = clsEncryptDecrypt.Decrypt(strPassword);
+                                    SmtpServer.Credentials = new System.Net.NetworkCredential(strFromId, MailPassword);
                                     SmtpServer.EnableSsl = true;
                                     SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
                                     SmtpServer.Send(mail);
@@ -2636,5 +2677,51 @@ namespace SampWebApi.Printing
             }
         }
     }
-
+    public class clsEncryptDecrypt
+    {
+        public static string Encrypt(string clearText)
+        {
+            string strReturnValue = string.Empty;
+            string EncryptionKey = "MAKV2SPBNI99212";
+            byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.Close();
+                    }
+                    strReturnValue = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+            return strReturnValue;
+        }
+        //Decryption
+        public static string Decrypt(string cipherText)
+        {
+            string EncryptionKey = "MAKV2SPBNI99212";
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        cs.Close();
+                    }
+                    cipherText = Encoding.Unicode.GetString(ms.ToArray());
+                }
+            }
+            return cipherText;
+        }
+    }
 }

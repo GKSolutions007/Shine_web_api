@@ -3,7 +3,9 @@ using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using SampWebApi.BuisnessLayer;
+using SampWebApi.DALHelper;
 using SampWebApi.Models;
 using SampWebApi.Printing;
 using SampWebApi.Utility;
@@ -20,6 +22,8 @@ using System.Net.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
@@ -775,7 +779,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, item.ID);
                 if (DDT.Rows.Count > 0)
                 {
-                    string decryptpwd = clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
+                    string decryptpwd = DALHelper.clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
                     if (item.Passwords != decryptpwd)
                     {
                         list.Add(new SaveMessage
@@ -1384,15 +1388,16 @@ namespace SampWebApi.Controllers
 
                 if (!string.IsNullOrEmpty(pdfFilePath))
                 {
-                    DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
+                    //DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
                     PrintBase PB = new PrintBase { GKS_BL = bl };
                     if (Convert.ToInt32(DocID) > 0)
                     {
                         if (!string.IsNullOrEmpty(ConfigID.ToString()))
                         {
+                            //SendEmail(int nTranType, int nTranId, string strMachineName, string strMailID, int ConfigID)
                             //FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
                             PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Convert.ToInt32(ConfigID), true, bl.BL_nValidation(Copies));
-                            FileLocationwithname = PB.GroupPDFoutputPath;
+                            FileLocationwithname = PB.GroupPDFoutputPath;                            
                         }
                     }
                 }
@@ -1407,6 +1412,110 @@ namespace SampWebApi.Controllers
                 bl.BL_WriteErrorMsginLog("PDFGenerate", "SaveFileinLocation", ex.Message);
             }
             return null;
+        }
+
+        [HttpGet]
+        [Route("api/invoice/MailGenerate")]
+        public IHttpActionResult MailGenerate(string DocID, string TransID = "", string ConfigID = "", string Copies = "1")
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                
+                DataTable dtMailData = bl.BL_ExecuteParamSP("uspGetMailId", TransID, DocID);
+                if(dtMailData.Rows.Count > 0)
+                {
+                    string PartyEmail = dtMailData.Rows[6][0].ToString();
+                    if (!string.IsNullOrEmpty(PartyEmail))
+                    {
+                        PrintBase PB = new PrintBase { GKS_BL = bl };
+                        PB.SendEmail(Convert.ToInt32(TransID), Convert.ToInt32(DocID), PartyEmail, Convert.ToInt32(ConfigID));
+
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "0",
+                            Message = "Mail Send Successfully"
+                        });
+                    }
+                    else
+                    {
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "1",
+                            Message = "Party Mail ID not found"
+                        });
+                    }
+                }                                
+            }
+            catch (Exception ex)
+            {
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("MailGenerate", "MailGenerate", ex.Message);
+            }
+            return Ok(list);
+        }
+        [HttpGet]
+        [Route("api/invoice/WhatsappGenerate")]
+        public IHttpActionResult WhatsappGenerate(string DocID, string TransID = "", string ConfigID = "", 
+            string Copies = "1",string APIURL = "")
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+
+                DataTable dtWhatsappData = bl.BL_ExecuteParamSP("uspWhatsappmessagecontent", TransID, DocID, APIURL);
+                if (dtWhatsappData.Rows.Count > 0)
+                {
+                    string PartyMobile = dtWhatsappData.Rows[0][0].ToString();
+                    if (!string.IsNullOrEmpty(PartyMobile))
+                    {
+                        PartyMobile = PartyMobile.Length == 10 ? "91" + PartyMobile : PartyMobile;
+                        string WAMessage = dtWhatsappData.Rows[0][2].ToString();
+                        string DocValue = dtWhatsappData.Rows[0][1].ToString();
+                        var sb = new StringBuilder();
+                        string encDocID = DALHelper.clsEncryptDecrypt.Encrypt(DocValue);
+                        string encTransID = DALHelper.clsEncryptDecrypt.Encrypt(TransID);
+                        string encConfigID = DALHelper.clsEncryptDecrypt.Encrypt(ConfigID);
+                        WAMessage += "Document Link : \n" + APIURL + "invoice/viewmydocument?DocID=" + HttpUtility.UrlEncode(encDocID) + "&TransID=" + HttpUtility.UrlEncode(encTransID) + "&ConfigID=" + HttpUtility.UrlEncode(encConfigID);
+                        WAMessage += "\n\nThank You!🙏";
+                        //sb.AppendFormat(WAMessage, APIURL, encDocID, encTransID, encConfigID);
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "0",
+                            Message = WAMessage,
+                            RowID = PartyMobile
+                        });
+                    }
+                    else
+                    {
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "1",
+                            Message = "Party Mobile No not found"
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("WhatsappGenerate", "WhatsappGenerate", ex.Message);
+            }
+            return Ok(list);
         }
 
         [HttpGet]
@@ -1453,6 +1562,7 @@ namespace SampWebApi.Controllers
         }
 
 
+
         public IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         public string GetMimeType(string extension)
@@ -1490,5 +1600,6 @@ namespace SampWebApi.Controllers
             };
             return result;
         }
+
     }
 }

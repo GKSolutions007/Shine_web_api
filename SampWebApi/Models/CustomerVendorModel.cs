@@ -232,6 +232,7 @@ namespace SampWebApi.Models
         public string TransID { get; set; }
         public string ConfigID { get; set; }
         public string DefaultConfig { get; set; }
+        public string AutoMail { get; set; }
         public string UserID { get; set; }
     }
 }
