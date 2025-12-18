@@ -1354,6 +1354,7 @@ namespace SampWebApi.Controllers
                         RestrictBlocklistinInvoice = DDT.Rows[i]["RestrictBlocklistinInvoice"].ToString(),
                         RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
                         BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
+                        DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
                         lstPaymode = pmlist,
                         lstConfigPasswords = lstpwd
                     });
@@ -1391,7 +1392,7 @@ namespace SampWebApi.Controllers
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.PurchaseOneView, lstMaster.SalesOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
-                            lstMaster.BeatMandatoryinCustomer);
+                            lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
