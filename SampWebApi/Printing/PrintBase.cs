@@ -62,7 +62,7 @@ namespace SampWebApi.Printing
         private SolidBrush blackBrush = new SolidBrush(Color.Black);
         int nA = 0, nR = 0, nG = 0, nB = 0;
         private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, 
-            string strToID, string strSMTPServer, string strSubject, DataTable dtMailData);
+            string strToID, string strSMTPServer, string strSubject, DataTable dtMailData,string MailBody);
         private delegate void delegatePrintTrigger();
         string dtp;
         int nPrint;
@@ -575,12 +575,17 @@ namespace SampWebApi.Printing
 
                             }
                             //Mail Asynchronous method call using delegate
-
+                            string MailBody = "";
+                            DataTable dtMailBodyData = GKS_BL.BL_ExecuteParamSP("uspMailmessagecontent", nTransType, nTransId);
+                            if(dtMailBodyData.Rows.Count > 0)
+                            {
+                                MailBody = dtMailBodyData.Rows[0][0].ToString();
+                            }
                             delegateMailTrigger delMailrigger = new delegateMailTrigger(MailTransfer);//(attachmentMail, spirePdfCreater, dtAdminData);
                             IAsyncResult iarMail = delMailrigger.BeginInvoke(pdfFilePath, strFileName, dtMailData.Rows[0][0].ToString(),
                                (dtMailData.Rows[1][0].ToString()), strTOMailID, dtMailData.Rows[3][0].ToString(),
                             dtMailData.Rows[4][0].ToString() + "_" + dtMailData.Rows[5][0].ToString() + "_" + dtMailData.Rows[7][0].ToString(),//subject
-                            dtMailData
+                            dtMailData, MailBody
                                , new AsyncCallback(IAsyncResultMailTrigger), "Unable to Print");
                             delMailrigger -= MailTransfer;
 
@@ -1059,7 +1064,7 @@ namespace SampWebApi.Printing
         /// </summary>
         /// <param name="strPath">Path Where to locate Attachment file</param>
         private void MailTransfer(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, 
-            string strsmtpServer, string strSubject,DataTable dtMailData)
+            string strsmtpServer, string strSubject,DataTable dtMailData,string MailBody)
         {
             try
             {
@@ -1101,6 +1106,7 @@ namespace SampWebApi.Printing
                             {
                                 using (Attachment attachment = new Attachment(pdfFilePath + strFileName))
                                 {
+
                                     string CustomerName = "";
                                     string InvNo = "";
                                     string InvDate = "17-Dec-2025";
@@ -1116,11 +1122,7 @@ namespace SampWebApi.Printing
                                         CompMobNo = dtMailData.Rows[8][0].ToString();
                                         CompEMail = dtMailData.Rows[9][0].ToString();
                                     }
-                                    mail.From = new MailAddress(strFromId);
-                                    mail.To.Add(strToID);
-                                    mail.Subject = strSubject;
-                                    mail.IsBodyHtml = true;
-                                    mail.Body = @"Dear <b>"+ CustomerName + @",</b><br/><br/>
+                                    string tempmailbody = @"Dear <b>"+ CustomerName + @",</b><br/><br/>
 
 Greetings from <b>" + CompName + @".</b><br/><br/>
 
@@ -1134,8 +1136,13 @@ Thank you for your continued support and trust in our services.<br/><br/>
 Warm regards,<br/>
 <b>" + CompName + @"</b><br/>
 📞 <b>" + CompMobNo + @"</b><br/>
-📧 <b>"+ CompEMail + @"</b>
-";
+📧 <b>"+ CompEMail + @"</b>";
+                                    mail.From = new MailAddress(strFromId);
+                                    mail.To.Add(strToID);
+                                    mail.Subject = strSubject;
+                                    mail.IsBodyHtml = true;
+                                    mail.Body = MailBody;
+
                                     mail.Attachments.Add(attachment);
                                     SmtpServer.Port = 587;
                                     SmtpServer.Host = strsmtpServer;//"smtp.gmail.com"
