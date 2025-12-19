@@ -794,6 +794,26 @@ namespace SampWebApi.Controllers
                                 SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                             });
                         }
+                        List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
+                        ulistTempBatch.Add(new SRTempBatch
+                        {
+                            HiddenRowIndex = DDT2.Rows[k]["HiddenRowID"].ToString(),
+                            BatchType = DDT2.Rows[k]["NewBatchCreated"].ToString(),
+                            ProdId = DDT2.Rows[k]["ProdID"].ToString(),
+                            Batch = DDT2.Rows[k]["BatchNo"].ToString(),
+                            PKD = DDT2.Rows[k]["PKD"].ToString(),
+                            Expiry = DDT2.Rows[k]["Expiry"].ToString(),
+                            TaxId = DDT2.Rows[k]["TaxID"].ToString(),
+                            TaxTypeId = "1",
+                            InclusiveYesNo = "0",
+
+                            PPrice = DDT2.Rows[k]["BtPPrice"].ToString(),
+                            SPrice = DDT2.Rows[k]["BtSPrice"].ToString(),
+                            ECP = DDT2.Rows[k]["BtECP"].ToString(),
+                            MRP = DDT2.Rows[k]["BtMRP"].ToString(),
+                            SPLPrice = DDT2.Rows[k]["BtSPLPrice"].ToString(),
+                            Return = DDT2.Rows[k]["BtRtnPrice"].ToString(),
+                        });
                         listProductGrid.Add(new SalesDetail
                         {
                             ProdID = DDT2.Rows[k]["ProdID"].ToString(),
@@ -828,11 +848,15 @@ namespace SampWebApi.Controllers
                             SerialYN = Convert.ToInt32(DDT2.Rows[k]["TrackSerial"]).ToString(),
                             ProductTransPrice = DDT2.Rows[k]["SalesReturnPrice"].ToString(),
                             DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
+                            HiddenRowID = DDT2.Rows[k]["HiddenRowID"].ToString(),
+                            NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
+                            lstTempBatch = ulistTempBatch,
                             UOMList = ulist,
                             lstInvPopup = ulistBatch,
                             lstReason = ulistreason
                         });
                     }
+
                     list.Add(new SalesModel
                     {
                         //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
