@@ -478,7 +478,92 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        [HttpPost]
+        [HttpGet]
+        [Route("api/purchasereturn/manufproducts")]
+        public IHttpActionResult GetPRManufProds(string BranchID, string PriceType, string ManufID, string TransDate)
+        {
+            try
+            {
+                var ManufProdData = new List<object>();
+                DataSet ds = bl.BL_ExecuteParamSPDataset("uspGerPRManufProducts", ManufID, BranchID, PriceType, TransDate);
+                DataTable dtProduts = ds.Tables[0];
+                DataTable dtBatches = ds.Tables[1];
+                if (dtProduts.Rows.Count > 0)
+                {
+                    List<PurchaseGridData> listProductGrid = new List<PurchaseGridData>();                    
+                    for (int k = 0; k < dtProduts.Rows.Count; k++)
+                    {
+                        listProductGrid.Add(new PurchaseGridData
+                        {
+                            ProdID = dtProduts.Rows[k]["ProdID"].ToString(),
+                            UomID = dtProduts.Rows[k]["UomID"].ToString(),
+                            ReasonID = dtProduts.Rows[k]["ReasonId"].ToString(),
+                            ReasonName = dtProduts.Rows[k]["ReasonName"].ToString(),
+                            Code = dtProduts.Rows[k]["Code"].ToString(),
+                            Name = dtProduts.Rows[k]["Name"].ToString(),
+                            HSNCode = dtProduts.Rows[k]["HSNCode"].ToString(),
+                            UOM = dtProduts.Rows[k]["UOM"].ToString(),
+                            Qty = dtProduts.Rows[k]["Qty"].ToString(),
+                            FreeQty = dtProduts.Rows[k]["FreeQty"].ToString(),
+                            DmgQty = dtProduts.Rows[k]["DmgQty"].ToString(),
+                            ProdPern = dtProduts.Rows[k]["ProdPern"].ToString(),
+                            TradePern = dtProduts.Rows[k]["TradePern"].ToString(),
+                            AddnlPern = dtProduts.Rows[k]["AddnlPern"].ToString(),
+                            TaxPern = dtProduts.Rows[k]["TaxPern"].ToString(),
+                            GrossAmt = dtProduts.Rows[k]["GrossAmt"].ToString(),
+                            TaxAmt = dtProduts.Rows[k]["TaxAmt"].ToString(),
+                            TaxName = dtProduts.Rows[k]["TaxName"].ToString(),
+                            NetAmt = dtProduts.Rows[k]["NetAmt"].ToString(),
+                            TransactionPrice = dtProduts.Rows[k]["PurchaseReturnPrice"].ToString(),
+                            DiffAmt = dtProduts.Rows[k]["DiffAmt"].ToString(),
+                        });
+                    }
+                    List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();                    
+                    for (int l = 0; l < dtBatches.Rows.Count; l++)
+                    {
+                        listBatch.Add(new PurchaseBatchInfo
+                        {
+                            InventoryID = dtBatches.Rows[l]["InventoryID"].ToString(),
+                            ProdID = dtBatches.Rows[l]["ProdID"].ToString(),
+                            BatchNo = dtBatches.Rows[l]["BatchNumber"].ToString(),
+                            PKDDate = !string.IsNullOrEmpty(dtBatches.Rows[l]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatches.Rows[l]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : "",
+                            ExpiryDate = !string.IsNullOrEmpty(dtBatches.Rows[l]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatches.Rows[l]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : "",
+                            //dtBatches.Rows[l]["ExpiryDate"].ToString(),
+                            ActQty = dtBatches.Rows[l]["Qty"].ToString(),
+                            ActFreeQty = dtBatches.Rows[l]["FreeQty"].ToString(),
+                            ActDmgQty = dtBatches.Rows[l]["DmgQty"].ToString(),
+                            MRP = dtBatches.Rows[l]["MRP"].ToString(),
+                            OrgRTNPrice = dtBatches.Rows[l]["PurchasePrice"].ToString(),
+                            ReturnPrice = dtBatches.Rows[l]["ReturnPrice"].ToString(),
+                            Qty = dtBatches.Rows[l]["PRQty"].ToString(),
+                            FreeQty = dtBatches.Rows[l]["PRFree"].ToString(),
+                            DmgQty = dtBatches.Rows[l]["PRDmg"].ToString(),
+                            TaxName = dtBatches.Rows[l]["TaxName"].ToString(),
+                            TaxID = dtBatches.Rows[l]["PurchaseTaxID"].ToString(),
+                            TaxPern = dtBatches.Rows[l]["GSTPern"].ToString(),
+                            ConversionRate = dtBatches.Rows[l]["ConversionRate"].ToString(),
+                        });
+                    }
+
+                    ManufProdData.Add(new
+                    {
+                        ProductData = listProductGrid,
+                        BatchData = listBatch
+                    });
+                    return Ok(ManufProdData);
+                }
+                else
+                {
+                    return Ok(ManufProdData);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Purchase Return", "GetPRManufProds", ex.Message);
+            }
+            return Ok();
+        }
+            [HttpPost]
         [Route("api/purchasereturn/save")]
         public IHttpActionResult Save(PurchaseModel listTrans)
         {
