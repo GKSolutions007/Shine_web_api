@@ -563,7 +563,68 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-            [HttpPost]
+        [HttpGet]
+        [Route("api/purchasereturn/pricetypechange")]
+        public IHttpActionResult GetPTChangeProds(List<PRPriceTypechange> PRBatch)
+        {
+            try
+            {
+                string BranchID = "", PriceType = "", ProdID = "", TransDate = "", PRID = "";
+                decimal GoodsAmt = 0;
+                var ManufProdData = new List<object>();
+                
+                DataTable dtBatches = bl.BL_ExecuteParamSP("uspGetPRProductIntoryBatch", BranchID, TransDate, PriceType, PRID);
+                if (dtBatches.Rows.Count > 0)
+                {                    
+                    List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
+                    for (int l = 0; l < dtBatches.Rows.Count; l++)
+                    {
+                        if(l == 0)
+                        {
+
+                        }
+                        listBatch.Add(new PurchaseBatchInfo
+                        {
+                            InventoryID = dtBatches.Rows[l]["InventoryID"].ToString(),
+                            ProdID = dtBatches.Rows[l]["ProdID"].ToString(),
+                            BatchNo = dtBatches.Rows[l]["BatchNumber"].ToString(),
+                            PKDDate = !string.IsNullOrEmpty(dtBatches.Rows[l]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatches.Rows[l]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : "",
+                            ExpiryDate = !string.IsNullOrEmpty(dtBatches.Rows[l]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatches.Rows[l]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : "",
+                            //dtBatches.Rows[l]["ExpiryDate"].ToString(),
+                            ActQty = dtBatches.Rows[l]["Qty"].ToString(),
+                            ActFreeQty = dtBatches.Rows[l]["FreeQty"].ToString(),
+                            ActDmgQty = dtBatches.Rows[l]["DmgQty"].ToString(),
+                            MRP = dtBatches.Rows[l]["MRP"].ToString(),
+                            OrgRTNPrice = dtBatches.Rows[l]["PurchasePrice"].ToString(),
+                            ReturnPrice = dtBatches.Rows[l]["ReturnPrice"].ToString(),
+                            Qty = dtBatches.Rows[l]["PRQty"].ToString(),
+                            FreeQty = dtBatches.Rows[l]["PRFree"].ToString(),
+                            DmgQty = dtBatches.Rows[l]["PRDmg"].ToString(),
+                            TaxName = dtBatches.Rows[l]["TaxName"].ToString(),
+                            TaxID = dtBatches.Rows[l]["PurchaseTaxID"].ToString(),
+                            TaxPern = dtBatches.Rows[l]["GSTPern"].ToString(),
+                            ConversionRate = dtBatches.Rows[l]["ConversionRate"].ToString(),
+                        });
+                    }
+
+                    ManufProdData.Add(new
+                    {
+                        BatchData = listBatch
+                    });
+                    return Ok(ManufProdData);
+                }
+                else
+                {
+                    return Ok(ManufProdData);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Purchase Return", "GetPRManufProds", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPost]
         [Route("api/purchasereturn/save")]
         public IHttpActionResult Save(PurchaseModel listTrans)
         {
@@ -711,7 +772,7 @@ namespace SampWebApi.Controllers
                                                         ID = 0.ToString(),
                                                         MsgID = "2",
                                                         Message = Error,
-                                                        RowID = i.ToString()
+                                                        RowID = nProdID.ToString()
                                                     });
                                                     return Ok(list);
                                                 }
@@ -805,7 +866,7 @@ namespace SampWebApi.Controllers
                         }
                         catch(Exception ex)
                         {
-                            bl.bl_Transaction(3);
+                            //bl.bl_Transaction(3);
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),

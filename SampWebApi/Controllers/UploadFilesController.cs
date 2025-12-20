@@ -374,7 +374,12 @@ namespace SampWebApi.Controllers
                         {
                             if (!string.IsNullOrEmpty(ConfigID.ToString()))
                             {
-                                PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(Ident), Convert.ToInt32(ConfigID), true, 1);
+
+                                DataTable dtDecimal = bl.BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
+                                int strDigits = Convert.ToInt32(dtDecimal.Rows[0][0].ToString());
+                                string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                                bl.strDigits = strDigits;
+                                PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(Ident), Convert.ToInt32(ConfigID), true, 1, CT);
                                 FileLocationwithname = PB.GroupPDFoutputPath;
                             }
                         }

@@ -97,6 +97,13 @@ namespace SampWebApi.Controllers
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
+            if (Mode == "7")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspHomescreenTransactionsData", Trans);
+                string Jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(Jsondata);
+            }
             return Ok();
         }       
         [HttpGet]
