@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Vml;
 using Ionic.Zip;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
+using SampWebApi.Printing;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -342,6 +343,75 @@ namespace SampWebApi.Controllers
                 moveDirectory(System.IO.Path.Combine(fuente, System.IO.Path.GetFileName(d)), System.IO.Path.Combine(destino, System.IO.Path.GetFileName(d)));
             }
 
+        }
+        [HttpGet]
+        [Route("api/invoice/viewmydocument")]
+        public HttpResponseMessage ViewMyDocGenerate(string DocID, string TransID = "", string ConfigID = "")
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "PDF\\";// System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "PDF\\";
+                string FileLocationwithname = "";
+
+                if (!string.IsNullOrEmpty(pdfFilePath))
+                {
+                    DocID = DALHelper.clsEncryptDecrypt.Decrypt(DocID);
+                    TransID = DALHelper.clsEncryptDecrypt.Decrypt(TransID);
+                    ConfigID = DALHelper.clsEncryptDecrypt.Decrypt(ConfigID);
+
+                    int Ident = 0;
+                    DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, DocID);
+                    if (dtID.Rows.Count > 0)
+                    {
+                        Ident = bl.BL_nValidation(dtID.Rows[0][0]);
+                    }
+                    //DataTable dtTName = bl.BL_ExecuteSqlQuery("select TransName from tblTransName where Id = " + TransID);
+                    if (Ident > 0)
+                    {
+                        PrintBase PB = new PrintBase { GKS_BL = bl };
+                        if (Convert.ToInt32(DocID) > 0)
+                        {
+                            if (!string.IsNullOrEmpty(ConfigID.ToString()))
+                            {
+
+                                DataTable dtDecimal = bl.BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
+                                int strDigits = Convert.ToInt32(dtDecimal.Rows[0][0].ToString());
+                                string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                                bl.strDigits = strDigits;
+                                PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(Ident), Convert.ToInt32(ConfigID), true, 1, CT);
+                                FileLocationwithname = PB.GroupPDFoutputPath;
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+                string pathwithFileName = FileLocationwithname;
+                string exts = System.IO.Path.GetExtension(pathwithFileName);
+                string fileName = System.IO.Path.GetFileName(pathwithFileName);
+
+                string FPath = AppDomain.CurrentDomain.BaseDirectory + "PDF\\" + fileName;
+                if (!File.Exists(FPath))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(FPath, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline")
+                {
+                    FileName = fileName
+                };
+                return result;
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("ViewMyDocGenerate", "ViewMyDocGenerate", ex.Message);
+            }
+            return null;
         }
     }
 }

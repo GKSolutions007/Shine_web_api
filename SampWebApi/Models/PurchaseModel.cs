@@ -250,4 +250,16 @@ namespace SampWebApi.Models
         public List<PurchaseBatchInfo> PRBatchInfo { get; set; }
 
     }
+    public class PRPriceTypechange
+    {
+        //string BranchID, string PriceType, string ProdID, string TransDate,string PRID
+        public string BranchID { get; set; }
+        public string PriceType { get; set; }
+        public string ProdID { get; set; }
+        public string TransDate { get; set; }
+        public string PRID { get; set; }
+        public string ActQty { get; set; }
+        public string ActFreeQty { get; set; }
+        public string ActDmgQty { get; set; }
+    }
 }

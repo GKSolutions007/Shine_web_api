@@ -18,6 +18,7 @@ namespace SampWebApi.BuisnessLayer
     public class clsBusinessLayer
     {
         clsDAL ObjDL = new clsDAL();
+        public int strDigits { get; set; }
         public DataTable BL_ExecuteParamSP(string strProcedure, params object[] objParams)
         {
             return ObjDL.dl_ExecuteParamSP(strProcedure, objParams);
@@ -263,7 +264,7 @@ namespace SampWebApi.BuisnessLayer
                 DirectoryInfo parentDir = Directory.GetParent(logFilePath.EndsWith("\\") ? logFilePath : string.Concat(logFilePath, "\\"));
                 var myParentDir = parentDir.Parent.FullName;
                 string strFol = myParentDir + "\\Log File Errors\\";
-
+                strFol = AppDomain.CurrentDomain.BaseDirectory + "\\Log File Errors\\";
                 strFol = strFol + "Log System Error" + "-" + DateTime.Today.ToString("ddMMyyyy") + "." + "txt";
                 if (strFol.Equals("")) return;
                 #region Create the Log file directory if it does not exists
@@ -782,8 +783,8 @@ namespace SampWebApi.BuisnessLayer
         {
             decimal dstrValue;
             string strdecimalValue = Convert.ToString(objDecimalValue);
-            DataTable dtDecimal = BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
-            int strDigits = Convert.ToInt32(dtDecimal.Rows[0][0].ToString());// "0:0.00";
+            //DataTable dtDecimal = BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
+            //int strDigits =  Convert.ToInt32(dtDecimal.Rows[0][0].ToString());// "0:0.00";
             if (decimal.TryParse(strdecimalValue, out dstrValue))
             {
                 //string str = string.Format("{" + strDigits + "}", dstrValue);

@@ -20,7 +20,7 @@ using Spire.Pdf;
 using SampWebApi.DALHelper;
 using Zen.Barcode;
 using System.Drawing.Imaging;
-using clsEncryptDecrypt = BuinessLayer.clsEncryptDecrypt;
+using System.Security.Cryptography;
 namespace SampWebApi.Printing
 {
     public class PrintBase
@@ -61,7 +61,8 @@ namespace SampWebApi.Printing
         private PaperSource PaperSource;
         private SolidBrush blackBrush = new SolidBrush(Color.Black);
         int nA = 0, nR = 0, nG = 0, nB = 0;
-        private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, string strSMTPServer, string strSubject);
+        private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, 
+            string strToID, string strSMTPServer, string strSubject, DataTable dtMailData,string MailBody);
         private delegate void delegatePrintTrigger();
         string dtp;
         int nPrint;
@@ -82,7 +83,7 @@ namespace SampWebApi.Printing
 
             LoadLineFeedandIncludeCut(configId);
         }
-        public void SendEmail(int nTranType, int nTranId, string strMachineName, string strMailID, int ConfigID)
+        public void SendEmail(int nTranType, int nTranId, string strMailID, int ConfigID)
         {
             try
             {
@@ -100,6 +101,7 @@ namespace SampWebApi.Printing
             string RetunPath = "";
             try
             {
+                this.nCopies = 2;
                 SetGlobalValues(nTranType, nTranId, ConfigID);
                 RetunPath = SaveFileinLocation();
             }
@@ -109,14 +111,24 @@ namespace SampWebApi.Printing
             }
             return RetunPath;
         }
-        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished)
+        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished,int Copies,string CT)
         {
             string RetunPath = "";
             try
             {
-                SetGlobalValues(nTranType, nTranId, ConfigID);
-                //RetunPath = SaveFileinLocation();
-                DocWiseGeneratePDF(IsFinished);
+                this.nCopies = Copies;
+                bool TEMPFINISH = IsFinished;
+                
+                for (int i = 1; i <= Copies; i++)
+                {
+                    if (TEMPFINISH)
+                    {
+                        if (i == Copies) IsFinished = true; else IsFinished = false;
+                    }
+                    SetGlobalValues(nTranType, nTranId, ConfigID);
+                    DocWiseGeneratePDF(IsFinished, CT);
+                    this.nCopies--;
+                }
             }
             catch (Exception ex)
             {
@@ -208,7 +220,7 @@ namespace SampWebApi.Printing
                 {
                     if (strPrintCust == null)
                     {
-                        SendEmail(nTranType, nTranId, strMachineName, null, 0);
+                        SendEmail(nTranType, nTranId, strMachineName,  0);
                     }
                 }
             }
@@ -537,7 +549,7 @@ namespace SampWebApi.Printing
                                 //Obj_MDI.ShowMessage("Mail Can't send !!! Not Available MXDW", GKS_BL.ToolStripErrorMsg);
                                 return;
                             }
-                            string pdfFilePath = ConfigurationManager.ConnectionStrings["PrintDoc"].ConnectionString + "\\Mail Transfer\\";
+                            string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Mail Transfer\\";
 
                             ///string pdfFilePath = @"D:\HOST\ResetPwd" + "\\Mail Transfer\\";
 
@@ -563,11 +575,17 @@ namespace SampWebApi.Printing
 
                             }
                             //Mail Asynchronous method call using delegate
-
+                            string MailBody = "";
+                            DataTable dtMailBodyData = GKS_BL.BL_ExecuteParamSP("uspMailmessagecontent", nTransType, nTransId);
+                            if(dtMailBodyData.Rows.Count > 0)
+                            {
+                                MailBody = dtMailBodyData.Rows[0][0].ToString();
+                            }
                             delegateMailTrigger delMailrigger = new delegateMailTrigger(MailTransfer);//(attachmentMail, spirePdfCreater, dtAdminData);
                             IAsyncResult iarMail = delMailrigger.BeginInvoke(pdfFilePath, strFileName, dtMailData.Rows[0][0].ToString(),
                                (dtMailData.Rows[1][0].ToString()), strTOMailID, dtMailData.Rows[3][0].ToString(),
-                            dtMailData.Rows[4][0].ToString() + "_" + dtMailData.Rows[5][0].ToString() + "_" + dtMailData.Rows[7][0].ToString()//subject
+                            dtMailData.Rows[4][0].ToString() + "_" + dtMailData.Rows[5][0].ToString() + "_" + dtMailData.Rows[7][0].ToString(),//subject
+                            dtMailData, MailBody
                                , new AsyncCallback(IAsyncResultMailTrigger), "Unable to Print");
                             delMailrigger -= MailTransfer;
 
@@ -667,7 +685,7 @@ namespace SampWebApi.Printing
             }
             return FinalFileName;
         }
-        private void DocWiseGeneratePDF(bool IsFinished)
+        private void DocWiseGeneratePDF(bool IsFinished,string CT)
         {
             try
             {
@@ -697,9 +715,10 @@ namespace SampWebApi.Printing
                             //Obj_MDI.ShowMessage("Mail Can't send !!! Not Available MXDW", GKS_BL.ToolStripErrorMsg);
                             return;
                         }
-                        string pdfFileTempPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempGroupPDFPath\\";// Application.StartupPath
-                        string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Group PDF\\";
-                        string strFileName = Convert.ToString(dtMailData.Rows[5][0]) + "_" + DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                        //string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                        string pdfFileTempPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempGroupPDFPath" + CT + "\\";
+                        string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\pdf\\";
+                        string strFileName = DateTime.Now.ToString("yyyyMMddHHmmssffff") + "_" + Convert.ToString(dtMailData.Rows[5][0])  ;
                         //Temporary Store in Physically
                         if (!Directory.Exists(pdfFilePath))
                         {
@@ -1045,7 +1064,8 @@ namespace SampWebApi.Printing
         /// Validation Success to send mail
         /// </summary>
         /// <param name="strPath">Path Where to locate Attachment file</param>
-        private void MailTransfer(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, string strsmtpServer, string strSubject)
+        private void MailTransfer(string pdfFilePath, string strFileName, string strFromId, string strPassword, string strToID, 
+            string strsmtpServer, string strSubject,DataTable dtMailData,string MailBody)
         {
             try
             {
@@ -1069,11 +1089,16 @@ namespace SampWebApi.Printing
                             //    Directory.CreateDirectory(pdfFilePath);
                             //}
                             //Load .xps file form your local executable path
-                            spirePdfCreater.LoadFromXPS(pdfFilePath + strFileName + ".xps");//xps
+                            //spirePdfCreater.LoadFromXPS(pdfFilePath + strFileName + ".xps");//xps
                             //convert to pdf file.
-                            spirePdfCreater.SaveToFile(pdfFilePath + strFileName + ".pdf");
+                            //spirePdfCreater.SaveToFile(pdfFilePath + strFileName + ".pdf");
+                            using (PdfSharp.Xps.XpsModel.XpsDocument pdfXpsDoc = PdfSharp.Xps.XpsModel.XpsDocument.Open(pdfFilePath + strFileName + ".xps"))
+                            {
+                                PdfSharp.Xps.XpsConverter.Convert(pdfXpsDoc, pdfFilePath + strFileName + ".pdf", 0);
+                            }
                             //set file Extension
                             strFileName = strFileName + ".pdf";
+                            
                         }
                         //Mail Triggering
                         using (MailMessage mail = new MailMessage())
@@ -1082,14 +1107,49 @@ namespace SampWebApi.Printing
                             {
                                 using (Attachment attachment = new Attachment(pdfFilePath + strFileName))
                                 {
+
+                                    string CustomerName = "";
+                                    string InvNo = "";
+                                    string InvDate = "17-Dec-2025";
+                                    string CompName = "";
+                                    string CompMobNo = "";
+                                    string CompEMail = "";
+                                    if (dtMailData.Rows.Count == 12)
+                                    {
+                                        CustomerName = dtMailData.Rows[7][0].ToString();
+                                        InvNo = dtMailData.Rows[10][0].ToString();
+                                        InvDate= dtMailData.Rows[11][0].ToString();
+                                        CompName = dtMailData.Rows[4][0].ToString();
+                                        CompMobNo = dtMailData.Rows[8][0].ToString();
+                                        CompEMail = dtMailData.Rows[9][0].ToString();
+                                    }
+                                    string tempmailbody = @"Dear <b>"+ CustomerName + @",</b><br/><br/>
+
+Greetings from <b>" + CompName + @".</b><br/><br/>
+
+    Please find attached the invoice  <b>[" + InvNo + @"]</b> dated  <b>[" + InvDate + @"]</b> for your recent purchase with us.<br/><br/>
+
+We request you to kindly verify the details and let us know if you have any questions or require further clarification.
+The payment terms are as discussed, and we would appreciate your cooperation in processing the payment within the due date.<br/><br/>
+
+Thank you for your continued support and trust in our services.<br/><br/>
+
+Warm regards,<br/>
+<b>" + CompName + @"</b><br/>
+📞 <b>" + CompMobNo + @"</b><br/>
+📧 <b>"+ CompEMail + @"</b>";
                                     mail.From = new MailAddress(strFromId);
                                     mail.To.Add(strToID);
                                     mail.Subject = strSubject;
+                                    mail.IsBodyHtml = true;
+                                    mail.Body = MailBody;
+
                                     mail.Attachments.Add(attachment);
                                     SmtpServer.Port = 587;
                                     SmtpServer.Host = strsmtpServer;//"smtp.gmail.com"
                                     SmtpServer.UseDefaultCredentials = false;
-                                    SmtpServer.Credentials = new System.Net.NetworkCredential(strFromId, clsEncryptDecrypt.Decrypt(strPassword));
+                                    string MailPassword = clsEncryptDecrypt.Decrypt(strPassword);
+                                    SmtpServer.Credentials = new System.Net.NetworkCredential(strFromId, MailPassword);
                                     SmtpServer.EnableSsl = true;
                                     SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
                                     SmtpServer.Send(mail);
@@ -1269,7 +1329,7 @@ namespace SampWebApi.Printing
                 if (dtGetConfigPage.Rows.Count > 0)
                 {
                     //Header Label Printing
-                    DataRow[] drHeader = dtGetConfigPage.Select(dtGetConfigPage.Columns[14].ColumnName + "= 'Label' AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Header'");
+                    DataRow[] drHeader = dtGetConfigPage.Select(dtGetConfigPage.Columns[14].ColumnName + "= 'Label' AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Header' AND " + dtGetConfigPage.Columns[9].ColumnName + " <> 'Copytype'");
                     if (drHeader.Length > 0)
                     {
                         foreach (DataRow row in drHeader)
@@ -1646,7 +1706,7 @@ namespace SampWebApi.Printing
                         {
                             if (ValidateFooter(row) == true)
                             {
-                                SetFontStyle(row, g, null, 0, 0, row[14].ToString(), 0, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, row[14].ToString(), 0, printMode, sw);
                             }
                         }
                         if (Convert.ToInt32(row[6].ToString()) == 1)
@@ -1661,11 +1721,11 @@ namespace SampWebApi.Printing
                             }
                             if (row[14].ToString() == "gksBarCode" && row[18].ToString() == "Footer")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksBarCode", YPositionDiff, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksBarCode", YPositionDiff, printMode, sw);
                             }
                             if (row[14].ToString() == "gksQRCode" && row[18].ToString() == "Footer")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksQRCode", YPositionDiff, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksQRCode", YPositionDiff, printMode, sw);
                             }
                             if (row[14].ToString() == "Box" && row[18].ToString() == "Footer")
                             {
@@ -2357,7 +2417,7 @@ namespace SampWebApi.Printing
                 }
                 else if (Mode == "Copytype")
                 {
-                    string strCopyType = nCopies == 1 ? "Original" : nCopies == 2 ? "Duplicate" : nCopies == 2 ? "Triplicate" : "Original";
+                    string strCopyType = nCopies == 1 ? "Original" : nCopies == 2 ? "Duplicate" : nCopies >= 3 ? "Triplicate" : "Original";
                     g.DrawString(strCopyType, fontControl, blackBrush, drawRect, strFrmt);
                 }
                 else if (Mode == "gksBarCode" || Mode == "gksQRCode")
@@ -2371,23 +2431,40 @@ namespace SampWebApi.Printing
                         {
                             nameofqr = iic.Remove(3);
                         }
-                        DataTable dtGetPrintDocID = GKS_BL.BL_ExecuteParamSP("uspGetDocIDforPrint", nTransId, nTransType);
-                        string strDocID = (dtGetPrintDocID.Rows.Count > 0 ? dtGetPrintDocID.Rows[0][0].ToString() : "No Data");
-                        string upitn = (dtGetPrintDocID.Rows[0][4].ToString()).Length > 80 ? (dtGetPrintDocID.Rows[0][4].ToString()).Remove(80) : dtGetPrintDocID.Rows[0][4].ToString();
-                        string upiamt = dtGetPrintDocID.Rows[0][5].ToString();
-                        string upiid = dtGetPrintDocID.Rows[0][6].ToString();
-                        string upiname = dtGetPrintDocID.Rows[0][7].ToString();
+                        //DataTable dtGetPrintDocID = GKS_BL.BL_ExecuteParamSP("uspGetDocIDforPrint", nTransId, nTransType);
+                        //string strDocID = (dtGetPrintDocID.Rows.Count > 0 ? dtGetPrintDocID.Rows[0][0].ToString() : "No Data");
+                        string QRBARDocID = "",QRBARAckNNo = "",QRBARSignQR = "",QRBAREWayNo = "",QRBARUPItn = "",QRBARAmt = "",QRBARUPIID = "",QRBARUPIName = "";
+
+                        if (RowValue != null && RowValue.Rows.Count > 0)
+                        {
+                            DataRow r = RowValue.Rows[0];
+
+                            QRBARDocID = r["Document ID"]?.ToString() ?? "No Data";
+                            QRBARAckNNo = r["AckNo"]?.ToString() ?? "No Data";
+                            QRBARSignQR = r["SignedQRCode"]?.ToString() ?? "No Data";
+                            QRBAREWayNo = r["EWBNo"]?.ToString() ?? "No Data";
+                            QRBARUPItn = r["UPItn"]?.ToString() ?? "No Data";
+                            QRBARAmt = r["QRAmt"]?.ToString() ?? "No Data";
+                            QRBARUPIID = r["UPIID"]?.ToString() ?? "No Data";
+                            QRBARUPIName = r["UPIName"]?.ToString() ?? "No Data";
+                        } 
+
+
+                        string upitn = (QRBARUPItn).Length > 80 ? (QRBARUPItn).Remove(80) : QRBARUPItn;
+                        string upiamt = QRBARAmt;
+                        string upiid = QRBARUPIID;
+                        string upiname = QRBARUPIName;
                         string UPIURL = nameofqr == "UWA" ? string.Format("upi://pay?pa={0}&pn={1}&cu=INR&am={2}&tn={3}", upiid, upiname, upiamt, upitn) :
                             nameofqr == "UWO" ? string.Format("upi://pay?pa={0}&pn={1}&cu=INR&tn={2}", upiid, upiname, upitn) : "";
                         string UPIQRDATA = !string.IsNullOrEmpty(upiid) ? UPIURL : "";
 
-                        strDocID = strDocID != "No Data" ? nameofqr == "SQR" ? dtGetPrintDocID.Rows[0][1].ToString() : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : dtGetPrintDocID.Rows[0][0].ToString() : "No Data";
+                        QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "SQR" ? QRBARSignQR : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : QRBARDocID : "No Data";
                         bool hasPrint = true;
                         //strDocID = "upi://pay?pa=jjsolution2011@okicici&pn=Naresh Kanna&cu=INR&am="+ upiamt + "&tn=" + upitn;
                         if (Mode == "gksQRCode")
                         {
                             //strDocID = strDocID.Substring(0, 122);
-                            string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : strDocID);
+                            string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : QRBARDocID);
 
                             //CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;                                                        
                             //img = qrCode.Draw(Content, 100);
@@ -2400,11 +2477,11 @@ namespace SampWebApi.Printing
                         }
                         else
                         {
-                            strDocID = strDocID != "No Data" ? nameofqr == "BRC" ? dtGetPrintDocID.Rows[0][0].ToString() : nameofqr == "BRA" ? dtGetPrintDocID.Rows[0][2].ToString() : dtGetPrintDocID.Rows[0][3].ToString() : "No Data";
-                            if (!string.IsNullOrEmpty(strDocID) && strDocID != "0")
+                            QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "BRC" ? QRBARDocID : nameofqr == "BRA" ? QRBARAckNNo : QRBAREWayNo : "No Data";
+                            if (!string.IsNullOrEmpty(QRBARDocID) && QRBARDocID != "0")
                             {
                                 Code128BarcodeDraw barCode = BarcodeDrawFactory.Code128WithChecksum;
-                                img = barCode.Draw(strDocID, 100);
+                                img = barCode.Draw(QRBARDocID, 100);
                             }
                             else
                             {
@@ -2503,6 +2580,7 @@ namespace SampWebApi.Printing
                 //GKS_BL.BL_ExceptionMsg("Print", "SetFontStyle", ex);
             }
         }
+
 
         /// <summary>
         /// Get and Set Config Details into varibales
@@ -2625,5 +2703,51 @@ namespace SampWebApi.Printing
             }
         }
     }
-
+    public class clsEncryptDecrypt
+    {
+        public static string Encrypt(string clearText)
+        {
+            string strReturnValue = string.Empty;
+            string EncryptionKey = "MAKV2SPBNI99212";
+            byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.Close();
+                    }
+                    strReturnValue = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+            return strReturnValue;
+        }
+        //Decryption
+        public static string Decrypt(string cipherText)
+        {
+            string EncryptionKey = "MAKV2SPBNI99212";
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
+            using (Aes encryptor = Aes.Create())
+            {
+                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        cs.Close();
+                    }
+                    cipherText = Encoding.Unicode.GetString(ms.ToArray());
+                }
+            }
+            return cipherText;
+        }
+    }
 }
