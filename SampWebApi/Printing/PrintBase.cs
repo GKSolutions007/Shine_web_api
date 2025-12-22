@@ -1491,7 +1491,13 @@ Warm regards,<br/>
                     bool flag = true;
                     while (totalNumber < dtGetBodyVal.Rows.Count && flag)
                     {
-                        if (Convert.ToInt32(dtTemp.Rows[0][6].ToString()) > 0 || itemsPerPage < Convert.ToInt32(dtTemp.Rows[0][5].ToString()))
+                        //int Page1 = 6, PageLast = Convert.ToInt32(dtTemp.Rows[0][5].ToString()), TotolProdrows = dtGetBodyVal.Rows.Count;
+                        //int roughP1s = (TotolProdrows / Page1) - 1;
+                        //int RemPages = TotolProdrows - (roughP1s * Page1);
+                        //int Totp = RemPages / PageLast;
+                        //int sumofpages = roughP1s + Totp;
+                        //int tempIPP = sumofpages - Totp >  pageNo ? sumofpages - Totp : Convert.ToInt32(dtTemp.Rows[0][5].ToString());
+                        if (Convert.ToInt32(dtTemp.Rows[0][6].ToString()) > 0 || itemsPerPage < Convert.ToInt32(dtTemp.Rows[0][5].ToString()))//Convert.ToInt32(dtTemp.Rows[0][5].ToString())
                         {
                             blCheck = true;
                             // 6 --- > Continoues Page, 5 --- > Item per Page
