@@ -12,6 +12,7 @@ using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -1394,9 +1395,13 @@ namespace SampWebApi.Controllers
                     {
                         if (!string.IsNullOrEmpty(ConfigID.ToString()))
                         {
+                            DataTable dtDecimal = bl.BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
+                            int strDigits = Convert.ToInt32(dtDecimal.Rows[0][0].ToString());
+                            string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
                             //SendEmail(int nTranType, int nTranId, string strMachineName, string strMailID, int ConfigID)
                             //FileLocationwithname = PB.SaveAsPDF(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Dns.GetHostName(), "", Convert.ToInt32(ConfigID));
-                            PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Convert.ToInt32(ConfigID), true, bl.BL_nValidation(Copies));
+                            bl.strDigits = strDigits;
+                            PB.GroupPDFPB(Convert.ToInt32(TransID), Convert.ToInt32(DocID), Convert.ToInt32(ConfigID), true, bl.BL_nValidation(Copies),CT);
                             FileLocationwithname = PB.GroupPDFoutputPath;                            
                         }
                     }
@@ -1526,10 +1531,15 @@ namespace SampWebApi.Controllers
             DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
             int nTransrange = 0;
             if (dtDocIDs.Rows.Count > 0)
-            {
+            {                
                 if (!Convert.ToString(dtDocIDs.Rows[0][0]).Contains("Range Should be"))
                 {
+                    Stopwatch STPWT = new Stopwatch();
+                    STPWT.Start();
                     string Outputfile = "";
+                    string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                    DataTable dtDecimal = bl.BL_ExecuteSqlQuery("select AppValue from tblAppConfig where AppName in ('DecimalValues')");
+                    int strDigits = Convert.ToInt32(dtDecimal.Rows[0][0].ToString());
                     for (int nCount = 0; nCount < dtDocIDs.Rows.Count; nCount++)
                     {
                         int Ident = 0;
@@ -1543,10 +1553,13 @@ namespace SampWebApi.Controllers
                         {
                             GKS_BL = bl
                         };
-                        Print.GroupPDFPB(TransID, Ident, ConfigID, (nCount + 1) == dtDocIDs.Rows.Count,bl.BL_nValidation(Copies));
+                        bl.strDigits = strDigits;
+                        Print.GroupPDFPB(TransID, Ident, ConfigID, (nCount + 1) == dtDocIDs.Rows.Count,bl.BL_nValidation(Copies), CT);
                         if ((nCount + 1) == dtDocIDs.Rows.Count)
                             Outputfile = Print.GroupPDFoutputPath;
                     }
+                    STPWT.Start();
+                    bl.BL_WriteErrorMsginLog("Stop Watch", "Check Print Completion Time",STPWT.Elapsed.TotalSeconds.ToString() + " Secs");
                     string pathwithFileName = Outputfile;
                     //byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
                     string exts = Path.GetExtension(pathwithFileName);

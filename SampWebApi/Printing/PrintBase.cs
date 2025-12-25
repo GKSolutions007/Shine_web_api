@@ -111,14 +111,14 @@ namespace SampWebApi.Printing
             }
             return RetunPath;
         }
-        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished,int Copies)
+        public string GroupPDFPB(int nTranType, int nTranId, int ConfigID, bool IsFinished,int Copies,string CT)
         {
             string RetunPath = "";
             try
             {
                 this.nCopies = Copies;
                 bool TEMPFINISH = IsFinished;
-               
+                
                 for (int i = 1; i <= Copies; i++)
                 {
                     if (TEMPFINISH)
@@ -126,7 +126,7 @@ namespace SampWebApi.Printing
                         if (i == Copies) IsFinished = true; else IsFinished = false;
                     }
                     SetGlobalValues(nTranType, nTranId, ConfigID);
-                    DocWiseGeneratePDF(IsFinished);
+                    DocWiseGeneratePDF(IsFinished, CT);
                     this.nCopies--;
                 }
             }
@@ -685,7 +685,7 @@ namespace SampWebApi.Printing
             }
             return FinalFileName;
         }
-        private void DocWiseGeneratePDF(bool IsFinished)
+        private void DocWiseGeneratePDF(bool IsFinished,string CT)
         {
             try
             {
@@ -715,9 +715,10 @@ namespace SampWebApi.Printing
                             //Obj_MDI.ShowMessage("Mail Can't send !!! Not Available MXDW", GKS_BL.ToolStripErrorMsg);
                             return;
                         }
-                        string pdfFileTempPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempGroupPDFPath\\";// Application.StartupPath
+                        //string CT = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                        string pdfFileTempPath = AppDomain.CurrentDomain.BaseDirectory + "\\TempGroupPDFPath" + CT + "\\";
                         string pdfFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\pdf\\";
-                        string strFileName = Convert.ToString(dtMailData.Rows[5][0]) + "_" + DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                        string strFileName = DateTime.Now.ToString("yyyyMMddHHmmssffff") + "_" + Convert.ToString(dtMailData.Rows[5][0])  ;
                         //Temporary Store in Physically
                         if (!Directory.Exists(pdfFilePath))
                         {
@@ -1490,7 +1491,13 @@ Warm regards,<br/>
                     bool flag = true;
                     while (totalNumber < dtGetBodyVal.Rows.Count && flag)
                     {
-                        if (Convert.ToInt32(dtTemp.Rows[0][6].ToString()) > 0 || itemsPerPage < Convert.ToInt32(dtTemp.Rows[0][5].ToString()))
+                        //int Page1 = 6, PageLast = Convert.ToInt32(dtTemp.Rows[0][5].ToString()), TotolProdrows = dtGetBodyVal.Rows.Count;
+                        //int roughP1s = (TotolProdrows / Page1) - 1;
+                        //int RemPages = TotolProdrows - (roughP1s * Page1);
+                        //int Totp = RemPages / PageLast;
+                        //int sumofpages = roughP1s + Totp;
+                        //int tempIPP = sumofpages - Totp >  pageNo ? sumofpages - Totp : Convert.ToInt32(dtTemp.Rows[0][5].ToString());
+                        if (Convert.ToInt32(dtTemp.Rows[0][6].ToString()) > 0 || itemsPerPage < Convert.ToInt32(dtTemp.Rows[0][5].ToString()))//Convert.ToInt32(dtTemp.Rows[0][5].ToString())
                         {
                             blCheck = true;
                             // 6 --- > Continoues Page, 5 --- > Item per Page
@@ -1705,7 +1712,7 @@ Warm regards,<br/>
                         {
                             if (ValidateFooter(row) == true)
                             {
-                                SetFontStyle(row, g, null, 0, 0, row[14].ToString(), 0, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, row[14].ToString(), 0, printMode, sw);
                             }
                         }
                         if (Convert.ToInt32(row[6].ToString()) == 1)
@@ -1720,11 +1727,11 @@ Warm regards,<br/>
                             }
                             if (row[14].ToString() == "gksBarCode" && row[18].ToString() == "Footer")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksBarCode", YPositionDiff, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksBarCode", YPositionDiff, printMode, sw);
                             }
                             if (row[14].ToString() == "gksQRCode" && row[18].ToString() == "Footer")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksQRCode", YPositionDiff, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksQRCode", YPositionDiff, printMode, sw);
                             }
                             if (row[14].ToString() == "Box" && row[18].ToString() == "Footer")
                             {
@@ -2430,23 +2437,40 @@ Warm regards,<br/>
                         {
                             nameofqr = iic.Remove(3);
                         }
-                        DataTable dtGetPrintDocID = GKS_BL.BL_ExecuteParamSP("uspGetDocIDforPrint", nTransId, nTransType);
-                        string strDocID = (dtGetPrintDocID.Rows.Count > 0 ? dtGetPrintDocID.Rows[0][0].ToString() : "No Data");
-                        string upitn = (dtGetPrintDocID.Rows[0][4].ToString()).Length > 80 ? (dtGetPrintDocID.Rows[0][4].ToString()).Remove(80) : dtGetPrintDocID.Rows[0][4].ToString();
-                        string upiamt = dtGetPrintDocID.Rows[0][5].ToString();
-                        string upiid = dtGetPrintDocID.Rows[0][6].ToString();
-                        string upiname = dtGetPrintDocID.Rows[0][7].ToString();
+                        //DataTable dtGetPrintDocID = GKS_BL.BL_ExecuteParamSP("uspGetDocIDforPrint", nTransId, nTransType);
+                        //string strDocID = (dtGetPrintDocID.Rows.Count > 0 ? dtGetPrintDocID.Rows[0][0].ToString() : "No Data");
+                        string QRBARDocID = "",QRBARAckNNo = "",QRBARSignQR = "",QRBAREWayNo = "",QRBARUPItn = "",QRBARAmt = "",QRBARUPIID = "",QRBARUPIName = "";
+
+                        if (RowValue != null && RowValue.Rows.Count > 0)
+                        {
+                            DataRow r = RowValue.Rows[0];
+
+                            QRBARDocID = r["Document ID"]?.ToString() ?? "No Data";
+                            QRBARAckNNo = r["AckNo"]?.ToString() ?? "No Data";
+                            QRBARSignQR = r["SignedQRCode"]?.ToString() ?? "No Data";
+                            QRBAREWayNo = r["EWBNo"]?.ToString() ?? "No Data";
+                            QRBARUPItn = r["UPItn"]?.ToString() ?? "No Data";
+                            QRBARAmt = r["QRAmt"]?.ToString() ?? "No Data";
+                            QRBARUPIID = r["UPIID"]?.ToString() ?? "No Data";
+                            QRBARUPIName = r["UPIName"]?.ToString() ?? "No Data";
+                        } 
+
+
+                        string upitn = (QRBARUPItn).Length > 80 ? (QRBARUPItn).Remove(80) : QRBARUPItn;
+                        string upiamt = QRBARAmt;
+                        string upiid = QRBARUPIID;
+                        string upiname = QRBARUPIName;
                         string UPIURL = nameofqr == "UWA" ? string.Format("upi://pay?pa={0}&pn={1}&cu=INR&am={2}&tn={3}", upiid, upiname, upiamt, upitn) :
                             nameofqr == "UWO" ? string.Format("upi://pay?pa={0}&pn={1}&cu=INR&tn={2}", upiid, upiname, upitn) : "";
                         string UPIQRDATA = !string.IsNullOrEmpty(upiid) ? UPIURL : "";
 
-                        strDocID = strDocID != "No Data" ? nameofqr == "SQR" ? dtGetPrintDocID.Rows[0][1].ToString() : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : dtGetPrintDocID.Rows[0][0].ToString() : "No Data";
+                        QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "SQR" ? QRBARSignQR : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : QRBARDocID : "No Data";
                         bool hasPrint = true;
                         //strDocID = "upi://pay?pa=jjsolution2011@okicici&pn=Naresh Kanna&cu=INR&am="+ upiamt + "&tn=" + upitn;
                         if (Mode == "gksQRCode")
                         {
                             //strDocID = strDocID.Substring(0, 122);
-                            string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : strDocID);
+                            string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : QRBARDocID);
 
                             //CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;                                                        
                             //img = qrCode.Draw(Content, 100);
@@ -2459,11 +2483,11 @@ Warm regards,<br/>
                         }
                         else
                         {
-                            strDocID = strDocID != "No Data" ? nameofqr == "BRC" ? dtGetPrintDocID.Rows[0][0].ToString() : nameofqr == "BRA" ? dtGetPrintDocID.Rows[0][2].ToString() : dtGetPrintDocID.Rows[0][3].ToString() : "No Data";
-                            if (!string.IsNullOrEmpty(strDocID) && strDocID != "0")
+                            QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "BRC" ? QRBARDocID : nameofqr == "BRA" ? QRBARAckNNo : QRBAREWayNo : "No Data";
+                            if (!string.IsNullOrEmpty(QRBARDocID) && QRBARDocID != "0")
                             {
                                 Code128BarcodeDraw barCode = BarcodeDrawFactory.Code128WithChecksum;
-                                img = barCode.Draw(strDocID, 100);
+                                img = barCode.Draw(QRBARDocID, 100);
                             }
                             else
                             {
@@ -2562,6 +2586,7 @@ Warm regards,<br/>
                 //GKS_BL.BL_ExceptionMsg("Print", "SetFontStyle", ex);
             }
         }
+
 
         /// <summary>
         /// Get and Set Config Details into varibales
