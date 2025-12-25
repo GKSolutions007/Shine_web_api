@@ -209,6 +209,7 @@ namespace SampWebApi.Controllers
                                 DiscAmt = dtFFooter.Rows[i]["DiscAmt"].ToString(),
                                 FullAdjYN = dtFFooter.Rows[i]["FullyAdj"].ToString(),
                                 TotalAdjAmt = dtFFooter.Rows[i]["TotalAmtAdj"].ToString(),
+                                Ageing = dtFFooter.Rows[i]["Ageing"].ToString(),
                             });
                         }
                     }
@@ -386,7 +387,7 @@ namespace SampWebApi.Controllers
                         DocPrefix = DDT.Rows[i]["DocPrefix"].ToString(),
                         DocValue = DDT.Rows[i]["DocValue"].ToString(),
                         UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
-
+                        Ageing = DDT.Rows[i]["Ageing"].ToString(),
                     });
                 }
                 DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(), Date);
@@ -407,6 +408,7 @@ namespace SampWebApi.Controllers
                         DocPrefix = dtTopGridRows[i]["TransID"].ToString(),
                         DocValue = dtTopGridRows[i]["DocValue"].ToString(),
                         UDFDocId = dtTopGridRows[i]["UDFDocId"].ToString(),
+                        Ageing = DDT.Rows[i]["Ageing"].ToString(),
                     });
                 }
             }
