@@ -1,4 +1,5 @@
-﻿using SampWebApi.BuisnessLayer;
+﻿using Newtonsoft.Json;
+using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
 using System;
@@ -617,6 +618,14 @@ namespace SampWebApi.Controllers
                 return Ok(list);
             }
             return Ok();
+        }
+        [HttpGet]
+        [Route("api/inventoryadjustment/producthistory")]
+        public IHttpActionResult inventoryAdjItemHistory(string ProdID, string BranchID)
+        {
+            DataTable DDT = bl.BL_ExecuteParamSP("uspInventoryAdjustmentProdHistory", ProdID, BranchID);
+            string jsonhistorydata = JsonConvert.SerializeObject(DDT);
+            return Ok(jsonhistorydata);
         }
         public DataTable ToDataTable<T>(List<T> items)
         {
