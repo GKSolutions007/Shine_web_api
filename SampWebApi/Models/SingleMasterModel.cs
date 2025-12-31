@@ -457,6 +457,48 @@ namespace SampWebApi.Models
         public string Total { get; set; }
         public string TotalYN { get; set; }
     }
+
+    public class ColumnSettingsDataModel
+    {
+        public string field { get; set; }
+        public string header { get; set; }
+        public string type { get; set; }
+        public string width { get; set; }
+        public string align { get; set; }
+        public bool visible { get; set; }
+        public bool EnableColumnMenu { get; set; }
+        public bool ShowinColumnOption { get; set; }
+        public string Total { get; set; }
+        public string TotalYN { get; set; }
+        public bool EnableSum { get; set; }
+        public bool EnableAvg { get; set; }        
+        public string precision { get; set; }
+        public bool ClickPopup { get; set; }
+    }
+    public class ColumnSettingsModel
+    {
+        public string Alignment { get; set; }
+        public string ClickPopup { get; set; }
+        public string ColumnID { get; set; }
+        public string ColumnName { get; set; }
+        public string DisplayColumnName { get; set; }
+        public string DisplayIndex { get; set; }
+        public string EnableAvg { get; set; }
+        public string EnableColumnMenu { get; set; }
+        public string EnableSum { get; set; }
+        public string FormID { get; set; }
+        public string FormName { get; set; }
+        public string FormorReport { get; set; }
+        public string IsHiddenColumn { get; set; }
+        public string ShowinColumnOption { get; set; }
+        public string TableID { get; set; }
+        public string Total { get; set; }
+        public string TotalYN { get; set; }
+        public string Visible { get; set; }
+        public string Width { get; set; }
+        public string precision { get; set; }
+
+    }
     public class MapRoleModel
     {
         public MapRoleModel()

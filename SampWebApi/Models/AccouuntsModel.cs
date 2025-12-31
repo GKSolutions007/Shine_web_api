@@ -40,6 +40,7 @@ namespace SampWebApi.Models
         public string DiscAmt { get; set; }
         public string GrossAmt { get; set; }
         public string TaxAmt { get; set; }
+        public string RoundoffAmt { get; set; }        
         public string NetAmt { get; set; }
         public string TDSAmt { get; set; }
         public string ContType { get; set; }
