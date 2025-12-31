@@ -47,7 +47,7 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "444")
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 4, 0);               
+                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 4, 0);
                 string dtjson = JsonConvert.SerializeObject(DDT);
                 if (!string.IsNullOrEmpty(dtjson))
                 {
@@ -69,7 +69,7 @@ namespace SampWebApi.Controllers
                                        CDate = users.LastActionTime
                                    };
                     return Ok(data);
-                }                
+                }
                 return Ok();
             }
             if (Mode == "5")
@@ -147,7 +147,7 @@ namespace SampWebApi.Controllers
                         CustomerType = DDT.Rows[i]["CustomerType"].ToString(),
                         Ratings = DDT.Rows[i]["Rating"].ToString(),
                         BSM = listBSM,
-                        lstCustRemark= listREM
+                        lstCustRemark = listREM
                     });
                 }
                 return Ok(list);
@@ -184,7 +184,7 @@ namespace SampWebApi.Controllers
                     DataTable DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", lstMaster.Mode, ID, lstMaster.Code, lstMaster.Name, lstMaster.Billadd1,
                         lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
                         lstMaster.Ph1, lstMaster.Ph2, lstMaster.Mob1, lstMaster.Mob2, lstMaster.Email, lstMaster.PANNumber, lstMaster.AadharNo, lstMaster.DLNo20, lstMaster.DLNo21,
-                        lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN, lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
+                        lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN.ToUpper(), lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
                         lstMaster.FAID, bl.CheckString(lstMaster.OverDueValue), bl.CheckString(lstMaster.OverDueInvCount), bl.CheckString(lstMaster.CreditLimitValue), bl.CheckString(lstMaster.CreditLimitCount),
                         bl.CheckString(lstMaster.CreditlimitOS), lstMaster.PriceTypeID,
                         lstMaster.OwnerName, bl.CheckString(lstMaster.DiscountPern), bl.CheckString(lstMaster.TrackPoint), bl.CheckString(lstMaster.ClosingTrackPoint), lstMaster.TCSTax, lstMaster.Latitude, lstMaster.Longtitude,
@@ -199,7 +199,7 @@ namespace SampWebApi.Controllers
                             IsoldDelete = 1;
                         }
                         IsoldDelete = 0;
-                        foreach(clsCustomerRemarks item in lstMaster.lstCustRemark)
+                        foreach (clsCustomerRemarks item in lstMaster.lstCustRemark)
                         {
                             bl.BL_ExecuteParamSP("uspManageCustomerMaster", 8, IdentID, item.Remarks, IsoldDelete);
                             IsoldDelete = 1;
@@ -366,7 +366,7 @@ namespace SampWebApi.Controllers
                     DataTable DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", lstMaster.Mode, ID, lstMaster.Code, lstMaster.Name, lstMaster.Billadd1,
                         lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
                         lstMaster.Ph1, lstMaster.Ph2, lstMaster.Mob1, lstMaster.Mob2, lstMaster.Email, lstMaster.PANNumber, lstMaster.AadharNo, lstMaster.DLNo20, lstMaster.DLNo21,
-                        lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN, lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
+                        lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN.ToUpper(), lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
                         lstMaster.FAID, lstMaster.WeekCycle, lstMaster.Active, lstMaster.UserID, lstMaster.Ratings);
                     if (DDT.Columns.Count == 1)
                     {
@@ -438,7 +438,7 @@ namespace SampWebApi.Controllers
                 {
                     string PBPrice = "0", PRPrice = "0", InvPrice = "0", SRPrice = "0";
                     DataTable dtPrices = bl.BL_ExecuteParamSP("uspGetProductTransactionPrice", 1, DDT.Rows[i]["ID"].ToString());
-                    if(dtPrices.Rows.Count > 0)
+                    if (dtPrices.Rows.Count > 0)
                     {
                         PBPrice = dtPrices.Rows[0][1].ToString();
                         PRPrice = dtPrices.Rows[0][2].ToString();
@@ -538,7 +538,7 @@ namespace SampWebApi.Controllers
                 List<ProductModel> jsonlist = JsonConvert.DeserializeObject<List<ProductModel>>(dtjson);
                 //ar dtjsonData = new
                 //{
-                   var data = from users in jsonlist
+                var data = from users in jsonlist
                            select
                                new
                                {
@@ -558,7 +558,7 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-            [HttpPost]
+        [HttpPost]
         [Route("api/productmaster/save")]
         public IHttpActionResult SaveProduct(ProductModel lstMaster)
         {
@@ -576,7 +576,7 @@ namespace SampWebApi.Controllers
                             bl.CheckString(lstMaster.SPLPrice), bl.CheckString(lstMaster.MRP), bl.CheckString(lstMaster.ReturnPrice), lstMaster.TrackInventory, lstMaster.TrackBatch,
                             lstMaster.TrackSerial, lstMaster.TrackPDK, lstMaster.DateFormat, lstMaster.BarcodeUomID, lstMaster.BarcodePriceID, lstMaster.VendorID,
                             bl.CheckString(lstMaster.MOH), bl.CheckString(lstMaster.MOQ), lstMaster.Remarks, lstMaster.Active, lstMaster.CBy, lstMaster.LocationID
-                            , lstMaster.BarcodePrint, lstMaster.Weborder, lstMaster.SaleonMRP, lstMaster.SaleonpPern, lstMaster.ECPonMRP, lstMaster.ECPonpPern, lstMaster.SPLonMRP, lstMaster.SPLonpPern,lstMaster.ProdLifeTime);
+                            , lstMaster.BarcodePrint, lstMaster.Weborder, lstMaster.SaleonMRP, lstMaster.SaleonpPern, lstMaster.ECPonMRP, lstMaster.ECPonpPern, lstMaster.SPLonMRP, lstMaster.SPLonpPern, lstMaster.ProdLifeTime);
                     if (DDT.Columns.Count == 1)
                     {
                         int IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());
@@ -676,8 +676,8 @@ namespace SampWebApi.Controllers
                             MRPExcl = dtBatch.Rows[j]["MRP"].ToString(),
                             PKD = pkd,
                             Expiry = exp,
-                            BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),                            
-                            PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),                            
+                            BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                            PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),
                             ReturnPrice = dtBatch.Rows[j]["ReturnPrice"].ToString(),
                             SPLPrice = dtBatch.Rows[j]["SPLPrice"].ToString(),
                             SalePrice = dtBatch.Rows[j]["SalesPrice"].ToString(),
@@ -694,11 +694,11 @@ namespace SampWebApi.Controllers
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
                         Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),                        
+                        Name = DDT.Rows[i]["Name"].ToString(),
                         BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
                         BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
                         BaseUOMName = DDT.Rows[i]["BaseUOMName"].ToString(),
-                        SalesTaxID = DDT.Rows[i]["TaxID"].ToString(),  
+                        SalesTaxID = DDT.Rows[i]["TaxID"].ToString(),
                         GSTPern = DDT.Rows[i]["GST"].ToString(),
                         TaxName = DDT.Rows[i]["TaxName"].ToString(),
                         TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
@@ -728,15 +728,15 @@ namespace SampWebApi.Controllers
                 {
                     string ID = !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0";
                     DataTable DDT = new DataTable();
-                    foreach  (ProdPricechangedata items in lstMaster.lstProdPrice)
+                    foreach (ProdPricechangedata items in lstMaster.lstProdPrice)
                     {
-                        string exp = !string.IsNullOrEmpty(items.Expiry)?Convert.ToDateTime(items.Expiry).ToString("yyyy-MM-dd") : null;
+                        string exp = !string.IsNullOrEmpty(items.Expiry) ? Convert.ToDateTime(items.Expiry).ToString("yyyy-MM-dd") : null;
                         string pkd = !string.IsNullOrEmpty(items.PKD) ? Convert.ToDateTime(items.PKD).ToString("yyyy-MM-dd") : null;
                         DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", 5, lstMaster.BranchID, ID, items.InventoryID, lstMaster.TrackInventory,
-                            lstMaster.GSTPern, items.BatchNo, pkd, exp,  items.PurchasePrice, items.SalePrice, items.ECP, items.SPLPrice,
+                            lstMaster.GSTPern, items.BatchNo, pkd, exp, items.PurchasePrice, items.SalePrice, items.ECP, items.SPLPrice,
                             items.MRP, items.ReturnPrice, lstMaster.CBy);
                     }
-                    
+
                     if (DDT.Columns.Count == 1)
                     {
                         int IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());
@@ -772,6 +772,13 @@ namespace SampWebApi.Controllers
             }
             return Ok(list);
         }
-
+        [HttpGet]
+        [Route("api/customermaster/validatestatutory")]
+        public IHttpActionResult validatestatutory(string FormName, string FieldName, string Value,string ID = "0")
+        {
+            DataTable DDT = bl.BL_ExecuteParamSP("uspVerifyStatutory", FormName, FieldName, Value, ID);
+            string jsonparty = JsonConvert.SerializeObject(DDT);
+            return Ok(jsonparty);
+        }
     }
 }

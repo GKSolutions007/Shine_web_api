@@ -77,5 +77,6 @@ namespace SampWebApi.Models
         public string FullAdjYN { get; set; }
         public string TotalAdjAmt { get; set; }
         public string WriteOffAmt { get; set; }
+        public string Ageing { get; set; }
     }
 }
