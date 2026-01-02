@@ -926,6 +926,7 @@ namespace SampWebApi.Controllers
                         UserID = DDT.Rows[i]["CBy"].ToString(),
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                        StateName = DDT.Rows[i]["StateName"].ToString(),
                     });
                 }
                 return Ok(list);

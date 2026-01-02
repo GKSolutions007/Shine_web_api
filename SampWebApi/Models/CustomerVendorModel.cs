@@ -23,7 +23,7 @@ namespace SampWebApi.Models
         public string Billadd2 { get; set; }
         public string Billadd3 { get; set; }
         public string Shipadd1 { get; set; }
-        public string shipadd2 { get; set; }
+        public string Shipadd2 { get; set; }
         public string Shipadd3 { get; set; }
         public string Pincode { get; set; }
         public string ContactPerson { get; set; }
@@ -38,11 +38,15 @@ namespace SampWebApi.Models
         public string DLNo21 { get; set; }
         public string FSSAINo { get; set; }
         public string StateID { get; set; }
+        public string StateName { get; set; }
         public string IfRegister { get; set; }
         public string GSTIN { get; set; }
         public string CreditTermID { get; set; }
+        public string CreditTerm { get; set; }
         public string PaymentModeID { get; set; }
+        public string PaymentMode { get; set; }
         public string TaxTypeID { get; set; }
+        public string TaxTypeName { get; set; }
         public string OSValue { get; set; }
         public string FAID { get; set; }
         public string OverDueValue { get; set; }
