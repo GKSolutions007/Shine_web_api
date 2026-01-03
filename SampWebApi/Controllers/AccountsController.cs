@@ -114,6 +114,8 @@ namespace SampWebApi.Controllers
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     StatusID = DDT.Rows[i]["StatusID"].ToString(),
+                    Remark = DDT.Rows[i]["Remark"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString()
                 });
             }
             return Ok(list);
@@ -296,17 +298,25 @@ namespace SampWebApi.Controllers
                 list.Add(new AccouuntsModel
                 {
                     ID = DDT.Rows[i][0].ToString(),
-                    DocID = DDT.Rows[i][1].ToString(),
-                    DocDate = DDT.Rows[i][2].ToString(),
-                    RefNo = DDT.Rows[i][3].ToString(),
-                    PartyID = DDT.Rows[i][4].ToString(),
-                    FAID = DDT.Rows[i][5].ToString(),
-                    GoodsAmt = DDT.Rows[i][6].ToString(),
-                    TaxAmt = DDT.Rows[i][7].ToString(),
-                    NetAmt = DDT.Rows[i][8].ToString(),
-                    Balance = DDT.Rows[i][9].ToString(),
-                    Status = DDT.Rows[i][10].ToString(),
-                    StatusID = DDT.Rows[i][11].ToString(),
+                    DocID = DDT.Rows[i]["DocId"].ToString(),
+                    DocDate = DDT.Rows[i]["DocDate"].ToString(),
+                    RefNo = DDT.Rows[i]["RefNo"].ToString(),
+                    PartyID = DDT.Rows[i]["Party Name"].ToString(),
+                    FAID = DDT.Rows[i]["Account Name"].ToString(),
+                    SACHSN = DDT.Rows[i]["SACorHSNCode"].ToString(),
+                    TaxID = DDT.Rows[i]["TaxName"].ToString(),
+                    NoteValue = DDT.Rows[i]["Amount"].ToString(),
+                    DiscPern = DDT.Rows[i]["DiscPern"].ToString(),
+                    DiscAmt = DDT.Rows[i]["DiscAmt"].ToString(),
+                    RoundoffAmt = DDT.Rows[i]["RoundoffAmt"].ToString(),
+                    GrossAmt = DDT.Rows[i]["Gross"].ToString(),
+                    TaxAmt = DDT.Rows[i]["Tax"].ToString(),
+                    NetAmt = DDT.Rows[i]["Net"].ToString(),
+                    Remark = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    Balance = DDT.Rows[i]["Balance"].ToString(),
+                    Status = DDT.Rows[i]["StatusID"].ToString(),
+                    StatusID = DDT.Rows[i]["StatusID"].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                 });
