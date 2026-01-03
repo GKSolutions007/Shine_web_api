@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using MessagingToolkit.QRCode.Crypt;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.X509;
 using SampWebApi.BuisnessLayer;
@@ -64,7 +66,7 @@ namespace SampWebApi.Controllers
                                        Code = users.Code,
                                        Name = users.Name,
                                        CustomerType = users.CustomerType,
-                                       PriceTypeName = users.PriceTypeName,
+                                       PriceType = users.PriceType,
                                        OwnerName = users.OwnerName,
                                        ContactPerson = users.ContactPerson,
                                        Email = users.Email,
@@ -636,6 +638,41 @@ namespace SampWebApi.Controllers
                                    MfrID = users.MfrID,
                                    BrandID = users.BrandID,
                                    CategoryID = users.CategoryID,
+                                   HSNCode = users.HSNCode,
+                                   ProductDiscPerc = users.ProductDiscPerc,
+                                   BaseUOMName = users.BaseUOMName,
+                                   BaseCR = users.BaseCR,
+                                   PurchaseUOMName = users.PurchaseUomName,
+                                   PurchaseCR = users.PurchaseCR,
+                                   SalesUOMName = users.SalesUOMName,
+                                   SalesCR = users.SalesCR,
+                                   ReportingUOMName = users.ReportingUOMName,
+                                   ReportingCR = users.ReportingCR,
+                                   PurchaseTaxName = users.PurchaseTaxName,
+                                   SalesTaxName = users.SalesTaxName,
+                                   PurchasePrice = users.PurchasePrice,
+                                   MRP = users.MRP,
+                                   SalesPrice = users.SalesPrice,
+                                   ECP = users.ECP,
+                                   SPLPrice = users.SPLPrice,
+                                   TrackInventory = users.TrackInventory,
+                                   TrackBatch = users.TrackBatch,
+                                   TrackPDK = users.TrackPDK,
+                                   DateFormat = users.DateFormat,
+                                   BarcodePrint = users.BarcodePrint,
+                                   BarcodeUOMName = users.BarcodeUOMName,
+                                   BarcodePriceType = users.BarcodePriceType,
+                                   LocationName = users.LocationName,
+                                   IndentVendor = users.IndentVendor,
+                                   MOH = users.MOH,
+                                   MOQ = users.MOQ,
+                                   Weborder = users.Weborder,
+                                   Remarks = users.Remarks,
+                                   ProdLifeTime = users.ProdLifeTime,
+                                   PurchaseBillPrice = users.PurchaseBillPrice,
+                                   PurchaseReturnPrice = users.PurchaseBillPrice,
+                                   InvoicePrice = users.InvoicePrice,
+                                   SalesReturnPrice = users.SalesReturnPrice,
                                    Active = users.Active,
                                    CBy = users.UserName,
                                    CDate = users.LastActionTime
