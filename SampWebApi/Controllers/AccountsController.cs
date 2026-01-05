@@ -497,6 +497,11 @@ namespace SampWebApi.Controllers
                     StatusID = DDT.Rows[i][11].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                    ChequeNo = DDT.Rows[i]["ChequeNumberWithRef"].ToString(),
+                    NEFTNo = DDT.Rows[i]["WDSlipNo"].ToString(),
+                    Salesman = DDT.Rows[i]["Salesman"].ToString(),
+                    Remark = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
                 });
             }
             return Ok(list);
@@ -668,6 +673,7 @@ namespace SampWebApi.Controllers
                     StatusID = DDT.Rows[i][9].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString()
                 });
             }
             return Ok(list);
@@ -915,6 +921,16 @@ namespace SampWebApi.Controllers
                     StatusID = DDT.Rows[i][11].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                    ContMode = DDT.Rows[i]["Mode"].ToString(),
+                    BankAccID = DDT.Rows[i]["AccountNo"].ToString(),
+                    ChequeNo = DDT.Rows[i]["ChequeNo"].ToString(),
+                    ChequeDate = DDT.Rows[i]["ChequeDate"].ToString(),
+                    BankName = DDT.Rows[i]["BankName"].ToString(),
+                    Branch = DDT.Rows[i]["BranchName"].ToString(),
+                    IFSC = DDT.Rows[i]["ifscCode"].ToString(),
+                    Remark = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    NEFTNo = DDT.Rows[i]["NeftID"].ToString()
                 });
             }
             return Ok(list);
