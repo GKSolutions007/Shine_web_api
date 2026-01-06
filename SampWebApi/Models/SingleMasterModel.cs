@@ -469,7 +469,7 @@ namespace SampWebApi.Models
         public bool visible { get; set; }
         public bool EnableColumnMenu { get; set; }
         public bool ShowinColumnOption { get; set; }
-        public string Total { get; set; }
+        public bool Total { get; set; }
         public string TotalYN { get; set; }
         public bool EnableSum { get; set; }
         public bool EnableAvg { get; set; }        
