@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static iTextSharp.text.pdf.PdfStructTreeController;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
@@ -532,7 +533,7 @@ namespace SampWebApi.Controllers
                             WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                             DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
-
+                            ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });
@@ -952,6 +953,11 @@ namespace SampWebApi.Controllers
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
+                    PriceID = DDT.Rows[i]["PriceType"].ToString(),
+                    ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
+                    Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+
                 });
             }
             //return Ok(list);            
@@ -972,7 +978,11 @@ namespace SampWebApi.Controllers
                                Balance = users.Balance,
                                CBy = users.CBy,
                                CDate = users.CDate,
-                               CurrentStatus = users.CurrentStatus
+                               CurrentStatus = users.CurrentStatus,
+                               PriceID = users.PriceID,
+                               ReturnType = users.ReturnType,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration
                            };
             return Ok(data);
         }

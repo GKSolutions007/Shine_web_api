@@ -258,6 +258,10 @@ namespace SampWebApi.Models
         public string UDFId { get; set; }
         public string lstJsonAssignDetails { get; set; }
         public List<AssignInvoiceDetails> lstAssignDetails { get; set; }
+
+        public string Remarks { get; set; }
+        public string Narration { get; set; }
+        public string OCR { get; set; }
     }
     public class AssignInvoiceDetails
     {
