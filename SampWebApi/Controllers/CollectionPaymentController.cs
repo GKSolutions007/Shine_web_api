@@ -437,6 +437,8 @@ namespace SampWebApi.Controllers
                     UDFDocId = DDT.Rows[i]["UDN"].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                    Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
                 });
             }
             return Ok(list);

@@ -480,6 +480,8 @@ namespace SampWebApi.Controllers
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
+                        Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                        Narration = DDT.Rows[i]["Narration"].ToString(),
                     });
                 }
             //return Ok(list);
@@ -501,7 +503,9 @@ namespace SampWebApi.Controllers
                                Balance = users.Balance,
                                CBy = users.CBy,
                                CDate = users.CDate,
-                               CurrentStatus = users.CurrentStatus
+                               CurrentStatus = users.CurrentStatus,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration
                            };            
             return Ok(data);  
         }

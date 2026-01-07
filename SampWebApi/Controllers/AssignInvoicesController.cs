@@ -58,6 +58,9 @@ namespace SampWebApi.Controllers
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         StatusID = DDT.Rows[i]["StatusID"].ToString(),
+                        Remarks = DDT.Rows[i]["StatusID"].ToString(),
+                        Narration = DDT.Rows[i]["Narration"].ToString(),
+                        OCR = DDT.Rows[i]["OCR"].ToString(),
                     });
                 }
 
@@ -77,6 +80,9 @@ namespace SampWebApi.Controllers
                                    StatusID = users.StatusID,
                                    CBy = users.CBy,
                                    CDate = users.CDate,
+                                   Remarks = users.Remarks,
+                                   Narration = users.Narration,
+                                   OCR = users.OCR
                                };
 
                 return Ok(data);
