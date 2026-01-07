@@ -957,6 +957,18 @@ namespace SampWebApi.Controllers
                     ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
                     Remarks = DDT.Rows[i]["Remarks"].ToString(),
                     Narration = DDT.Rows[i]["Narration"].ToString(),
+                    TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                    TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                    AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                    TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                    TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                    TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                    OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                    OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                    Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
+                    TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                    DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                    DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString()
 
                 });
             }
@@ -982,7 +994,20 @@ namespace SampWebApi.Controllers
                                PriceID = users.PriceID,
                                ReturnType = users.ReturnType,
                                Remarks = users.Remarks,
-                               Narration = users.Narration
+                               Narration = users.Narration,
+                               TotalProdDiscAmt = users.TotalProdDiscAmt,
+                               TotalDiscAmt = users.TotalDiscAmt,
+                               AddnlDiscPern = users.AddnlDiscPern,
+                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                               TradeDiscPern = users.TradeDiscPern,
+                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                               OtherChargePern = users.OtherChargePern,
+                               OtherChargeAmt = users.OtherChargeAmt,
+                               Frieght = users.Frieght,
+                               TCSTaxAmt = users.TCSTaxAmt,
+                               DiffValueGross = users.DiffValueGross,
+                               DiffValueNet = users.DiffValueNet
+
                            };
             return Ok(data);
         }

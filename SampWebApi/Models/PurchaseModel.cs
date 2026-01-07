@@ -36,6 +36,7 @@ namespace SampWebApi.Models
         public string TradeDiscPern { get; set; }
         public string AddnlDiscPern { get; set; }
         public string TotalProdDiscAmt { get; set; }
+        public string TotalDiscAmt { get; set; }
         public string TotalTradeDiscAmt { get; set; }
         public string TotalAddnlDiscAmt { get; set; }
         public string WriteOffAmt { get; set; }

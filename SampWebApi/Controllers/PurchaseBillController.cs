@@ -482,6 +482,19 @@ namespace SampWebApi.Controllers
                         CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
                         Remarks = DDT.Rows[i]["Remarks"].ToString(),
                         Narration = DDT.Rows[i]["Narration"].ToString(),
+                        TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                        TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                        AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                        TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                        TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                        TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                        OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                        OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                        Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
+                        TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                        DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                        DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString(),
+                        WriteOffAmt = DDT.Rows[i]["WriteOff"].ToString()
                     });
                 }
             //return Ok(list);
@@ -505,7 +518,20 @@ namespace SampWebApi.Controllers
                                CDate = users.CDate,
                                CurrentStatus = users.CurrentStatus,
                                Remarks = users.Remarks,
-                               Narration = users.Narration
+                               Narration = users.Narration,
+                               TotalProdDiscAmt = users.TotalProdDiscAmt,
+                               TotalDiscAmt = users.TotalDiscAmt,
+                               AddnlDiscPern = users.AddnlDiscPern,
+                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                               TradeDiscPern = users.TradeDiscPern,
+                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                               OtherChargePern = users.OtherChargePern,
+                               OtherChargeAmt = users.OtherChargeAmt,
+                               FrightAmt = users.Frieght,
+                               TCSTaxAmt = users.TCSTaxAmt,
+                               DiffExcl = users.DiffValueGross,
+                               DiffIncl = users.DiffValueNet,
+                               WriteOff = users.WriteOffAmt
                            };            
             return Ok(data);  
         }

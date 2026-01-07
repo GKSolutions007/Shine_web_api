@@ -424,7 +424,16 @@ namespace SampWebApi.Controllers
                         CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
                         PriceID = DDT.Rows[i]["PriceType"].ToString(),
                         Remarks = DDT.Rows[i]["Remarks"].ToString(),
-                        Narration = DDT.Rows[i]["Narration"].ToString()
+                        Narration = DDT.Rows[i]["Narration"].ToString(),
+                        TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                        TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                        AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                        TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                        TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                        TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                        OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                        OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                        Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
                     });
                 }
                 return Ok(list);
