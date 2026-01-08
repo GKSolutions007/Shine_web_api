@@ -23,7 +23,7 @@ namespace SampWebApi.Models
         public string Billadd2 { get; set; }
         public string Billadd3 { get; set; }
         public string Shipadd1 { get; set; }
-        public string shipadd2 { get; set; }
+        public string Shipadd2 { get; set; }
         public string Shipadd3 { get; set; }
         public string Pincode { get; set; }
         public string ContactPerson { get; set; }
@@ -38,11 +38,15 @@ namespace SampWebApi.Models
         public string DLNo21 { get; set; }
         public string FSSAINo { get; set; }
         public string StateID { get; set; }
+        public string StateName { get; set; }
         public string IfRegister { get; set; }
         public string GSTIN { get; set; }
         public string CreditTermID { get; set; }
+        public string CreditTerm { get; set; }
         public string PaymentModeID { get; set; }
+        public string PaymentMode { get; set; }
         public string TaxTypeID { get; set; }
+        public string TaxTypeName { get; set; }
         public string OSValue { get; set; }
         public string FAID { get; set; }
         public string OverDueValue { get; set; }
@@ -51,6 +55,7 @@ namespace SampWebApi.Models
         public string CreditLimitCount { get; set; }
         public string CreditlimitOS { get; set; }
         public string PriceTypeID { get; set; }
+        public string PriceType { get; set; }
         public string WeekCycle { get; set; }
         public string OwnerName { get; set; }
         public string DiscountPern { get; set; }
@@ -103,12 +108,16 @@ namespace SampWebApi.Models
         public string PurchaseUomName { get; set; }
         public string PurchaseCR { get; set; }
         public string SalesUomID { get; set; }
+        public string SalesUOMName { get; set; }
         public string SalesCR { get; set; }
         public string ReportingUomID { get; set; }
+        public string ReportingUOMName { get; set; }
         public string ReportingCR { get; set; }
         public string ReportingQty { get; set; }
         public string PurchaseTaxID { get; set; }
+        public string PurchaseTaxName { get; set; }
         public string SalesTaxID { get; set; }
+        public string SalesTaxName { get; set; }
         public string PurchasePrice { get; set; }
         public string SalesPrice { get; set; }
         public string ECP { get; set; }
@@ -128,7 +137,9 @@ namespace SampWebApi.Models
         public string TrackPDK { get; set; }
         public string DateFormat { get; set; }
         public string BarcodeUomID { get; set; }
+        public string BarcodeUOMName { get; set; }
         public string BarcodePriceID { get; set; }
+        public string BarcodePriceType { get; set; }
         public string BarcodePrint { get; set; }
         public string Weborder { get; set; }
         public string VendorID { get; set; }
@@ -138,6 +149,8 @@ namespace SampWebApi.Models
         public string Remarks { get; set; }
         public string ProdLifeTime {  get; set; }
         public string LocationID { get; set; }
+        public string LocationName { get; set; }
+        public string IndentVendor { get; set; }
         public string Active { get; set; }
         public string CBy { get; set; }
         public string ABSValue { get; set; }

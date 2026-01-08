@@ -163,7 +163,7 @@ namespace SampWebApi.Controllers
                         Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                         Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
                         Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
                         Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
                         Pincode = DDT.Rows[i]["Pincode"].ToString(),
                         ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
@@ -383,7 +383,7 @@ namespace SampWebApi.Controllers
                                 Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
                                 Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
                                 Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
-                                shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
                                 Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
                                 Pincode = DDT1.Rows[j]["Pincode"].ToString(),
                                 ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
@@ -714,6 +714,23 @@ namespace SampWebApi.Controllers
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
                     InfoMessage = DDT.Rows[i]["Info"].ToString(),
+
+                    PriceID = DDT.Rows[i]["PriceType"].ToString(),
+                    Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                    TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                    AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                    TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                    TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                    TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                    OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                    OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                    Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
+                    TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                    Salesman = DDT.Rows[i]["Salesman"].ToString(),
+                    BeatName = DDT.Rows[i]["BeatName"].ToString(),
+
                 });
             }
             //return Ok(list);            
@@ -735,7 +752,23 @@ namespace SampWebApi.Controllers
                                CBy = users.CBy,
                                CDate = users.CDate,
                                CurrentStatus = users.CurrentStatus,
-                               InfoMessage = users.InfoMessage
+                               InfoMessage = users.InfoMessage,
+                               PriceID = users.PriceID,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration,
+                               TotalDiscAmt = users.TotalDiscAmt,
+                               TotalProdDiscAmt = users.TotalProdDiscAmt,
+                               AddnlDiscPern = users.AddnlDiscPern,
+                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                               TradeDiscPern = users.TradeDiscPern,
+                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                               OtherChargePern = users.OtherChargePern,
+                               OtherChargeAmt = users.OtherChargeAmt,
+                               Frieght = users.Frieght,
+                               TCSTaxAmt = users.TCSTaxAmt,
+                               Salesman = users.Salesman,
+                               BeatName = users.BeatName,
+
                            };
             return Ok(data);
         }

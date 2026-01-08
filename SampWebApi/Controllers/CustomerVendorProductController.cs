@@ -1,5 +1,9 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using MessagingToolkit.QRCode.Crypt;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.X509;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -13,6 +17,7 @@ using System.Text.Json.Nodes;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SampWebApi.Controllers
 {
@@ -61,9 +66,41 @@ namespace SampWebApi.Controllers
                                        Code = users.Code,
                                        Name = users.Name,
                                        CustomerType = users.CustomerType,
+                                       PriceType = users.PriceType,
+                                       OwnerName = users.OwnerName,
+                                       ContactPerson = users.ContactPerson,
+                                       Email = users.Email,
+                                       Ph1 = users.Ph1,
+                                       Ph2 = users.Ph2,
                                        Mob1 = users.Mob1,
+                                       Mob2 = users.Mob2,
+                                       Billadd1 = users.Billadd1,
+                                       Billadd2 = users.Billadd2,
+                                       Billadd3 = users.Billadd3,
+                                       Shipadd1 = users.Shipadd1,
+                                       Shipadd2 = users.Shipadd2,
+                                       Shipadd3 = users.Shipadd3,
+                                       Pincode = users.Pincode,
+                                       Distance = users.Distance,
+                                       CreditLimitValue = users.CreditLimitValue,
+                                       CreditLimitCount = users.CreditLimitCount,
+                                       OverDueValue = users.OverDueValue,
+                                       OverDueInvCount = users.OverDueInvCount,
+                                       PANNumber = users.PANNumber,
+                                       AadharNo = users.AadharNo,
+                                       FSSAINo = users.FSSAINo,
+                                       DLNo20 = users.DLNo20,
+                                       DLNo21 = users.DLNo21,
+                                       StateName = users.StateName,
                                        GSTIN = users.GSTIN,
+                                       TaxTypeName = users.TaxTypeName,
+                                       PaymentMode = users.PaymentMode,
+                                       CreditTerm = users.CreditTerm,
+                                       DiscountPern = users.DiscountPern,
+                                       Remark = users.Remark,
                                        Ratings = users.Ratings,
+                                       TCSTax = users.TCSTax,
+                                       TrackPoint = users.TrackPoint,
                                        Active = users.Active,
                                        CBy = users.UserName,
                                        CDate = users.LastActionTime
@@ -106,7 +143,7 @@ namespace SampWebApi.Controllers
                         Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                         Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
                         Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
                         Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
                         Pincode = DDT.Rows[i]["Pincode"].ToString(),
                         ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
@@ -182,7 +219,7 @@ namespace SampWebApi.Controllers
                 {
                     string ID = !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0";
                     DataTable DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", lstMaster.Mode, ID, lstMaster.Code, lstMaster.Name, lstMaster.Billadd1,
-                        lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
+                        lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.Shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
                         lstMaster.Ph1, lstMaster.Ph2, lstMaster.Mob1, lstMaster.Mob2, lstMaster.Email, lstMaster.PANNumber, lstMaster.AadharNo, lstMaster.DLNo20, lstMaster.DLNo21,
                         lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN.ToUpper(), lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
                         lstMaster.FAID, bl.CheckString(lstMaster.OverDueValue), bl.CheckString(lstMaster.OverDueInvCount), bl.CheckString(lstMaster.CreditLimitValue), bl.CheckString(lstMaster.CreditLimitCount),
@@ -250,14 +287,36 @@ namespace SampWebApi.Controllers
                 {
                     list.Add(new CustomerVendorModel
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Code = DDT.Rows[i][1].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        CustomerType = DDT.Rows[i][3].ToString(),
-                        Mob1 = DDT.Rows[i][4].ToString(),
-                        GSTIN = DDT.Rows[i][5].ToString(),
-                        Ratings = DDT.Rows[i][6].ToString(),
-                        Active = DDT.Rows[i][7].ToString(),
+                        ID = DDT.Rows[i]["ID"].ToString(),
+                        Code = DDT.Rows[i]["Code"].ToString(),
+                        Name = DDT.Rows[i]["Name"].ToString(),
+                        ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
+                        Mob1 = DDT.Rows[i]["Mob1"].ToString(),
+                        Mob2 = DDT.Rows[i]["Mob2"].ToString(),
+                        Ph1 = DDT.Rows[i]["Ph1"].ToString(),
+                        Ph2 = DDT.Rows[i]["Ph2"].ToString(),
+                        GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
+                        Ratings = DDT.Rows[i]["Ratings"].ToString(),
+                        Active = DDT.Rows[i]["Active"].ToString(),
+                        Email = DDT.Rows[i]["Email"].ToString(),
+                        Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
+                        Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
+                        Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),  
+                        Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["Shipadd2"].ToString(),
+                        Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
+                        Pincode = DDT.Rows[i]["Pincode"].ToString(),
+                        PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
+                        AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
+                        DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
+                        DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
+                        FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
+                        StateName = DDT.Rows[i]["StateName"].ToString(),
+                        TaxTypeName = DDT.Rows[i]["TaxTypeName"].ToString(),
+                        PaymentMode = DDT.Rows[i]["PaymentMode"].ToString(),
+                        WeekCycle = DDT.Rows[i]["WeekCycle"].ToString(),
+                        CreditTerm = DDT.Rows[i]["CreditTerm"].ToString(),
+
                     });
                 }
                 return Ok(list);
@@ -277,7 +336,7 @@ namespace SampWebApi.Controllers
                         Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                         Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
                         Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
                         Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
                         Pincode = DDT.Rows[i]["Pincode"].ToString(),
                         ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
@@ -338,16 +397,46 @@ namespace SampWebApi.Controllers
                            select
                                new
                                {
+                                   //ID = users.ID,
+                                   //Code = users.Code,
+                                   //Name = users.Name,
+                                   //CustomerType = users.Ph1,
+                                   //Mob1 = users.Mob1,
+                                   //GSTIN = users.GSTIN,
+                                   //Ratings = users.Ratings,
+                                   //Active = users.Active,
+                                   CBy = users.UserName,
+                                   CDate = users.LastActionTime,
                                    ID = users.ID,
                                    Code = users.Code,
                                    Name = users.Name,
-                                   CustomerType = users.Ph1,
+                                   ContactPerson = users.ContactPerson,
                                    Mob1 = users.Mob1,
+                                   Mob2 = users.Mob2,
+                                   Ph1 = users.Ph1,
+                                   Ph2 = users.Ph2,
                                    GSTIN = users.GSTIN,
                                    Ratings = users.Ratings,
                                    Active = users.Active,
-                                   CBy = users.UserName,
-                                   CDate = users.LastActionTime
+                                   Email = users.Email,
+                                   Billadd1 = users.Billadd1,
+                                   Billadd2 = users.Billadd2,
+                                   Billadd3 = users.Billadd3,
+                                   Shipadd1 = users.Shipadd1,
+                                   Shipadd2 = users.Shipadd2,
+                                   Shipadd3 = users.Shipadd3,
+                                   Pincode = users.Pincode,
+                                   PANNumber = users.PANNumber,
+                                   AadharNo = users.AadharNo,
+                                   DLNo20 = users.DLNo20,
+                                   DLNo21 = users.DLNo21,
+                                   FSSAINo = users.FSSAINo,
+                                   StateName = users.StateName,
+                                   TaxTypeName = users.TaxTypeName,
+                                   PaymentMode = users.PaymentMode,
+                                   WeekCycle = users.WeekCycle,
+                                   CreditTerm = users.CreditTerm,
+
                                };
                 return Ok(data);
             }
@@ -364,7 +453,7 @@ namespace SampWebApi.Controllers
                 {
                     string ID = !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0";
                     DataTable DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", lstMaster.Mode, ID, lstMaster.Code, lstMaster.Name, lstMaster.Billadd1,
-                        lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
+                        lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.Shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
                         lstMaster.Ph1, lstMaster.Ph2, lstMaster.Mob1, lstMaster.Mob2, lstMaster.Email, lstMaster.PANNumber, lstMaster.AadharNo, lstMaster.DLNo20, lstMaster.DLNo21,
                         lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN.ToUpper(), lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
                         lstMaster.FAID, lstMaster.WeekCycle, lstMaster.Active, lstMaster.UserID, lstMaster.Ratings);
@@ -549,6 +638,41 @@ namespace SampWebApi.Controllers
                                    MfrID = users.MfrID,
                                    BrandID = users.BrandID,
                                    CategoryID = users.CategoryID,
+                                   HSNCode = users.HSNCode,
+                                   ProductDiscPerc = users.ProductDiscPerc,
+                                   BaseUOMName = users.BaseUOMName,
+                                   BaseCR = users.BaseCR,
+                                   PurchaseUOMName = users.PurchaseUomName,
+                                   PurchaseCR = users.PurchaseCR,
+                                   SalesUOMName = users.SalesUOMName,
+                                   SalesCR = users.SalesCR,
+                                   ReportingUOMName = users.ReportingUOMName,
+                                   ReportingCR = users.ReportingCR,
+                                   PurchaseTaxName = users.PurchaseTaxName,
+                                   SalesTaxName = users.SalesTaxName,
+                                   PurchasePrice = users.PurchasePrice,
+                                   MRP = users.MRP,
+                                   SalesPrice = users.SalesPrice,
+                                   ECP = users.ECP,
+                                   SPLPrice = users.SPLPrice,
+                                   TrackInventory = users.TrackInventory,
+                                   TrackBatch = users.TrackBatch,
+                                   TrackPDK = users.TrackPDK,
+                                   DateFormat = users.DateFormat,
+                                   BarcodePrint = users.BarcodePrint,
+                                   BarcodeUOMName = users.BarcodeUOMName,
+                                   BarcodePriceType = users.BarcodePriceType,
+                                   LocationName = users.LocationName,
+                                   IndentVendor = users.IndentVendor,
+                                   MOH = users.MOH,
+                                   MOQ = users.MOQ,
+                                   Weborder = users.Weborder,
+                                   Remarks = users.Remarks,
+                                   ProdLifeTime = users.ProdLifeTime,
+                                   PurchaseBillPrice = users.PurchaseBillPrice,
+                                   PurchaseReturnPrice = users.PurchaseBillPrice,
+                                   InvoicePrice = users.InvoicePrice,
+                                   SalesReturnPrice = users.SalesReturnPrice,
                                    Active = users.Active,
                                    CBy = users.UserName,
                                    CDate = users.LastActionTime

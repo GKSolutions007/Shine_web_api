@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static iTextSharp.text.pdf.PdfStructTreeController;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
@@ -129,7 +130,7 @@ namespace SampWebApi.Controllers
                         Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                         Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
                         Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
                         Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
                         Pincode = DDT.Rows[i]["Pincode"].ToString(),
                         ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
@@ -355,7 +356,7 @@ namespace SampWebApi.Controllers
                                 Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
                                 Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
                                 Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
-                                shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
                                 Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
                                 Pincode = DDT1.Rows[j]["Pincode"].ToString(),
                                 ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
@@ -532,7 +533,7 @@ namespace SampWebApi.Controllers
                             WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                             DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
-
+                            ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });
@@ -724,7 +725,7 @@ namespace SampWebApi.Controllers
                             Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
                             Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
                             Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
-                            shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                            Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
                             Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
                             Pincode = DDT1.Rows[j]["Pincode"].ToString(),
                             ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
@@ -952,6 +953,23 @@ namespace SampWebApi.Controllers
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
+                    PriceID = DDT.Rows[i]["PriceType"].ToString(),
+                    ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
+                    Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                    TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                    AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                    TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                    TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                    TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                    OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                    OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                    Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
+                    TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                    DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                    DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString()
+
                 });
             }
             //return Ok(list);            
@@ -972,7 +990,24 @@ namespace SampWebApi.Controllers
                                Balance = users.Balance,
                                CBy = users.CBy,
                                CDate = users.CDate,
-                               CurrentStatus = users.CurrentStatus
+                               CurrentStatus = users.CurrentStatus,
+                               PriceID = users.PriceID,
+                               ReturnType = users.ReturnType,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration,
+                               TotalProdDiscAmt = users.TotalProdDiscAmt,
+                               TotalDiscAmt = users.TotalDiscAmt,
+                               AddnlDiscPern = users.AddnlDiscPern,
+                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                               TradeDiscPern = users.TradeDiscPern,
+                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                               OtherChargePern = users.OtherChargePern,
+                               OtherChargeAmt = users.OtherChargeAmt,
+                               Frieght = users.Frieght,
+                               TCSTaxAmt = users.TCSTaxAmt,
+                               DiffValueGross = users.DiffValueGross,
+                               DiffValueNet = users.DiffValueNet
+
                            };
             return Ok(data);
         }

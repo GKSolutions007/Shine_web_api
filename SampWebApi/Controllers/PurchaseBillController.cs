@@ -89,7 +89,7 @@ namespace SampWebApi.Controllers
                         Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                         Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
                         Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
                         Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
                         Pincode = DDT.Rows[i]["Pincode"].ToString(),
                         ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
@@ -237,7 +237,7 @@ namespace SampWebApi.Controllers
                                 Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
                                 Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
                                 Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
-                                shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
                                 Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
                                 Pincode = DDT1.Rows[j]["Pincode"].ToString(),
                                 ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
@@ -480,6 +480,21 @@ namespace SampWebApi.Controllers
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
+                        Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                        Narration = DDT.Rows[i]["Narration"].ToString(),
+                        TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                        TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                        AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                        TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                        TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                        TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                        OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                        OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                        Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
+                        TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                        DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                        DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString(),
+                        WriteOffAmt = DDT.Rows[i]["WriteOff"].ToString()
                     });
                 }
             //return Ok(list);
@@ -501,7 +516,22 @@ namespace SampWebApi.Controllers
                                Balance = users.Balance,
                                CBy = users.CBy,
                                CDate = users.CDate,
-                               CurrentStatus = users.CurrentStatus
+                               CurrentStatus = users.CurrentStatus,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration,
+                               TotalProdDiscAmt = users.TotalProdDiscAmt,
+                               TotalDiscAmt = users.TotalDiscAmt,
+                               AddnlDiscPern = users.AddnlDiscPern,
+                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                               TradeDiscPern = users.TradeDiscPern,
+                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                               OtherChargePern = users.OtherChargePern,
+                               OtherChargeAmt = users.OtherChargeAmt,
+                               FrightAmt = users.Frieght,
+                               TCSTaxAmt = users.TCSTaxAmt,
+                               DiffExcl = users.DiffValueGross,
+                               DiffIncl = users.DiffValueNet,
+                               WriteOff = users.WriteOffAmt
                            };            
             return Ok(data);  
         }

@@ -137,6 +137,7 @@ namespace SampWebApi.Models
         public string UserID { get; set; }
         public string CBy { get; set; }
         public string CDate { get; set; }
+        public string StateName { get; set; }
     }
     public class Vehicle
     {
@@ -463,12 +464,12 @@ namespace SampWebApi.Models
         public string field { get; set; }
         public string header { get; set; }
         public string type { get; set; }
-        public string width { get; set; }
+        public int width { get; set; }
         public string align { get; set; }
         public bool visible { get; set; }
         public bool EnableColumnMenu { get; set; }
         public bool ShowinColumnOption { get; set; }
-        public string Total { get; set; }
+        public bool Total { get; set; }
         public string TotalYN { get; set; }
         public bool EnableSum { get; set; }
         public bool EnableAvg { get; set; }        
