@@ -83,6 +83,8 @@ namespace SampWebApi.Models
         public string ConvertionType { get; set; }
         public string DiffValueGross { get; set; }
         public string DiffValueNet { get; set; }
+        public string Salesman { get; set; }
+        public string BeatName { get; set; }
         public List<PurchaseBatchInfo> lstBatchInfo { get; set; }
         public List<PurchaseDetail> lstProdInfo { get; set; }
         public List<CustomerVendorModel> lstPartyInfo { get; set; }
