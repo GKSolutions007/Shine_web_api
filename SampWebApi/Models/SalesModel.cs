@@ -358,6 +358,8 @@ namespace SampWebApi.Models
         public string OSAmt { get; set; }
         public string CashValue { get; set; }
         public string ChequeValue { get; set; }
+        public string Remarks { get; set; }
+        public string Narration { get; set; }
         public string BankTransferValue { get; set; }
         public string Jsonlstadjdocs { get; set; }
     }
@@ -377,6 +379,8 @@ namespace SampWebApi.Models
         public string totAdvAmount { get; set; }
         public string clsBalance { get; set; }
         public string AssignInvoiceID { get; set; }
+        public string DiscPern { get; set; }
+        public string DiscAmt { get; set; }
     }
     public class SRExistsbatchget
     {

@@ -407,8 +407,8 @@ namespace SampWebApi.Controllers
                         InvRow["Balance"] = bl.BL_dValidation(Convert.ToString(dtColDetails.Rows[J]["InvBalance"]));
                         InvRow["ColValue"] = bl.BL_dValidation(Convert.ToString(dtColDetails.Rows[J]["AdjAmt"]));
                         InvRow["AdjAmt"] = bl.BL_dValidation(Convert.ToString(dtColDetails.Rows[J]["WriteOff"]));
-                        InvRow["DiscPer"] = 0;
-                        InvRow["DiscAmt"] = 0;
+                        InvRow["DiscPer"] = bl.BL_dValidation(Convert.ToString(dtColDetails.Rows[J]["DiscPern"]));
+                        InvRow["DiscAmt"] = bl.BL_dValidation(Convert.ToString(dtColDetails.Rows[J]["DiscAmt"]));
                         decimal dbal = bl.BL_dValidation(dtColDetails.Rows[J]["InvBalance"]);
                         decimal dCollValue = bl.BL_dValidation(dtColDetails.Rows[J]["AdjAmt"]);
                         decimal dAdjAmt = bl.BL_dValidation(dtColDetails.Rows[J]["WriteOff"]);
@@ -432,7 +432,7 @@ namespace SampWebApi.Controllers
                         0,
                         dtDenominationPMDetail, 1, 0,
                         1,
-                        0, "Web Collection", null);
+                        0, dtColHeader.Rows[0]["Remarks"].ToString(), dtColHeader.Rows[0]["Narration"].ToString());
                     if (dtResult.Columns.Count == 1)
                     {
                         int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
@@ -523,7 +523,9 @@ namespace SampWebApi.Controllers
                         Refno = DDT.Rows[i][2].ToString(),
                         NetAmt = DDT.Rows[i][3].ToString(),
                         Amtadj = DDT.Rows[i][4].ToString(),
-                        Ohtercharges = DDT.Rows[i][5].ToString(),                        
+                        Ohtercharges = DDT.Rows[i][5].ToString(),
+                        DiscPern = DDT.Rows[i][6].ToString(),
+                        DiscAmt = DDT.Rows[i][7].ToString(),
                     });
                 }
                 return Ok(list);
@@ -565,7 +567,7 @@ namespace SampWebApi.Controllers
             if (Mode == "3")
             {
                 DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, ID, SalesmanID, CustomerID, PayModeID, ChequeDate, AllowDate);
-                List<CollectionModel> list = new List<CollectionModel>();
+                var list = new List<CollectionModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
                     list.Add(new CollectionModel
@@ -579,6 +581,8 @@ namespace SampWebApi.Controllers
                         collectedamt = DDT.Rows[i][6].ToString(),
                         Chequedate = DDT.Rows[i][7].ToString(),
                         Chequeno = DDT.Rows[i][8].ToString(),
+                        Remarks = DDT.Rows[i][11].ToString(),
+                        Narration = DDT.Rows[i][12].ToString(),
                     });
                 }
                 string str = "";
@@ -596,6 +600,8 @@ namespace SampWebApi.Controllers
                                collectedamt = users.collectedamt,
                                Chequedate = users.Chequedate,
                                Chequeno = users.Chequeno,
+                               Remarks = users.Remarks,
+                               Narration = users.Narration,
                            };
                 
                 return Ok(data);
