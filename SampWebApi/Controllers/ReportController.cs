@@ -501,8 +501,8 @@ namespace SampWebApi.Controllers
                 var list = new List<object>();
                 foreach (ColumnSettingsModel item in ColumnSettingData)
                 {
-                    bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", item.FormID, item.TableID, item.ColumnID, item.FormorReport,
-                      item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum, 
+                    bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
+                      item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
                       item.EnableAvg, item.EnableColumnMenu, item.ShowinColumnOption);
                 }
                 List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
@@ -536,6 +536,14 @@ namespace SampWebApi.Controllers
                 });
                 return Ok(list);
             }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/columnsettings/updatecolumnwidth")]
+        public IHttpActionResult updateGendralColumnwdith(string FormID, string TableID, string FormorReport, string ColumnID,string ColumnName,string Width)
+        {
+            bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 2, FormID, TableID, ColumnID, FormorReport,
+                ColumnName, Width);
             return Ok();
         }
     }
