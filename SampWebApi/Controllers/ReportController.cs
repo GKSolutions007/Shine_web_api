@@ -498,7 +498,7 @@ namespace SampWebApi.Controllers
         {
             if (ColumnSettingData != null)
             {
-                var list = new List<object>();
+                var list = new List<object>(); 
                 foreach (ColumnSettingsModel item in ColumnSettingData)
                 {
                     bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,

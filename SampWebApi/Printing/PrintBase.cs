@@ -2381,7 +2381,7 @@ Warm regards,<br/>
                                 int dtItemsPP = Convert.ToInt32(dtGetConfigPage.Rows[0]["DetailItemPerPage"].ToString());
                                 pg = (decimal)(TotalItemsCount) / (decimal)dtItemsPP;
                                 int totalNumberPrint = Convert.ToInt32(Math.Ceiling(pg));
-                                g.DrawString(pageNo.ToString() + "/" + totalNumberPrint, fontControl, blackBrush, drawRect, strFrmt);
+                                g.DrawString(pageNo.ToString() + " of " + totalNumberPrint, fontControl, blackBrush, drawRect, strFrmt);
                             }
                             else
                             {
