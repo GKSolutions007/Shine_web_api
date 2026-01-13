@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Newtonsoft.Json;
@@ -585,6 +586,7 @@ namespace SampWebApi.Controllers
                         Narration = DDT.Rows[i][12].ToString(),
                         AdvAmt = DDT.Rows[i][13].ToString(),
                         CashValue = DDT.Rows[i][14].ToString(),
+                        AdjAmt = DDT.Rows[i][15].ToString(),
                     });
                 }
                 string str = "";
@@ -605,7 +607,8 @@ namespace SampWebApi.Controllers
                                Remarks = users.Remarks,
                                Narration = users.Narration,
                                DiscAmt = users.AdvAmt,
-                               WriteOff = users.CashValue
+                               WriteOff = users.CashValue,
+                               AdjAmt = users.AdjAmt,
                            };
                 
                 return Ok(data);

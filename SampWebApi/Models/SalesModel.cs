@@ -356,6 +356,7 @@ namespace SampWebApi.Models
         public string CusLatitude { get; set; }
         public string CusLongtitude { get; set; }
         public string OSAmt { get; set; }
+        public string AdjAmt { get; set; }
         public string CashValue { get; set; }
         public string ChequeValue { get; set; }
         public string Remarks { get; set; }
