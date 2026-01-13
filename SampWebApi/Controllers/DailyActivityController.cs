@@ -583,6 +583,8 @@ namespace SampWebApi.Controllers
                         Chequeno = DDT.Rows[i][8].ToString(),
                         Remarks = DDT.Rows[i][11].ToString(),
                         Narration = DDT.Rows[i][12].ToString(),
+                        AdvAmt = DDT.Rows[i][13].ToString(),
+                        CashValue = DDT.Rows[i][14].ToString(),
                     });
                 }
                 string str = "";
@@ -602,6 +604,8 @@ namespace SampWebApi.Controllers
                                Chequeno = users.Chequeno,
                                Remarks = users.Remarks,
                                Narration = users.Narration,
+                               DiscAmt = users.AdvAmt,
+                               WriteOff = users.CashValue
                            };
                 
                 return Ok(data);
