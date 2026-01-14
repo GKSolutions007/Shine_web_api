@@ -330,6 +330,7 @@ namespace SampWebApi.Models
     public class CollectionModel
     {
         public string ID { get; set; }
+        public string EncID { get; set; }
         public string Date { get; set; }
         public string RefNo { get; set; }
         public string BeatID { get; set; }

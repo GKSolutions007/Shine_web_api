@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.X509;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -211,6 +213,8 @@ namespace SampWebApi.Controllers
                                 FullAdjYN = dtFFooter.Rows[i]["FullyAdj"].ToString(),
                                 TotalAdjAmt = dtFFooter.Rows[i]["TotalAmtAdj"].ToString(),
                                 Ageing = dtFFooter.Rows[i]["Ageing"].ToString(),
+                                ReasonID = dtFFooter.Rows[i]["ReasonID"].ToString(),
+                                ReasonName = dtFFooter.Rows[i]["ReasonName"].ToString(),
                             });
                         }
                     }
@@ -417,6 +421,238 @@ namespace SampWebApi.Controllers
             return Ok(list);
         }
         [HttpGet]
+        [Route("api/collectionpayment/webcollosdocs")]
+        public IHttpActionResult getwebcolldocs(string ID)
+        {
+            try
+            {
+                DataSet dtsData = bl.BL_ExecuteParamSPDataset("uspGetSetCollPayData", 8, null, ID);
+                if (dtsData.Tables.Count > 0)
+                {
+                    if (dtsData.Tables[0].Rows.Count > 0)
+                    {
+                        var WebCollectionData = new List<object>();
+                        DataTable dtHeader = dtsData.Tables[0];
+                        DataTable dtInvoices = dtsData.Tables[1];
+
+                        List<CollPayDetails> list = new List<CollPayDetails>();
+                        List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
+                        List<CollectionPaymentModel> listCollPay = new List<CollectionPaymentModel>();
+
+                        string strExPayable = "Voucher = 'Payable'";
+                        string strExReceivable = "Voucher = 'Receivable'";
+                        DataTable DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", dtHeader.Rows[0]["CustId"].ToString(), 
+                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1);
+                        if (DDT.Rows.Count > 0)
+                        {
+                            for (int i = 0; i < DDT.Rows.Count; i++)
+                            {
+                                //"DocId	DocDate	NoteValue	Ident	DocPrefix	DocValue	PartyId	Balance	TransName	DocRefNo	UDFDocId"                   
+                                list.Add(new CollPayDetails
+                                {
+                                    TypeID = "1",
+                                    DocID = DDT.Rows[i]["DocId"].ToString(),
+                                    Tran_Date = DDT.Rows[i]["DocDate"].ToString(),
+                                    DocRef = DDT.Rows[i]["DocRefNo"].ToString(),
+                                    TransName = DDT.Rows[i]["TransName"].ToString(),
+                                    NetAmt = DDT.Rows[i]["NoteValue"].ToString(),
+                                    Balance = DDT.Rows[i]["Balance"].ToString(),
+                                    ID = DDT.Rows[i]["Ident"].ToString(),
+                                    FAID = DDT.Rows[i]["PartyId"].ToString(),
+                                    DocPrefix = DDT.Rows[i]["DocPrefix"].ToString(),
+                                    DocValue = DDT.Rows[i]["DocValue"].ToString(),
+                                    UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
+                                });
+                            }
+                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["PartyId"].ToString(), Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()));
+                            DataRow[] dtTopGridRows = dtOCOP.Select(strExPayable);
+                            for (int i = 0; i < dtTopGridRows.Length; i++)
+                            {
+                                list.Add(new CollPayDetails
+                                {
+                                    TypeID = "1",
+                                    DocID = dtTopGridRows[i]["DocID"].ToString(),
+                                    Tran_Date = dtTopGridRows[i]["DocDate"].ToString(),
+                                    DocRef = dtTopGridRows[i]["RefNo"].ToString(),
+                                    TransName = dtTopGridRows[i]["TransName"].ToString(),
+                                    NetAmt = dtTopGridRows[i]["NetAmount"].ToString(),
+                                    Balance = dtTopGridRows[i]["Balance"].ToString(),
+                                    ID = dtTopGridRows[i]["ID"].ToString(),
+                                    FAID = dtTopGridRows[i]["PartyID"].ToString(),
+                                    DocPrefix = dtTopGridRows[i]["TransID"].ToString(),
+                                    DocValue = dtTopGridRows[i]["DocValue"].ToString(),
+                                    UDFDocId = dtTopGridRows[i]["UDFDocId"].ToString(),
+                                });
+                            }
+                        }
+
+                        //pending invoices
+                        DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", dtHeader.Rows[0]["CustId"].ToString(),
+                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1);
+                        if (DDT.Rows.Count > 0)
+                        {
+                           
+                            for (int i = 0; i < DDT.Rows.Count; i++)
+                            {
+                                string CollAmt = "0", OtherAmt = "0", DiscPern = "0", DiscAmt = "0";
+                                DataRow[] drHaveDoc = dtInvoices.Select("InvoiceID = " + DDT.Rows[i]["ID"].ToString(), null);
+                                if(drHaveDoc.Length > 0)
+                                {
+                                    CollAmt = drHaveDoc[0].ItemArray[4].ToString();
+                                    OtherAmt = drHaveDoc[0].ItemArray[5].ToString();
+                                    DiscPern = drHaveDoc[0].ItemArray[9].ToString();
+                                    DiscAmt = drHaveDoc[0].ItemArray[10].ToString();
+                                }
+                                list.Add(new CollPayDetails
+                                {
+                                    TypeID = "2",
+                                    DocID = DDT.Rows[i]["DocID"].ToString(),
+                                    Tran_Date = DDT.Rows[i]["Tran_Date"].ToString(),
+                                    DocRef = DDT.Rows[i]["DocRef"].ToString(),
+                                    TransName = DDT.Rows[i]["TransName"].ToString(),
+                                    NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
+                                    Balance = DDT.Rows[i]["Balance"].ToString(),
+                                    ID = DDT.Rows[i]["ID"].ToString(),
+                                    FAID = DDT.Rows[i]["FAID"].ToString(),
+                                    DocPrefix = DDT.Rows[i]["DocPrefix"].ToString(),
+                                    DocValue = DDT.Rows[i]["DocValue"].ToString(),
+                                    UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
+                                    Ageing = DDT.Rows[i]["Ageing"].ToString(),
+                                    ReasonID = "0",
+                                    FullAdjYN = "0",
+                                    WriteOffAmt = "0",
+                                    CollAmt = CollAmt,
+                                    AdjAmt = OtherAmt,
+                                    DiscPern = DiscPern,
+                                    DiscAmt = DiscAmt,
+                                });
+                            }
+                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(),
+                                Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()));
+                            DataRow[] dtTopGridRows = dtOCOP.Select(strExReceivable);
+                            for (int i = 0; i < dtTopGridRows.Length; i++)
+                            {
+                                list.Add(new CollPayDetails
+                                {
+                                    TypeID = "2",
+                                    DocID = dtTopGridRows[i]["DocID"].ToString(),
+                                    Tran_Date = dtTopGridRows[i]["DocDate"].ToString(),
+                                    DocRef = dtTopGridRows[i]["RefNo"].ToString(),
+                                    TransName = dtTopGridRows[i]["TransName"].ToString(),
+                                    NetAmt = dtTopGridRows[i]["NetAmount"].ToString(),
+                                    Balance = dtTopGridRows[i]["Balance"].ToString(),
+                                    ID = dtTopGridRows[i]["ID"].ToString(),
+                                    FAID = dtTopGridRows[i]["PartyID"].ToString(),
+                                    DocPrefix = dtTopGridRows[i]["TransID"].ToString(),
+                                    DocValue = dtTopGridRows[i]["DocValue"].ToString(),
+                                    UDFDocId = dtTopGridRows[i]["UDFDocId"].ToString(),
+                                    Ageing = DDT.Rows[i]["Ageing"].ToString(),
+                                    ReasonID = "0",
+                                    FullAdjYN = "0",
+                                    WriteOffAmt = "0",
+                                    CollAmt = "0",
+                                    AdjAmt = "0",
+                                    DiscPern = "0",
+                                    DiscAmt = "0",
+                                });
+                            }
+                        }
+
+                        DataTable DDTParty = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 3, dtHeader.Rows[0]["CustId"].ToString(), 0, 19);
+                        if (DDTParty.Rows.Count > 0)
+                        {
+                            for (int i = 0; i < DDTParty.Rows.Count; i++)
+                            {
+                                string CloseBal = "0.00", crdrType = "Cr";
+                                DataTable DTCloseBal = bl.BL_ExecuteParamSP("uspLoadClosingBalance", 1, DDTParty.Rows[0]["FAID"].ToString());
+                                if (DTCloseBal.Rows.Count > 0)
+                                {
+                                    CloseBal = DTCloseBal.Rows[0][0].ToString();
+                                    crdrType = DTCloseBal.Rows[0][1].ToString();
+                                }
+                                listParty.Add(new CustomerVendorModel
+                                {
+                                    ID = DDTParty.Rows[0]["ID"].ToString(),
+                                    Code = DDTParty.Rows[0]["Code"].ToString(),
+                                    Name = DDTParty.Rows[0]["Name"].ToString(),
+                                    Billadd1 = DDTParty.Rows[0]["Billadd1"].ToString(),
+                                    Billadd2 = DDTParty.Rows[0]["Billadd2"].ToString(),
+                                    Billadd3 = DDTParty.Rows[0]["Billadd3"].ToString(),
+                                    Shipadd1 = DDTParty.Rows[0]["Shipadd1"].ToString(),
+                                    Shipadd2 = DDTParty.Rows[0]["shipadd2"].ToString(),
+                                    Shipadd3 = DDTParty.Rows[0]["Shipadd3"].ToString(),
+                                    Pincode = DDTParty.Rows[0]["Pincode"].ToString(),
+                                    ContactPerson = DDTParty.Rows[0]["ContactPerson"].ToString(),
+                                    Ph1 = DDTParty.Rows[0]["Ph1"].ToString(),
+                                    Ph2 = DDTParty.Rows[0]["Ph2"].ToString(),
+                                    Mob1 = DDTParty.Rows[0]["Mob1"].ToString(),
+                                    Mob2 = DDTParty.Rows[0]["Mob2"].ToString(),
+                                    Email = DDTParty.Rows[0]["Email"].ToString(),
+                                    PANNumber = DDTParty.Rows[0]["PANNumber"].ToString(),
+                                    AadharNo = DDTParty.Rows[0]["AadharNo"].ToString(),
+                                    DLNo20 = DDTParty.Rows[0]["DLNo20"].ToString(),
+                                    DLNo21 = DDTParty.Rows[0]["DLNo21"].ToString(),
+                                    FSSAINo = DDTParty.Rows[0]["FSSAINo"].ToString(),
+                                    StateID = DDTParty.Rows[0]["StateID"].ToString(),
+                                    GSTIN = DDTParty.Rows[0]["GSTIN"].ToString(),
+                                    CreditTermID = DDTParty.Rows[0]["CreditTermID"].ToString(),
+                                    PaymentModeID = DDTParty.Rows[0]["PaymentModeID"].ToString(),
+                                    FAID = DDTParty.Rows[0]["FAID"].ToString(),
+                                    Active = DDTParty.Rows[0]["Active"].ToString(),
+                                    Ratings = DDTParty.Rows[0]["Rating"].ToString(),
+                                    OSValue = CloseBal,
+                                    CreditlimitOS = crdrType
+                                });
+                            }
+                        }
+                        int nPayModeID = Convert.ToInt32(dtHeader.Rows[0]["PaymentID"].ToString());
+
+                        listCollPay.Add(new CollectionPaymentModel
+                        {
+                            ID = dtHeader.Rows[0]["ID"].ToString(),
+                            DocId = null,
+                            DocDate = Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
+                            CustomerID = dtHeader.Rows[0]["CustID"].ToString(),
+                            BeatID = dtHeader.Rows[0]["BeatID"].ToString(),
+                            SalesmanID = dtHeader.Rows[0]["SalesmanID"].ToString(),
+                            RefNo = null,
+                            PaymentModeID = nPayModeID.ToString(),
+                            CollAmt = dtHeader.Rows[0]["Amt"].ToString(),
+                            Status = dtHeader.Rows[0]["Status"].ToString(),
+                            CurrentStatus = dtHeader.Rows[0]["Status"].ToString(),
+                            UDFId = "0",
+                            Remarks = dtHeader.Rows[0]["Remarks"].ToString(),
+                            Narration = dtHeader.Rows[0]["Narration"].ToString(),
+                            VisaPern = "0",
+                            VisaAmt = "0",
+                            NEFTNo = nPayModeID == 4 ? dtHeader.Rows[0]["ChequeNo"].ToString() : null,
+                            BankAccID = dtHeader.Rows[0]["Narration"].ToString(),
+                            BankAccNo = null,
+                            ChequeID = "0",
+                            ChequeNo = nPayModeID == 2 ? dtHeader.Rows[0]["ChequeNo"].ToString() : null,
+                            ChequeDate = !string.IsNullOrEmpty(dtHeader.Rows[0]["ChequeDate"].ToString()) ? Convert.ToDateTime(dtHeader.Rows[0]["ChequeDate"].ToString()).ToString("yyyy-MM-dd") : null,
+                            IFSC = dtHeader.Rows[0]["IFSCcode"].ToString(),
+                            BankID = dtHeader.Rows[0]["BankID"].ToString(),
+                            BankName = null,
+                            Branch = null,                            
+                        });
+                        WebCollectionData.Add(new
+                        {
+                            Invoices = list,
+                            Header = listCollPay,
+                            PartyInfo = listParty
+                        });
+                        return Ok(WebCollectionData);
+                    }
+                }
+                return Ok();
+            }
+            catch(Exception ex) {
+                bl.BL_WriteErrorMsginLog("Collection", "getwebcolldocs", ex.Message);
+            }
+            return Ok();
+        }
+       [HttpGet]
         [Route("api/collectionpayment/getfilterdata")]
         public IHttpActionResult GetFilterData(string Mode, string TransID, string Party, string FromDate, string ToDate, string Showall)
         {
@@ -584,6 +820,7 @@ namespace SampWebApi.Controllers
                             InvRow["TotalAmtAdj"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"])) + dBalanceAmt;
                             InvRow["TranType"] = 1;
                             InvRow["SerialNo"] = 1;
+                            InvRow["ReasonID"] = 0;
                             dtDetail.Rows.Add(InvRow);
                         }
                         else if (DocTypePorR == 2)
@@ -625,6 +862,7 @@ namespace SampWebApi.Controllers
                                                     + dBalanceAmt + dWriteOffAmount;
                             InvRow["TranType"] = 1;
                             InvRow["SerialNo"] = 1;
+                            InvRow["ReasonID"] = bl.BL_nValidation(dtDocs.Rows[i]["ReasonID"]);
                             dtDetail.Rows.Add(InvRow);
                         }
                     }
@@ -643,6 +881,10 @@ namespace SampWebApi.Controllers
                     {
                         int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
                         bl.bl_Transaction(2);
+                        if (bl.BL_nValidation(listTrans.WebCollID) > 0)
+                        {
+                            bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 7, bl.BL_nValidation(listTrans.WebCollID), nScopeInvID);
+                        }
                         list.Add(new SaveMessage()
                         {
                             ID = nScopeInvID.ToString(),

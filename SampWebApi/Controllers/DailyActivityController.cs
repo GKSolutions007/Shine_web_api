@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -13,7 +14,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
+using System.Web.Util;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace SampWebApi.Controllers
@@ -574,6 +577,7 @@ namespace SampWebApi.Controllers
                     list.Add(new CollectionModel
                     {
                         ID = DDT.Rows[i][0].ToString(),
+                        EncID = HttpUtility.UrlEncode(clsEncryptDecrypt.Encrypt(DDT.Rows[i][0].ToString())),
                         Date = DDT.Rows[i][1].ToString(),
                         BeatName = DDT.Rows[i][2].ToString(),
                         SalesManName = DDT.Rows[i][3].ToString(),
@@ -596,6 +600,7 @@ namespace SampWebApi.Controllers
                            new
                            {
                                ID = users.ID,
+                               EncID = users.EncID,
                                Date = users.Date,
                                BeatName = users.BeatName,
                                SalesManName = users.SalesManName,
