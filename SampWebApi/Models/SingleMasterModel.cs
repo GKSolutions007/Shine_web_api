@@ -16,6 +16,7 @@ namespace SampWebApi.Models
         public string Mode { get; set; }
         public string FormID { get; set; }
         public string Value { get; set; }
+        public int Favourite { get; set; }
         public string CBy { get; set; }
         public string CDate { get; set; }
         public List<clsMenuorder> lstMenus { get; set; }
@@ -25,6 +26,7 @@ namespace SampWebApi.Models
     {
         public string MenuID { get; set; }
         public string Order { get; set; }
+        public int Favourite { get; set; }
     }
     public class clsDocSeries
     {
