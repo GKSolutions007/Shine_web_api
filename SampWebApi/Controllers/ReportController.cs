@@ -56,6 +56,8 @@ namespace SampWebApi.Controllers
             string dtjson = JsonConvert.SerializeObject(ds);
             return Ok(dtjson);
         }
+
+
             [HttpGet]
         [Route("api/reportparameters/get")]
         public IHttpActionResult GetData(string Mode, string ReportID, string ALName = null)

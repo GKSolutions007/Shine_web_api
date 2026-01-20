@@ -318,6 +318,14 @@ namespace SampWebApi.Controllers
             DataTable dtReportPermission = bl.BL_ExecuteParamSP("uspReportPermission", 2, RID, UID);
             dtReportPermission.TableName = "UserRepMenus";
             ds.Tables.Add(dtReportPermission);
+
+            DataTable dtFinReportParent = bl.BL_ExecuteParamSP("uspFinancialReportPermission", 1, RID);
+            dtFinReportParent.TableName = "ParentFinRepMenu";
+            ds.Tables.Add(dtFinReportParent);
+            DataTable dtFinReportPermission = bl.BL_ExecuteParamSP("uspFinancialReportPermission", 2, RID, UID);
+            dtFinReportPermission.TableName = "UserFinRepMenus";
+            ds.Tables.Add(dtFinReportPermission);
+
             string dtjson = JsonConvert.SerializeObject(ds);
             return Ok(dtjson);
         }
