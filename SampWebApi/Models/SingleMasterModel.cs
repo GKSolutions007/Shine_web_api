@@ -282,6 +282,8 @@ namespace SampWebApi.Models
         public string BeatMandatoryinCustomer { get; set; }
         public string DraftAutoSaveTimeInterval { get; set; }        
         public string HomePeriod { get; set; }
+        public string AutoRefresh { get; set; }
+        
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         
