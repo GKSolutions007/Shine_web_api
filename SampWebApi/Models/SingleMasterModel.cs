@@ -480,6 +480,9 @@ namespace SampWebApi.Models
         public bool EnableAvg { get; set; }        
         public string precision { get; set; }
         public bool ClickPopup { get; set; }
+        public int Printwidth { get; set; }
+        public bool PrintYN { get; set; }
+        public string PrintColumnName { get; set; }
     }
     public class ColumnSettingsModel
     {
@@ -503,6 +506,9 @@ namespace SampWebApi.Models
         public string Visible { get; set; }
         public string Width { get; set; }
         public string precision { get; set; }
+        public int Printwidth { get; set; }
+        public bool PrintYN { get; set; }
+        public string PrintColumnName { get; set; }
 
     }
     public class MapRoleModel
