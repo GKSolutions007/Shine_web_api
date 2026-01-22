@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -112,6 +113,98 @@ namespace SampWebApi.Controllers
             {
                 return Ok();
             }
+        }
+        [HttpGet]
+        [Route("api/financialrepcolumnsettings/getcolumnsettings")]
+        public IHttpActionResult GetGendralColumnData(string Mode, string FormID, string TableID, string FormorReport)
+        {
+            if (Mode == "1")
+            {
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
+                string JSONCONV = JsonConvert.SerializeObject(dtResult);
+                return Ok(JSONCONV);
+            }
+            if (Mode == "2")
+            {
+                List<ColumnSettingsDataModel> list = new List<ColumnSettingsDataModel>();
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
+                for (int i = 0; i < dtResult.Rows.Count; i++)
+                {
+                    //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
+                    list.Add(new ColumnSettingsDataModel()
+                    {
+                        field = dtResult.Rows[i]["ColumnName"].ToString(),
+                        header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
+                        type = "label",
+                        width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
+                        align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
+                        visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
+                        EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
+                        ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,
+                        Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
+                        TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
+                        EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
+                        EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                        ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
+                        precision = dtResult.Rows[i]["precision"].ToString(),
+                        PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
+                        Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
+                        PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
+                    });
+                }
+                return Ok(list);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/financialrepcolumnsettings/Savecolumnsettings")]
+        public IHttpActionResult saveGenColumnData(List<ColumnSettingsModel> ColumnSettingData)
+        {
+            if (ColumnSettingData != null)
+            {
+                var list = new List<object>();
+                foreach (ColumnSettingsModel item in ColumnSettingData)
+                {
+                    bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
+                      item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
+                      item.EnableAvg, item.EnableColumnMenu, item.ShowinColumnOption,item.PrintYN ? 1 : 0, item.PrintColumnName,
+                      item.Printwidth);
+                }
+                List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", 2, ColumnSettingData[0].FormID, ColumnSettingData[0].TableID, ColumnSettingData[0].FormorReport);
+                for (int i = 0; i < dtResult.Rows.Count; i++)
+                {
+                    //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
+                    Columnlist.Add(new ColumnSettingsDataModel()
+                    {
+                        field = dtResult.Rows[i]["ColumnName"].ToString(),
+                        header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
+                        type = "label",
+                        width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
+                        align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
+                        visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
+                        EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
+                        ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,
+                        Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
+                        TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
+                        EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
+                        EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                        ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
+                        precision = dtResult.Rows[i]["precision"].ToString(),
+                        PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
+                        Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
+                        PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
+                    });
+                }
+                list.Add(new
+                {
+                    MsgID = "0",
+                    Message = "Saved Successfully",
+                    ColumnData = Columnlist
+                });
+                return Ok(list);
+            }
+            return Ok();
         }
     }
 }
