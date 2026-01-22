@@ -591,6 +591,7 @@ namespace SampWebApi.Controllers
                         AdvAmt = DDT.Rows[i][13].ToString(),
                         CashValue = DDT.Rows[i][14].ToString(),
                         AdjAmt = DDT.Rows[i][15].ToString(),
+                        InvoiceAmt = DDT.Rows[i][16].ToString(),
                     });
                 }
                 string str = "";
@@ -614,6 +615,7 @@ namespace SampWebApi.Controllers
                                DiscAmt = users.AdvAmt,
                                WriteOff = users.CashValue,
                                AdjAmt = users.AdjAmt,
+                               InvoiceAmt = users.InvoiceAmt
                            };
                 
                 return Ok(data);
