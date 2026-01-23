@@ -530,6 +530,7 @@ namespace SampWebApi.Controllers
                         Ohtercharges = DDT.Rows[i][5].ToString(),
                         DiscPern = DDT.Rows[i][6].ToString(),
                         DiscAmt = DDT.Rows[i][7].ToString(),
+                        Balance = DDT.Rows[i][8].ToString(),
                     });
                 }
                 return Ok(list);
