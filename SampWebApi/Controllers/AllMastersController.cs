@@ -1363,6 +1363,8 @@ namespace SampWebApi.Controllers
                         RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
                         BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
                         DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
+                        HomePeriod = DDT.Rows[i]["HomePeriod"].ToString(),
+                        AutoRefresh = DDT.Rows[i]["AutoRefresh"].ToString(),
                         lstPaymode = pmlist,
                         lstConfigPasswords = lstpwd
                     });
@@ -1400,7 +1402,7 @@ namespace SampWebApi.Controllers
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.PurchaseOneView, lstMaster.SalesOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
-                            lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval);
+                            lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval,lstMaster.HomePeriod,lstMaster.AutoRefresh);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
@@ -1449,12 +1451,12 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/menuorder/get")]
-        public IHttpActionResult GetmenuorderData(string Mode, string Name)
+        public IHttpActionResult GetmenuorderData(string Mode,int Type, string Name)
         {
             if (Mode == "1" || Mode == "2")
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspManageMenuOrder", Mode, Name, 0);
+                DDT = bl.BL_ExecuteParamSP("uspManageMenuOrder", Mode,Type, Name, 0);
                 List<SingleMasterModel> list = new List<SingleMasterModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -1463,6 +1465,7 @@ namespace SampWebApi.Controllers
                         ID = DDT.Rows[i][0].ToString(),
                         Name = DDT.Rows[i][1].ToString(),
                         Value = DDT.Rows[i][2].ToString(),
+                        Favourite = DDT.Columns.Contains("Favourite")? Convert.ToInt32(DDT.Rows[i]["Favourite"]): 0
                     });
                 }
                 return Ok(list);
@@ -1475,7 +1478,9 @@ namespace SampWebApi.Controllers
         {
             foreach (clsMenuorder item in lstMaster.lstMenus)
             {
-                bl.BL_ExecuteParamSP("uspManageMenuOrder", 3, item.MenuID, item.Order);
+                Console.WriteLine($"MenuID={item.MenuID}, Order={item.Order}, Favourite={item.Favourite}");
+
+                bl.BL_ExecuteParamSP("uspManageMenuOrder", 3,0, item.MenuID, item.Order,item.Favourite);
             }
             List<SaveMessage> list = new List<SaveMessage>();
             list.Add(new SaveMessage

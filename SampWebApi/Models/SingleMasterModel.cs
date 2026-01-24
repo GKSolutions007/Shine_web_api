@@ -16,6 +16,7 @@ namespace SampWebApi.Models
         public string Mode { get; set; }
         public string FormID { get; set; }
         public string Value { get; set; }
+        public int Favourite { get; set; }
         public string CBy { get; set; }
         public string CDate { get; set; }
         public List<clsMenuorder> lstMenus { get; set; }
@@ -25,6 +26,7 @@ namespace SampWebApi.Models
     {
         public string MenuID { get; set; }
         public string Order { get; set; }
+        public int Favourite { get; set; }
     }
     public class clsDocSeries
     {
@@ -279,6 +281,9 @@ namespace SampWebApi.Models
         public string RetainDate {  get; set; }
         public string BeatMandatoryinCustomer { get; set; }
         public string DraftAutoSaveTimeInterval { get; set; }        
+        public string HomePeriod { get; set; }
+        public string AutoRefresh { get; set; }
+        
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         
@@ -475,6 +480,9 @@ namespace SampWebApi.Models
         public bool EnableAvg { get; set; }        
         public string precision { get; set; }
         public bool ClickPopup { get; set; }
+        public int Printwidth { get; set; }
+        public bool PrintYN { get; set; }
+        public string PrintColumnName { get; set; }
     }
     public class ColumnSettingsModel
     {
@@ -498,6 +506,9 @@ namespace SampWebApi.Models
         public string Visible { get; set; }
         public string Width { get; set; }
         public string precision { get; set; }
+        public int Printwidth { get; set; }
+        public bool PrintYN { get; set; }
+        public string PrintColumnName { get; set; }
 
     }
     public class MapRoleModel

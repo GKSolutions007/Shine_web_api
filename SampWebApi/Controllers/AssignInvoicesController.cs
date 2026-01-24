@@ -58,7 +58,7 @@ namespace SampWebApi.Controllers
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         StatusID = DDT.Rows[i]["StatusID"].ToString(),
-                        Remarks = DDT.Rows[i]["StatusID"].ToString(),
+                        Remarks = DDT.Rows[i]["Remarks"].ToString(),
                         Narration = DDT.Rows[i]["Narration"].ToString(),
                         OCR = DDT.Rows[i]["OCR"].ToString(),
                     });
@@ -139,7 +139,8 @@ namespace SampWebApi.Controllers
                         RefNo = DDT.Rows[0]["RefNo"].ToString(),
                         SalesmanID = DDT.Rows[0]["SalesmanID"].ToString(),
                         Status = DDT.Rows[0]["Status"].ToString(),
-                        
+                        Remarks = DDT.Rows[0]["Remarks"].ToString(),
+                        Narration = DDT.Rows[0]["Narration"].ToString(),
                         lstJsonAssignDetails = InvoiceJSONCONV
                     });
                 }
@@ -215,7 +216,9 @@ namespace SampWebApi.Controllers
                     string nMode = listTrans.TransMode == "3" ? "1" : listTrans.TransMode;
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageAssignInvoices", nMode, bl.BL_nValidation(listTrans.TransID), bl.BL_nValidation(listTrans.ID),
-                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus), dtDocument);
+                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, 
+                        bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus), dtDocument
+                        , listTrans.Remarks, listTrans.Narration);
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);

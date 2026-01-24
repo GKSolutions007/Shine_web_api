@@ -43,6 +43,7 @@ namespace SampWebApi.Controllers
                         ID = DDT.Rows[i][2].ToString(),
                         Code = DDT.Rows[i][3].ToString(),
                         Name = DDT.Rows[i][4].ToString(),
+                        Billadd1 = DDT.Rows[i][5].ToString(),
                     });
                 }
                 DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 111, DocPrefix, CodeName);
@@ -55,6 +56,7 @@ namespace SampWebApi.Controllers
                         ID = DDT.Rows[i][2].ToString(),
                         Code = DDT.Rows[i][3].ToString(),
                         Name = DDT.Rows[i][4].ToString(),
+                        Billadd1 = DDT.Rows[i][5].ToString(),
                     });
                 }
                 return Ok(list);
@@ -91,6 +93,7 @@ namespace SampWebApi.Controllers
                         ID = DDT.Rows[i][2].ToString(),
                         Code = DDT.Rows[i][3].ToString(),
                         Name = DDT.Rows[i][4].ToString(),
+                        Billadd1 = DDT.Rows[i][5].ToString(),
                     });
                 }
                 return Ok(list);

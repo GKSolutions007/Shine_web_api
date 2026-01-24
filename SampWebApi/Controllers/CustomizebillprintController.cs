@@ -245,7 +245,7 @@ namespace SampWebApi.Controllers
                                 dtHeaderCorrectValues.Columns.Remove("Error");
                                 dtItemsCorrectValues.Columns.Remove("Error");
                                 dtHeaderData = dtHeaderCorrectValues;
-                                dtItemsData = dtItemsWrongValues;
+                                dtItemsData = dtItemsCorrectValues;
                                 strFilePath = FPt + "Upload Files\\TempGroupPDF\\";
                                 for (int i = 0; i < dtHeaderData.Rows.Count; i++)
                                 {

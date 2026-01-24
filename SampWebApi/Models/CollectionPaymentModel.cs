@@ -14,6 +14,8 @@ namespace SampWebApi.Models
         public string TransName { get; set; }
         public string IsDraft { get; set; }
         public string DraftID { get; set; }
+        public string WebCollID { get; set; }
+        
         public string DocDate { get; set; }
         public string DocId { get; set; }
         public string DocPrefix { get; set; }
@@ -78,5 +80,7 @@ namespace SampWebApi.Models
         public string TotalAdjAmt { get; set; }
         public string WriteOffAmt { get; set; }
         public string Ageing { get; set; }
+        public string ReasonID { get; set; }
+        public string ReasonName { get; set; }
     }
 }

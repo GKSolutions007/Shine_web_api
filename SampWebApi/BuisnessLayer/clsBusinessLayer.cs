@@ -202,6 +202,7 @@ namespace SampWebApi.BuisnessLayer
                 dtDetail.Columns.Add("TotalAmtAdj", typeof(decimal));
                 dtDetail.Columns.Add("TranType", typeof(int));
                 dtDetail.Columns.Add("SerialNo", typeof(int));
+                dtDetail.Columns.Add("ReasonID", typeof(int));
 
                 dtMop.Columns.Add("AccID", typeof(int));
                 dtMop.Columns.Add("Mode", typeof(int));
