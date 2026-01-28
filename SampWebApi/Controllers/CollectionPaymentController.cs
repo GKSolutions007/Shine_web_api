@@ -211,6 +211,7 @@ namespace SampWebApi.Controllers
                                 DiscPern = dtFFooter.Rows[i]["DiscPern"].ToString(),
                                 DiscAmt = dtFFooter.Rows[i]["DiscAmt"].ToString(),
                                 FullAdjYN = dtFFooter.Rows[i]["FullyAdj"].ToString(),
+                                WriteOffAmt = dtFFooter.Rows[i]["FullyAdjAmt"].ToString(),
                                 TotalAdjAmt = dtFFooter.Rows[i]["TotalAmtAdj"].ToString(),
                                 Ageing = dtFFooter.Rows[i]["Ageing"].ToString(),
                                 ReasonID = dtFFooter.Rows[i]["ReasonID"].ToString(),
@@ -626,7 +627,7 @@ namespace SampWebApi.Controllers
                             VisaPern = "0",
                             VisaAmt = "0",
                             NEFTNo = nPayModeID == 4 ? dtHeader.Rows[0]["ChequeNo"].ToString() : null,
-                            BankAccID = dtHeader.Rows[0]["Narration"].ToString(),
+                            BankAccID = dtHeader.Rows[0]["BankAccountID"].ToString(),
                             BankAccNo = null,
                             ChequeID = "0",
                             ChequeNo = nPayModeID == 2 ? dtHeader.Rows[0]["ChequeNo"].ToString() : null,
@@ -685,355 +686,362 @@ namespace SampWebApi.Controllers
         [Route("api/collectionpayment/save")]
         public IHttpActionResult SaveCP(CollectionPaymentModel listTrans)
         {
-            if (listTrans != null)
+            try
             {
-                List<SaveMessage> list = new List<SaveMessage>();
-                if (listTrans.TransMode != "4")
+                if (listTrans != null)
                 {
-                    dtDenominationPMDetail.Columns.Add("ColDetailDid", typeof(int));
-                    dtDenominationPMDetail.Columns.Add("ColDetailDenomination", typeof(int));
-                    dtDenominationPMDetail.Columns.Add("ColtotCoupons", typeof(int));
-                    dtDenominationPMDetail.Columns.Add("ColDetailCount", typeof(string));
-                    dtDenominationPMDetail.Columns.Add("ColDetailAmount", typeof(decimal));
-                    bl.BL_AddCollectionData(dtHeader, dtDetail, dtMopDetails);
-                    DataTable dtAdjRefId = new DataTable(), dtTVPTable = new DataTable();
-                    DataTable dtAcc = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 3, listTrans.CustomerID, 0, listTrans.TransID);
-                    int AccID = dtAcc.Rows.Count > 0 ? bl.BL_nValidation(dtAcc.Rows[0]["FAID"].ToString()) : 0;
-                    int nPaymentMode = bl.BL_nValidation(listTrans.PaymentModeID);
-                    DataRow CustRow = dtHeader.NewRow();
-                    CustRow["Date"] = listTrans.DocDate;
-                    CustRow["CoLLPYType"] = 0;
-                    CustRow["AccID"] = AccID;
-                    CustRow["ColAmt"] = listTrans.CollAmt;
-                    CustRow["Balance"] = bl.BL_dValidation(listTrans.AdvanceAmount);
-                    CustRow["DocRefNo"] = listTrans.RefNo;
-                    CustRow["ColMode"] = nPaymentMode;
-                    CustRow["Status"] = 1;
-                    CustRow["ExAccId"] = 0;
-                    CustRow["UID"] = listTrans.UserID;
-                    CustRow["Type"] = 0;
-                    CustRow["SerialNo"] = 1;
-                    CustRow["VisaPern"] = bl.BL_dValidation(listTrans.VisaPern);
-                    CustRow["VisaAmt"] = bl.BL_dValidation(listTrans.VisaAmt);
-                    dtHeader.Rows.Add(CustRow);
-                    dtMopDetails.Rows.Clear();
-
-                    DataRow MopRow = dtMopDetails.NewRow();
-                    MopRow["AccID"] = AccID;
-                    if (listTrans.TransID == "19")//collection
+                    List<SaveMessage> list = new List<SaveMessage>();
+                    if (listTrans.TransMode != "4")
                     {
+                        dtDenominationPMDetail.Columns.Add("ColDetailDid", typeof(int));
+                        dtDenominationPMDetail.Columns.Add("ColDetailDenomination", typeof(int));
+                        dtDenominationPMDetail.Columns.Add("ColtotCoupons", typeof(int));
+                        dtDenominationPMDetail.Columns.Add("ColDetailCount", typeof(string));
+                        dtDenominationPMDetail.Columns.Add("ColDetailAmount", typeof(decimal));
+                        bl.BL_AddCollectionData(dtHeader, dtDetail, dtMopDetails);
+                        DataTable dtAdjRefId = new DataTable(), dtTVPTable = new DataTable();
+                        DataTable dtAcc = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 3, listTrans.CustomerID, 0, listTrans.TransID);
+                        int AccID = dtAcc.Rows.Count > 0 ? bl.BL_nValidation(dtAcc.Rows[0]["FAID"].ToString()) : 0;
+                        int nPaymentMode = bl.BL_nValidation(listTrans.PaymentModeID);
+                        DataRow CustRow = dtHeader.NewRow();
+                        CustRow["Date"] = listTrans.DocDate;
+                        CustRow["CoLLPYType"] = 0;
+                        CustRow["AccID"] = AccID;
+                        CustRow["ColAmt"] = listTrans.CollAmt;
+                        CustRow["Balance"] = bl.BL_dValidation(listTrans.AdvanceAmount);
+                        CustRow["DocRefNo"] = listTrans.RefNo;
+                        CustRow["ColMode"] = nPaymentMode;
+                        CustRow["Status"] = 1;
+                        CustRow["ExAccId"] = 0;
+                        CustRow["UID"] = listTrans.UserID;
+                        CustRow["Type"] = 0;
+                        CustRow["SerialNo"] = 1;
+                        CustRow["VisaPern"] = bl.BL_dValidation(listTrans.VisaPern);
+                        CustRow["VisaAmt"] = bl.BL_dValidation(listTrans.VisaAmt);
+                        dtHeader.Rows.Add(CustRow);
+                        dtMopDetails.Rows.Clear();
 
-                        MopRow["Mode"] = nPaymentMode;
+                        DataRow MopRow = dtMopDetails.NewRow();
+                        MopRow["AccID"] = AccID;
+                        if (listTrans.TransID == "19")//collection
+                        {
 
-                        if (nPaymentMode == 2 || nPaymentMode == 3)
-                        {
-                            MopRow["[Cheque/DD Number]"] = (listTrans.NEFTNo.Trim());
-                        }
-                        if (nPaymentMode == 4 || nPaymentMode == 5)
-                        {
-                            MopRow["Neft"] = (listTrans.NEFTNo.Trim());
-                        }
-                        if (nPaymentMode == 2 || nPaymentMode == 3 || nPaymentMode == 4)
-                        {
-                            MopRow["Date"] = listTrans.ChequeDate;
-                        }
-                        else
-                        {
-                            MopRow["Date"] = listTrans.DocDate;
-                        }
-                        MopRow["BankAccId"] = bl.BL_nValidation(listTrans.BankAccID);
-                        MopRow["Amt"] = bl.BL_dValidation(listTrans.CollAmt);
-                        MopRow["IFSC"] = (listTrans.IFSC);
-                        MopRow["Bank"] = (listTrans.BankName);
-                        MopRow["Branch"] = (listTrans.Branch);
-                        MopRow["PayAt"] = null;
-                        MopRow["BankAccNo"] = (listTrans.BankAccNo);
-                        MopRow["ChequeBkRefNo"] = "";
-                        MopRow["ChequeBookID"] = 0;
-                    }
-                    else if (listTrans.TransID == "18")//payment
-                    {
-                        MopRow["Mode"] = nPaymentMode;
-                        if (nPaymentMode == 2)
-                        {
-                            MopRow["[Cheque/DD Number]"] = listTrans.ChequeID;
-                        }
-                        if (nPaymentMode == 3)
-                        {
-                            MopRow["[Cheque/DD Number]"] = (listTrans.ChequeNo.Trim());
-                        }
-                        if (nPaymentMode == 4 || nPaymentMode == 5)
-                        {
-                            MopRow["Neft"] = (listTrans.NEFTNo.Trim());
-                        }
-                        if (nPaymentMode == 2 || nPaymentMode == 3 || nPaymentMode == 4)
-                        {
-                            MopRow["Date"] = listTrans.ChequeDate;
-                        }
-                        else
-                        {
-                            MopRow["Date"] = listTrans.DocDate;
-                        }
-                        MopRow["BankAccId"] = bl.BL_nValidation(listTrans.BankAccID);
-                        MopRow["Amt"] = bl.BL_dValidation(listTrans.CollAmt);
-                        MopRow["IFSC"] = (listTrans.IFSC);
-                        MopRow["Bank"] = (listTrans.BankName);
-                        MopRow["Branch"] = (listTrans.Branch);
-                        MopRow["PayAt"] = null;
-                        MopRow["BankAccNo"] = (listTrans.BankAccNo);
-                        if (nPaymentMode == 2)
-                        {
-                            MopRow["ChequeBkRefNo"] = listTrans.ChequeNo;
-                        }
-                        MopRow["ChequeBookID"] = 0;
-                    }
-                    MopRow["SerialNo"] = 1;
-                    MopRow["RecdAmt"] = bl.BL_dValidation(listTrans.CollAmt);
-                    dtMopDetails.Rows.Add(MopRow);
-                    decimal dBalanceAmt = 0.00M;
-                    DataTable dtDocs = bl.ConvertListToDataTable(listTrans.lstCollPayDtl);
-                    for (int i = 0; i < dtDocs.Rows.Count; i++)
-                    {
-                        int DocTypePorR = bl.BL_nValidation(dtDocs.Rows[i][0].ToString());
-                        if (DocTypePorR == 1)
-                        {//grid 1
+                            MopRow["Mode"] = nPaymentMode;
 
-                            DataRow InvRow = dtDetail.NewRow();
-                            InvRow["AccID"] = bl.BL_nValidation(dtDocs.Rows[i]["FAID"]);
-                            InvRow["DocPrefix"] = bl.BL_nValidation(dtDocs.Rows[i]["DocPrefix"]);
-                            InvRow["DocValue"] = bl.BL_nValidation(dtDocs.Rows[i]["DocValue"]);
-                            InvRow["DocID"] = bl.BL_nValidation(dtDocs.Rows[i]["ID"]);
-                            InvRow["DocDate"] = DateTime.ParseExact(Convert.ToString(dtDocs.Rows[i]["Tran_Date"]), "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                            InvRow["Balance"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]));
-                            InvRow["ColValue"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));//"NetAmt"
-                            InvRow["AdjAmt"] = 0.00M;
-                            InvRow["DiscPer"] = "0";
-                            InvRow["DiscAmt"] = 0.00M;
-                            InvRow["FullyAdj"] = 0;
-                            InvRow["FullyAdjAmt"] = 0.00M;
-                            dBalanceAmt = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]))
-                                            - bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));
-                            if (dBalanceAmt > 0.01M)
+                            if (nPaymentMode == 2 || nPaymentMode == 3)
                             {
-                                dBalanceAmt = 0.00M;
+                                MopRow["[Cheque/DD Number]"] = (listTrans.NEFTNo.Trim());
                             }
-                            InvRow["TotalAmtAdj"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"])) + dBalanceAmt;
-                            InvRow["TranType"] = 1;
-                            InvRow["SerialNo"] = 1;
-                            InvRow["ReasonID"] = 0;
-                            dtDetail.Rows.Add(InvRow);
-                        }
-                        else if (DocTypePorR == 2)
-                        {
-                            DataRow InvRow = dtDetail.NewRow();
-                            InvRow["AccID"] = bl.BL_nValidation(dtDocs.Rows[i]["FAID"]);
-                            InvRow["DocPrefix"] = bl.BL_nValidation(dtDocs.Rows[i]["DocPrefix"]);
-                            InvRow["DocValue"] = bl.BL_nValidation(dtDocs.Rows[i]["DocValue"]);
-                            InvRow["DocID"] = bl.BL_nValidation(dtDocs.Rows[i]["ID"]);
-                            InvRow["DocDate"] = DateTime.ParseExact(Convert.ToString(dtDocs.Rows[i]["Tran_Date"]), "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                            InvRow["Balance"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]));
-                            InvRow["ColValue"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));//NetAmt
-                            //TypeID	DocID	Tran_Date	DocRef	TransName	NetAmt	Balance	ID	FAID	DocPrefix	
-                            //DocValue	UDFDocId	CollAmt	AdjAmt	DiscPern	DiscAmt	FullAdjYN	TotalAdjAmt
-                            InvRow["AdjAmt"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["AdjAmt"]));
-                            InvRow["DiscPer"] = Convert.ToString(Convert.ToString(dtDocs.Rows[i]["DiscPern"]));
-                            InvRow["DiscAmt"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["DiscAmt"]));
-                            int nFullyAdj = bl.BL_nValidation(dtDocs.Rows[i]["FullAdjYN"]);
-                            decimal dWriteOffAmount = 0.00M;
-                            if (nFullyAdj == 0)
+                            if (nPaymentMode == 4 || nPaymentMode == 5)
                             {
-                                dWriteOffAmount = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"])) - bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])));
-                                dBalanceAmt = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"])) - bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])));
-                                if (dBalanceAmt < 0.01M)
+                                MopRow["Neft"] = (listTrans.NEFTNo.Trim());
+                            }
+                            if (nPaymentMode == 2 || nPaymentMode == 3 || nPaymentMode == 4)
+                            {
+                                MopRow["Date"] = listTrans.ChequeDate;
+                            }
+                            else
+                            {
+                                MopRow["Date"] = listTrans.DocDate;
+                            }
+                            MopRow["BankAccId"] = bl.BL_nValidation(listTrans.BankAccID);
+                            MopRow["Amt"] = bl.BL_dValidation(listTrans.CollAmt);
+                            MopRow["IFSC"] = (listTrans.IFSC);
+                            MopRow["Bank"] = (listTrans.BankName);
+                            MopRow["Branch"] = (listTrans.Branch);
+                            MopRow["PayAt"] = null;
+                            MopRow["BankAccNo"] = (listTrans.BankAccNo);
+                            MopRow["ChequeBkRefNo"] = "";
+                            MopRow["ChequeBookID"] = 0;
+                        }
+                        else if (listTrans.TransID == "18")//payment
+                        {
+                            MopRow["Mode"] = nPaymentMode;
+                            if (nPaymentMode == 2)
+                            {
+                                MopRow["[Cheque/DD Number]"] = listTrans.ChequeID;
+                            }
+                            if (nPaymentMode == 3)
+                            {
+                                MopRow["[Cheque/DD Number]"] = (listTrans.ChequeNo.Trim());
+                            }
+                            if (nPaymentMode == 4 || nPaymentMode == 5)
+                            {
+                                MopRow["Neft"] = (listTrans.NEFTNo.Trim());
+                            }
+                            if (nPaymentMode == 2 || nPaymentMode == 3 || nPaymentMode == 4)
+                            {
+                                MopRow["Date"] = listTrans.ChequeDate;
+                            }
+                            else
+                            {
+                                MopRow["Date"] = listTrans.DocDate;
+                            }
+                            MopRow["BankAccId"] = bl.BL_nValidation(listTrans.BankAccID);
+                            MopRow["Amt"] = bl.BL_dValidation(listTrans.CollAmt);
+                            MopRow["IFSC"] = (listTrans.IFSC);
+                            MopRow["Bank"] = (listTrans.BankName);
+                            MopRow["Branch"] = (listTrans.Branch);
+                            MopRow["PayAt"] = null;
+                            MopRow["BankAccNo"] = (listTrans.BankAccNo);
+                            if (nPaymentMode == 2)
+                            {
+                                MopRow["ChequeBkRefNo"] = listTrans.ChequeNo;
+                            }
+                            MopRow["ChequeBookID"] = 0;
+                        }
+                        MopRow["SerialNo"] = 1;
+                        MopRow["RecdAmt"] = bl.BL_dValidation(listTrans.CollAmt);
+                        dtMopDetails.Rows.Add(MopRow);
+                        decimal dBalanceAmt = 0.00M;
+                        DataTable dtDocs = bl.ConvertListToDataTable(listTrans.lstCollPayDtl);
+                        for (int i = 0; i < dtDocs.Rows.Count; i++)
+                        {
+                            int DocTypePorR = bl.BL_nValidation(dtDocs.Rows[i][0].ToString());
+                            if (DocTypePorR == 1)
+                            {//grid 1
+
+                                DataRow InvRow = dtDetail.NewRow();
+                                InvRow["AccID"] = bl.BL_nValidation(dtDocs.Rows[i]["FAID"]);
+                                InvRow["DocPrefix"] = bl.BL_nValidation(dtDocs.Rows[i]["DocPrefix"]);
+                                InvRow["DocValue"] = bl.BL_nValidation(dtDocs.Rows[i]["DocValue"]);
+                                InvRow["DocID"] = bl.BL_nValidation(dtDocs.Rows[i]["ID"]);
+                                InvRow["DocDate"] = DateTime.ParseExact(Convert.ToString(dtDocs.Rows[i]["Tran_Date"]), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                                InvRow["Balance"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]));
+                                InvRow["ColValue"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));//"NetAmt"
+                                InvRow["AdjAmt"] = 0.00M;
+                                InvRow["DiscPer"] = "0";
+                                InvRow["DiscAmt"] = 0.00M;
+                                InvRow["FullyAdj"] = 0;
+                                InvRow["FullyAdjAmt"] = 0.00M;
+                                dBalanceAmt = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]))
+                                                - bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));
+                                if (dBalanceAmt > 0.01M)
                                 {
-                                    nFullyAdj = 1;
-                                    dWriteOffAmount = (dWriteOffAmount > 0.00M && dWriteOffAmount < 0.01M ? dWriteOffAmount : 0.00M);
-                                    dBalanceAmt = dWriteOffAmount;
+                                    dBalanceAmt = 0.00M;
+                                }
+                                InvRow["TotalAmtAdj"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"])) + dBalanceAmt;
+                                InvRow["TranType"] = 1;
+                                InvRow["SerialNo"] = 1;
+                                InvRow["ReasonID"] = 0;
+                                dtDetail.Rows.Add(InvRow);
+                            }
+                            else if (DocTypePorR == 2)
+                            {
+                                DataRow InvRow = dtDetail.NewRow();
+                                InvRow["AccID"] = bl.BL_nValidation(dtDocs.Rows[i]["FAID"]);
+                                InvRow["DocPrefix"] = bl.BL_nValidation(dtDocs.Rows[i]["DocPrefix"]);
+                                InvRow["DocValue"] = bl.BL_nValidation(dtDocs.Rows[i]["DocValue"]);
+                                InvRow["DocID"] = bl.BL_nValidation(dtDocs.Rows[i]["ID"]);
+                                InvRow["DocDate"] = DateTime.ParseExact(Convert.ToString(dtDocs.Rows[i]["Tran_Date"]), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                                InvRow["Balance"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"]));
+                                InvRow["ColValue"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["CollAmt"]));//NetAmt
+                                                                                                                    //TypeID	DocID	Tran_Date	DocRef	TransName	NetAmt	Balance	ID	FAID	DocPrefix	
+                                                                                                                    //DocValue	UDFDocId	CollAmt	AdjAmt	DiscPern	DiscAmt	FullAdjYN	TotalAdjAmt
+                                InvRow["AdjAmt"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["AdjAmt"]));
+                                InvRow["DiscPer"] = Convert.ToString(Convert.ToString(dtDocs.Rows[i]["DiscPern"]));
+                                InvRow["DiscAmt"] = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["DiscAmt"]));
+                                int nFullyAdj = bl.BL_nValidation(dtDocs.Rows[i]["FullAdjYN"]);
+                                decimal dWriteOffAmount = 0.00M;
+                                if (nFullyAdj == 0)
+                                {
+                                    dWriteOffAmount = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"])) - bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])));
+                                    dBalanceAmt = bl.BL_dValidation(Convert.ToString(dtDocs.Rows[i]["Balance"])) - bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])));
+                                    if (dBalanceAmt < 0.01M)
+                                    {
+                                        nFullyAdj = 1;
+                                        dWriteOffAmount = (dWriteOffAmount > 0.00M && dWriteOffAmount < 0.01M ? dWriteOffAmount : 0.00M);
+                                        dBalanceAmt = dWriteOffAmount;
+                                    }
+                                    else
+                                    {
+                                        dBalanceAmt = 0.00M;
+                                        dWriteOffAmount = 0.00M;
+                                    }
+                                }
+                                InvRow["FullyAdj"] = nFullyAdj;
+                                InvRow["FullyAdjAmt"] = bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["WriteOffAmt"]))) + dWriteOffAmount;
+                                InvRow["TotalAmtAdj"] = bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])))
+                                                        + dBalanceAmt + dWriteOffAmount;
+                                InvRow["TranType"] = 1;
+                                InvRow["SerialNo"] = 1;
+                                InvRow["ReasonID"] = bl.BL_nValidation(dtDocs.Rows[i]["ReasonID"]);
+                                dtDetail.Rows.Add(InvRow);
+                            }
+                        }
+                        bl.bl_Transaction(1);
+                        DataTable dtResult = new DataTable();
+                        dtResult = bl.bl_ManageTrans("uspManageFullColl",
+                            listTrans.TransID, bl.BL_nValidation(listTrans.UDFId), dtHeader, dtDetail, dtMopDetails,
+                            0,
+                            listTrans.BeatID,
+                            listTrans.SalesmanID,
+                            0,
+                            dtDenominationPMDetail, listTrans.TransMode == "1" || listTrans.TransMode == "3" ? "1" : "3", bl.BL_nValidation(listTrans.ID),
+                            listTrans.TransMode == "1" ? "1" : listTrans.CurrentStatus,
+                            0, listTrans.Remarks, listTrans.Narration);
+                        if (dtResult.Columns.Count == 1)
+                        {
+                            int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
+                            bl.bl_Transaction(2);
+                            if (bl.BL_nValidation(listTrans.WebCollID) > 0)
+                            {
+                                bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 7, bl.BL_nValidation(listTrans.WebCollID), nScopeInvID);
+                            }
+                            list.Add(new SaveMessage()
+                            {
+                                ID = nScopeInvID.ToString(),
+                                MsgID = "0",
+                                Message = "Saved Successfully"
+                            });
+                            return Ok(list);
+                        }
+                        else
+                        {
+                            bl.bl_Transaction(3);
+                            string ErrMsg = "";
+                            string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
+                            if (strErrorList.Length == 1)
+                            {
+                                if (strErrorList[0].Trim().ToUpper() == "PAYMENTSTATUS")
+                                {
+                                    ErrMsg = "Payment mode status changed";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "ACC")
+                                {
+                                    ErrMsg = "Account name already deactivated";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "CASH")
+                                {
+                                    ErrMsg = "You don't have enough amount in account";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "BANKACC")
+                                {
+                                    ErrMsg = "Bank Account already deactivated";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "BALANCE")
+                                {
+                                    ErrMsg = "You don't have enough amount in account";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "CHEQUE")
+                                {
+                                    ErrMsg = "Cheque book permission changed";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "CHEQUESTATUS")
+                                {
+                                    ErrMsg = "Cheque book status already changed";
+                                }
+                                if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                                {
+                                    ErrMsg = "This document already processed";
+                                }
+                            }
+                            else
+                            {
+                                int nDocPrefix = bl.BL_nValidation(strErrorList[1]);
+                                int nDocIdent = bl.BL_nValidation(strErrorList[2]);
+                                DataRow[] drr = dtDocs.Select("ID = '" + nDocIdent + "'", null);
+                                if (drr.Length > 0)
+                                {
+                                    string DocID = drr[0]["DocID"].ToString();
+                                    string DocDate = drr[0]["Tran_Date"].ToString();
+                                    string TransName = drr[0]["TransName"].ToString();
+                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
+                                    {
+                                        ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                    }
+                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                                    {
+                                        ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                    }
+
+                                }
+                                if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
+                                {
                                 }
                                 else
                                 {
-                                    dBalanceAmt = 0.00M;
-                                    dWriteOffAmount = 0.00M;
                                 }
                             }
-                            InvRow["FullyAdj"] = nFullyAdj;
-                            InvRow["FullyAdjAmt"] = bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["WriteOffAmt"]))) + dWriteOffAmount;
-                            InvRow["TotalAmtAdj"] = bl.BL_dValidation(Convert.ToString(Convert.ToString(dtDocs.Rows[i]["TotalAdjAmt"])))
-                                                    + dBalanceAmt + dWriteOffAmount;
-                            InvRow["TranType"] = 1;
-                            InvRow["SerialNo"] = 1;
-                            InvRow["ReasonID"] = bl.BL_nValidation(dtDocs.Rows[i]["ReasonID"]);
-                            dtDetail.Rows.Add(InvRow);
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "0",
+                                Message = ErrMsg
+                            });
+                            return Ok(list);
                         }
-                    }
-                    bl.bl_Transaction(1);
-                    DataTable dtResult = new DataTable();
-                    dtResult = bl.bl_ManageTrans("uspManageFullColl",
-                        listTrans.TransID, bl.BL_nValidation(listTrans.UDFId), dtHeader, dtDetail, dtMopDetails,
-                        0,
-                        listTrans.BeatID,
-                        listTrans.SalesmanID,
-                        0,
-                        dtDenominationPMDetail, listTrans.TransMode == "1" || listTrans.TransMode == "3" ? "1" : "3", bl.BL_nValidation(listTrans.ID),
-                        listTrans.TransMode == "1" ? "1" : listTrans.CurrentStatus,
-                        0, listTrans.Remarks, listTrans.Narration);
-                    if (dtResult.Columns.Count == 1)
-                    {
-                        int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
-                        bl.bl_Transaction(2);
-                        if (bl.BL_nValidation(listTrans.WebCollID) > 0)
-                        {
-                            bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 7, bl.BL_nValidation(listTrans.WebCollID), nScopeInvID);
-                        }
-                        list.Add(new SaveMessage()
-                        {
-                            ID = nScopeInvID.ToString(),
-                            MsgID = "0",
-                            Message = "Saved Successfully"
-                        });
-                        return Ok(list);
                     }
                     else
                     {
-                        bl.bl_Transaction(3);
                         string ErrMsg = "";
-                        string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
-                        if (strErrorList.Length == 1)
+                        bl.bl_Transaction(1);
+                        DataTable dtResult = bl.bl_ManageTrans("uspCancelCollection", listTrans.TransID,
+                            listTrans.ID,
+                            listTrans.UserID,
+                            1,
+                            listTrans.Status, listTrans.Remarks, listTrans.Narration);
+                        if (dtResult.Rows.Count > 0)
                         {
-                            if (strErrorList[0].Trim().ToUpper() == "PAYMENTSTATUS")
-                            {
-                                ErrMsg = "Payment mode status changed";
-                            }
+                            string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
                             if (strErrorList[0].Trim().ToUpper() == "ACC")
                             {
                                 ErrMsg = "Account name already deactivated";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "CASH")
+                            if (strErrorList[0].Trim().ToUpper() == "CANCELLED")
                             {
-                                ErrMsg = "You don't have enough amount in account";
+                                ErrMsg = "Document already cancelled";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "BANKACC")
+                            if (strErrorList[0].Trim().ToUpper() == "TYPE")
                             {
-                                ErrMsg = "Bank Account already deactivated";
+                                ErrMsg = "Collection Type Status Already Changed";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "BALANCE")
-                            {
-                                ErrMsg = "You don't have enough amount in account";
-                            }
-                            if (strErrorList[0].Trim().ToUpper() == "CHEQUE")
-                            {
-                                ErrMsg = "Cheque book permission changed";
-                            }
-                            if (strErrorList[0].Trim().ToUpper() == "CHEQUESTATUS")
-                            {
-                                ErrMsg = "Cheque book status already changed";
-                            }
-                            if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                            if (strErrorList[0].Trim().ToUpper() == "PAYMENT")
                             {
                                 ErrMsg = "This document already processed";
                             }
+                            if (strErrorList[0].Trim().ToUpper() == "SETTLED")
+                            {
+                                ErrMsg = "Coupon Status Already Changed";
+                            }
+                            if (strErrorList[0].Trim().ToUpper() == "PROCESSED")
+                            {
+                                ErrMsg = "This document already processed";
+                            }
+                            if (strErrorList[0].Trim().ToUpper() == "BAL")
+                            {
+                                ErrMsg = "You don't have amount to cancel document";
+                            }
+                            if (strErrorList[0].Trim().ToUpper() == "PROC")
+                            {
+                                ErrMsg = "This document already processed";
+                            }
+                            bl.bl_Transaction(3);
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "1",
+                                Message = ErrMsg
+                            });
+                            return Ok(list);
                         }
                         else
                         {
-                            int nDocPrefix = bl.BL_nValidation(strErrorList[1]);
-                            int nDocIdent = bl.BL_nValidation(strErrorList[2]);
-                            DataRow[] drr = dtDocs.Select("ID = '" + nDocIdent + "'", null);
-                            if (drr.Length > 0)
+                            bl.bl_Transaction(2);
+                            list.Add(new SaveMessage()
                             {
-                                string DocID = drr[0]["DocID"].ToString();
-                                string DocDate = drr[0]["Tran_Date"].ToString();
-                                string TransName = drr[0]["TransName"].ToString();
-                                if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
-                                {
-                                    ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                }
-                                if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
-                                {
-                                    ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                }
-
-                            }
-                            if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
-                            {
-                            }
-                            else
-                            {
-                            }
+                                ID = 0.ToString(),
+                                MsgID = "0",
+                                Message = "Saved Successfully"
+                            });
+                            return Ok(list);
                         }
-                        list.Add(new SaveMessage()
-                        {
-                            ID = 0.ToString(),
-                            MsgID = "0",
-                            Message = ErrMsg
-                        });
-                        return Ok(list);
                     }
                 }
-                else
-                {
-                    string ErrMsg = "";
-                    bl.bl_Transaction(1);
-                    DataTable dtResult = bl.bl_ManageTrans("uspCancelCollection", listTrans.TransID,
-                        listTrans.ID,
-                        listTrans.UserID,
-                        1,
-                        listTrans.Status, listTrans.Remarks, listTrans.Narration);
-                    if (dtResult.Rows.Count > 0)
-                    {
-                        string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
-                        if (strErrorList[0].Trim().ToUpper() == "ACC")
-                        {
-                            ErrMsg = "Account name already deactivated";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "CANCELLED")
-                        {
-                            ErrMsg = "Document already cancelled";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "TYPE")
-                        {
-                            ErrMsg = "Collection Type Status Already Changed";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "PAYMENT")
-                        {
-                            ErrMsg = "This document already processed";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "SETTLED")
-                        {
-                            ErrMsg = "Coupon Status Already Changed";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "PROCESSED")
-                        {
-                            ErrMsg = "This document already processed";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "BAL")
-                        {
-                            ErrMsg = "You don't have amount to cancel document";
-                        }
-                        if (strErrorList[0].Trim().ToUpper() == "PROC")
-                        {
-                            ErrMsg = "This document already processed";
-                        }
-                        bl.bl_Transaction(3);
-                        list.Add(new SaveMessage()
-                        {
-                            ID = 0.ToString(),
-                            MsgID = "1",
-                            Message = ErrMsg
-                        });
-                        return Ok(list);
-                    }
-                    else
-                    {
-                        bl.bl_Transaction(2);
-                        list.Add(new SaveMessage()
-                        {
-                            ID = 0.ToString(),
-                            MsgID = "0",
-                            Message = "Saved Successfully"
-                        });
-                        return Ok(list);
-                    }
-                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("collectionpayment", "SaveCP", ex.Message);
             }
             return Ok();
         }
