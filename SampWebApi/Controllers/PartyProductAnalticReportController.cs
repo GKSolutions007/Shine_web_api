@@ -18,10 +18,10 @@ namespace SampWebApi.Controllers
         clsBusinessLayer bl = new clsBusinessLayer();
         [HttpGet]
         [Route("api/partyanalticalreport/getparty")]
-        public IHttpActionResult GetData()
+        public IHttpActionResult GetData(int PartyType)
         {
             DataTable DDT = new DataTable();
-            DDT = bl.BL_ExecuteParamSP("uspPartyReportData", 1);
+            DDT = bl.BL_ExecuteParamSP("uspPartyReportData", 1, PartyType);
             string jsonparty = JsonConvert.SerializeObject(DDT);
             return Ok(jsonparty);
         }
