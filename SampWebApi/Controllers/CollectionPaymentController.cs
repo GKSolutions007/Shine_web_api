@@ -211,6 +211,7 @@ namespace SampWebApi.Controllers
                                 DiscPern = dtFFooter.Rows[i]["DiscPern"].ToString(),
                                 DiscAmt = dtFFooter.Rows[i]["DiscAmt"].ToString(),
                                 FullAdjYN = dtFFooter.Rows[i]["FullyAdj"].ToString(),
+                                WriteOffAmt = dtFFooter.Rows[i]["FullyAdjAmt"].ToString(),
                                 TotalAdjAmt = dtFFooter.Rows[i]["TotalAmtAdj"].ToString(),
                                 Ageing = dtFFooter.Rows[i]["Ageing"].ToString(),
                                 ReasonID = dtFFooter.Rows[i]["ReasonID"].ToString(),
