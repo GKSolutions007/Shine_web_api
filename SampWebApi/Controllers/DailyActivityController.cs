@@ -329,6 +329,8 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "5")
             {
+                string ErrorIDs = "";
+                string ErrorMsgs = "";
                 List<SaveMessage> list = new List<SaveMessage>();
                 DataTable dtDenominationPMDetail = new DataTable();DataTable dtMopDetails = new DataTable("MOP"), dtDetail = new DataTable("CollectionDetail"), dtHeader = new DataTable("CollectionHeader");
                 dtDenominationPMDetail.Columns.Add("ColDetailDid", typeof(int));
@@ -443,17 +445,18 @@ namespace SampWebApi.Controllers
                         
                         bl.bl_Transaction(2);
                         bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 7, CollectionID, nScopeInvID);
-                        list.Add(new SaveMessage()
-                        {
-                            ID = nScopeInvID.ToString(),
-                            MsgID = "0",
-                            Message = "Saved Successfully"
-                        });
-                        return Ok(list);
+                        //list.Add(new SaveMessage()
+                        //{
+                        //    ID = nScopeInvID.ToString(),
+                        //    MsgID = "0",
+                        //    Message = "Saved Successfully"
+                        //});
+                        //return Ok(list);
                     }
                     else
                     {
                         bl.bl_Transaction(3);
+                        
                         string ErrMsg = "";
                         string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
                         if (strErrorList.Length == 1)
@@ -504,15 +507,19 @@ namespace SampWebApi.Controllers
                                 ErrMsg = "This document already processed";
                             }
                         }
-                        list.Add(new SaveMessage()
-                        {
-                            ID = 0.ToString(),
-                            MsgID = "0",
-                            Message = ErrMsg
-                        });
-                        return Ok(list);
+                        ErrorIDs += CollectionID + ",";
+                        ErrorMsgs += ErrMsg + ",";
+                        
                     }
                 }
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = !string.IsNullOrEmpty(ErrorIDs) ? "1" : "0",
+                    Message = !string.IsNullOrEmpty(ErrorIDs) ? ErrorMsgs:"Saved Successfully",
+                    RowID= ErrorIDs
+                });
+                return Ok(list);
             }
             if (Mode == "8")
             {
