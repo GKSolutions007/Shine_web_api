@@ -33,9 +33,9 @@ namespace SampWebApi.Controllers
         [Route("api/homescreendraft/get")]
         public IHttpActionResult GetData(string Mode, string Trans)
         {
+            DataTable DDT = new DataTable();
             if (Mode == "1")
-            {
-                DataTable DDT = new DataTable();
+            {                
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<SingleMasterModel> list = new List<SingleMasterModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -52,7 +52,7 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "2")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
+                DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<PurchaseModel> list = new List<PurchaseModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -78,29 +78,31 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "3")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenCollectionData", Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "4" || Mode == "5")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, "");
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "6")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "7")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenTransactionsData", Trans);
+                string Jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(Jsondata);
+            }
+            if (Mode == "8" || Mode == "9")
+            {
+                DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
