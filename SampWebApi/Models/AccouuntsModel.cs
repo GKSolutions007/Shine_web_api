@@ -16,6 +16,8 @@ namespace SampWebApi.Models
         public string DocDate { get; set; }
         public string RefNo { get; set; }
         public string PartyID { get; set; }
+        public string BranchID { get; set; }
+        public string BranchName { get; set; }
         public string FAID { get; set; }
         public string NoteValue { get; set; }
         public string Balance { get; set; }
