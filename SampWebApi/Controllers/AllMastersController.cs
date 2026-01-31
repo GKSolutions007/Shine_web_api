@@ -1494,7 +1494,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/documentseries/get")]
-        public IHttpActionResult GetdocumentseriesData(string Mode, string Name)
+        public IHttpActionResult GetdocumentseriesData(string Mode, string FromDate,string ToDate)
         {
             if (Mode == "1")
             {
@@ -1513,17 +1513,45 @@ namespace SampWebApi.Controllers
                 }
                 return Ok(list);
             }
+            else if(Mode == "2")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "3")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode, FromDate, ToDate);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
             return Ok();
         }
         [HttpPost]
         [Route("api/documentseries/save")]
-        public IHttpActionResult Savedocumentseries(SingleMasterModel lstMaster)
+        public IHttpActionResult Savedocumentseries(DocumentSeries lstMaster)
         {
-            foreach (clsDocSeries item in lstMaster.lstDocSeries)
-            {
-                bl.BL_ExecuteParamSP("uspManageDocumentSeries", 2, item.ID, item.Prefix, item.DocValue);
-            }
             List<SaveMessage> list = new List<SaveMessage>();
+            int alreadycheck = 0;
+            foreach (clsDocSeries item in lstMaster.lstDocSeries)
+            {                
+               DataTable dt= bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode, item.ID, item.Prefix, item.DocValue,lstMaster.FromDate,lstMaster.ToDate,
+                    lstMaster.UserID,!string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
+                    !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null, alreadycheck);
+                if(dt.Columns.Count > 1)
+                {
+                    list.Add(new SaveMessage
+                    {
+                        MsgID = "1",
+                        Message = dt.Rows[0][0].ToString()
+                    });
+                    return Ok(list);
+                }
+                alreadycheck = 1;
+            }
+            
             list.Add(new SaveMessage
             {
                 MsgID = "0",

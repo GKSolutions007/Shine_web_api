@@ -18,7 +18,7 @@ namespace SampWebApi.Models
         public string Value { get; set; }
         public int Favourite { get; set; }
         public string CBy { get; set; }
-        public string CDate { get; set; }
+        public string CDate { get; set; }        
         public List<clsMenuorder> lstMenus { get; set; }
         public List<clsDocSeries> lstDocSeries { get; set; }
     }
@@ -27,6 +27,17 @@ namespace SampWebApi.Models
         public string MenuID { get; set; }
         public string Order { get; set; }
         public int Favourite { get; set; }
+    }
+    public class DocumentSeries
+    {
+        public string ID { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string orgFromDate { get; set; }
+        public string orgToDate { get; set; }
+        public string UserID { get; set; }
+        public string Mode { get; set; }
+        public List<clsDocSeries> lstDocSeries { get; set; }
     }
     public class clsDocSeries
     {
