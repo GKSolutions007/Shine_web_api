@@ -284,6 +284,8 @@ namespace SampWebApi.Controllers
                         TDSAmt = DDT.Rows[i][19].ToString(),
                         SACHSN = DDT.Rows[i][20].ToString(),
                         RoundoffAmt = DDT.Rows[i][21].ToString(),
+                        BranchID = DDT.Rows[i][22].ToString(),
+                        BranchName = DDT.Rows[i][23].ToString()
                     });
                 }
                 return Ok(list);
@@ -343,7 +345,7 @@ namespace SampWebApi.Controllers
                         bl.BL_dValidation(listTrans.DiscAmt), bl.BL_nValidation(listTrans.TaxID), bl.BL_dValidation(listTrans.TaxPern),
                         bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), bl.BL_dValidation(listTrans.NetAmt),
                         listTrans.Remark, listTrans.Narration, listTrans.CBy, 0, bl.BL_nValidation(listTrans.UDFId), 0, 0, listTrans.SACHSN,
-                        bl.BL_dValidation(listTrans.TDSAmt), bl.BL_nValidation(listTrans.CurrentStatus),null,0, bl.BL_dValidation(listTrans.RoundoffAmt));
+                        bl.BL_dValidation(listTrans.TDSAmt), bl.BL_nValidation(listTrans.CurrentStatus),null,0, bl.BL_dValidation(listTrans.RoundoffAmt), bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
