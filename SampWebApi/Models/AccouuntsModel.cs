@@ -18,6 +18,7 @@ namespace SampWebApi.Models
         public string PartyID { get; set; }
         public string BranchID { get; set; }
         public string BranchName { get; set; }
+        public string Branch_Name { get; set; }
         public string FAID { get; set; }
         public string NoteValue { get; set; }
         public string Balance { get; set; }
@@ -95,6 +96,8 @@ namespace SampWebApi.Models
         public string IfscCode { get; set; }
         public string BankName { get; set; }
         public string BranchName { get; set; }
+        public string BranchID { get; set; }
+        public string Branch_Name { get; set; }
         public string AmtRecd { get; set; }
         public string Status { get; set; }
 

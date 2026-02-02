@@ -2045,14 +2045,30 @@ namespace SampWebApi.Controllers
             {
                 DataTable DDT = bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", Mode);
                 List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    var fType = DDT.Rows[i]["FType"].ToString();
+                    var id = DDT.Rows[i]["ID"].ToString();
+                    var name = DDT.Rows[i]["Name"].ToString();
+
+                    var item = new CustomerVendorModel
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Name = DDT.Rows[i][1].ToString(),
-                    });
+                        FType = fType,   // 1 = Location, 2 = Branch
+                        ID = id,
+                        Name = name
+                    };
+
+                    // Optionally set BranchID/BranchName if it's a branch
+                    if (fType == "2")
+                    {
+                        item.BranchID = id;
+                        item.BranchName = name;
+                    }
+
+                    list.Add(item);
                 }
+
                 return Ok(list);
             }
             if (Mode == "2")

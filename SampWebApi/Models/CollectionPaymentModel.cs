@@ -21,6 +21,7 @@ namespace SampWebApi.Models
         public string DocPrefix { get; set; }
         public string DocValue { get; set; }
         public string BranchID { get; set; }
+        public string BranchName { get; set; }
         public string CustomerID { get; set; }
         public string PartyName { get; set; }
         public string BeatID { get; set; }

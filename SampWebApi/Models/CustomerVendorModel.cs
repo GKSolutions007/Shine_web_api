@@ -22,6 +22,8 @@ namespace SampWebApi.Models
         public string Billadd1 { get; set; }
         public string Billadd2 { get; set; }
         public string Billadd3 { get; set; }
+        public string BranchID { get; set; }
+        public string BranchName { get; set; }
         public string Shipadd1 { get; set; }
         public string Shipadd2 { get; set; }
         public string Shipadd3 { get; set; }
