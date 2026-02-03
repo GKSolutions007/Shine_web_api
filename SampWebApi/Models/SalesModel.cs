@@ -262,6 +262,8 @@ namespace SampWebApi.Models
         public string Remarks { get; set; }
         public string Narration { get; set; }
         public string OCR { get; set; }
+        public string BranchID { get; set; }
+        public string BranchName { get; set; }
     }
     public class AssignInvoiceDetails
     {

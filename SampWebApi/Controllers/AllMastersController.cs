@@ -22,6 +22,8 @@ using DocumentFormat.OpenXml.Office.CustomXsn;
 using Ionic.Zip;
 using System.Windows.Interop;
 using System.Diagnostics;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Extensions.Logging;
 namespace SampWebApi.Controllers
 {
     [CookieAuthorize]
@@ -2039,11 +2041,22 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/updateproductlocation/get")]
-        public IHttpActionResult Getupdateproductlocation(string Mode)
+        public IHttpActionResult Getupdateproductlocation(string Mode,string BranchID)
         {
+            DataTable dtSerialInfo = new DataTable();
+            DataColumn column = new DataColumn("Index");
+            column.DataType = System.Type.GetType("System.Int32");
+            column.AutoIncrement = true;
+            column.AutoIncrementSeed = 1;
+            column.AutoIncrementStep = 1;
+            dtSerialInfo.Columns.Add(column);
+            dtSerialInfo.Columns.Add("ProdId", typeof(int));
+            dtSerialInfo.Columns.Add("Serial", typeof(string));
             if (Mode == "1")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", Mode);
+                bl.bl_Transaction(1);
+                DataTable DDT = bl.bl_ManageTrans("uspManageUpdateproductlocation", Mode,0, dtSerialInfo);
+                bl.bl_Transaction(2);
                 List<CustomerVendorModel> list = new List<CustomerVendorModel>();
 
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -2073,22 +2086,11 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "2")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", Mode);
+                bl.bl_Transaction(1);
+                DataTable DDT = bl.bl_ManageTrans("uspManageUpdateproductlocation", Mode, BranchID, dtSerialInfo);
+                bl.bl_Transaction(2);
                 string ProdData = JsonConvert.SerializeObject(DDT, Formatting.Indented);
-                return Ok(ProdData);
-                List<ProductModel> list = new List<ProductModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new ProductModel
-                    {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Code = DDT.Rows[i][1].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        CategoryID = DDT.Rows[i][3].ToString(),
-                        LocationID = DDT.Rows[i][4].ToString()
-                    });
-                }
-                return Ok(list);
+                return Ok(ProdData);                
             }
             return Ok();
         }
@@ -2099,10 +2101,28 @@ namespace SampWebApi.Controllers
             List<SaveMessage> list = new List<SaveMessage>();
             if (lstProd != null)
             {
+                DataTable dtSerialInfo = new DataTable();
+                DataColumn column = new DataColumn("Index");
+                column.DataType = System.Type.GetType("System.Int32");
+                column.AutoIncrement = true;
+                column.AutoIncrementSeed = 1;
+                column.AutoIncrementStep = 1;
+                dtSerialInfo.Columns.Add(column);
+                dtSerialInfo.Columns.Add("ProdId", typeof(int));
+                dtSerialInfo.Columns.Add("Serial", typeof(string));
+                int BranchID = 0;
                 foreach (ProductModel item in lstProd)
                 {
-                    bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", 3, item.ID, item.LocationID);
+                    
+                    DataRow dataRow = dtSerialInfo.NewRow();
+                    dataRow[1] = item.ID;
+                    dataRow[2] = item.LocationID;
+                    dtSerialInfo.Rows.Add(dataRow);
+                    BranchID = Convert.ToInt32(item.BranchID);
                 }
+                bl.bl_Transaction(1);
+                bl.bl_ManageTrans("uspManageUpdateproductlocation", 3, BranchID, dtSerialInfo);
+                bl.bl_Transaction(2);
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),
