@@ -12,6 +12,7 @@ namespace SampWebApi.Models
         public string TransMode { get; set; }
         public string ID { get; set; }
         public string DocID { get; set; }
+        public string DocPrefix { get; set; }
         public string TransID { get; set; }
         public string DocDate { get; set; }
         public string RefNo { get; set; }

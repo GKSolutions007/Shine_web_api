@@ -85,6 +85,7 @@ namespace SampWebApi.Controllers
                         Narration = DDT.Rows[i][11].ToString(),
                         BranchID = DDT.Rows[i][12].ToString(),
                         BranchName = DDT.Rows[i][13].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }

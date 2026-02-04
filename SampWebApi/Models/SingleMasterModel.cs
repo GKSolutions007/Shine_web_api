@@ -33,8 +33,10 @@ namespace SampWebApi.Models
         public string ID { get; set; }
         public string FromDate { get; set; }
         public string ToDate { get; set; }
+        public string BranchID { get; set; }
         public string orgFromDate { get; set; }
         public string orgToDate { get; set; }
+        public string orgBranchID { get; set; }
         public string UserID { get; set; }
         public string Mode { get; set; }
         public List<clsDocSeries> lstDocSeries { get; set; }
@@ -45,6 +47,7 @@ namespace SampWebApi.Models
         public string TransName { get; set; }
         public string Prefix { get; set; }
         public string DocValue { get; set; }
+        
     }
     public class SaveMessage
     {

@@ -109,7 +109,8 @@ namespace SampWebApi.Controllers
                 return Ok(Jsondata);
             }
             return Ok();
-        }       
+        }
+        
         [HttpGet]
         [Route("api/getfilterdates/get")]
         public IHttpActionResult GetFilterDates()
@@ -1496,24 +1497,14 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/documentseries/get")]
-        public IHttpActionResult GetdocumentseriesData(string Mode, string FromDate,string ToDate)
+        public IHttpActionResult GetdocumentseriesData(string Mode, string ID)
         {
             if (Mode == "1")
             {
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
-                List<SingleMasterModel> list = new List<SingleMasterModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new SingleMasterModel
-                    {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Name = DDT.Rows[i][1].ToString(),
-                        Mode = DDT.Rows[i][2].ToString(),
-                        Value = DDT.Rows[i][3].ToString(),
-                    });
-                }
-                return Ok(list);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);               
             }
             else if(Mode == "2")
             {
@@ -1525,9 +1516,24 @@ namespace SampWebApi.Controllers
             else if (Mode == "3")
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode, FromDate, ToDate);
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode, ID);
                 string Masterdata = JsonConvert.SerializeObject(DDT);
                 return Ok(Masterdata);
+            }
+            else if(Mode == "4")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
+                List<SingleMasterModel> list = new List<SingleMasterModel>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new SingleMasterModel
+                    {
+                        ID = DDT.Rows[i][0].ToString(),
+                        Name = DDT.Rows[i][1].ToString(),
+                    });
+                }
+                return Ok(list);
             }
             return Ok();
         }
@@ -1536,12 +1542,14 @@ namespace SampWebApi.Controllers
         public IHttpActionResult Savedocumentseries(DocumentSeries lstMaster)
         {
             List<SaveMessage> list = new List<SaveMessage>();
-            int alreadycheck = 0;
+            int alreadycheck = 0,verifyID = 0;
             foreach (clsDocSeries item in lstMaster.lstDocSeries)
-            {                
-               DataTable dt= bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode, item.ID, item.Prefix, item.DocValue,lstMaster.FromDate,lstMaster.ToDate,
-                    lstMaster.UserID,!string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
-                    !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null, alreadycheck);
+            {
+                DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode,
+                    !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, item.ID, item.Prefix, item.DocValue,
+                    lstMaster.FromDate, lstMaster.ToDate, lstMaster.UserID, !string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgBranchID) ? lstMaster.orgBranchID : "0", alreadycheck, verifyID);
                 if(dt.Columns.Count > 1)
                 {
                     list.Add(new SaveMessage
@@ -1551,6 +1559,7 @@ namespace SampWebApi.Controllers
                     });
                     return Ok(list);
                 }
+                verifyID = bl.BL_nValidation(dt.Rows[0][0].ToString());
                 alreadycheck = 1;
             }
             
