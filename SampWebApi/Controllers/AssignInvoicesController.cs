@@ -18,7 +18,8 @@ namespace SampWebApi.Controllers
         clsBusinessLayer bl = new clsBusinessLayer();
         [HttpGet]
         [Route("api/assigninvoices/getdata")]
-        public IHttpActionResult GetData(string Mode, string ID, string BeatID, string SalesmanID, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetData(string Mode, string ID, string BeatID, string SalesmanID, string Party, string FromDate,
+            string ToDate, string Showall,string FilterBranch)
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
@@ -61,6 +62,7 @@ namespace SampWebApi.Controllers
                         Remarks = DDT.Rows[i]["Remarks"].ToString(),
                         Narration = DDT.Rows[i]["Narration"].ToString(),
                         OCR = DDT.Rows[i]["OCR"].ToString(),
+                        BranchName = DDT.Rows[i]["Branch Name"].ToString()
                     });
                 }
 
@@ -82,18 +84,21 @@ namespace SampWebApi.Controllers
                                    CDate = users.CDate,
                                    Remarks = users.Remarks,
                                    Narration = users.Narration,
-                                   OCR = users.OCR
+                                   OCR = users.OCR,
+                                   BranchName = users.BranchName,
                                };
 
                 return Ok(data);
             }
             else if (Mode == "3")
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, ID, BeatID, SalesmanID, Party, FromDate, ToDate, Showall);
+                DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, ID, BeatID, SalesmanID, Party, FromDate,
+                    ToDate, Showall,FilterBranch);
                 List<AssignInvoiceHeader> list = new List<AssignInvoiceHeader>();
                 if (DDT.Rows.Count > 0)
                 {
-                    DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 4, ID, BeatID, SalesmanID, Party, FromDate, ToDate, Showall);
+                    DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 4, ID, BeatID, SalesmanID, Party, 
+                        FromDate, ToDate, Showall, FilterBranch);
                     List<AssignInvoiceDetails> listDetails = new List<AssignInvoiceDetails>();
                     for (int i = 0; i < DDT1.Rows.Count; i++)
                     {
@@ -110,6 +115,7 @@ namespace SampWebApi.Controllers
                             Balance = DDT1.Rows[i]["Balance"].ToString(),
                             Ageing = DDT1.Rows[i]["Ageing"].ToString(),
                             Status = DDT1.Rows[i]["Status"].ToString(),
+
                             AssignedInvoiceCount = DDT1.Rows[i]["AssignedInvoiceCount"].ToString(),
                         });
                     }
@@ -141,6 +147,7 @@ namespace SampWebApi.Controllers
                         Status = DDT.Rows[0]["Status"].ToString(),
                         Remarks = DDT.Rows[0]["Remarks"].ToString(),
                         Narration = DDT.Rows[0]["Narration"].ToString(),
+                        BranchID = DDT.Rows[0]["BranchID"].ToString(),
                         lstJsonAssignDetails = InvoiceJSONCONV
                     });
                 }
@@ -148,7 +155,7 @@ namespace SampWebApi.Controllers
             }
             else if (Mode == "5")
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, 0, BeatID, SalesmanID, Party, FromDate, ToDate, Showall);
+                DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, 0, BeatID, SalesmanID, Party, FromDate, ToDate, Showall,FilterBranch);
                 List<AssignInvoiceDetails> list = new List<AssignInvoiceDetails>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -218,7 +225,7 @@ namespace SampWebApi.Controllers
                     DataTable dtResult = bl.bl_ManageTrans("uspManageAssignInvoices", nMode, bl.BL_nValidation(listTrans.TransID), bl.BL_nValidation(listTrans.ID),
                         listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, 
                         bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus), dtDocument
-                        , listTrans.Remarks, listTrans.Narration);
+                        , listTrans.Remarks, listTrans.Narration,listTrans.BranchID);
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);

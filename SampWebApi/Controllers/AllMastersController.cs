@@ -22,6 +22,8 @@ using DocumentFormat.OpenXml.Office.CustomXsn;
 using Ionic.Zip;
 using System.Windows.Interop;
 using System.Diagnostics;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Extensions.Logging;
 namespace SampWebApi.Controllers
 {
     [CookieAuthorize]
@@ -33,9 +35,9 @@ namespace SampWebApi.Controllers
         [Route("api/homescreendraft/get")]
         public IHttpActionResult GetData(string Mode, string Trans)
         {
+            DataTable DDT = new DataTable();
             if (Mode == "1")
-            {
-                DataTable DDT = new DataTable();
+            {                
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<SingleMasterModel> list = new List<SingleMasterModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -52,7 +54,7 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "2")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
+                DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<PurchaseModel> list = new List<PurchaseModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -78,34 +80,37 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "3")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenCollectionData", Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "4" || Mode == "5")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, "");
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "6")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
             if (Mode == "7")
             {
-                DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenTransactionsData", Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
+            if (Mode == "8" || Mode == "9")
+            {
+                DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
+                string Jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(Jsondata);
+            }
             return Ok();
-        }       
+        }
+        
         [HttpGet]
         [Route("api/getfilterdates/get")]
         public IHttpActionResult GetFilterDates()
@@ -1492,9 +1497,30 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/documentseries/get")]
-        public IHttpActionResult GetdocumentseriesData(string Mode, string Name)
+        public IHttpActionResult GetdocumentseriesData(string Mode, string ID)
         {
             if (Mode == "1")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);               
+            }
+            else if(Mode == "2")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "3")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode, ID);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if(Mode == "4")
             {
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageDocumentSeries", Mode);
@@ -1505,8 +1531,6 @@ namespace SampWebApi.Controllers
                     {
                         ID = DDT.Rows[i][0].ToString(),
                         Name = DDT.Rows[i][1].ToString(),
-                        Mode = DDT.Rows[i][2].ToString(),
-                        Value = DDT.Rows[i][3].ToString(),
                     });
                 }
                 return Ok(list);
@@ -1515,13 +1539,30 @@ namespace SampWebApi.Controllers
         }
         [HttpPost]
         [Route("api/documentseries/save")]
-        public IHttpActionResult Savedocumentseries(SingleMasterModel lstMaster)
+        public IHttpActionResult Savedocumentseries(DocumentSeries lstMaster)
         {
+            List<SaveMessage> list = new List<SaveMessage>();
+            int alreadycheck = 0,verifyID = 0;
             foreach (clsDocSeries item in lstMaster.lstDocSeries)
             {
-                bl.BL_ExecuteParamSP("uspManageDocumentSeries", 2, item.ID, item.Prefix, item.DocValue);
+                DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode,
+                    !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, item.ID, item.Prefix, item.DocValue,
+                    lstMaster.FromDate, lstMaster.ToDate, lstMaster.UserID, !string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgBranchID) ? lstMaster.orgBranchID : "0", alreadycheck, verifyID);
+                if(dt.Columns.Count > 1)
+                {
+                    list.Add(new SaveMessage
+                    {
+                        MsgID = "1",
+                        Message = dt.Rows[0][0].ToString()
+                    });
+                    return Ok(list);
+                }
+                verifyID = bl.BL_nValidation(dt.Rows[0][0].ToString());
+                alreadycheck = 1;
             }
-            List<SaveMessage> list = new List<SaveMessage>();
+            
             list.Add(new SaveMessage
             {
                 MsgID = "0",
@@ -2009,40 +2050,56 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/updateproductlocation/get")]
-        public IHttpActionResult Getupdateproductlocation(string Mode)
+        public IHttpActionResult Getupdateproductlocation(string Mode,string BranchID)
         {
+            DataTable dtSerialInfo = new DataTable();
+            DataColumn column = new DataColumn("Index");
+            column.DataType = System.Type.GetType("System.Int32");
+            column.AutoIncrement = true;
+            column.AutoIncrementSeed = 1;
+            column.AutoIncrementStep = 1;
+            dtSerialInfo.Columns.Add(column);
+            dtSerialInfo.Columns.Add("ProdId", typeof(int));
+            dtSerialInfo.Columns.Add("Serial", typeof(string));
             if (Mode == "1")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", Mode);
+                bl.bl_Transaction(1);
+                DataTable DDT = bl.bl_ManageTrans("uspManageUpdateproductlocation", Mode,0, dtSerialInfo);
+                bl.bl_Transaction(2);
                 List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    var fType = DDT.Rows[i]["FType"].ToString();
+                    var id = DDT.Rows[i]["ID"].ToString();
+                    var name = DDT.Rows[i]["Name"].ToString();
+
+                    var item = new CustomerVendorModel
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Name = DDT.Rows[i][1].ToString(),
-                    });
+                        FType = fType,   // 1 = Location, 2 = Branch
+                        ID = id,
+                        Name = name
+                    };
+
+                    // Optionally set BranchID/BranchName if it's a branch
+                    if (fType == "2")
+                    {
+                        item.BranchID = id;
+                        item.BranchName = name;
+                    }
+
+                    list.Add(item);
                 }
+
                 return Ok(list);
             }
             if (Mode == "2")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", Mode);
+                bl.bl_Transaction(1);
+                DataTable DDT = bl.bl_ManageTrans("uspManageUpdateproductlocation", Mode, BranchID, dtSerialInfo);
+                bl.bl_Transaction(2);
                 string ProdData = JsonConvert.SerializeObject(DDT, Formatting.Indented);
-                return Ok(ProdData);
-                List<ProductModel> list = new List<ProductModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new ProductModel
-                    {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Code = DDT.Rows[i][1].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        CategoryID = DDT.Rows[i][3].ToString(),
-                        LocationID = DDT.Rows[i][4].ToString()
-                    });
-                }
-                return Ok(list);
+                return Ok(ProdData);                
             }
             return Ok();
         }
@@ -2053,10 +2110,28 @@ namespace SampWebApi.Controllers
             List<SaveMessage> list = new List<SaveMessage>();
             if (lstProd != null)
             {
+                DataTable dtSerialInfo = new DataTable();
+                DataColumn column = new DataColumn("Index");
+                column.DataType = System.Type.GetType("System.Int32");
+                column.AutoIncrement = true;
+                column.AutoIncrementSeed = 1;
+                column.AutoIncrementStep = 1;
+                dtSerialInfo.Columns.Add(column);
+                dtSerialInfo.Columns.Add("ProdId", typeof(int));
+                dtSerialInfo.Columns.Add("Serial", typeof(string));
+                int BranchID = 0;
                 foreach (ProductModel item in lstProd)
                 {
-                    bl.BL_ExecuteParamSP("uspManageUpdateproductlocation", 3, item.ID, item.LocationID);
+                    
+                    DataRow dataRow = dtSerialInfo.NewRow();
+                    dataRow[1] = item.ID;
+                    dataRow[2] = item.LocationID;
+                    dtSerialInfo.Rows.Add(dataRow);
+                    BranchID = Convert.ToInt32(item.BranchID);
                 }
+                bl.bl_Transaction(1);
+                bl.bl_ManageTrans("uspManageUpdateproductlocation", 3, BranchID, dtSerialInfo);
+                bl.bl_Transaction(2);
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),

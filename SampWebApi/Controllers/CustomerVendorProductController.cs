@@ -521,8 +521,12 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "4")
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
+                DataSet dtProdData = bl.BL_ExecuteParamSPDataset("uspManageProductMaster", Mode, Name);
+                DDT = dtProdData.Tables[0];
+                DataTable dtProductLocation= dtProdData.Tables[1];
+                //bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
                 List<ProductModel> list = new List<ProductModel>();
+                List<clsProdLocMapping> listProcLocMap = new List<clsProdLocMapping>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
                     string PBPrice = "0", PRPrice = "0", InvPrice = "0", SRPrice = "0";
@@ -533,6 +537,18 @@ namespace SampWebApi.Controllers
                         PRPrice = dtPrices.Rows[0][2].ToString();
                         InvPrice = dtPrices.Rows[0][3].ToString();
                         SRPrice = dtPrices.Rows[0][4].ToString();
+                    }
+                    if(dtProductLocation.Rows.Count > 0)
+                    {
+                        for (int k = 0; k < dtProductLocation.Rows.Count; k++)
+                        {
+                            listProcLocMap.Add(new clsProdLocMapping
+                            {
+                                ProductID = dtProductLocation.Rows[k][0].ToString(),
+                                BranchID = dtProductLocation.Rows[k][1].ToString(),
+                                LocationID = dtProductLocation.Rows[k][2].ToString(),
+                            });
+                        }
                     }
                     list.Add(new ProductModel
                     {
@@ -593,6 +609,7 @@ namespace SampWebApi.Controllers
                         PurchaseReturnPrice = PRPrice,
                         InvoicePrice = InvPrice,
                         SalesReturnPrice = SRPrice,
+                        lstProdLocMapping= listProcLocMap
                     });
                 }
                 return Ok(list);
@@ -710,6 +727,12 @@ namespace SampWebApi.Controllers
                                         bl.BL_dValidation(lstMaster.InvoicePrice),
                                         bl.BL_dValidation(lstMaster.SalesReturnPrice),
                                         bl.BL_nValidation(lstMaster.CBy));
+                        int Deleted = 0;
+                        foreach (clsProdLocMapping lst in lstMaster.lstProdLocMapping)
+                        {
+                            bl.BL_ExecuteParamSP("uspUpdateProductLocationMapping", IdentID, lst.BranchID, lst.LocationID, Deleted);
+                            Deleted = 1;
+                        }
                         //Success message
                         list.Add(new SaveMessage()
                         {

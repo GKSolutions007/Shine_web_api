@@ -237,6 +237,8 @@ namespace SampWebApi.Controllers
                         Narration = dtFHeader.Rows[0]["Narration"].ToString(),
                         VisaPern = dtFHeader.Rows[0]["VisaPern"].ToString(),
                         VisaAmt = dtFHeader.Rows[0]["VisaAmt"].ToString(),
+                        BranchID = dtFHeader.Rows[0]["BranchID"].ToString(),
+                        BranchName = dtFHeader.Rows[0]["BranchName"].ToString(),
                         NEFTNo = StrNEFTNo,
                         BankAccID = StrBankAccID,
                         BankAccNo = StrBankAccNo,
@@ -325,9 +327,9 @@ namespace SampWebApi.Controllers
             }
             DataTable DDT = new DataTable();
             if (DocPrefix == "19")
-                DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", PartyID, Convert.ToDateTime(Date), TransID, Mode);
+                DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", PartyID, Convert.ToDateTime(Date), TransID, Mode, BranchID);
             else
-                DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDocForPY", PartyID, Convert.ToDateTime(Date), TransID, Mode);
+                DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDocForPY", PartyID, Convert.ToDateTime(Date), TransID, Mode, BranchID);
 
             if (DDT.Rows.Count > 0)
             {                
@@ -372,9 +374,9 @@ namespace SampWebApi.Controllers
                 }
             }
             if (DocPrefix == "19")
-                DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", PartyID, Convert.ToDateTime(Date), TransID, Mode);
+                DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", PartyID, Convert.ToDateTime(Date), TransID, Mode, BranchID);
             else
-                DDT = bl.BL_ExecuteParamSP("uspGetPendingBill", PartyID, Convert.ToDateTime(Date), TransID, Mode);
+                DDT = bl.BL_ExecuteParamSP("uspGetPendingBill", PartyID, Convert.ToDateTime(Date), TransID, Mode, BranchID);
 
             if (DDT.Rows.Count > 0)
             {                
@@ -678,6 +680,8 @@ namespace SampWebApi.Controllers
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     Remarks = DDT.Rows[i]["Remarks"].ToString(),
                     Narration = DDT.Rows[i]["Narration"].ToString(),
+                    BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                    BranchName = DDT.Rows[i]["BranchName"].ToString(),
                 });
             }
             return Ok(list);
@@ -879,7 +883,7 @@ namespace SampWebApi.Controllers
                             0,
                             dtDenominationPMDetail, listTrans.TransMode == "1" || listTrans.TransMode == "3" ? "1" : "3", bl.BL_nValidation(listTrans.ID),
                             listTrans.TransMode == "1" ? "1" : listTrans.CurrentStatus,
-                            0, listTrans.Remarks, listTrans.Narration);
+                            0, listTrans.Remarks, listTrans.Narration,listTrans.BranchID);
                         if (dtResult.Columns.Count == 1)
                         {
                             int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());

@@ -22,6 +22,8 @@ namespace SampWebApi.Models
         public string Billadd1 { get; set; }
         public string Billadd2 { get; set; }
         public string Billadd3 { get; set; }
+        public string BranchID { get; set; }
+        public string BranchName { get; set; }
         public string Shipadd1 { get; set; }
         public string Shipadd2 { get; set; }
         public string Shipadd3 { get; set; }
@@ -184,6 +186,7 @@ namespace SampWebApi.Models
         public string DamageReturnPrice { get; set; }
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
+        public List<clsProdLocMapping> lstProdLocMapping { get; set; }
     }
     
     public class clsPurchaseUOM
@@ -191,6 +194,14 @@ namespace SampWebApi.Models
         public string ID { get; set; }
         public string Name { get; set; }
         public string ConvRate { get; set; }
+    }
+    public class clsProdLocMapping
+    {
+        public string ProductID { get; set; }
+        public string BranchID { get; set; }
+        public string BranchName { get; set; }
+        public string LocationID { get; set; }
+        public string LocationName { get; set; }
     }
     public class ProdPricechangedata
     {

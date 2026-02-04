@@ -83,6 +83,9 @@ namespace SampWebApi.Controllers
                         Status = DDT.Rows[i][9].ToString(),
                         Remark = DDT.Rows[i][10].ToString(),
                         Narration = DDT.Rows[i][11].ToString(),
+                        BranchID = DDT.Rows[i][12].ToString(),
+                        BranchName = DDT.Rows[i][13].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -115,7 +118,8 @@ namespace SampWebApi.Controllers
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                     StatusID = DDT.Rows[i]["StatusID"].ToString(),
                     Remark = DDT.Rows[i]["Remark"].ToString(),
-                    Narration = DDT.Rows[i]["Narration"].ToString()
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    BranchName = DDT.Rows[i]["Branch Name"].ToString()
                 });
             }
             return Ok(list);
@@ -134,7 +138,7 @@ namespace SampWebApi.Controllers
                     DataTable dtResult = bl.bl_ManageTrans("uspManageCreditDebitNote", listTrans.TransMode, bl.BL_nValidation(listTrans.ID), listTrans.TransID,
                         listTrans.DocDate, listTrans.RefNo, listTrans.PartyID, listTrans.FAID, listTrans.TransID == "4" ? bl.BL_dValidation(listTrans.NoteValue) : 0,
                         listTrans.TransID == "5" ? bl.BL_dValidation(listTrans.NoteValue) : 0, listTrans.Remark, listTrans.Narration, listTrans.CBy,
-                        bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.UDFId), bl.BL_nValidation(listTrans.CurrentStatus));
+                        bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.UDFId), bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
@@ -281,6 +285,8 @@ namespace SampWebApi.Controllers
                         TDSAmt = DDT.Rows[i][19].ToString(),
                         SACHSN = DDT.Rows[i][20].ToString(),
                         RoundoffAmt = DDT.Rows[i][21].ToString(),
+                        BranchID = DDT.Rows[i][22].ToString(),
+                        BranchName = DDT.Rows[i][23].ToString()
                     });
                 }
                 return Ok(list);
@@ -315,10 +321,12 @@ namespace SampWebApi.Controllers
                     Remark = DDT.Rows[i]["Remarks"].ToString(),
                     Narration = DDT.Rows[i]["Narration"].ToString(),
                     Balance = DDT.Rows[i]["Balance"].ToString(),
-                    Status = DDT.Rows[i]["StatusID"].ToString(),
+                    Status = DDT.Rows[i]["Description"].ToString(),
                     StatusID = DDT.Rows[i]["StatusID"].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                    BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                    BranchName = DDT.Rows[i]["Branch Name"].ToString()
                 });
             }
             return Ok(list);
@@ -340,7 +348,7 @@ namespace SampWebApi.Controllers
                         bl.BL_dValidation(listTrans.DiscAmt), bl.BL_nValidation(listTrans.TaxID), bl.BL_dValidation(listTrans.TaxPern),
                         bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), bl.BL_dValidation(listTrans.NetAmt),
                         listTrans.Remark, listTrans.Narration, listTrans.CBy, 0, bl.BL_nValidation(listTrans.UDFId), 0, 0, listTrans.SACHSN,
-                        bl.BL_dValidation(listTrans.TDSAmt), bl.BL_nValidation(listTrans.CurrentStatus),null,0, bl.BL_dValidation(listTrans.RoundoffAmt));
+                        bl.BL_dValidation(listTrans.TDSAmt), bl.BL_nValidation(listTrans.CurrentStatus),null,0, bl.BL_dValidation(listTrans.RoundoffAmt), bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
@@ -452,6 +460,8 @@ namespace SampWebApi.Controllers
                         Remark = DDT.Rows[i][16].ToString(),
                         Narration = DDT.Rows[i][17].ToString(),
                         Status = DDT.Rows[i]["Status"].ToString(),
+                        BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                        BranchName = DDT.Rows[i]["Branch Name"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -502,6 +512,8 @@ namespace SampWebApi.Controllers
                     Salesman = DDT.Rows[i]["Salesman"].ToString(),
                     Remark = DDT.Rows[i]["Remarks"].ToString(),
                     Narration = DDT.Rows[i]["Narration"].ToString(),
+                    BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                    BranchName = DDT.Rows[i]["Branch Name"].ToString()
                 });
             }
             return Ok(list);
@@ -547,7 +559,7 @@ namespace SampWebApi.Controllers
                     DataTable dtResult = bl.bl_ManageTrans("uspManageTranContra", listTrans.TransMode, bl.BL_nValidation(listTrans.ID), listTrans.DocDate, listTrans.ContType,
                         listTrans.ContMode, listTrans.Salesman, bl.BL_dValidation(listTrans.NoteValue), listTrans.RefNo, listTrans.PartyID, listTrans.NEFTNo, ChqID, ChqNo,
                           listTrans.FAID, listTrans.Narration, listTrans.Remark, listTrans.CBy, bl.BL_nValidation(listTrans.UDFId),
-                        0, null, bl.BL_nValidation(listTrans.CurrentStatus));
+                        0, null, bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
@@ -644,6 +656,8 @@ namespace SampWebApi.Controllers
                         Narration = DDT.Rows[i][12].ToString(),
                         FAType = DDT.Rows[i][13].ToString(),
                         AdjYN = DDT.Rows[i][14].ToString(),
+                        BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                        BranchName = DDT.Rows[i]["Branch Name"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -673,7 +687,9 @@ namespace SampWebApi.Controllers
                     StatusID = DDT.Rows[i][9].ToString(),
                     CBy = DDT.Rows[i]["UserName"].ToString(),
                     CDate = DDT.Rows[i]["LastActionTime"].ToString(),
-                    Narration = DDT.Rows[i]["Narration"].ToString()
+                    Narration = DDT.Rows[i]["Narration"].ToString(),
+                    BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                    BranchName = DDT.Rows[i]["Branch Name"].ToString()
                 });
             }
             return Ok(list);
@@ -721,7 +737,8 @@ namespace SampWebApi.Controllers
                     }
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageFAJournal", dtTVPTable, dtAdjRefId, bl.BL_nValidation(listTrans.UDFId),
-                        listTrans.TransMode, bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.ID), listTrans.CBy,0,listTrans.Narration);
+                        listTrans.TransMode, bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.ID), listTrans.CBy,0,listTrans.Narration,
+                        bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
@@ -865,6 +882,8 @@ namespace SampWebApi.Controllers
                             BranchName = dtPM.Rows[i][10].ToString(),
                             AmtRecd = dtPM.Rows[i][11].ToString(),
                             Status = dtPM.Rows[i][12].ToString(),
+                            BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                            Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
                         });
                     }
                     for (int i = 0; i < DDT.Rows.Count; i++)
@@ -889,6 +908,8 @@ namespace SampWebApi.Controllers
                             VisaAmt = DDT.Rows[i][15].ToString(),
                             VisaPern = DDT.Rows[i][16].ToString(),
                             ContMode = DDT.Rows[i][17].ToString(),
+                            BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                            Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
                             OCPPMData = listOCPM
                         });
                     }
@@ -930,7 +951,9 @@ namespace SampWebApi.Controllers
                     IFSC = DDT.Rows[i]["ifscCode"].ToString(),
                     Remark = DDT.Rows[i]["Remarks"].ToString(),
                     Narration = DDT.Rows[i]["Narration"].ToString(),
-                    NEFTNo = DDT.Rows[i]["NeftID"].ToString()
+                    NEFTNo = DDT.Rows[i]["NeftID"].ToString(),
+                    BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                    BranchName = DDT.Rows[i]["Branch Name"].ToString()
                 });
             }
             return Ok(list);
@@ -1028,7 +1051,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageFullColl", listTrans.TransID, bl.BL_nValidation(listTrans.UDFId), dtHeader, dtDetail, dtMopDetails,
                          0, 0, 0, 0, dtDenominationPMDetail, listTrans.TransMode == "1" || listTrans.TransMode == "3" ? "1" : "3", bl.BL_nValidation(listTrans.ID),
-                         listTrans.CurrentStatus, bl.BL_nValidation(listTrans.ContMode), listTrans.Remark, listTrans.Narration);
+                         listTrans.CurrentStatus, bl.BL_nValidation(listTrans.ContMode), listTrans.Remark, listTrans.Narration, bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
@@ -1091,8 +1114,8 @@ namespace SampWebApi.Controllers
         [Route("api/dailycashexpenses/get")]
         public IHttpActionResult GetExpensesData()
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspLoadBulkExpeses");
-            if (DDT.Rows.Count > 0)
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspLoadBulkExpeses");
+            if (DDT.Tables.Count > 0)
             {
                 string JSONCONV = JsonConvert.SerializeObject(DDT);
                 return Ok(JSONCONV);
@@ -1159,7 +1182,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageFullColl", 11, bl.BL_nValidation(listTrans.UDFId), dtHeader, dtDetail, dtMopDetails,
                          0, 0, 0, 0, dtDenominationPMDetail, 1, bl.BL_nValidation(listTrans.ID),
-                         listTrans.CurrentStatus, 0, listTrans.Remarks, strNarration);
+                         listTrans.CurrentStatus, 0, listTrans.Remarks, strNarration, bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
