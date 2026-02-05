@@ -898,7 +898,7 @@ namespace SampWebApi.Controllers
                                 int nProdID = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
                                 if (nProdID > 0)
                                 {
-                                    DataRow[] dr = dtBatch.Select("ProdID = " + nProdID, null);
+                                    DataRow[] dr = dtBatch.Select("ProdID = '" + nProdID+"'", null);
                                     foreach (DataRow iRow in dr)
                                     {
                                         //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
