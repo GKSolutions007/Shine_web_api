@@ -13,6 +13,7 @@ namespace SampWebApi.Models
         public string ID { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
+        public string DocPrefix { get; set; }
         public string CustomerType { get; set; }
         public string Ratings { get; set; }
         public string RatingName { get; set; }

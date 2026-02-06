@@ -239,6 +239,7 @@ namespace SampWebApi.Controllers
                                 WeekCycle = DDT1.Rows[j]["WeekCycle"].ToString(),
                                 Active = DDT1.Rows[j]["Active"].ToString(),
                                 Ratings = DDT1.Rows[j]["Rating"].ToString(),
+                                DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                             });
                         }
 
