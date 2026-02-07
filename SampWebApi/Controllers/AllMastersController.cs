@@ -1196,7 +1196,7 @@ namespace SampWebApi.Controllers
             {
                 string DOPurchase = !string.IsNullOrEmpty(lstMaster.DOPurchase) ? Convert.ToDateTime(lstMaster.DOPurchase).ToString("yyy-MM-dd") : null;
                 string InsuranceDate = !string.IsNullOrEmpty(lstMaster.InsuranceDate) ? Convert.ToDateTime(lstMaster.InsuranceDate).ToString("yyy-MM-dd") : null;
-                string InsuranceExpire = !string.IsNullOrEmpty(lstMaster.DOPurchase) ? Convert.ToDateTime(lstMaster.DOPurchase).ToString("yyy-MM-dd") : null;
+                string InsuranceExpire = !string.IsNullOrEmpty(lstMaster.InsuranceExpire) ? Convert.ToDateTime(lstMaster.InsuranceExpire).ToString("yyy-MM-dd") : null;
                 string FCDate = !string.IsNullOrEmpty(lstMaster.FCDate) ? Convert.ToDateTime(lstMaster.FCDate).ToString("yyy-MM-dd") : null;
                 SqlConnection sqlConnection = new SqlConnection(connectionString);
                 sqlConnection.Open();
@@ -1539,7 +1539,7 @@ namespace SampWebApi.Controllers
                              lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
-                            lstMaster.InvoiceStockOnlyProduct, lstMaster.PurchaseOneView, lstMaster.SalesOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
+                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView,  lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
                             lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval,lstMaster.HomePeriod,lstMaster.AutoRefresh);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
