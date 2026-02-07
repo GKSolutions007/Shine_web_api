@@ -91,6 +91,7 @@ namespace SampWebApi.Models
         public string BankAccID { get; set; }
         public string ChequeNo { get; set; }
         public string ChequeID { get; set; }
+        public string DocPrefix { get; set; }
         public string NeftID { get; set; }
         public string Date { get; set; }
         public string PayAt { get; set; }

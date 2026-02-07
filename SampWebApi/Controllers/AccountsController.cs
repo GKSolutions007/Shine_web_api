@@ -286,7 +286,8 @@ namespace SampWebApi.Controllers
                         SACHSN = DDT.Rows[i][20].ToString(),
                         RoundoffAmt = DDT.Rows[i][21].ToString(),
                         BranchID = DDT.Rows[i][22].ToString(),
-                        BranchName = DDT.Rows[i][23].ToString()
+                        BranchName = DDT.Rows[i][23].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                     });
                 }
                 return Ok(list);
@@ -462,6 +463,7 @@ namespace SampWebApi.Controllers
                         Status = DDT.Rows[i]["Status"].ToString(),
                         BranchID = DDT.Rows[i]["BranchID"].ToString(),
                         BranchName = DDT.Rows[i]["Branch Name"].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -658,6 +660,7 @@ namespace SampWebApi.Controllers
                         AdjYN = DDT.Rows[i][14].ToString(),
                         BranchID = DDT.Rows[i]["BranchID"].ToString(),
                         BranchName = DDT.Rows[i]["Branch Name"].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -736,7 +739,7 @@ namespace SampWebApi.Controllers
                         dtTVPTable.Rows.Add(dr);
                     }
                     bl.bl_Transaction(1);
-                    DataTable dtResult = bl.bl_ManageTrans("uspManageFAJournal", dtTVPTable, dtAdjRefId, bl.BL_nValidation(listTrans.UDFId),
+                    DataTable dtResult = bl.bl_ManageTrans("uspManageFAJournal",listTrans.DocDate, dtTVPTable, dtAdjRefId, bl.BL_nValidation(listTrans.UDFId),
                         listTrans.TransMode, bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.ID), listTrans.CBy,0,listTrans.Narration,
                         bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
@@ -884,6 +887,7 @@ namespace SampWebApi.Controllers
                             Status = dtPM.Rows[i][12].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                         });
                     }
                     for (int i = 0; i < DDT.Rows.Count; i++)
@@ -910,6 +914,7 @@ namespace SampWebApi.Controllers
                             ContMode = DDT.Rows[i][17].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             OCPPMData = listOCPM
                         });
                     }

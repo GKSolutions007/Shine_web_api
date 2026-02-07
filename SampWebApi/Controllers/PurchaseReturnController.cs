@@ -303,6 +303,7 @@ namespace SampWebApi.Controllers
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
                             DocID = DDT.Rows[i]["DocID"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             RefNo = DDT.Rows[i]["RefNo"].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
@@ -861,7 +862,7 @@ namespace SampWebApi.Controllers
                                 {
                                     ID = 0.ToString(),
                                     MsgID = "1",
-                                    Message = ""//dtResult.Rows[0][0].ToString()
+                                    Message = dtResult.Rows[0][0].ToString()
                                 });
                                 return Ok(list);
                             }
