@@ -141,6 +141,7 @@ namespace SampWebApi.Controllers
                     {
                         ID = DDT.Rows[0]["ID"].ToString(),
                         DocID = DDT.Rows[0]["DocID"].ToString(),
+                        DocPrefix = DDT.Rows[0]["Prefix"].ToString(),
                         Date = Convert.ToDateTime(DDT.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
                         RefNo = DDT.Rows[0]["RefNo"].ToString(),
                         SalesmanID = DDT.Rows[0]["SalesmanID"].ToString(),

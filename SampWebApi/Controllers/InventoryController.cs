@@ -173,7 +173,8 @@ namespace SampWebApi.Controllers
                             Status = DDT.Rows[i]["Status"].ToString(),                            
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Narration = DDT.Rows[i]["Narration"].ToString(),
-                            lstBatchInfo = listBatch
+                            lstBatchInfo = listBatch,
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         });
                     }
                 }
@@ -482,7 +483,8 @@ namespace SampWebApi.Controllers
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Narration = DDT.Rows[i]["Narration"].ToString(),
                             ConvertionType = DDT.Rows[i]["ConvertionTypeId"].ToString(),
-                            lstBatchInfo = listBatch
+                            lstBatchInfo = listBatch,
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                         });
                     }
                 }
