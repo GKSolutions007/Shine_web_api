@@ -303,6 +303,7 @@ namespace SampWebApi.Controllers
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
                             DocID = DDT.Rows[i]["DocID"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             RefNo = DDT.Rows[i]["RefNo"].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
@@ -861,7 +862,7 @@ namespace SampWebApi.Controllers
                                 {
                                     ID = 0.ToString(),
                                     MsgID = "1",
-                                    Message = ""//dtResult.Rows[0][0].ToString()
+                                    Message = dtResult.Rows[0][0].ToString()
                                 });
                                 return Ok(list);
                             }
@@ -898,7 +899,7 @@ namespace SampWebApi.Controllers
                                 int nProdID = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
                                 if (nProdID > 0)
                                 {
-                                    DataRow[] dr = dtBatch.Select("ProdID = " + nProdID, null);
+                                    DataRow[] dr = dtBatch.Select("ProdID = '" + nProdID+"'", null);
                                     foreach (DataRow iRow in dr)
                                     {
                                         //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");

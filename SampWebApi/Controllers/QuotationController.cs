@@ -334,6 +334,7 @@ namespace SampWebApi.Controllers
                         {
                             //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             ID = DDT.Rows[i]["ID"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             DocDate = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             TransID = DDT.Rows[i]["TransID"].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),

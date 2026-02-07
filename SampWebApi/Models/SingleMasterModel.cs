@@ -113,7 +113,21 @@ namespace SampWebApi.Models
         public string CBy { get; set; }
         public string CDate { get; set; }
 
-
+    }
+    public class FAOpening
+    {
+        public string ID { get; set; }
+        public string BranchID { get; set; }
+        public string Period { get; set; }
+        public string UserID { get; set; }
+        public string Mode { get; set; }
+        public List<clsAccOpeningValues> lstAccOpeningvalues { get; set; }
+    }
+    public class clsAccOpeningValues
+    {
+        public string FAID { get; set; }
+        public string OpeningValue { get; set; }
+        public string FAType { get; set; }
     }
     public class Salesman
     {

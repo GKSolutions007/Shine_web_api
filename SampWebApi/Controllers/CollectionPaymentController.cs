@@ -223,6 +223,7 @@ namespace SampWebApi.Controllers
                     {
                         ID = dtFHeader.Rows[0]["ID"].ToString(),
                         DocId = dtFHeader.Rows[0]["DocId"].ToString(),
+                        DocPrefix = DDT.Rows[0]["Prefix"].ToString(),
                         DocDate = Convert.ToDateTime(dtFHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
                         CustomerID = dtFHeader.Rows[0]["PartyID"].ToString(),
                         BeatID = dtFHeader.Rows[0]["BeatID"].ToString(),
