@@ -18,6 +18,9 @@ using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Cryptography;
 using System.IO;
+using DocumentFormat.OpenXml.Vml;
+using System.Web.Http.Results;
+using iTextSharp.text;
 
 namespace SampWebApi.Controllers
 {
@@ -46,6 +49,12 @@ namespace SampWebApi.Controllers
                 List<Users> list = new List<Users>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
+                    string imgdata = null;
+                    if (!string.IsNullOrEmpty(DDT.Rows[i]["ImgData"].ToString()))
+                    {
+                        byte[] photoBytes = (byte[])DDT.Rows[i]["ImgData"];
+                        imgdata = Convert.ToBase64String(photoBytes);
+                    }
                     list.Add(new Users
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
@@ -62,6 +71,7 @@ namespace SampWebApi.Controllers
                         UserID = DDT.Rows[i]["CBy"].ToString(),
                         CBy = DDT.Rows[i]["AUserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                        UserImageData = imgdata
                     });
                 }
                 return Ok(list);
@@ -189,7 +199,14 @@ namespace SampWebApi.Controllers
                     con.Close();
                 }
             }
-            return Ok();
+            List<SaveMessage> list = new List<SaveMessage>();
+            list.Add(new SaveMessage()
+            {
+                ID = ID,
+                MsgID = "0",
+                Message = "Saved Successfully",
+            });
+            return Ok(list);
 
         }
             [HttpGet]

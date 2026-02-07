@@ -219,6 +219,7 @@ namespace SampWebApi.Models
         public string BranchID { get; set; }
         public string CBy { get; set; }
         public string CDate { get; set; }
+        public string UserImageData { get; set; }
     }
     public class Chequebook
     {
