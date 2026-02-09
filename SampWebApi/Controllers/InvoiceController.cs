@@ -1223,7 +1223,7 @@ namespace SampWebApi.Controllers
                                     dtMop,
                                     listTrans.BeatID,
                                     listTrans.SalesmanID,
-                                    dtDenominationPMDetail
+                                    dtDenominationPMDetail, listTrans.BranchID
                                     );
                                     //Error Raised in Collection Level
                                     if (dtCheck.Columns.Count > 1)

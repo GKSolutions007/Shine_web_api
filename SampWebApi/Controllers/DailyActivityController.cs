@@ -399,6 +399,8 @@ namespace SampWebApi.Controllers
                         MopRow["BankAccNo"] = dtColHeader.Rows[0]["BankAcNo"];
                         MopRow["ChequeBkRefNo"] = "";
                         MopRow["ChequeBookID"] = 0;
+                    MopRow["RecdAmt"] = dAmt;
+                    MopRow["SerialNo"] = 1;
                     dtMopDetails.Rows.Add(MopRow);
                     dtDetail.Rows.Clear();
                     DataTable dtColDetails = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 6, CollectionID);
@@ -438,7 +440,7 @@ namespace SampWebApi.Controllers
                         0,
                         dtDenominationPMDetail, 1, 0,
                         1,
-                        0, dtColHeader.Rows[0]["Remarks"].ToString(), dtColHeader.Rows[0]["Narration"].ToString());
+                        0, dtColHeader.Rows[0]["Remarks"].ToString(), dtColHeader.Rows[0]["Narration"].ToString(), 1);
                     if (dtResult.Columns.Count == 1)
                     {
                         int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
@@ -546,11 +548,12 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/webcollection/filterdata")]
-        public IHttpActionResult GetwebcollectionFilter(string Mode, string ID, string SalesmanID, string CustomerID, string PayModeID, string ChequeDate, string AllowDate)
+        public IHttpActionResult GetwebcollectionFilter(string Mode, string ID, string SalesmanID, string CustomerID, 
+            string PayModeID, string ChequeDate, string AllowDate,string ShowAll)
         {
             if (Mode == "2")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, ID, SalesmanID, CustomerID, PayModeID, ChequeDate, AllowDate);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, ID, SalesmanID, CustomerID, PayModeID, ChequeDate, AllowDate, ShowAll);
                 List<CollectionModel> list = new List<CollectionModel>();
                 string Cash = "0.00 / 0", Cheque = "0.00 / 0", Bank = "0.00 / 0";
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -578,7 +581,7 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "3")
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, ID, SalesmanID, CustomerID, PayModeID, ChequeDate, AllowDate);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, ID, SalesmanID, CustomerID, PayModeID, ChequeDate, AllowDate, ShowAll);
                 var list = new List<CollectionModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -600,6 +603,8 @@ namespace SampWebApi.Controllers
                         CashValue = DDT.Rows[i][14].ToString(),
                         AdjAmt = DDT.Rows[i][15].ToString(),
                         InvoiceAmt = DDT.Rows[i][16].ToString(),
+                        Status = DDT.Rows[i][17].ToString(),
+                        Bankname = DDT.Rows[i][18].ToString(),
                     });
                 }
                 string str = "";
@@ -623,7 +628,9 @@ namespace SampWebApi.Controllers
                                DiscAmt = users.AdvAmt,
                                WriteOff = users.CashValue,
                                AdjAmt = users.AdjAmt,
-                               InvoiceAmt = users.InvoiceAmt
+                               InvoiceAmt = users.InvoiceAmt,
+                               StatusID = users.Status,
+                               Status = users.Bankname
                            };
                 
                 return Ok(data);
