@@ -798,10 +798,10 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/invoice/invoicecollectiondata")]
-        public IHttpActionResult invoicecollectiondata(string InvoiceID)
+        public IHttpActionResult invoicecollectiondata(string InvoiceID,string TransID)
         {
 
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, InvoiceID);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, InvoiceID, TransID);
             string invjson = JsonConvert.SerializeObject(DDT);
             return Ok(invjson);
         }
@@ -1223,7 +1223,7 @@ namespace SampWebApi.Controllers
                                     dtMop,
                                     listTrans.BeatID,
                                     listTrans.SalesmanID,
-                                    dtDenominationPMDetail
+                                    dtDenominationPMDetail, listTrans.BranchID
                                     );
                                     //Error Raised in Collection Level
                                     if (dtCheck.Columns.Count > 1)
