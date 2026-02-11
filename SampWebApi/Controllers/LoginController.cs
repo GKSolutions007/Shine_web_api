@@ -134,7 +134,35 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        [HttpGet]
+        [HttpPost]
+        [Route("api/signup/updateuser")]
+        public IHttpActionResult Saveupdateuser()
+        {
+            var httpRequest = HttpContext.Current.Request;
+
+            // Get normal form values
+            string FormID = httpRequest.Form["FormID"];
+            string nMode = httpRequest.Form["Mode"];
+            string ID = httpRequest.Form["ID"];
+            string Name = httpRequest.Form["UserName"];
+            string MobileNo = httpRequest.Form["Mobilenumber"];
+            string Email = httpRequest.Form["EMailID"];
+            string UserID = httpRequest.Form["UserID"];
+            if (httpRequest.Files.Count > 0)
+            {
+                var file = httpRequest.Files["UserPhoto"]; // must match frontend key
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    //string fileName = Path.GetFileName(file.FileName);
+                    //string path = HttpContext.Current.Server.MapPath("~/Uploads/" + fileName);
+                    //file.SaveAs(path);
+                }
+            }
+            return Ok();
+
+        }
+            [HttpGet]
         [Route("api/login/get")]
         public IHttpActionResult GetloginData(string UserName, string Password)
         {
