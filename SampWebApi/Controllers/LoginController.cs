@@ -17,6 +17,10 @@ using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Cryptography;
+using System.IO;
+using DocumentFormat.OpenXml.Vml;
+using System.Web.Http.Results;
+using iTextSharp.text;
 
 namespace SampWebApi.Controllers
 {
@@ -45,6 +49,12 @@ namespace SampWebApi.Controllers
                 List<Users> list = new List<Users>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
+                    string imgdata = null;
+                    if (!string.IsNullOrEmpty(DDT.Rows[i]["ImgData"].ToString()))
+                    {
+                        byte[] photoBytes = (byte[])DDT.Rows[i]["ImgData"];
+                        imgdata = Convert.ToBase64String(photoBytes);
+                    }
                     list.Add(new Users
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
@@ -61,6 +71,7 @@ namespace SampWebApi.Controllers
                         UserID = DDT.Rows[i]["CBy"].ToString(),
                         CBy = DDT.Rows[i]["AUserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                        UserImageData = imgdata
                     });
                 }
                 return Ok(list);
@@ -134,7 +145,71 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        [HttpGet]
+        [HttpPost]
+        [Route("api/signup/updateuser")]
+        public IHttpActionResult Saveupdateuser()
+        {
+            var httpRequest = HttpContext.Current.Request;
+
+            // Get normal form values
+            string FormID = httpRequest.Form["FormID"];
+            string nMode = httpRequest.Form["Mode"];
+            string ID = httpRequest.Form["ID"];
+            string Name = httpRequest.Form["UserName"];
+            string MobileNo = httpRequest.Form["Mobilenumber"];
+            string Email = httpRequest.Form["EMailID"];
+            string UserID = httpRequest.Form["UserID"];
+            byte[] photoBytes = null;
+
+            if (httpRequest.Files.Count > 0)
+            {
+                var file = httpRequest.Files["UserPhoto"]; // must match frontend key
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    using (var binaryReader = new BinaryReader(file.InputStream))
+                    {
+                        photoBytes = binaryReader.ReadBytes(file.ContentLength);
+                    }
+                }
+            }
+            // ✅ Save into SQL Server
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string query = @"UPDATE tblUsers 
+                         SET UserName=@Name,
+                             Mobilenumber=@MobileNo,
+                             EMailID=@Email,
+                             ImgData=@UserPhoto
+                         WHERE ID = @ID";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@ID", ID);
+                    cmd.Parameters.AddWithValue("@Name", Name);
+                    cmd.Parameters.AddWithValue("@MobileNo", MobileNo);
+                    cmd.Parameters.AddWithValue("@Email", Email);
+
+                    // ✅ Save Photo (varbinary)
+                    cmd.Parameters.Add("@UserPhoto", SqlDbType.VarBinary).Value =
+                        (object)photoBytes ?? DBNull.Value;
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
+            List<SaveMessage> list = new List<SaveMessage>();
+            list.Add(new SaveMessage()
+            {
+                ID = ID,
+                MsgID = "0",
+                Message = "Saved Successfully",
+            });
+            return Ok(list);
+
+        }
+            [HttpGet]
         [Route("api/login/get")]
         public IHttpActionResult GetloginData(string UserName, string Password)
         {
