@@ -21,7 +21,8 @@ namespace SampWebApi.Controllers
         DataTable dtPMDetail = new DataTable(), dtPopUpDetail = new DataTable(), dtProd = new DataTable(), dtGSTInfo = new DataTable();
         [HttpGet]
         [Route("api/purchasereturn/get")]
-        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null,string BranchID = "0",string Date ="", string PriceID = "1")
+        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null,string BranchID = "0",
+            string Date ="", string PriceID = "1", string DraftID = "0")
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
@@ -415,7 +416,7 @@ namespace SampWebApi.Controllers
                 //string Mode, string CodeName, string ID = null,string BranchID = "0",string Date ="", string PriceID = "1"
                 //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetSetPurchaseReturnData", 41, DDT.Rows[i][0].ToString(),PriceID,12,
                 //    BranchID,Convert.ToDateTime(Date));
-                DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetPRProductIntoryBatch", CodeName, BranchID, Convert.ToDateTime(Date), PriceID, ID);
+                DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetPRProductIntoryBatch", CodeName, BranchID, Convert.ToDateTime(Date), PriceID, ID, DraftID);
                 for (int j = 0; j < dtBatch.Rows.Count; j++)
                 {
                     string PKD = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : "";//dd/MM/yyyy
@@ -917,7 +918,7 @@ namespace SampWebApi.Controllers
                                             string exp = !string.IsNullOrEmpty(iRow["ExpiryDate"].ToString()) ? iRow["ExpiryDate"].ToString() : null;
                                             DataTable dtResultDetail = bl.bl_ManageTrans("uspManagePRDraftDetail", listTrans.Date, nPRID, nProdID, bl.BL_nValidation(dtProducts.Rows[i]["UomID"].ToString()),
                                                 bl.BL_dValidation(iRow["Qty"].ToString()), bl.BL_dValidation(iRow["FreeQty"].ToString()), bl.BL_dValidation(iRow["DmgQty"].ToString()),
-                                                iRow["BatchNo"].ToString(), pkd, exp, bl.BL_dValidation(iRow["ReturnPrice"].ToString()),
+                                                iRow["BatchNo"].ToString(), pkd, exp, bl.BL_dValidation(iRow["OrgRTNPrice"].ToString()),
                                                 bl.BL_dValidation(iRow["MRP"].ToString()), bl.BL_nValidation(iRow["TaxPern"].ToString()), bl.BL_dValidation(iRow["ReturnPrice"].ToString()),
                                                 bl.BL_dValidation(iRow["TaxPern"].ToString()), dGrs, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"])), dGrs, dTax,
                                                 dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, 0, (i + 1), bl.BL_nValidation(iRow["TaxID"].ToString()), 1, (i + 1),
