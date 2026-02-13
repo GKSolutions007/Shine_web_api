@@ -616,6 +616,8 @@ namespace SampWebApi.Controllers
                             ID = dtHeader.Rows[0]["ID"].ToString(),
                             DocId = null,
                             DocDate = Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
+                            BranchID = "1",
+                            BranchName = "BRANCHNAME",
                             CustomerID = dtHeader.Rows[0]["CustID"].ToString(),
                             BeatID = dtHeader.Rows[0]["BeatID"].ToString(),
                             SalesmanID = dtHeader.Rows[0]["SalesmanID"].ToString(),
