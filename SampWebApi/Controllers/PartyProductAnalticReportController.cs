@@ -84,7 +84,7 @@ namespace SampWebApi.Controllers
             string jsonAssignInv = JsonConvert.SerializeObject(DDT);
             DDT = bl.BL_ExecuteParamSP("uspInvoiceTrackReportData", 2, DocValue);
             string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
-            DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, DDT.Rows[0][0].ToString());
+            DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, DDT.Rows[0][0].ToString(),15);
             string invjson = JsonConvert.SerializeObject(DDT);
             var InvoiceData = new
             {
