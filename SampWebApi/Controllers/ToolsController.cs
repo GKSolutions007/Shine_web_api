@@ -200,5 +200,54 @@ namespace SampWebApi.Controllers
 
             return Ok(strMsg);
         }
+
+        [HttpGet]
+        [Route("api/BranchMapping/get")]
+        public IHttpActionResult GetBranchMapping(int RoleID)
+        {
+            DataTable DDT = bl.BL_ExecuteParamSP("uspManageBranchMapping", 1, RoleID);
+
+
+            return Ok(DDT);
+        }
+
+        [HttpPost]
+        [Route("api/BranchMapping/save")]
+        public IHttpActionResult saveupdateBranch(List<BranchMapping> lstProfiles)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            if (lstProfiles != null)
+            {
+                foreach (BranchMapping item in lstProfiles)
+                {
+                    bl.BL_ExecuteParamSP("uspManageBranchMapping", 2, item.RoleID, item.BranchID, item.Active, item.SetAsDefault,
+                        item.UserID);
+                }
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "0",
+                    Message = "Saved successfully"
+                });
+                return Ok(list);
+            }
+            list.Add(new SaveMessage()
+            {
+                ID = 0.ToString(),
+                MsgID = "1",
+                Message = "Data not saved. Try again"
+            });
+            return Ok(list);
+        }
+
+
+        [HttpGet]
+        [Route("api/BranchMapping/getByRole")]
+        public IHttpActionResult GetBranchesByRole(int RoleID)
+        {
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetBranchByRoles", RoleID);
+            return Ok(DDT);
+        }
+
     }
 }
