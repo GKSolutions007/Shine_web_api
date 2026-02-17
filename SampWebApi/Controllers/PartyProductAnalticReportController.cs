@@ -94,5 +94,31 @@ namespace SampWebApi.Controllers
             };
             return Ok(InvoiceData);
         }
+        [HttpGet]
+        [Route("api/customeros/initiatedata")]
+        public IHttpActionResult COSinitiatedata()
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMobileCustomerOS", 1);
+            string invjson = JsonConvert.SerializeObject(DDT);
+            return Ok(invjson);
+        }
+        [HttpGet]
+        [Route("api/customeros/generatedata")]
+        public IHttpActionResult COSgeneratedata(int Mode, string BeatID, string SalesmanID, string Party, string Period)
+        {
+            if (Mode == 2)
+            {
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspMobileCustomerOS", Mode, BeatID, SalesmanID, Party, Period);
+                string invjson = JsonConvert.SerializeObject(dtResult);
+                return Ok(invjson);
+            }
+            else if (Mode == 3)
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMobileCustomerOS", Mode, BeatID);
+                string invjson = JsonConvert.SerializeObject(DDT);
+                return Ok(invjson);
+            }
+            return Ok();
+        }
     }
 }
