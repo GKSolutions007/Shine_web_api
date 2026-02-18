@@ -536,6 +536,7 @@ namespace SampWebApi.Controllers
                             TransactionName = DDT.Rows[i]["TransportName"].ToString(),
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                             DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
+                            Balance = DDT.Rows[i]["Balance"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });

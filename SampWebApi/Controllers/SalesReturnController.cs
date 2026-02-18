@@ -538,6 +538,7 @@ namespace SampWebApi.Controllers
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                             DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
                             ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
+                            Balance = DDT.Rows[i]["Balance"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });

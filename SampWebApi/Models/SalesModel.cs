@@ -16,6 +16,7 @@ namespace SampWebApi.Models
         public string DraftID { get; set; }
         public string DocDate { get; set; }
         public string DocId { get; set; }
+        public string Balance { get; set; }
         public string DocPrefix { get; set; }
         public string DocValue { get; set; }
         public string BranchID { get; set; }
