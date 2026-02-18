@@ -360,8 +360,7 @@ namespace SampWebApi.Controllers
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Narration = DDT.Rows[i]["Narration"].ToString(),
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
-                            DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
-                            Balance = DDT.Rows[i]["Balance"].ToString(),
+                            DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),                            
                             lstPartyInfo = listParty,
                             lstProdGrid = listProductGrid,
                             lstBatchInfo = listBatch
