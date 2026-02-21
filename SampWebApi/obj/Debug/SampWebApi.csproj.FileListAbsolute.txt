@@ -746,3 +746,7 @@ D:\2025\Shine_web_api\SampWebApi\obj\Debug\SampWebApi.csproj.CoreCompileInputs.c
 D:\2025\Shine_web_api\SampWebApi\obj\Debug\SampWebApi.csproj.Up2Date
 D:\2025\Shine_web_api\SampWebApi\obj\Debug\SampWebApi.dll
 D:\2025\Shine_web_api\SampWebApi\obj\Debug\SampWebApi.pdb
+D:\2025\Shine_web_api\SampWebApi\bin\SixLabors.ImageSharp.dll
+D:\2025\Shine_web_api\SampWebApi\bin\System.Text.Encoding.CodePages.dll
+D:\2025\Shine_web_api\SampWebApi\bin\SixLabors.ImageSharp.xml
+D:\2025\Shine_web_api\SampWebApi\bin\System.Text.Encoding.CodePages.xml

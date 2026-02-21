@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -161,27 +164,74 @@ namespace SampWebApi.Controllers
             string UserID = httpRequest.Form["UserID"];
             byte[] photoBytes = null;
 
-            if (httpRequest.Files.Count > 0)
+            bool removePhoto = !string.IsNullOrEmpty(httpRequest.Form["RemovePhoto"]);
+
+            if (!removePhoto && httpRequest.Files.Count > 0)
             {
                 var file = httpRequest.Files["UserPhoto"]; // must match frontend key
 
                 if (file != null && file.ContentLength > 0)
                 {
-                    using (var binaryReader = new BinaryReader(file.InputStream))
+                    using (var image = SixLabors.ImageSharp.Image.Load(file.InputStream))
                     {
-                        photoBytes = binaryReader.ReadBytes(file.ContentLength);
+                        // OPTIONAL: Resize if too large
+                        image.Mutate(x =>
+                        {
+                            x.Resize(new ResizeOptions
+                            {
+                                Mode = ResizeMode.Max,
+                                Size = new Size(800, 800)
+                            });
+
+                            // Flatten transparency over white background
+                            x.BackgroundColor(SixLabors.ImageSharp.Color.White);
+                        });
+
+                        using (var ms = new MemoryStream())
+                        {
+                            var encoder = new JpegEncoder
+                            {
+                                Quality = 75 // 0-100 (lower = more compression)
+                            };
+
+                            image.Save(ms, encoder);
+                            photoBytes = ms.ToArray();
+                        }
                     }
                 }
             }
             // ✅ Save into SQL Server
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string query = @"UPDATE tblUsers 
-                         SET UserName=@Name,
-                             Mobilenumber=@MobileNo,
-                             EMailID=@Email,
-                             ImgData=@UserPhoto
-                         WHERE ID = @ID";
+                string query;
+
+                if (removePhoto)
+                {
+                    // Explicitly clear the photo field
+                    query = @"UPDATE tblUsers 
+                  SET UserName=@Name,
+                      Mobilenumber=@MobileNo,
+                      EMailID=@Email,
+                      ImgData=NULL
+                  WHERE ID = @ID";
+                }
+                else if (photoBytes != null)
+                {
+                    query = @"UPDATE tblUsers 
+              SET UserName=@Name,
+                  Mobilenumber=@MobileNo,
+                  EMailID=@Email,
+                  ImgData=@UserPhoto
+              WHERE ID = @ID";
+                }
+                else
+                {
+                    query = @"UPDATE tblUsers 
+              SET UserName=@Name,
+                  Mobilenumber=@MobileNo,
+                  EMailID=@Email
+              WHERE ID = @ID";
+                }
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -191,8 +241,10 @@ namespace SampWebApi.Controllers
                     cmd.Parameters.AddWithValue("@Email", Email);
 
                     // ✅ Save Photo (varbinary)
-                    cmd.Parameters.Add("@UserPhoto", SqlDbType.VarBinary).Value =
-                        (object)photoBytes ?? DBNull.Value;
+                    if (photoBytes != null)
+                    {
+                        cmd.Parameters.Add("@UserPhoto", SqlDbType.VarBinary).Value = photoBytes;
+                    }
 
                     con.Open();
                     cmd.ExecuteNonQuery();
