@@ -446,7 +446,7 @@ namespace SampWebApi.Controllers
                         string strExPayable = "Voucher = 'Payable'";
                         string strExReceivable = "Voucher = 'Receivable'";
                         DataTable DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", dtHeader.Rows[0]["CustId"].ToString(), 
-                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1);
+                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1, dtHeader.Rows[0]["BranchID"].ToString());
                         if (DDT.Rows.Count > 0)
                         {
                             for (int i = 0; i < DDT.Rows.Count; i++)
@@ -468,8 +468,9 @@ namespace SampWebApi.Controllers
                                     UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
                                 });
                             }
-                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["PartyId"].ToString(), Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()));
-                            DataRow[] dtTopGridRows = dtOCOP.Select(strExPayable);
+                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["PartyId"].ToString(), Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString())
+                                , dtHeader.Rows[0]["BranchID"].ToString());
+                            DataRow[] dtTopGridRows = dtOCOP.Select(strExPayable);  
                             for (int i = 0; i < dtTopGridRows.Length; i++)
                             {
                                 list.Add(new CollPayDetails
@@ -492,7 +493,7 @@ namespace SampWebApi.Controllers
 
                         //pending invoices
                         DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", dtHeader.Rows[0]["CustId"].ToString(),
-                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1);
+                            Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1, dtHeader.Rows[0]["BranchID"].ToString());
                         if (DDT.Rows.Count > 0)
                         {
                            
@@ -532,7 +533,7 @@ namespace SampWebApi.Controllers
                                 });
                             }
                             DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(),
-                                Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()));
+                                Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), dtHeader.Rows[0]["BranchID"].ToString());
                             DataRow[] dtTopGridRows = dtOCOP.Select(strExReceivable);
                             for (int i = 0; i < dtTopGridRows.Length; i++)
                             {
@@ -616,7 +617,7 @@ namespace SampWebApi.Controllers
                             ID = dtHeader.Rows[0]["ID"].ToString(),
                             DocId = null,
                             DocDate = Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
-                            BranchID = "1",
+                            BranchID = dtHeader.Rows[0]["BranchID"].ToString(),
                             BranchName = "BRANCHNAME",
                             CustomerID = dtHeader.Rows[0]["CustID"].ToString(),
                             BeatID = dtHeader.Rows[0]["BeatID"].ToString(),

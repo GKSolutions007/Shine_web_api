@@ -750,3 +750,7 @@ D:\2025\Shine_web_api\SampWebApi\bin\SixLabors.ImageSharp.dll
 D:\2025\Shine_web_api\SampWebApi\bin\System.Text.Encoding.CodePages.dll
 D:\2025\Shine_web_api\SampWebApi\bin\SixLabors.ImageSharp.xml
 D:\2025\Shine_web_api\SampWebApi\bin\System.Text.Encoding.CodePages.xml
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\SixLabors.ImageSharp.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\System.Text.Encoding.CodePages.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\SixLabors.ImageSharp.xml
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\System.Text.Encoding.CodePages.xml

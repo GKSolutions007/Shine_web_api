@@ -102,10 +102,16 @@ namespace SampWebApi.Controllers
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
-            if (Mode == "8" || Mode == "9")
+            if (Mode == "8" || Mode == "9" || Mode == "11")
             {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(Jsondata);
+            }
+            if (Mode == "10")
+            {
+                DataSet dtbrdata = bl.BL_ExecuteParamSPDataset("uspHomescreenData", Mode, Trans);
+                string Jsondata = JsonConvert.SerializeObject(dtbrdata);
                 return Ok(Jsondata);
             }
             return Ok();

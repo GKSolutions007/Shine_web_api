@@ -372,3 +372,7 @@ D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Microsoft.Owin.Cors.dll
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Microsoft.IdentityModel.Protocols.xml
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Microsoft.IdentityModel.Protocols.OpenIdConnect.xml
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Microsoft.Owin.Cors.xml
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\SixLabors.ImageSharp.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\System.Text.Encoding.CodePages.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\SixLabors.ImageSharp.xml
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\System.Text.Encoding.CodePages.xml
