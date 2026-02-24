@@ -261,7 +261,8 @@ namespace SampWebApi.Controllers
                 { 
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageAssignInvoices", listTrans.TransMode, bl.BL_nValidation(listTrans.TransID), bl.BL_nValidation(listTrans.ID),
-                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus), dtDocument);
+                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus),
+                         dtDocument, listTrans.Remarks, listTrans.Narration );
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);
