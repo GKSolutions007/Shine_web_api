@@ -104,12 +104,12 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP(listParams.ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
                 if (DDT.Rows.Count > 0)
                 {
-                    if (listParams.ReportID != "37" && listParams.ReportID != "18")
+                    if (listParams.ReportID != "37" && listParams.ReportID != "18" && listParams.ReportID != "20")
                     {
                         string JSONCONV = JsonConvert.SerializeObject(DDT);
                         return Ok(JSONCONV);
                     }
-                    else if (listParams.ReportID == "18")//Profit & Loss
+                    else if (listParams.ReportID == "18"|| listParams.ReportID == "20")//Profit & Loss
                     {
                         // Create DataTable
                         DataTable dt = new DataTable("AccountSummary");
@@ -356,9 +356,114 @@ namespace SampWebApi.Controllers
                         dr["SelAccGroupID"] = 0;
                         dr["SelAccGroupName"] = "";
                         dt.Rows.Add(dr);
+                        if (listParams.ReportID == "18")
+                        {
+                            string JSONCONV = JsonConvert.SerializeObject(dt);
+                            return Ok(JSONCONV);
+                        }
+                        else
+                        {
+                            decimal dTotalCredit = 0.00M;
+                            decimal dTotalDebit = 0.00M;
+                            dTotalDebit += nBalanceSheetProfitAndLossValue >= 0 ? nBalanceSheetProfitAndLossValue : 0;
+                            dTotalCredit += nBalanceSheetProfitAndLossValue < 0 ? Math.Abs(nBalanceSheetProfitAndLossValue) : 0;
+                            dt.Rows.Clear();
+                            dr = dt.NewRow();
+                            dr["AccGroupID"] = 0;
+                            dr["AccGroupName"] = nBalanceSheetProfitAndLossValue >= 0 ? "Loss for The Period" : "Profit for The Period";
+                            dr["Debit"] = nBalanceSheetProfitAndLossValue >= 0 ? nBalanceSheetProfitAndLossValue : 0;// DDT.Rows[0][2];
+                            dr["Credit"] = nBalanceSheetProfitAndLossValue < 0 ? Math.Abs(nBalanceSheetProfitAndLossValue) : 0;
+                            dr["AccType"] = "Report";
+                            dr["SelAccGroupID"] = 0;
+                            dr["SelAccGroupName"] = "";
+                            dt.Rows.Add(dr);
+                            //SELECT FAGroup,AccountGroupName FROM tblFAGroup WHERE TypeID=1 AND ParentGroup=0
+                            //Asset Group Data
+                            dt.Rows.Add(0, "", "", "", "", 0, "");
+                            dt.Rows.Add(0, "Asset", "", "", "", 0, "");
+                            DataTable dtFagrps = bl.BL_ExecuteSqlQuery("SELECT FAGroup,AccountGroupName FROM tblFAGroup WHERE TypeID=1 AND ParentGroup=0");
+                            for (int i = 0; i < dtFagrps.Rows.Count; i++)
+                            {
+                                int FAGID = bl.BL_nValidation(dtFagrps.Rows[i][0]);
+                                string FAGName = dtFagrps.Rows[i][1].ToString();
+                                DDT = bl.BL_ExecuteParamSP("uspFinRepProfitLossstage1", objParamValue[0], objParamValue[1], objParamValue[2],
+                           objParamValue[3], FAGID);
 
-                        string JSONCONV = JsonConvert.SerializeObject(dt);
-                        return Ok(JSONCONV);
+                                decimal fag1 = DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Debit"])) - DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Credit"]));
+                                dTotalDebit += fag1 >= 0 ? fag1 : 0.00M;
+                                dTotalCredit += fag1 < 0 ? Math.Abs(fag1) : 0.00M;
+
+
+                                dr = dt.NewRow();
+                                dr["AccGroupID"] = FAGID;
+                                dr["AccGroupName"] = FAGName;
+                                dr["Debit"] = fag1 >= 0 ? fag1 : 0.00m;// DDT.Rows[0][2];
+                                dr["Credit"] = fag1 < 0 ? Math.Abs(fag1) : 0.00m;
+                                dr["AccType"] = "Group";
+                                dr["SelAccGroupID"] = 0;
+                                dr["SelAccGroupName"] = "";
+                                dt.Rows.Add(dr);
+                            }
+                            //Liablities Group Data
+                            dt.Rows.Add(0, "", "", "", "", 0, "");
+                            dt.Rows.Add(0, "Liablities", "", "", "", 0, "");
+                            //Capital Account Data
+                            // 3 => Capital Account
+                            DDT = bl.BL_ExecuteParamSP("uspFinRepProfitLossstage1", objParamValue[0], objParamValue[1], objParamValue[2],
+                               objParamValue[3], 3);
+                            if (DDT.Rows.Count > 0)
+                            {
+                                decimal CapAccData = DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Debit"])) - DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Credit"]));
+                                dTotalDebit = CapAccData >= 0 ? CapAccData : 0.00M;
+                                dTotalCredit = CapAccData < 0 ? Math.Abs(CapAccData) : 0.00M;
+
+                                dr = dt.NewRow();
+                                dr["AccGroupID"] = 3;
+                                dr["AccGroupName"] = "Capital Account";
+                                dr["Debit"] = CapAccData >= 0 ? CapAccData : 0.00m;// DDT.Rows[0][2];
+                                dr["Credit"] = CapAccData < 0 ? Math.Abs(CapAccData) : 0.00m;
+                                dr["AccType"] = "Group";
+                                dr["SelAccGroupID"] = 0;
+                                dr["SelAccGroupName"] = "";
+                                dt.Rows.Add(dr);
+                            }
+                            //Other Group Data(Borrowings - Long Term,Borrowings - Short Term,,Current Liabilities & Provisions,etc)
+                            dtFagrps = bl.BL_ExecuteSqlQuery("SELECT FAGroup,AccountGroupName FROM tblFAGroup WHERE TypeID=7 AND ParentGroup=0");
+                            for (int i = 0; i < dtFagrps.Rows.Count; i++)
+                            {
+                                int FAGID = bl.BL_nValidation(dtFagrps.Rows[i][0]);
+                                string FAGName = dtFagrps.Rows[i][1].ToString();
+                                DDT = bl.BL_ExecuteParamSP("uspFinRepProfitLossstage1", objParamValue[0], objParamValue[1], objParamValue[2],
+                           objParamValue[3], FAGID);
+
+                                decimal fag1 = DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Debit"])) - DDT.AsEnumerable().Sum(r => Convert.ToDecimal(r["Credit"]));
+                                dTotalDebit += fag1 >= 0 ? fag1 : 0.00M;
+                                dTotalCredit += fag1 < 0 ? Math.Abs(fag1) : 0.00M;
+
+
+                                dr = dt.NewRow();
+                                dr["AccGroupID"] = FAGID;
+                                dr["AccGroupName"] = FAGName;
+                                dr["Debit"] = fag1 >= 0 ? fag1 : 0.00m;// DDT.Rows[0][2];
+                                dr["Credit"] = fag1 < 0 ? Math.Abs(fag1) : 0.00m;
+                                dr["AccType"] = "Group";
+                                dr["SelAccGroupID"] = 0;
+                                dr["SelAccGroupName"] = "";
+                                dt.Rows.Add(dr);
+                            }
+
+                            dr = dt.NewRow();
+                            dr["AccGroupID"] = 0;
+                            dr["AccGroupName"] = "Total";
+                            dr["Debit"] = dPLTotalDebit + (dTempTotalAmt >= 0.00M ? dTempTotalAmt : 0.00M);// DDT.Rows[0][2];
+                            dr["Credit"] = Math.Abs(dPLTotalCredit) + (dTempTotalAmt >= 0.00M ? 0.00M : Math.Abs(dTempTotalAmt));
+                            dr["AccType"] = "";
+                            dr["SelAccGroupID"] = 0;
+                            dr["SelAccGroupName"] = "";
+                            dt.Rows.Add(dr);
+                            string JSONCONV = JsonConvert.SerializeObject(dt);
+                            return Ok(JSONCONV);
+                        }
                     }
                     else if(listParams.ReportID == "37")//Detail Trail Balance Type 2
                     {
