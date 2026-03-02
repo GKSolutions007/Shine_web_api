@@ -104,11 +104,11 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/customeros/generatedata")]
-        public IHttpActionResult COSgeneratedata(int Mode, string BeatID, string SalesmanID, string Party, string Period)
+        public IHttpActionResult COSgeneratedata(int Mode, string BeatID, string SalesmanID, string Party, string Period, string CustomerType, string Rating)
         {
             if (Mode == 2)
             {
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspMobileCustomerOS", Mode, BeatID, SalesmanID, Party, Period);
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspMobileCustomerOS", Mode, BeatID, SalesmanID, Party, Period, CustomerType, Rating);
                 string invjson = JsonConvert.SerializeObject(dtResult);
                 return Ok(invjson);
             }
