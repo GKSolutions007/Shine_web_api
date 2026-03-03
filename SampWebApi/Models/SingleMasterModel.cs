@@ -507,6 +507,8 @@ namespace SampWebApi.Models
         public string TotalYN { get; set; }
         public bool EnableSum { get; set; }
         public bool EnableAvg { get; set; }        
+        public bool EnableCount { get; set; }
+        public bool EnableUnique { get; set; }
         public string precision { get; set; }
         public bool ClickPopup { get; set; }
         public int Printwidth { get; set; }
@@ -524,6 +526,8 @@ namespace SampWebApi.Models
         public string EnableAvg { get; set; }
         public string EnableColumnMenu { get; set; }
         public string EnableSum { get; set; }
+        public string EnableCount { get; set; }
+        public string EnableUnique { get; set; }
         public string FormID { get; set; }
         public string FormName { get; set; }
         public string FormorReport { get; set; }
