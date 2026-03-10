@@ -1,5 +1,4 @@
-09/03/2026 01:34:38 PM |Stop Watch | Check Print Completion Time | 5.2840274 Secs
-09/03/2026 01:36:44 PM |Stop Watch | Check Print Completion Time | 4.8552939 Secs
-09/03/2026 01:39:44 PM |Stop Watch | Check Print Completion Time | 3.610488 Secs
-09/03/2026 01:40:57 PM |Stop Watch | Check Print Completion Time | 3.3826128 Secs
-09/03/2026 01:42:14 PM |Stop Watch | Check Print Completion Time | 4.8879266 Secs
+09/03/2026 12:03:36 PM |PDFGenerate | SaveFileinLocation | Value cannot be null.
+Parameter name: extension
+09/03/2026 12:03:49 PM |PDFGenerate | SaveFileinLocation | Value cannot be null.
+Parameter name: extension
