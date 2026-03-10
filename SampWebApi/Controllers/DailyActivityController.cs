@@ -440,7 +440,9 @@ namespace SampWebApi.Controllers
                         0,
                         dtDenominationPMDetail, 1, 0,
                         1,
-                        0, dtColHeader.Rows[0]["Remarks"].ToString(), dtColHeader.Rows[0]["Narration"].ToString(), 1);
+                        0, dtColHeader.Rows[0]["Remarks"].ToString(), dtColHeader.Rows[0]["Narration"].ToString(),
+                        bl.BL_nValidation(dtColHeader.Rows[0]["BranchID"])
+                        );
                     if (dtResult.Columns.Count == 1)
                     {
                         int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
@@ -494,6 +496,10 @@ namespace SampWebApi.Controllers
                             if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
                             {
                                 ErrMsg = "This document already processed";
+                            }
+                            else
+                            {
+                                ErrMsg = strErrorList[0].Trim();
                             }
                         }
                         else
