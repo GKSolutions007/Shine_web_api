@@ -605,6 +605,7 @@ namespace SampWebApi.Controllers
                         InvoiceAmt = DDT.Rows[i][16].ToString(),
                         Status = DDT.Rows[i][17].ToString(),
                         Bankname = DDT.Rows[i][18].ToString(),
+                        OSAmt = DDT.Rows[i][19].ToString(),
                     });
                 }
                 string str = "";
@@ -630,7 +631,8 @@ namespace SampWebApi.Controllers
                                AdjAmt = users.AdjAmt,
                                InvoiceAmt = users.InvoiceAmt,
                                StatusID = users.Status,
-                               Status = users.Bankname
+                               Status = users.Bankname,
+                               OSAmt=users.OSAmt
                            };
                 
                 return Ok(data);
