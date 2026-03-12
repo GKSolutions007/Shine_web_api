@@ -368,9 +368,42 @@ namespace SampWebApi.Controllers
                 }
 
                 int FID = 1;
+                var allowedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    "Arial",
+    "Arial Black",
+    "Arial Narrow",
+    "Calibri",
+    "Cambria",
+    "Candara",
+    "Consolas",
+    "Constantia",
+    "Corbel",
+    "Courier New",
+    "Georgia",
+    "Garamond",
+    "Impact",
+    "Lucida Console",
+    "Lucida Sans Unicode",
+    "Microsoft Sans Serif",
+    "Palatino Linotype",
+    "Segoe UI",
+    "Segoe Print",
+    "Segoe Script",
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
+    "Century Gothic",
+    "Franklin Gothic Medium",
+    "Comic Sans MS",
+    "Rockwell",
+    "Book Antiqua",
+    "Baskerville Old Face"
+};
                 foreach (FontFamily font in System.Drawing.FontFamily.Families)
                 {
-                    if (font.IsStyleAvailable(FontStyle.Regular))
+                    if (allowedFonts.Contains(font.Name) && font.IsStyleAvailable(FontStyle.Regular))
                     {
                         objFontNames.Add(new
                         {
