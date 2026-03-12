@@ -324,6 +324,7 @@
     <Compile Include="Controllers\BarcodrprofileconfigController.cs" />
     <Compile Include="Controllers\CommonController.cs" />
     <Compile Include="Controllers\CustomizebillprintController.cs" />
+    <Compile Include="Controllers\CustomizeReportsController.cs" />
     <Compile Include="Controllers\DailyActivityController.cs" />
     <Compile Include="Controllers\EInvoiceEwayController.cs" />
     <Compile Include="Controllers\FinancialReportsController.cs" />

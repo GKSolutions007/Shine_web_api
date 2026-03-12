@@ -886,5 +886,6 @@ namespace SampWebApi.BuisnessLayer
         {
             return BL_ExecuteParamSP("uspGetPrintConfig", nConfigValue);
         }
+
     }
 }
