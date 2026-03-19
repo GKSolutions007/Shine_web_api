@@ -17,7 +17,7 @@ namespace SampWebApi.Controllers
         clsBusinessLayer objBL = new clsBusinessLayer();
 
         [HttpGet]
-        [Route("api/SystemApproval/get")]
+        [Route("api/MobileDeviceApproval/get")]
         public IHttpActionResult LoadSystemDetails(int Mode)
         {
             List<SystemApprovalModel> sList = new List<SystemApprovalModel>();
@@ -58,7 +58,7 @@ namespace SampWebApi.Controllers
             return Ok(sList);
         }
         [HttpGet]
-        [Route("api/SystemApproval/save")]
+        [Route("api/MobileDeviceApproval/save")]
         public IHttpActionResult ActiveDeactive(string nMode, string nDeviceID, string nUserID)
         {
             if (nMode != "7" && nMode != "8")
