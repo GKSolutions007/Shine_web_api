@@ -263,7 +263,7 @@ namespace SampWebApi.Controllers
         }
             [HttpGet]
         [Route("api/login/get")]
-        public IHttpActionResult GetloginData(string UserName, string Password)
+        public IHttpActionResult GetloginData(string UserName, string Password, string DeviceID, string Latitude, string Longitude)
         {
             if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password))
             {
@@ -271,42 +271,151 @@ namespace SampWebApi.Controllers
                 List<Users> list = new List<Users>();
                 if (DDT.Rows.Count > 0)
                 {
-
-                    DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
-                    if (dtClssTKDate.Date != DateTime.Today)
+                    DataTable dtDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 1, DeviceID, DDT.Rows[0]["ID"].ToString());
+                    if (dtDevData.Rows.Count > 0 || DDT.Rows[0]["ID"].ToString() == "1")//Device already exists
                     {
-                        bl.bl_Transaction(1);
-                        bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
-                        bl.bl_Transaction(2);
+                        string IsDevActive = "0";
+                        if (DDT.Rows[0]["ID"].ToString() == "1")
+                        {
+                            IsDevActive = "1";
+                        }
+                        else
+                        {
+                            IsDevActive = dtDevData.Rows[0]["Active"].ToString();
+                        }
+                        if (IsDevActive == "1")
+                        {
+                            DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
+                            if (dtClssTKDate.Date != DateTime.Today)
+                            {
+                                bl.bl_Transaction(1);
+                                bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
+                                bl.bl_Transaction(2);
+                            }
+                            list.Add(new Users
+                            {
+                                Mode = "1",
+                                ID = DDT.Rows[0]["ID"].ToString(),
+                                UserName = DDT.Rows[0]["UserName"].ToString(),
+                                Active = DDT.Rows[0]["Active"].ToString(),
+                                //Password = DDT.Rows[0]["Password"].ToString(),
+                                Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
+                                EMailID = DDT.Rows[0]["EMailID"].ToString(),
+                                RoleID = DDT.Rows[0]["RoleID"].ToString(),
+                                PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
+                                PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
+                                LPin = DDT.Rows[0]["LPin"].ToString(),
+                                UserID = DDT.Rows[0]["CBy"].ToString(),
+                                ResponseMessage = "Login Successful"
+                            });
+                            var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
+                            var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                        }
+                        else
+                        {
+                            DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
+                            string ToEmail = dtCompData.Rows[0]["Email"].ToString();
+                            string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                            Random random = new Random();
+                            int OTP = random.Next(100000, 999999);
+                            bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                            if (Issend)
+                            {
+                                int OTPID = 0;
+                                DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "DeviceVerify", OTP, DDT.Rows[0]["ID"].ToString());
+                                if (dtOTP.Rows.Count > 0)
+                                {
+                                    OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
+                                }
+                                list.Add(new Users
+                                {
+                                    Mode = "2",
+                                    ID = OTPID.ToString(),// DDT.Rows[0]["ID"].ToString(),
+                                    UserID = DDT.Rows[0]["ID"].ToString(),
+                                    EMailID = ToEmail,
+                                    ResponseMessage = "OTP Send to this Email ID (" + ToEmail + ")"
+                                });
+                            }
+                            else
+                            {
+                                list.Add(new Users
+                                {
+                                    Mode = "3",
+                                    ResponseMessage = "OTP E-Mail is not sending. Please check E-mail ID and try again"
+                                });
+                            }
+                        }
                     }
-                    list.Add(new Users
+                    else//New Device
                     {
-                        ID = DDT.Rows[0]["ID"].ToString(),
-                        UserName = DDT.Rows[0]["UserName"].ToString(),
-                        Active = DDT.Rows[0]["Active"].ToString(),
-                        //Password = DDT.Rows[0]["Password"].ToString(),
-                        Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
-                        EMailID = DDT.Rows[0]["EMailID"].ToString(),
-                        RoleID = DDT.Rows[0]["RoleID"].ToString(),
-                        PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
-                        PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
-                        LPin = DDT.Rows[0]["LPin"].ToString(),
-                        UserID = DDT.Rows[0]["CBy"].ToString(),
-                    });
-                    //HttpContext.Current.Session["LoginUserID"] = DDT.Rows[0]["ID"].ToString();
-                    //HttpContext.Current.Session.Add("LoginUserID", DDT.Rows[0]["ID"].ToString());// = DDT.Rows[0]["ID"].ToString();
-                    //DataTable dtParent = bl.BL_ExecuteParamSP("uspMenuPermission", 1, null);
-                    //DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, DDT.Rows[0]["RoleID"].ToString(), DDT.Rows[0]["ID"].ToString());//Convert.ToInt32(Session["LoginUserID"])
-                    //HttpContext.Current.Session["dtParent"] = dtParent;
-                    //HttpContext.Current.Session["dtPermission"] = dtPermission;
-                    //Session["dtParent"] = dtParent;
-                    //Session["dtPermission"] = dtPermission;
-                    var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
-                    var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                        DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 2, DeviceID, DDT.Rows[0]["ID"].ToString(),
+                            "Browser", Latitude, Longitude);
+                        DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
+                        string ToEmail = dtCompData.Rows[0]["Email"].ToString();
+                        string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                        Random random = new Random();
+                        int OTP = random.Next(100000, 999999);
+                        bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                        if (Issend)
+                        {
+                            int OTPID = 0;
+                            DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "DeviceVerify", OTP, DDT.Rows[0]["ID"].ToString());
+                            if (dtOTP.Rows.Count > 0)
+                            {
+                                OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
+                            }
+                            list.Add(new Users
+                            {
+                                Mode = "2",
+                                ID = OTPID.ToString(),// DDT.Rows[0]["ID"].ToString(),
+                                UserID = DDT.Rows[0]["ID"].ToString(),
+                                EMailID= ToEmail,
+                                ResponseMessage = "OTP Send to this Email ID (" + ToEmail + ")"
+                            });
+                        }
+                        else
+                        {
+                            list.Add(new Users
+                            {
+                                Mode = "3",                               
+                                ResponseMessage = "OTP E-Mail is not sending. Please check E-mail ID and try again"
+                            });
+                        }
+                       
+                    }
                     return Ok(list);
                 }
             }
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/login/otpverify")]
+        public IHttpActionResult loginotpverify(string OTPID, string UserID, string DeviceID, string OTP,
+            string Latitude, string Longitude)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 2, OTPID, null, OTP);
+            if (dtOTP.Rows.Count > 0)
+            {
+                DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
+                            "Browser", Latitude, Longitude);
+                list.Add(new SaveMessage
+                {
+                    MsgID = "0",
+                    ID = UserID.ToString(),
+                    Message = "OTP Verified Successfully"
+                });
+            }
+            else
+            {
+                list.Add(new SaveMessage
+                {
+                    MsgID = "1",
+                    Message = "Invalid OTP"
+                });
+            }
+            return Ok(list);
         }
         [HttpGet]
         [Route("api/forgotpassword/validate")]

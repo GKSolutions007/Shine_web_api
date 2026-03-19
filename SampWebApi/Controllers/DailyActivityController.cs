@@ -615,7 +615,6 @@ namespace SampWebApi.Controllers
                     });
                 }
                 string str = "";
-
                var data = from users in list
                        select
                            new
