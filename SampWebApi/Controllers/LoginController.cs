@@ -263,7 +263,8 @@ namespace SampWebApi.Controllers
         }
             [HttpGet]
         [Route("api/login/get")]
-        public IHttpActionResult GetloginData(string UserName, string Password, string DeviceID, string Latitude, string Longitude)
+        public IHttpActionResult GetloginData(string UserName, string Password, string DeviceID, 
+                string Latitude, string Longitude, string Pincode)
         {
             if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password))
             {
@@ -349,7 +350,7 @@ namespace SampWebApi.Controllers
                     else//New Device
                     {
                         DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 2, DeviceID, DDT.Rows[0]["ID"].ToString(),
-                            "Browser", Latitude, Longitude);
+                            "Browser", Latitude, Longitude, Pincode);
                         DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
                         string ToEmail = dtCompData.Rows[0]["Email"].ToString();
                         string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
@@ -392,14 +393,14 @@ namespace SampWebApi.Controllers
         [HttpGet]
         [Route("api/login/otpverify")]
         public IHttpActionResult loginotpverify(string OTPID, string UserID, string DeviceID, string OTP,
-            string Latitude, string Longitude)
+            string Latitude, string Longitude, string Pincode)
         {
             List<SaveMessage> list = new List<SaveMessage>();
             DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 2, OTPID, null, OTP);
             if (dtOTP.Rows.Count > 0)
             {
                 DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
-                            "Browser", Latitude, Longitude);
+                            "Browser", Latitude, Longitude, Pincode);
                 list.Add(new SaveMessage
                 {
                     MsgID = "0",

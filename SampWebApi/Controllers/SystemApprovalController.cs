@@ -1,4 +1,5 @@
-﻿using SampWebApi.BuisnessLayer;
+﻿using Newtonsoft.Json;
+using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
@@ -18,7 +20,7 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/MobileDeviceApproval/get")]
-        public IHttpActionResult LoadSystemDetails(int Mode)
+        public IHttpActionResult LoadMobileDevDetails(int Mode)
         {
             List<SystemApprovalModel> sList = new List<SystemApprovalModel>();
             if (Mode == 1)// Web Approval Load
@@ -59,7 +61,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/MobileDeviceApproval/save")]
-        public IHttpActionResult ActiveDeactive(string nMode, string nDeviceID, string nUserID)
+        public IHttpActionResult ActiveDeactiveMobDev(string nMode, string nDeviceID, string nUserID)
         {
             if (nMode != "7" && nMode != "8")
             {
@@ -83,6 +85,19 @@ namespace SampWebApi.Controllers
                 DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
             }
             return Ok(1);
+        }
+
+        [HttpGet]
+        [Route("api/DeviceApproval/get")]
+        public IHttpActionResult LoadSystemDetails(int Mode)
+        {
+            if(Mode == 1)
+            {
+                DataSet dtResult = objBL.BL_ExecuteParamSPDataset("uspManageDeviceApproval", Mode);
+                string DeviceInfo = JsonConvert.SerializeObject(dtResult);
+                return Ok(DeviceInfo);
+            }
+            return Ok();
         }
     }
 }
