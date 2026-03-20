@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
+using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,7 +14,7 @@ using System.Web.Http.Cors;
 
 namespace SampWebApi.Controllers
 {
-    [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [CookieAuthorize]
     public class SystemApprovalController : ApiController
     {
         clsBusinessLayer objBL = new clsBusinessLayer();
@@ -98,6 +99,13 @@ namespace SampWebApi.Controllers
                 return Ok(DeviceInfo);
             }
             return Ok();
+        }
+        [HttpGet]
+        [Route("api/DeviceApproval/save")]
+        public IHttpActionResult ActiveDeactiveDevice(string nMode, string nID)
+        {
+            DataTable dtResult = objBL.BL_ExecuteParamSP("uspManageDeviceApproval", nMode, nID);
+            return Ok(1);
         }
     }
 }
