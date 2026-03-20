@@ -97,9 +97,10 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/creditdebitnote/getfilterdata")]
-        public IHttpActionResult GetCDFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetCDFilterData(string Mode, string TransID, string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetCreditDebitNoteData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall);
+
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetCreditDebitNoteData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall , Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -296,9 +297,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/prvoucher/getfilterdata")]
-        public IHttpActionResult GetPRFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetPRFilterData(string Mode, string TransID, string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetVoucherData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetVoucherData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -487,9 +488,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/contra/getfilterdata")]
-        public IHttpActionResult GetContFilterData(string Mode, string TransID, string AccName, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetContFilterData(string Mode, string TransID, string Branch, string AccName, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -670,9 +671,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/journalentry/getfilterdata")]
-        public IHttpActionResult GetJEFilterData(string Mode, string TransID, string AccName, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetJEFilterData(string Mode, string TransID,string Branch, string AccName, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetJournalEntryData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetJournalEntryData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -925,9 +926,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/othercollectionpayment/getfilterdata")]
-        public IHttpActionResult GetOCPFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetOCPFilterData(string Mode, string TransID,string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, null, 0, AccName, Party, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, null, 0, AccName, Party, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
