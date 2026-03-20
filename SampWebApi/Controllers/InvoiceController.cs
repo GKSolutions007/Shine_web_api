@@ -1503,6 +1503,61 @@ namespace SampWebApi.Controllers
             }
             return Ok(list);
         }
+
+        [HttpGet]
+        [Route("api/invoice/AutomaticMailGenerate")]
+        public IHttpActionResult AutomaticMailGenerate(string DocID, string TransID = "", string Copies = "1")
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                DataTable dtPrinterConfig = bl.BL_ExecuteParamSP("uspGetPrinterConfigByTransID", TransID);
+
+                if (dtPrinterConfig.Rows.Count > 0)
+                {
+                    string configID = dtPrinterConfig.Rows[0][0].ToString();
+
+                    DataTable dtMailData = bl.BL_ExecuteParamSP("uspGetMailId", TransID, DocID);
+                    if (dtMailData.Rows.Count > 0)
+                    {
+                        string PartyEmail = dtMailData.Rows[6][0].ToString();
+                        if (!string.IsNullOrEmpty(PartyEmail))
+                        {
+                            PrintBase PB = new PrintBase { GKS_BL = bl };
+                            PB.SendEmail(Convert.ToInt32(TransID), Convert.ToInt32(DocID), PartyEmail, Convert.ToInt32(configID));
+
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "0",
+                                Message = "Mail Send Successfully"
+                            });
+                        }
+                        else
+                        {
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "1",
+                                Message = "Party Mail ID not found"
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("MailGenerate", "MailGenerate", ex.Message);
+            }
+            return Ok(list);
+        }
+
         [HttpGet]
         [Route("api/invoice/WhatsappGenerate")]
         public IHttpActionResult WhatsappGenerate(string DocID, string TransID = "", string ConfigID = "", 
