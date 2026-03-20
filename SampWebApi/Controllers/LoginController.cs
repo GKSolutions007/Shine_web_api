@@ -286,31 +286,45 @@ namespace SampWebApi.Controllers
                         }
                         if (IsDevActive == "1")
                         {
-                            DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
-                            if (dtClssTKDate.Date != DateTime.Today)
+                            DateTime dtExpiryDate = Convert.ToDateTime(clsEncryptDecrypt.Decrypt(DDT.Rows[0]["ExpiryDate"].ToString()));
+                            if (dtExpiryDate >= DateTime.Today)
                             {
-                                bl.bl_Transaction(1);
-                                bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
-                                bl.bl_Transaction(2);
+
+
+                                DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
+                                if (dtClssTKDate.Date != DateTime.Today)
+                                {
+                                    bl.bl_Transaction(1);
+                                    bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
+                                    bl.bl_Transaction(2);
+                                }
+                                list.Add(new Users
+                                {
+                                    Mode = "1",
+                                    ID = DDT.Rows[0]["ID"].ToString(),
+                                    UserName = DDT.Rows[0]["UserName"].ToString(),
+                                    Active = DDT.Rows[0]["Active"].ToString(),
+                                    //Password = DDT.Rows[0]["Password"].ToString(),
+                                    Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
+                                    EMailID = DDT.Rows[0]["EMailID"].ToString(),
+                                    RoleID = DDT.Rows[0]["RoleID"].ToString(),
+                                    PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
+                                    PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
+                                    LPin = DDT.Rows[0]["LPin"].ToString(),
+                                    UserID = DDT.Rows[0]["CBy"].ToString(),
+                                    ResponseMessage = "Login Successful"
+                                });
+                                var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
+                                var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
                             }
-                            list.Add(new Users
+                            else
                             {
-                                Mode = "1",
-                                ID = DDT.Rows[0]["ID"].ToString(),
-                                UserName = DDT.Rows[0]["UserName"].ToString(),
-                                Active = DDT.Rows[0]["Active"].ToString(),
-                                //Password = DDT.Rows[0]["Password"].ToString(),
-                                Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
-                                EMailID = DDT.Rows[0]["EMailID"].ToString(),
-                                RoleID = DDT.Rows[0]["RoleID"].ToString(),
-                                PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
-                                PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
-                                LPin = DDT.Rows[0]["LPin"].ToString(),
-                                UserID = DDT.Rows[0]["CBy"].ToString(),
-                                ResponseMessage = "Login Successful"
-                            });
-                            var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
-                            var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                                list.Add(new Users
+                                {
+                                    Mode = "4",
+                                    ResponseMessage = "License Expired. Contact Admin"
+                                });
+                            }
                         }
                         else
                         {

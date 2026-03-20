@@ -298,6 +298,20 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Route("api/taxmaster/get")]
+        public IHttpActionResult GetTaxData(string Mode, string ID)
+        {
+            if (Mode == "1")
+            {               
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetTaxMaster", Mode);
+                string TaxData = JsonConvert.SerializeObject(DDT);                
+                return Ok(TaxData);
+            }
+            return Ok();
+        }
+
         [HttpGet]
         [Route("api/bankaccount/get")]
         public IHttpActionResult GetBAData(string Mode, string Name)
