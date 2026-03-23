@@ -37,7 +37,7 @@ namespace SampWebApi.Controllers
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
-            {                
+            {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<SingleMasterModel> list = new List<SingleMasterModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -116,7 +116,7 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        
+
         [HttpGet]
         [Route("api/getfilterdates/get")]
         public IHttpActionResult GetFilterDates()
@@ -304,14 +304,93 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetTaxData(string Mode, string ID)
         {
             if (Mode == "1")
-            {               
+            {
                 DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetTaxMaster", Mode);
-                string TaxData = JsonConvert.SerializeObject(DDT);                
+                string TaxData = JsonConvert.SerializeObject(DDT);
+                return Ok(TaxData);
+            }
+            else if (Mode == "2")
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetTaxMaster", Mode, ID);
+                string TaxData = JsonConvert.SerializeObject(DDT);
                 return Ok(TaxData);
             }
             return Ok();
         }
+        [HttpPost]
+        [Route("api/taxmaster/save")]
+        public IHttpActionResult SaveTaxMaster(Tax lstMaster)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                if (lstMaster != null)
+                {
+                    DataTable dtTaxDetail = new DataTable();
 
+                    dtTaxDetail.Columns.Add("TaxID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxTypeID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxCompID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxRate", typeof(decimal));
+                    dtTaxDetail.Columns.Add("AppOn", typeof(int));
+                    dtTaxDetail.Columns.Add("PartOff", typeof(int));
+                    dtTaxDetail.Columns.Add("CumulativeTax", typeof(decimal));
+                    dtTaxDetail.Columns.Add("GSTTaxType", typeof(int));
+
+                    foreach(TaxDetil taxDetil in lstMaster.lstTaxDetil)
+                    {
+                        DataRow dr = dtTaxDetail.NewRow();
+                        dr["TaxID"] = 0;
+                        dr["TaxTypeID"] = taxDetil.TaxTypeID;
+                        dr["TaxCompID"] = taxDetil.TaxCompID;
+                        dr["TaxRate"] = taxDetil.TaxPern;
+                        dr["AppOn"] = taxDetil.ApponID;
+                        dr["PartOff"] = taxDetil.Partoff;
+                        dr["CumulativeTax"] = taxDetil.Cumulative;
+                        dr["GSTTaxType"] = taxDetil.GSTTypeID;
+                        dtTaxDetail.Rows.Add(dr);
+                    }
+
+                    bl.bl_Transaction(1);
+                    DataTable DDT = bl.bl_ManageTrans("uspManageTax", lstMaster.Mode, bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
+                        bl.BL_dValidation(lstMaster.GST), bl.BL_dValidation(lstMaster.IGST),
+                        bl.BL_dValidation(lstMaster.GUOM), bl.BL_dValidation(lstMaster.IUOM), dtTaxDetail, lstMaster.UserID, lstMaster.Active);
+                    if (DDT.Columns.Count == 1)
+                    {
+                        bl.bl_Transaction(2);
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "0",
+                            Message = "Saved Successfully"
+                        });
+                    }
+                    else
+                    {
+                        bl.bl_Transaction(3);
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "1",
+                            Message = DDT.Rows[0][0].ToString()
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.bl_Transaction(3);
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("Tax Master", "SaveTaxMaster", ex.Message);
+            }
+            return Ok(list);
+        }
         [HttpGet]
         [Route("api/bankaccount/get")]
         public IHttpActionResult GetBAData(string Mode, string Name)

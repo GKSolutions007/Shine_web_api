@@ -588,4 +588,33 @@ namespace SampWebApi.Models
         public string FilterType { get; set; }
 
     }
+    public class Tax
+    {
+        public string Mode { get; set; }
+        public string ID { get; set; }        
+        public string Name { get; set; }
+        public string GST { get; set; }
+        public string IGST { get; set; }
+        public string GUOM { get; set; }
+        public string IUOM { get; set; }
+        public string Active { get; set; }
+        public string UserID { get; set; }
+        public List<TaxDetil> lstTaxDetil { get; set; }
+    }
+    public class TaxDetil
+    {
+        public string TaxID { get; set; }
+        public string TaxPern { get; set; }
+        public string TaxTypeID { get; set; }
+        public string TaxTypeName { get; set; }
+        public string GSTTypeID { get; set; }
+        public string GSTTypeName { get; set; }
+        public string TaxCompID { get; set; }
+        public string TaxCompName { get; set; }
+        public string ApponID { get; set; }
+        public string ApponName { get; set; }
+        public string Partoff { get; set; }
+        public string Cumulative { get; set; }
+        public string Serial { get; set; }
+    }
 }
