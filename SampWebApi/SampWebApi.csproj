@@ -340,6 +340,7 @@
     <Compile Include="Controllers\ToolsController.cs" />
     <Compile Include="Controllers\TransactionImportController.cs" />
     <Compile Include="Import Utility\clsExportData.cs" />
+    <Compile Include="Import Utility\ImportFieldValidations.cs" />
     <Compile Include="Models\PrintCustomizeModel.cs" />
     <Compile Include="Models\RefreshToken.cs" />
     <Compile Include="Printing\PrintBase.cs" />

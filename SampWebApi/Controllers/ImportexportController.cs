@@ -1993,7 +1993,7 @@ namespace SampWebApi.Controllers
                 MTM.Add(new ImportResults()
                 {
                     ID = "2",
-                    Msg = ex.Message + " Date : " + dt,
+                    Msg = ex.Message,
                 });
                 return Ok(MTM);
             }
