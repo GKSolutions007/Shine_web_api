@@ -664,6 +664,10 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetFilterData(string Mode, string TransID, string Party, string FromDate, string ToDate, string Showall)
         {
             DataTable DDT = bl.BL_ExecuteParamSP("uspFilterCollectionPayment", Mode, TransID, Party, FromDate, ToDate, Showall);
+            foreach (DataColumn col in DDT.Columns)
+            {
+                Console.WriteLine("Column: " + col.ColumnName);
+            }
             List<CollectionPaymentModel> list = new List<CollectionPaymentModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -675,7 +679,16 @@ namespace SampWebApi.Controllers
                     RefNo = DDT.Rows[i]["RefNo"].ToString(),
                     PartyName = DDT.Rows[i]["Name"].ToString(),
                     CollAmt = DDT.Rows[i]["Amount"].ToString(),
-                    Balance = DDT.Rows[i]["Balance"].ToString(),                    
+                    Balance = DDT.Rows[i]["Balance"].ToString(),
+                    BankAccID = DDT.Rows[i]["Bank A/C Name"].ToString(),
+                    BankAccNo = DDT.Rows[i]["Bank A/C No"].ToString(),
+                    ChequeNo = DDT.Rows[i]["Cheque/DD/NEFT"].ToString(),
+                    ChequeDate = DDT.Rows[i]["Cheque/DD/NEFT Date"].ToString(),
+                    VisaPern = DDT.Rows[i]["Card (%)"].ToString(),
+                    VisaAmt = DDT.Rows[i]["Card Amount"].ToString(),
+                    BankName = DDT.Rows[i]["Bank Name"].ToString(),
+                    Branch = DDT.Rows[i]["Bank Branch Name"].ToString(),
+                    IFSC = DDT.Rows[i]["IFSC COde"].ToString(),
                     Status = DDT.Rows[i]["Status"].ToString(),
                     StatusID = DDT.Rows[i]["StatusID"].ToString(),
                     PaymentModeID = DDT.Rows[i]["PaymentMode"].ToString(),
