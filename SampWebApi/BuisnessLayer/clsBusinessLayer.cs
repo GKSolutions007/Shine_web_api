@@ -49,6 +49,42 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ManageTrans(strStoredProc, obj);
         }
+        public decimal ReturnGrossorMRPTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP)
+        {
+            decimal dTaxAmt = 0;
+
+            DataTable dtMTdetail = BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+            decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+          .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+          .DefaultIfEmpty(0)
+          .Sum();
+            decimal dApponPriceCum = dtMTdetail.Select("AppOn <> -1")
+              .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+              .DefaultIfEmpty(0)
+              .Sum();
+            if (GrossorTax == 1)
+            {
+                decimal dGrossAmt = dApponMRPCum > 0 ? (MRP / (1 + (dApponMRPCum / 100))) : (Price / (1 + (dApponMRPCum / 100)));
+                return BL_dValidation(dGrossAmt);
+            }
+            for (int i = 0; i < dtMTdetail.Rows.Count; i++)
+            {
+                int nAppon = BL_nValidation(dtMTdetail.Rows[i]["AppOn"].ToString());
+                decimal dCumTax = BL_dValidation(dtMTdetail.Rows[i]["CumulativeTax"].ToString());
+                if (nAppon == -1)
+                {
+                    decimal dPrice = (MRP / (1 + (dApponMRPCum / 100)));
+                    dTaxAmt += (dPrice * dCumTax) / 100;
+                }
+                else
+                {
+                    //decimal dPrice = (Price / (1 + (dApponPriceCum / 100)));
+                    dTaxAmt += (Price * dCumTax) / 100;
+                }
+            }
+            return BL_dValidation(dTaxAmt);
+        }
+
         public string CheckString(string str,string DefaultValue = "0")
         {
             if (string.IsNullOrEmpty(str))

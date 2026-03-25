@@ -687,7 +687,7 @@ namespace SampWebApi.Controllers
                     VisaPern = DDT.Rows[i]["Card (%)"].ToString(),
                     VisaAmt = DDT.Rows[i]["Card Amount"].ToString(),
                     BankName = DDT.Rows[i]["Bank Name"].ToString(),
-                    Branch = DDT.Rows[i]["Bank Branch Name"].ToString(),
+                    Branch = DDT.Rows[i]["Branch Name"].ToString(),
                     IFSC = DDT.Rows[i]["IFSC COde"].ToString(),
                     Status = DDT.Rows[i]["Status"].ToString(),
                     StatusID = DDT.Rows[i]["StatusID"].ToString(),

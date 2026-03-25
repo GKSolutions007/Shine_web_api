@@ -633,75 +633,7 @@ namespace SampWebApi.Controllers
         public IHttpActionResult Save(PurchaseModel listTrans)
         {
             if (listTrans != null)
-            {
-                if (dtPopUpDetail.Columns.Count == 0)
-                {
-                    dtPopUpDetail.Columns.Add("ProdId", typeof(int));
-                    dtPopUpDetail.Columns.Add("BatchNo", typeof(string));
-                    dtPopUpDetail.Columns.Add("PKD", typeof(string));
-                    dtPopUpDetail.Columns.Add("Expiry", typeof(string));
-                    dtPopUpDetail.Columns.Add("Qty", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("FreeQty", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("DmgQty", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("PurchasePrice", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("SalePrice", typeof(decimal));
-                    dtPopUpDetail.Columns.Add("ECP", typeof(decimal));
-                    dtPopUpDetail.Columns.Add("MRP", typeof(decimal));
-                    dtPopUpDetail.Columns.Add("SPLPrice", typeof(decimal));
-                    dtPopUpDetail.Columns.Add("TempPPrice", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TempSalesPrice", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TempECP", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TempMRP", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TempSplPrice", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TaxName", typeof(string));
-                    dtPopUpDetail.Columns.Add("TaxID", typeof(int));
-                    dtPopUpDetail.Columns.Add("TaxPercentage", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("InventoryId", typeof(int));
-                    dtPopUpDetail.Columns.Add("GoodsAmt", typeof(decimal), bl.dValidationExp("((Qty+DmgQty)*TempPPrice)"));
-                    dtPopUpDetail.Columns.Add("ProdDisc", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("ProdDiscAmt", typeof(decimal), bl.dValidationExp("((GoodsAmt*ProdDisc)/100)"));
-                    dtPopUpDetail.Columns.Add("dtColPDAftrGGrossAmt", typeof(decimal), bl.dValidationExp("(GoodsAmt-ProdDiscAmt)"));
-                    dtPopUpDetail.Columns.Add("AddnlDisc", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("AddnlDiscAmt", typeof(decimal), bl.dValidationExp("((dtColPDAftrGGrossAmt*AddnlDisc)/100)"));
-                    dtPopUpDetail.Columns.Add("TradeDisc", typeof(decimal)).DefaultValue = 0;
-                    dtPopUpDetail.Columns.Add("TradeDiscAmt", typeof(decimal), bl.dValidationExp("((dtColPDAftrGGrossAmt*TradeDisc)/100)"));
-                    dtPopUpDetail.Columns.Add("GrossAmt", typeof(decimal), bl.dValidationExp("(GoodsAmt-(ProdDiscAmt+TradeDiscAmt+AddnlDiscAmt))"));
-                    dtPopUpDetail.Columns.Add("TaxAmt", typeof(decimal), bl.dValidationExp("((GrossAmt*TaxPercentage)/100)"));
-                    dtPopUpDetail.Columns.Add("NetAmt", typeof(decimal), bl.dValidationExp("(GrossAmt+TaxAmt)"));
-                    dtPopUpDetail.Columns.Add("InclusiveYesNo", typeof(int)).DefaultValue = 0;
-                }
-
-                if (dtProd.Columns.Count == 0)
-                {
-                    dtProd.Columns.Add("ProdId", typeof(int));
-                    dtProd.Columns.Add("UomId", typeof(int));
-                    dtProd.Columns.Add("UomGrpID", typeof(int));
-                    dtProd.Columns.Add("BatchNo", typeof(string));
-                    dtProd.Columns.Add("PKD", typeof(string));
-                    dtProd.Columns.Add("Expiry", typeof(string));
-                    dtProd.Columns.Add("Qty", typeof(decimal));
-                    dtProd.Columns.Add("FreeQty", typeof(decimal));
-                    dtProd.Columns.Add("DamageQty", typeof(decimal));
-                    dtProd.Columns.Add("PurchasePrice", typeof(decimal));
-                    dtProd.Columns.Add("SalePrice", typeof(decimal));
-                    dtProd.Columns.Add("ECP", typeof(decimal));
-                    dtProd.Columns.Add("MRP", typeof(decimal));
-                    dtProd.Columns.Add("SPLPrice", typeof(decimal));
-                    dtProd.Columns.Add("ReturnPrice", typeof(decimal));
-                    dtProd.Columns.Add("TaxID", typeof(int));
-                    dtProd.Columns.Add("TaxTypeId", typeof(int));
-                    dtProd.Columns.Add("TaxPercentage", typeof(decimal));
-                    dtProd.Columns.Add("GoodsAmt", typeof(decimal));
-                    dtProd.Columns.Add("ProdDiscPercent", typeof(decimal));
-                    dtProd.Columns.Add("TradeDiscPercent", typeof(decimal));
-                    dtProd.Columns.Add("AddnlDiscPercent", typeof(decimal));
-                    dtProd.Columns.Add("GrossAmt", typeof(decimal));
-                    dtProd.Columns.Add("TaxAmt", typeof(decimal));
-                    dtProd.Columns.Add("NetAmt", typeof(decimal));
-                    dtProd.Columns.Add("InventoryId", typeof(int));
-                    dtProd.Columns.Add("InclusiveYesNo", typeof(int)).DefaultValue = 0;
-                    dtProd.Columns.Add("DiffAmt", typeof(int)).DefaultValue = 0;
-                }
+            {                
                 dtGSTInfo.Columns.Add("TransID", typeof(int));
                 dtGSTInfo.Columns.Add("TransIdentID", typeof(int));
                 dtGSTInfo.Columns.Add("ProdID", typeof(int));
