@@ -43,12 +43,15 @@ namespace SampWebApi.Controllers
         public DataTable dtData { get; set; }
         public DataTable dtHeaderData { get; set; }
         public DataTable dtItemsData { get; set; }
+        DataTable dtBillHeader = new DataTable(), dtPRHeader = new DataTable(), dtSalesHeader = new DataTable(), dtSRHeader = new DataTable();
         public class ExportJobStatus
         {
             public int Progress { get; set; } = 0;
             public string ProgressMessage { get; set; }
             public string FilePath { get; set; }
             public bool IsCompleted { get; set; } = false;
+            public int ErrorID { get; set; } = 0;
+            public string ErrorMessage { get; set; }
         }
         public static class ExportJobManager
         {
@@ -196,7 +199,9 @@ namespace SampWebApi.Controllers
             {
                 progress = job.Progress,
                 progressMessage = job.ProgressMessage,
-                completed = job.IsCompleted
+                completed = job.IsCompleted,
+                ErrorID = job.ErrorID,
+                ErrorMessage = job.ErrorMessage,
             });
         }
 
@@ -279,9 +284,10 @@ namespace SampWebApi.Controllers
             string Msg = "";
             string dt = "";
             List<ImportResults> MTM = new List<ImportResults>();
+            clsExportData clsExport = new clsExportData();
+
             try
             {
-
                 var job = ExportJobManager.Jobs[jobId];
                 job.Progress = 5;
                 job.ProgressMessage = "Initialize..."; //Thread.Sleep(3000);
@@ -293,12 +299,12 @@ namespace SampWebApi.Controllers
                     job.Progress = 10;
                     job.ProgressMessage = "Read file data..."; //Thread.Sleep(3000);
                     //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "Upload Files\\";
-                    clsExportData clsExport = new clsExportData();
+                    
                     string FPt = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
                     strFilePath = FPt + "Upload Files\\";
                     clsExport.strFilePath = FPt + "Upload Files\\";
                     strFileName = TransName + "_Upload_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                    clsExport.strFileName = TransName + "_Upload_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+                    clsExport.strFileName = strFileName;
                     if (!Directory.Exists(strFilePath))
                     {
                         Directory.CreateDirectory(strFilePath);
@@ -339,28 +345,28 @@ namespace SampWebApi.Controllers
                     }
                     #endregion
                     job.Progress = 35;
-                    job.ProgressMessage = "Validate Detail Columns..."; Thread.Sleep(3000);
+                    job.ProgressMessage = "Validate Detail Columns..."; //Thread.Sleep(3000);
                     #region Items Validation
                     if (TransID == "1")//'SALES,BILL,SR,PR' Items
                     {
                         lstItems = clsExportData.AddSalesDetailColumnForExport(false);
                     }
                     bool ItemsErrorColAlreadyExists = false;
-                    dtItemsData = clsExport.TransactionColumnValidation(lstItems, "Items", ref blHeaderResult);
-                    if (!blHeaderResult)
+                    dtItemsData = clsExport.TransactionColumnValidation(lstItems, "Detail", ref blItemsResult);
+                    if (!blItemsResult)
                     {
                         if (TransID == "1")//'SALES,BILL,SR,PR' Items
                         {
                             lstItems = clsExportData.AddSalesDetailColumnForExport(true);
                         }
-                        dtItemsData = clsExport.TransactionColumnValidation(lstItems, "Items", ref blHeaderResult);
+                        dtItemsData = clsExport.TransactionColumnValidation(lstItems, "Detail", ref blItemsResult);
                         ItemsErrorColAlreadyExists = true;
                     }
                     #endregion
                     if (blHeaderResult && blItemsResult)
                     {
                         job.Progress = 40;
-                        job.ProgressMessage = "Data Validation Initiated..."; Thread.Sleep(3000);
+                        job.ProgressMessage = "Data Validation Initiated..."; //Thread.Sleep(3000);
                         DataTable dtHeaderCorrectValues = new DataTable();
                         DataTable dtHeaderWrongValues = new DataTable();
                         foreach (string str in lstHeader)
@@ -390,124 +396,311 @@ namespace SampWebApi.Controllers
                             if (dtHeaderData.Rows.Count > 0 && dtItemsData.Rows.Count > 0)
                             {
                                 job.Progress = 50;
-                                job.ProgressMessage = "Validate Header Data..."; Thread.Sleep(3000);
+                                job.ProgressMessage = "Validate Header Data..."; //Thread.Sleep(3000);
+                                int currentProgress = job.Progress;
                                 int nIndex = 1;
                                 bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                //int TotHeaderRow = dtHeaderData.Rows.Count;
+                                //int CalcProgressPern = 10;
+                                //decimal pernperrow = Math.Round(Convert.ToDecimal(TotHeaderRow) / 10, 0);
                                 #region Header data validation
                                 foreach (DataRow item in dtHeaderData.Rows)
                                 {
+                                    //currentProgress = currentProgress + Convert.ToInt32(pernperrow);
+                                    //job.Progress = currentProgress;
+                                    //Thread.Sleep(1000);
                                     DataTable dtValidate = dtHeaderData.Clone();
                                     dtValidate.TableName = "Validation";
                                     dtValidate.Rows.Add(item.ItemArray);
                                     string RowError = importValidations.SaleSRBillPRHeaderValidation(dtValidate);
-                                    //if (string.IsNullOrEmpty(RowError))
-                                    //{
-                                    //    DataRow drW = dtHeaderWrongValues.NewRow();
-                                    //    drW["Branch Name *"] = importValidations.BranchID;// item.ItemArray[0];
-                                    //    drW["Ref No *"] = item.ItemArray[1];
-                                    //    drW["Date *"] = item.ItemArray[2];
-                                    //    drW["Party Name *"] = item.ItemArray[3];
-                                    //    drW["Trade Discount %"] = item.ItemArray[4];
-                                    //    drW["Trade Discount Amount"] = item.ItemArray[5];
-                                    //    drW["Additional Discount %"] = item.ItemArray[6];
-                                    //    drW["Additional Discount Amount"] = item.ItemArray[7];
-                                    //    drW["Freight"] = item.ItemArray[8];
-                                    //    drW["Other Charge Amount"] = item.ItemArray[9];
-                                    //    drW["Remarks"] = item.ItemArray[10];
-                                    //    drW["Narration"] = item.ItemArray[11];
-                                    //    drW["Net Amount *"] = item.ItemArray[12];
-                                    //    drW["Error"] = RowError;
-                                    //    dtHeaderWrongValues.Rows.Add(drW);
-                                    //    //Correct values only
-                                    //    DataRow drC = dtHeaderCorrectValues.NewRow();
-                                    //    drC["Branch Name *"] = BranchID;
-                                    //    drC["Ref No *"] = item.ItemArray[1];
-                                    //    drC["Date *"] = item.ItemArray[2];
-                                    //    drC["Party Name *"] = CustomerID;
-                                    //    drC["PriceTypeID"] = PriceTypeID;
-                                    //    drC["TaxTypeID"] = TaxTypeID;
-                                    //    drC["Trade Discount %"] = item.ItemArray[4];
-                                    //    drC["Trade Discount Amount"] = item.ItemArray[5];
-                                    //    drC["Additional Discount %"] = item.ItemArray[6];
-                                    //    drC["Additional Discount Amount"] = item.ItemArray[7];
-                                    //    drC["Freight"] = item.ItemArray[8];
-                                    //    drC["Other Charge Amount"] = item.ItemArray[9];
-                                    //    drC["Remarks"] = item.ItemArray[10];
-                                    //    drC["Narration"] = item.ItemArray[11];
-                                    //    drC["Net Amount *"] = item.ItemArray[12];
-                                    //    drC["Error"] = nIndex;
-                                    //    dtHeaderCorrectValues.Rows.Add(drC);
-                                    //    nIndex++;
-                                    //}
-                                    //else
-                                    //{
-                                    //    NoErrorsinHeader = false;
-                                    //    DataRow drW = dtHeaderWrongValues.NewRow();
-                                    //    drW["Branch Name *"] = item.ItemArray[0];
-                                    //    drW["Ref No *"] = item.ItemArray[1];
-                                    //    drW["Date *"] = item.ItemArray[2];
-                                    //    drW["Party Name *"] = item.ItemArray[3];
-                                    //    drW["Trade Discount %"] = item.ItemArray[4];
-                                    //    drW["Trade Discount Amount"] = item.ItemArray[5];
-                                    //    drW["Additional Discount %"] = item.ItemArray[6];
-                                    //    drW["Additional Discount Amount"] = item.ItemArray[7];
-                                    //    drW["Freight"] = item.ItemArray[8];
-                                    //    drW["Other Charge Amount"] = item.ItemArray[9];
-                                    //    drW["Remarks"] = item.ItemArray[10];
-                                    //    drW["Narration"] = item.ItemArray[11];
-                                    //    drW["Net Amount *"] = item.ItemArray[12];
-                                    //    drW["Error"] = RowError;
-                                    //    dtHeaderWrongValues.Rows.Add(drW);
-                                    //}
+                                    string DocID = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                    int count = dtHeaderData.AsEnumerable().Count(row => row["DOC ID *"].ToString() == DocID);
+                                    if(count > 1)
+                                    {
+                                        RowError += "Doc ID : Doc ID " + DocID + " exists multiple times in the data. Please ensure each Doc ID is unique.\n";
+                                    }
+                                    RowError += importValidations.SaleSRBillPRNetAmtValidation(dtValidate, dtItemsData);
+                                    if (string.IsNullOrEmpty(RowError)) 
+                                    {
+                                        DataRow drW = dtHeaderWrongValues.NewRow();
+                                        drW["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drW["DOC PREFIX *"] = dtValidate.Rows[0]["DOC PREFIX *"].ToString();
+                                        drW["BRANCH NAME *"] = dtValidate.Rows[0]["BRANCH NAME *"].ToString();
+                                        drW["DOC DATE *"] = dtValidate.Rows[0]["DOC DATE *"].ToString();
+                                        drW["PARTY NAME *"] = dtValidate.Rows[0]["PARTY NAME *"].ToString();
+                                        drW["PAYMENT MODE *"] = dtValidate.Rows[0]["PAYMENT MODE *"].ToString();
+                                        drW["CREDIT TERM *"] = dtValidate.Rows[0]["CREDIT TERM *"].ToString();
+                                        drW["ADDITIONAL DISCOUNT"] = dtValidate.Rows[0]["ADDITIONAL DISCOUNT"].ToString();
+                                        drW["TRADE DISCOUNT"] = dtValidate.Rows[0]["TRADE DISCOUNT"].ToString();
+                                        drW["FRIEGHT"] = dtValidate.Rows[0]["FRIEGHT"].ToString();
+                                        drW["OTHER CHARGE"] = dtValidate.Rows[0]["OTHER CHARGE"].ToString();
+                                        drW["NET AMOUNT *"] = dtValidate.Rows[0]["NET AMOUNT *"].ToString();
+                                        drW["STATUS *"] = dtValidate.Rows[0]["STATUS *"].ToString();
+                                        drW["BEAT NAME"] = dtValidate.Rows[0]["BEAT NAME"].ToString();
+                                        drW["SALESMAN NAME"] = dtValidate.Rows[0]["SALESMAN NAME"].ToString();
+                                        drW["WRITEOFF AMT"] = dtValidate.Rows[0]["WRITEOFF AMT"].ToString();
+                                        drW["TRANSACTION TYPE"] = dtValidate.Rows[0]["TRANSACTION TYPE"].ToString();
+                                        drW["RETURN TYPE"] = dtValidate.Rows[0]["RETURN TYPE"].ToString();
+                                        drW["REMARKS"] = dtValidate.Rows[0]["REMARKS"].ToString();
+                                        drW["TRANSPORT MODE"] = dtValidate.Rows[0]["TRANSPORT MODE"].ToString();
+                                        drW["TRANSPORT TYPE"] = dtValidate.Rows[0]["TRANSPORT TYPE"].ToString();
+                                        drW["VECHICLE NUMBER"] = dtValidate.Rows[0]["VECHICLE NUMBER"].ToString();
+                                        drW["TRANSPORT ID"] = dtValidate.Rows[0]["TRANSPORT ID"].ToString();
+                                        drW["TRANSPORT NAME"] = dtValidate.Rows[0]["TRANSPORT NAME"].ToString();
+                                        drW["DISTANCE"] = dtValidate.Rows[0]["DISTANCE"].ToString();
+                                        drW["IRN"] = dtValidate.Rows[0]["IRN"].ToString();
+                                        drW["ACKNOWLEDGE NO"] = dtValidate.Rows[0]["ACKNOWLEDGE NO"].ToString();
+                                        drW["ACKNOWLEDGE DATE"] = dtValidate.Rows[0]["ACKNOWLEDGE DATE"].ToString();
+                                        drW["ACKNOWLEDGE STATUS"] = dtValidate.Rows[0]["ACKNOWLEDGE STATUS"].ToString();
+                                        drW["SIGNED QRCODE"] = dtValidate.Rows[0]["SIGNED QRCODE"].ToString();
+                                        drW["EWAY BILL NO"] = dtValidate.Rows[0]["EWAY BILL NO"].ToString();
+                                        drW["Error"] = RowError;
+                                        dtHeaderWrongValues.Rows.Add(drW);
+                                        //Correct values only
+                                        DataRow drC = dtHeaderCorrectValues.NewRow();
+                                        drC["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drC["DOC PREFIX *"] = dtValidate.Rows[0]["DOC PREFIX *"].ToString();
+                                        drC["BRANCH NAME *"] = importValidations.BranchID;
+                                        drC["DOC DATE *"] = dtValidate.Rows[0]["DOC DATE *"].ToString();
+                                        drC["PARTY NAME *"] = importValidations.VendorID;
+                                        drC["PAYMENT MODE *"] = importValidations.PaymentModeID;
+                                        drC["CREDIT TERM *"] = importValidations.CreditTermID;
+                                        drC["ADDITIONAL DISCOUNT"] = dtValidate.Rows[0]["ADDITIONAL DISCOUNT"].ToString();
+                                        drC["TRADE DISCOUNT"] = dtValidate.Rows[0]["TRADE DISCOUNT"].ToString();
+                                        drC["FRIEGHT"] = dtValidate.Rows[0]["FRIEGHT"].ToString();
+                                        drC["OTHER CHARGE"] = dtValidate.Rows[0]["OTHER CHARGE"].ToString();
+                                        drC["NET AMOUNT *"] = dtValidate.Rows[0]["NET AMOUNT *"].ToString();
+                                        drC["STATUS *"] = importValidations.StatusID;
+                                        drC["BEAT NAME"] = importValidations.BeatID;
+                                        drC["SALESMAN NAME"] = importValidations.SalesmanID;
+                                        drC["WRITEOFF AMT"] = dtValidate.Rows[0]["WRITEOFF AMT"].ToString();
+                                        drC["TRANSACTION TYPE"] = dtValidate.Rows[0]["TRANSACTION TYPE"].ToString();
+                                        drC["RETURN TYPE"] = importValidations.ReturnTypeID;
+                                        drC["REMARKS"] = dtValidate.Rows[0]["REMARKS"].ToString();
+                                        drC["TRANSPORT MODE"] = dtValidate.Rows[0]["TRANSPORT MODE"].ToString();
+                                        drC["TRANSPORT TYPE"] = dtValidate.Rows[0]["TRANSPORT TYPE"].ToString();
+                                        drC["VECHICLE NUMBER"] = importValidations.VehicleID;
+                                        drC["TRANSPORT ID"] = dtValidate.Rows[0]["TRANSPORT ID"].ToString();
+                                        drC["TRANSPORT NAME"] = dtValidate.Rows[0]["TRANSPORT NAME"].ToString();
+                                        drC["DISTANCE"] = dtValidate.Rows[0]["DISTANCE"].ToString();
+                                        drC["IRN"] = dtValidate.Rows[0]["IRN"].ToString();
+                                        drC["ACKNOWLEDGE NO"] = dtValidate.Rows[0]["ACKNOWLEDGE NO"].ToString();
+                                        drC["ACKNOWLEDGE DATE"] = dtValidate.Rows[0]["ACKNOWLEDGE DATE"].ToString();
+                                        drC["ACKNOWLEDGE STATUS"] = dtValidate.Rows[0]["ACKNOWLEDGE STATUS"].ToString();
+                                        drC["SIGNED QRCODE"] = dtValidate.Rows[0]["SIGNED QRCODE"].ToString();
+                                        drC["EWAY BILL NO"] = dtValidate.Rows[0]["EWAY BILL NO"].ToString();
+                                        drC["Error"] = nIndex;
+                                        dtHeaderCorrectValues.Rows.Add(drC);
+                                        nIndex++;
+                                    }
+                                    else
+                                    {
+                                        NoErrorsinHeader = false;
+                                        DataRow drW = dtHeaderWrongValues.NewRow();
+                                        drW["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drW["DOC PREFIX *"] = dtValidate.Rows[0]["DOC PREFIX *"].ToString();
+                                        drW["BRANCH NAME *"] = dtValidate.Rows[0]["BRANCH NAME *"].ToString();
+                                        drW["DOC DATE *"] = dtValidate.Rows[0]["DOC DATE *"].ToString();
+                                        drW["PARTY NAME *"] = dtValidate.Rows[0]["PARTY NAME *"].ToString();
+                                        drW["PAYMENT MODE *"] = dtValidate.Rows[0]["PAYMENT MODE *"].ToString();
+                                        drW["CREDIT TERM *"] = dtValidate.Rows[0]["CREDIT TERM *"].ToString();
+                                        drW["ADDITIONAL DISCOUNT"] = dtValidate.Rows[0]["ADDITIONAL DISCOUNT"].ToString();
+                                        drW["TRADE DISCOUNT"] = dtValidate.Rows[0]["TRADE DISCOUNT"].ToString();
+                                        drW["FRIEGHT"] = dtValidate.Rows[0]["FRIEGHT"].ToString();
+                                        drW["OTHER CHARGE"] = dtValidate.Rows[0]["OTHER CHARGE"].ToString();
+                                        drW["NET AMOUNT *"] = dtValidate.Rows[0]["NET AMOUNT *"].ToString();
+                                        drW["STATUS *"] = dtValidate.Rows[0]["STATUS *"].ToString();
+                                        drW["BEAT NAME"] = dtValidate.Rows[0]["BEAT NAME"].ToString();
+                                        drW["SALESMAN NAME"] = dtValidate.Rows[0]["SALESMAN NAME"].ToString();
+                                        drW["WRITEOFF AMT"] = dtValidate.Rows[0]["WRITEOFF AMT"].ToString();
+                                        drW["TRANSACTION TYPE"] = dtValidate.Rows[0]["TRANSACTION TYPE"].ToString();
+                                        drW["RETURN TYPE"] = dtValidate.Rows[0]["RETURN TYPE"].ToString();
+                                        drW["REMARKS"] = dtValidate.Rows[0]["REMARKS"].ToString();
+                                        drW["TRANSPORT MODE"] = dtValidate.Rows[0]["TRANSPORT MODE"].ToString();
+                                        drW["TRANSPORT TYPE"] = dtValidate.Rows[0]["TRANSPORT TYPE"].ToString();
+                                        drW["VECHICLE NUMBER"] = dtValidate.Rows[0]["VECHICLE NUMBER"].ToString();
+                                        drW["TRANSPORT ID"] = dtValidate.Rows[0]["TRANSPORT ID"].ToString();
+                                        drW["TRANSPORT NAME"] = dtValidate.Rows[0]["TRANSPORT NAME"].ToString();
+                                        drW["DISTANCE"] = dtValidate.Rows[0]["DISTANCE"].ToString();
+                                        drW["IRN"] = dtValidate.Rows[0]["IRN"].ToString();
+                                        drW["ACKNOWLEDGE NO"] = dtValidate.Rows[0]["ACKNOWLEDGE NO"].ToString();
+                                        drW["ACKNOWLEDGE DATE"] = dtValidate.Rows[0]["ACKNOWLEDGE DATE"].ToString();
+                                        drW["ACKNOWLEDGE STATUS"] = dtValidate.Rows[0]["ACKNOWLEDGE STATUS"].ToString();
+                                        drW["SIGNED QRCODE"] = dtValidate.Rows[0]["SIGNED QRCODE"].ToString();
+                                        drW["EWAY BILL NO"] = dtValidate.Rows[0]["EWAY BILL NO"].ToString();
+                                        drW["Error"] = RowError;
+                                        dtHeaderWrongValues.Rows.Add(drW);
+                                    }
                                 }
                                 #endregion
                                 #region Items data validation
                                 job.Progress = 60;
-                                job.ProgressMessage = "Validate Detail Data..."; Thread.Sleep(3000);
+                                job.ProgressMessage = "Validate Detail Data..."; //Thread.Sleep(3000);                                                                
+                                nIndex = 1;                                
+                                foreach (DataRow item in dtItemsData.Rows)
+                                {                                                                        
+                                    DataTable dtValidate = dtItemsData.Clone();
+                                    dtValidate.TableName = "Validation";
+                                    dtValidate.Rows.Add(item.ItemArray);
+                                    string RowError = importValidations.SaleSRBillPRDetailValidation(dtValidate);
+                                    if (string.IsNullOrEmpty(RowError))
+                                    {
+                                        DataRow drW = dtItemsWrongValues.NewRow();
+                                        drW["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drW["PRODUCT NAME *"] = dtValidate.Rows[0]["PRODUCT NAME *"].ToString();
+                                        drW["BATCH NUMBER"] = dtValidate.Rows[0]["BATCH NUMBER"].ToString();
+                                        drW["PKD DATE"] = dtValidate.Rows[0]["PKD DATE"].ToString();
+                                        drW["EXPIRY DATE"] = dtValidate.Rows[0]["EXPIRY DATE"].ToString();
+                                        drW["ACTUAL QTY"] = dtValidate.Rows[0]["ACTUAL QTY"].ToString();
+                                        drW["DAMAGE QTY"] = dtValidate.Rows[0]["DAMAGE QTY"].ToString();
+                                        drW["FREE QTY"] = dtValidate.Rows[0]["FREE QTY"].ToString();
+                                        drW["UOM PURCHASE PRICE"] = dtValidate.Rows[0]["UOM PURCHASE PRICE"].ToString();
+                                        drW["UOM SALE PRICE"] = dtValidate.Rows[0]["UOM SALE PRICE"].ToString();
+                                        drW["UOM ECP PRICE"] = dtValidate.Rows[0]["UOM ECP PRICE"].ToString();
+                                        drW["UOM SPL PRICE"] = dtValidate.Rows[0]["UOM SPL PRICE"].ToString();
+                                        drW["UOM MRP PRICE"] = dtValidate.Rows[0]["UOM MRP PRICE"].ToString();
+                                        drW["RETURN PRICE"] = dtValidate.Rows[0]["RETURN PRICE"].ToString();
+                                        drW["TAX NAME *"] = dtValidate.Rows[0]["TAX NAME *"].ToString();
+                                        drW["PRODUCT DISCOUNT"] = dtValidate.Rows[0]["PRODUCT DISCOUNT"].ToString();
+                                        drW["REASON NAME"] = dtValidate.Rows[0]["REASON NAME"].ToString();
+                                        drW["Error"] = RowError;
+                                        dtItemsWrongValues.Rows.Add(drW);
+
+                                        DataRow drC = dtItemsCorrectValues.NewRow();
+                                        drC["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drC["PRODUCT NAME *"] = importValidations.ProductID;
+                                        drC["BATCH NUMBER"] = dtValidate.Rows[0]["BATCH NUMBER"].ToString();
+                                        drC["PKD DATE"] = dtValidate.Rows[0]["PKD DATE"].ToString();
+                                        drC["EXPIRY DATE"] = dtValidate.Rows[0]["EXPIRY DATE"].ToString();
+                                        drC["ACTUAL QTY"] = dtValidate.Rows[0]["ACTUAL QTY"].ToString();
+                                        drC["DAMAGE QTY"] = dtValidate.Rows[0]["DAMAGE QTY"].ToString();
+                                        drC["FREE QTY"] = dtValidate.Rows[0]["FREE QTY"].ToString();
+                                        drC["UOM PURCHASE PRICE"] = dtValidate.Rows[0]["UOM PURCHASE PRICE"].ToString();
+                                        drC["UOM SALE PRICE"] = dtValidate.Rows[0]["UOM SALE PRICE"].ToString();
+                                        drC["UOM ECP PRICE"] = dtValidate.Rows[0]["UOM ECP PRICE"].ToString();
+                                        drC["UOM SPL PRICE"] = dtValidate.Rows[0]["UOM SPL PRICE"].ToString();
+                                        drC["UOM MRP PRICE"] = dtValidate.Rows[0]["UOM MRP PRICE"].ToString();
+                                        drC["RETURN PRICE"] = dtValidate.Rows[0]["RETURN PRICE"].ToString();
+                                        drC["TAX NAME *"] = importValidations.TaxID;
+                                        drC["PRODUCT DISCOUNT"] = dtValidate.Rows[0]["PRODUCT DISCOUNT"].ToString();
+                                        drC["REASON NAME"] = importValidations.ReasonID;
+                                        drC["Error"] = nIndex;
+                                        dtItemsCorrectValues.Rows.Add(drC);
+                                        nIndex++;
+                                    }
+                                    else
+                                    {                                        
+                                        NoErrorsinItems = false;
+                                        DataRow drW = dtItemsWrongValues.NewRow();
+                                        drW["DOC ID *"] = dtValidate.Rows[0]["DOC ID *"].ToString();
+                                        drW["PRODUCT NAME *"] = dtValidate.Rows[0]["PRODUCT NAME *"].ToString();
+                                        drW["BATCH NUMBER"] = dtValidate.Rows[0]["BATCH NUMBER"].ToString();
+                                        drW["PKD DATE"] = dtValidate.Rows[0]["PKD DATE"].ToString();
+                                        drW["EXPIRY DATE"] = dtValidate.Rows[0]["EXPIRY DATE"].ToString();
+                                        drW["ACTUAL QTY"] = dtValidate.Rows[0]["ACTUAL QTY"].ToString();
+                                        drW["DAMAGE QTY"] = dtValidate.Rows[0]["DAMAGE QTY"].ToString();
+                                        drW["FREE QTY"] = dtValidate.Rows[0]["FREE QTY"].ToString();
+                                        drW["UOM PURCHASE PRICE"] = dtValidate.Rows[0]["UOM PURCHASE PRICE"].ToString();
+                                        drW["UOM SALE PRICE"] = dtValidate.Rows[0]["UOM SALE PRICE"].ToString();
+                                        drW["UOM ECP PRICE"] = dtValidate.Rows[0]["UOM ECP PRICE"].ToString();
+                                        drW["UOM SPL PRICE"] = dtValidate.Rows[0]["UOM SPL PRICE"].ToString();
+                                        drW["UOM MRP PRICE"] = dtValidate.Rows[0]["UOM MRP PRICE"].ToString();
+                                        drW["RETURN PRICE"] = dtValidate.Rows[0]["RETURN PRICE"].ToString();
+                                        drW["TAX NAME *"] = dtValidate.Rows[0]["TAX NAME *"].ToString();
+                                        drW["PRODUCT DISCOUNT"] = dtValidate.Rows[0]["PRODUCT DISCOUNT"].ToString();
+                                        drW["REASON NAME"] = dtValidate.Rows[0]["REASON NAME"].ToString();
+                                        drW["ERROR"] = RowError;
+                                        dtItemsWrongValues.Rows.Add(drW);
+                                    }                                    
+                                }
+                               
                                 #endregion
                                 #region save
-                                job.Progress = 75;
-                                job.ProgressMessage = "Data Save Progress..."; Thread.Sleep(10000);
+                                if (NoErrorsinHeader && NoErrorsinItems)
+                                {
+                                    dtBillHeader = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'Bill'", null).CopyToDataTable();
+                                    job.Progress = 75;
+                                    job.ProgressMessage = "Data Save Progress..."; //Thread.Sleep(10000);
+                                    DataTable dtResult = importValidations.SavePurchaseBill(dtHeaderCorrectValues, dtItemsCorrectValues, UserID);
+                                    job.Progress = 100;
+                                    job.ProgressMessage = "Data Saved Successfully...";
+                                }
+                                else
+                                {
+                                    strFileName = TransName + "_error_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                                    clsExport.strFileName = strFileName;
+                                    clsExport.TransImport_ExportToExcel(dtHeaderWrongValues, dtItemsWrongValues, true);
+                                    DataSet dtset = new DataSet("Help Data");
+                                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                                    dtset.Tables[0].TableName = "Header";                                    
+                                    job.ProgressMessage = "Detail Data Export..."; //Thread.Sleep(3000);
+                                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                                    dtset.Tables[1].TableName = "Detail";                                                                        
+                                    //dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 3));
+                                    //dtset.Tables[0].TableName = "Serial";                                    
+                                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 4));
+                                    dtset.Tables[2].TableName = "Help";
+                                    job.ProgressMessage = "Error occured. Downloading errors...";
+                                    fullPath = Path.Combine(strFilePath, strFileName + ".xlsx");
+                                    clsExport.AddingHelptoExcel(fullPath, 3, dtset);
+                                    job.ProgressMessage = "Error occured. Errors Downloaded ...";
+                                    job.FilePath = fullPath;
+
+                                    job.IsCompleted = true;
+                                }                                   
                                 #endregion
-                                job.Progress = 100;
-                                job.ProgressMessage = "Data Saved Successfully...";
+                                
                             }
                             else
                             {
                                 if (dtHeaderData.Rows.Count == 0 && dtItemsData.Rows.Count == 0)
                                 {
-                                    Msg = "0.1";// no records found in both sheet;
+                                    job.ErrorID = 1;
+                                    job.ErrorMessage = "No Records found in Header and Items Sheet";                                   
+                                    job.IsCompleted = true;
                                 }
                                 else if (dtHeaderData.Rows.Count == 0)
                                 {
-                                    Msg = "0.2";// no records found in Header sheet;
+                                    job.ErrorID = 2;
+                                    job.ErrorMessage = "No Records found in Header Sheet";
+                                    job.IsCompleted = true;
                                 }
                                 else if (dtItemsData.Rows.Count == 0)
                                 {
-                                    Msg = "0.3";// no records found in Items sheet;
+                                    job.ErrorID = 3;
+                                    job.ErrorMessage = "No Records found in Items Sheet";
+                                    job.IsCompleted = true;
                                 }
                             }
                         }
-                        else
+                        
+                    }
+                    else
+                    {
+                        if (!blHeaderResult && !blItemsResult)
                         {
-                            if (!blHeaderResult && !blItemsResult)
-                            {
-                                Msg = "21";// Header and Items column names mismatching
-                            }
-                            else if (!blHeaderResult)
-                            {
-                                Msg = "22";// Header column names mismatching
-                            }
-                            else if (!blItemsResult)
-                            {
-                                Msg = "23";// Items column names mismatching
-                            }
+                            job.ErrorID = 21;
+                            job.ErrorMessage = "Column Name mismatching in Header and Items Sheet";                            
+                            job.IsCompleted = true;
+                        }
+                        else if (!blHeaderResult)
+                        {                            
+                            job.ErrorID = 22;
+                            job.ErrorMessage = "Column Name mismatching in Header Sheet";
+                            job.IsCompleted = true;
+                        }
+                        else if (!blItemsResult)
+                        {
+                            job.ErrorID = 23;
+                            job.ErrorMessage = "Column Name mismatching in Items Sheet";
+                            job.IsCompleted = true;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
+
                 MTM.Add(new ImportResults()
                 {
                     ID = "2",
