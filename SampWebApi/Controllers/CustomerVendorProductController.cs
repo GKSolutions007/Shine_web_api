@@ -537,8 +537,8 @@ namespace SampWebApi.Controllers
                         PRPrice = dtPrices.Rows[0][2].ToString();
                         InvPrice = dtPrices.Rows[0][3].ToString();
                         SRPrice = dtPrices.Rows[0][4].ToString();
-                    }
-                    if(dtProductLocation.Rows.Count > 0)
+                    }                    
+                    if (dtProductLocation.Rows.Count > 0)
                     {
                         for (int k = 0; k < dtProductLocation.Rows.Count; k++)
                         {
@@ -846,6 +846,7 @@ namespace SampWebApi.Controllers
                         BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
                         BaseUOMName = DDT.Rows[i]["BaseUOMName"].ToString(),
                         SalesTaxID = DDT.Rows[i]["TaxID"].ToString(),
+                        PurchaseTaxID = DDT.Rows[i]["PurchaseTaxID"].ToString(),
                         GSTPern = DDT.Rows[i]["GST"].ToString(),
                         TaxName = DDT.Rows[i]["TaxName"].ToString(),
                         TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),

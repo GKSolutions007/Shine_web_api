@@ -233,6 +233,11 @@ namespace SampWebApi.Controllers
                         DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetPurchaseOrderData", Mode == "7" ? 8 : Mode == "10" ? 11 : 15, 3, null, CodeName);
                         for (int k = 0; k < DDT2.Rows.Count; k++)
                         {
+                            DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspGetTaxCumulative", DDT2.Rows[k]["TaxID"].ToString(), 1, 1);
+                            decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+                          .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+                          .DefaultIfEmpty(0)
+                          .Sum();
                             listProductGrid.Add(new PurchaseGridData
                             {
                                 
@@ -251,7 +256,7 @@ namespace SampWebApi.Controllers
                                 TaxName = DDT2.Rows[k]["TaxName"].ToString(),
                                 NetAmt = DDT2.Rows[k]["NetAmt"].ToString(),
                                 UOM = DDT2.Rows[k]["UomCR"].ToString(),
-
+                                MRPonTax= dApponMRPCum.ToString(),
                             });
                         }
                         list.Add(new PurchaseModel
