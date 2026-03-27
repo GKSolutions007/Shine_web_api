@@ -49,11 +49,14 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ManageTrans(strStoredProc, obj);
         }
-        public decimal ReturnGrossorMRPTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP)
+        public decimal ReturnGrossorMRPTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP,bool IsRuninScope = false)
         {
             decimal dTaxAmt = 0;
-
-            DataTable dtMTdetail = BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+            DataTable dtMTdetail = new DataTable();
+            if (!IsRuninScope)
+                dtMTdetail = BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+            else
+                dtMTdetail = bl_ManageTrans("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
             decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
           .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
           .DefaultIfEmpty(0)
