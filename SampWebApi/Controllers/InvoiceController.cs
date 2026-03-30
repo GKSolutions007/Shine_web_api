@@ -484,6 +484,8 @@ namespace SampWebApi.Controllers
                                 DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
                                 ProductTransPrice = DDT2.Rows[k]["InvoicePrice"].ToString(),
                                 QtyType = DDT2.Rows[k]["QtyType"].ToString(),
+                                MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
+                                CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
                                 UOMList = ulist,
                                 lstInvPopup = ulistBatch
                             });
@@ -1159,12 +1161,19 @@ namespace SampWebApi.Controllers
                                         nProdID = bl.BL_nValidation(dtProd.Rows[nCount]["ProdId"]);
                                         nTaxID = bl.BL_nValidation(dtProd.Rows[nCount]["TaxID"]);
                                         nTaxTypeID = bl.BL_nValidation(listTrans.TaxTypeID);
+                                        decimal dMRP = bl.BL_dValidation(dtProd.Rows[nCount]["MRP"].ToString());
+                                        DataTable dtMTdetail = bl.bl_ManageTrans("uspGetTaxCumulative", nTaxID, nTaxTypeID, 1);
+                                        decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+                                      .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+                                      .DefaultIfEmpty(0)
+                                      .Sum();
                                         dQtnGrossAmount = bl.BL_dValidation(dtProd.Rows[nCount]["GrossAmt"]);
 
                                         //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dtProd.Rows[nCount]["UomGrpID"]) + "," + bl.BL_nValidation(dtProd.Rows[nCount]["UomId"]) + ")");
 
                                         dQtys = (bl.BL_dValidation(dtProd.Rows[nCount]["UomQty"])) * 1;// bl.BL_dValidation(dtResult.Rows[0][0]);
-
+                                        decimal newgrossamt = dApponMRPCum == 0 ? dQtnGrossAmount : bl.ReturnGrossorMRPTaxAmt(1, nTaxID, nTaxTypeID, dQtnGrossAmount,
+                                              dMRP * dQtys, true);
                                         DataTable dtTaxCompInfo = bl.bl_ManageTrans("uspGetTaxCompInfo", nTaxID, nTaxTypeID);
                                         if (dtTaxCompInfo.Rows.Count > 0)
                                         {
@@ -1184,9 +1193,9 @@ namespace SampWebApi.Controllers
                                                 dr["TaxTypeID"] = nTaxTypeID;
                                                 dr["TaxCompID"] = bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][0]);
                                                 dr["TaxCompPern"] = bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]);
-                                                dr["TaxCompAmount"] = ValidtoCalc ? ((dQtnGrossAmount * bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2])) / 100) :
-                                                        bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]) * dQtys;
-                                                dr["GrossAmount"] = dQtnGrossAmount;
+                                                dr["TaxCompAmount"] = ValidtoCalc ? ((newgrossamt * bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2])) / 100) :
+                                                        bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]) * dQtys;//dQtnGrossAmount
+                                                dr["GrossAmount"] = newgrossamt;// dQtnGrossAmount;
                                                 //dr["TransSerial"] = nTranSerial;
                                                 dr["TransSerial"] = (nCount + 1);
                                                 dr["SerialNo"] = SRSerial;

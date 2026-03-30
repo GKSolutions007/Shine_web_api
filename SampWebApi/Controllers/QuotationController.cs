@@ -643,8 +643,12 @@ namespace SampWebApi.Controllers
                         {
                                 //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
                                 decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
-                                                    //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
-                                DataRow dtRow = dtProd.NewRow();
+                                                                     //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
+
+                            int TaxID = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["TaxID"]));
+                            int TaxTypeID = bl.BL_nValidation(listTrans.TaxTypeID);
+                            decimal dMRP = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"]));                            
+                            DataRow dtRow = dtProd.NewRow();
                                
                             dtRow["ProdId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
                             dtRow["InventoryYesNo"] = 0;
@@ -665,7 +669,7 @@ namespace SampWebApi.Controllers
                             dtRow["AddnlDisc"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscAmt"]));
                             dtRow["AddnlDiscPern"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"]));
                             dtRow["GrossAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["GrossAmt"]));
-                            dtRow["TaxId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["TaxID"])); ;
+                            dtRow["TaxId"] = TaxID;
                             dtRow["TaxPercentage"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TaxPern"]));
                             dtRow["TaxAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TaxAmt"]));
                             dtRow["NetAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["NetAmt"]));
@@ -675,7 +679,7 @@ namespace SampWebApi.Controllers
                             dtRow["PkgDate"] = null;
                             dtRow["ExpiryDate"] = null;
                             dtRow["InventoryPrice"] = 0;
-                            dtRow["MRP"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"]));
+                            dtRow["MRP"] = dMRP;
                             dtRow["UomCR"] = 0;
                             dtRow["InvQtyType"] = 1;
                             dtRow["TempBatchInvId"] = 0;
