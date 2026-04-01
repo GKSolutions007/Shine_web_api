@@ -1778,6 +1778,26 @@ namespace SampWebApi.Controllers
             int alreadycheck = 0,verifyID = 0;
             foreach (clsDocSeries item in lstMaster.lstDocSeries)
             {
+                DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", 3,
+                    !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, item.ID, item.Prefix, item.DocValue,
+                    lstMaster.FromDate, lstMaster.ToDate, lstMaster.UserID, !string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgBranchID) ? lstMaster.orgBranchID : "0", alreadycheck, verifyID);
+                if (dt.Columns.Count > 1)
+                {
+                    list.Add(new SaveMessage
+                    {
+                        MsgID = "1",
+                        Message = dt.Rows[0][0].ToString()
+                    });
+                    return Ok(list);
+                }
+                verifyID = 0;// bl.BL_nValidation(dt.Rows[0][0].ToString());
+                alreadycheck = 1;
+            }
+            alreadycheck = 0; verifyID = 0;
+            foreach (clsDocSeries item in lstMaster.lstDocSeries)
+            {
                 DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode,
                     !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, item.ID, item.Prefix, item.DocValue,
                     lstMaster.FromDate, lstMaster.ToDate, lstMaster.UserID, !string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,

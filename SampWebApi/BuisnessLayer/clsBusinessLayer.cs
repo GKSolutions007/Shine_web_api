@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Configuration;
 namespace SampWebApi.BuisnessLayer
 {
     public class clsBusinessLayer
@@ -140,17 +141,17 @@ namespace SampWebApi.BuisnessLayer
                 //    EMail = dtNames.Rows[0]["EMailID"].ToString();
                 //    Pwd = dtNames.Rows[0]["Password"].ToString();
                 //}
-                HostName = "smtp.gmail.com";
-                EMail = "gksolutions.work007@gmail.com";
-                Pwd = "ujrx zkfl kpfo dehr";
+                HostName = ConfigurationManager.AppSettings["smtphost"].ToString();// "smtp.gmail.com";
+                EMail = ConfigurationManager.AppSettings["email"].ToString();// "shineasst@gmail.com";
+                Pwd = clsEncryptDecrypt.Decrypt(ConfigurationManager.AppSettings["passkey"].ToString());// "mmjs bxlv sqgp pivo";
                 if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(EMail) && !string.IsNullOrEmpty(Pwd))
-                {
-                    //
+                {                    
                     MailMessage message = new MailMessage();
                     SmtpClient smtp = new SmtpClient();
                     //message.From = new MailAddress("gks.helpdesk@gmail.com");//gks.helpdesk@gmail.com
                     message.From = new MailAddress(EMail);//gks.helpdesk@gmail.com//"vipassana.pveasllp@gmail.com"
                     message.To.Add(new MailAddress(ToMailID));
+                    //message.Bcc.Add(new MailAddress("shineasst@gmail.com"));
                     message.Subject = Subject;
                     message.IsBodyHtml = true; //to make message body as html  
                     message.Body = Body;
