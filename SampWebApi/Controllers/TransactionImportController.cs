@@ -43,7 +43,8 @@ namespace SampWebApi.Controllers
         public DataTable dtData { get; set; }
         public DataTable dtHeaderData { get; set; }
         public DataTable dtItemsData { get; set; }
-        DataTable dtBillHeader = new DataTable(), dtPRHeader = new DataTable(), dtSalesHeader = new DataTable(), dtSRHeader = new DataTable();
+        DataTable dtBillHeader = new DataTable(), dtPRHeader = new DataTable(), dtSalesHeader = new DataTable(), dtSRHeader = new DataTable(),
+            dtBillDetail = new DataTable(), dtPRDetail = new DataTable(), dtSalesDetail = new DataTable(), dtSRDetail = new DataTable();
         public class ExportJobStatus
         {
             public int Progress { get; set; } = 0;
@@ -171,9 +172,9 @@ namespace SampWebApi.Controllers
                     job.ProgressMessage = "Creating Excel File..."; //Thread.Sleep(3000);
                     objExport.TransImport_ExportToExcel(dtRecords.Tables[0], dtRecords.Tables[1], true);
                     job.Progress = 90;
-                    
+                    job.ProgressMessage = "Downloading...";
                     objExport.AddingHelptoExcel(fullPath, 3, dtset);
-                    job.ProgressMessage = "Downloading...";                    
+                    job.ProgressMessage = "Downloaded.";
                 }
 
                 job.Progress = 100;
@@ -376,8 +377,8 @@ namespace SampWebApi.Controllers
                         }
                         if (!HeaderErrorColAlreadyExists)
                         {
-                            dtHeaderCorrectValues.Columns.Add("Error");
-                            dtHeaderWrongValues.Columns.Add("Error");
+                            dtHeaderCorrectValues.Columns.Add("ERROR");
+                            dtHeaderWrongValues.Columns.Add("ERROR");
                         }
                         DataTable dtItemsCorrectValues = new DataTable();
                         DataTable dtItemsWrongValues = new DataTable();
@@ -388,8 +389,8 @@ namespace SampWebApi.Controllers
                         }
                         if (!ItemsErrorColAlreadyExists)
                         {
-                            dtItemsCorrectValues.Columns.Add("Error");
-                            dtItemsWrongValues.Columns.Add("Error");
+                            dtItemsCorrectValues.Columns.Add("ERROR");
+                            dtItemsWrongValues.Columns.Add("ERROR");
                         }
                         if (TransID == "1")
                         {
@@ -454,7 +455,7 @@ namespace SampWebApi.Controllers
                                         drW["ACKNOWLEDGE STATUS"] = dtValidate.Rows[0]["ACKNOWLEDGE STATUS"].ToString();
                                         drW["SIGNED QRCODE"] = dtValidate.Rows[0]["SIGNED QRCODE"].ToString();
                                         drW["EWAY BILL NO"] = dtValidate.Rows[0]["EWAY BILL NO"].ToString();
-                                        drW["Error"] = RowError;
+                                        drW["ERROR"] = RowError;
                                         dtHeaderWrongValues.Rows.Add(drW);
                                         //Correct values only
                                         DataRow drC = dtHeaderCorrectValues.NewRow();
@@ -462,7 +463,7 @@ namespace SampWebApi.Controllers
                                         drC["DOC PREFIX *"] = dtValidate.Rows[0]["DOC PREFIX *"].ToString();
                                         drC["BRANCH NAME *"] = importValidations.BranchID;
                                         drC["DOC DATE *"] = dtValidate.Rows[0]["DOC DATE *"].ToString();
-                                        drC["PARTY NAME *"] = importValidations.VendorID;
+                                        drC["PARTY NAME *"] = importValidations.PartyID;
                                         drC["PAYMENT MODE *"] = importValidations.PaymentModeID;
                                         drC["CREDIT TERM *"] = importValidations.CreditTermID;
                                         drC["ADDITIONAL DISCOUNT"] = dtValidate.Rows[0]["ADDITIONAL DISCOUNT"].ToString();
@@ -528,7 +529,7 @@ namespace SampWebApi.Controllers
                                         drW["ACKNOWLEDGE STATUS"] = dtValidate.Rows[0]["ACKNOWLEDGE STATUS"].ToString();
                                         drW["SIGNED QRCODE"] = dtValidate.Rows[0]["SIGNED QRCODE"].ToString();
                                         drW["EWAY BILL NO"] = dtValidate.Rows[0]["EWAY BILL NO"].ToString();
-                                        drW["Error"] = RowError;
+                                        drW["ERROR"] = RowError;
                                         dtHeaderWrongValues.Rows.Add(drW);
                                     }
                                 }
@@ -612,18 +613,239 @@ namespace SampWebApi.Controllers
                                         drW["ERROR"] = RowError;
                                         dtItemsWrongValues.Rows.Add(drW);
                                     }                                    
-                                }
-                               
+                                }                               
                                 #endregion
                                 #region save
                                 if (NoErrorsinHeader && NoErrorsinItems)
                                 {
-                                    dtBillHeader = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'Bill'", null).CopyToDataTable();
+                                    DataTable dtResult = new DataTable();
                                     job.Progress = 75;
-                                    job.ProgressMessage = "Data Save Progress..."; //Thread.Sleep(10000);
-                                    DataTable dtResult = importValidations.SavePurchaseBill(dtHeaderCorrectValues, dtItemsCorrectValues, UserID);
+                                    job.ProgressMessage = "Bill Save Progress..."; //Thread.Sleep(10000);
+                                    DataRow[] drbills = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'Bill'", "[DOC ID *] ASC");
+                                    if (drbills.Length > 0)
+                                    {
+                                        dtBillHeader = drbills.CopyToDataTable();
+                                    }
+                                    if (dtBillHeader.Rows.Count > 0)
+                                    {
+                                        dtResult = importValidations.SavePurchaseBill(dtBillHeader, dtItemsCorrectValues, UserID);
+                                        int BillNotCompletecount = dtResult.AsEnumerable().Count(row => row["Error"].ToString() != "Completed");
+                                        if (BillNotCompletecount > 0)
+                                        {
+                                            job.ProgressMessage = "Error Occured when Save Bill...";
+                                            foreach (DataRow item in dtResult.Rows)
+                                            {
+                                                string DocPrefix = item["DocPrefix"].ToString();
+                                                string DocID = item["DocID"].ToString();
+                                                string DocDate = item["DocDate"].ToString();
+                                                string ErrororInfoMsg = item["Error"].ToString();
+                                                dtHeaderWrongValues.AsEnumerable()
+                                                .Where(r => r.Field<string>("DOC ID *") == DocID &&
+                                                (r.Field<string>("DOC Prefix *") ?? "").ToLower() == (DocPrefix ?? "").ToLower())
+                                                .ToList().ForEach(r => r["ERROR"] = ErrororInfoMsg);
+
+                                                dtItemsWrongValues.AsEnumerable()
+                                                                        .Where(r => r.Field<string>("DOC ID *") == DocID)
+                                                                        .ToList()
+                                                                        .ForEach(r => r["ERROR"] = ErrororInfoMsg);
+                                            }
+                                            strFileName = TransName + "_error_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                                            clsExport.strFileName = strFileName;
+                                            clsExport.TransImport_ExportToExcel(dtHeaderWrongValues, dtItemsWrongValues, true);
+                                            DataSet dtset = new DataSet("Help Data");
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                                            dtset.Tables[0].TableName = "Header";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                                            dtset.Tables[1].TableName = "Detail";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 4));
+                                            dtset.Tables[2].TableName = "Help";
+                                            job.ProgressMessage = "Bill Errors Downloading ...";
+                                            fullPath = Path.Combine(strFilePath, strFileName + ".xlsx");
+                                            clsExport.AddingHelptoExcel(fullPath, 3, dtset);
+                                            job.ProgressMessage = "Bill Errors Downloaded ...";
+                                            job.FilePath = fullPath;
+                                            job.IsCompleted = true;
+                                            MTM.Add(new ImportResults()
+                                            {
+                                                ID = "2",
+                                                Msg = "Error occured when Save Bill",
+                                            });
+                                            return MTM;
+                                        }
+                                        //else
+                                        //{
+                                        //    job.Progress = 100;
+                                        //    job.ProgressMessage = "Data Saved Successfully...";
+                                        //    job.IsCompleted = true;
+                                        //}
+                                    }
+                                    job.Progress = 80;
+                                    job.ProgressMessage = "SR Save Progress..."; //Thread.Sleep(10000);
+                                    DataRow[] drsrs = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'SR'", "[DOC ID *] ASC");
+                                    if (drsrs.Length > 0)
+                                    {
+                                        dtSRHeader = drsrs.CopyToDataTable();
+                                    }                                    
+                                    if (dtSRHeader.Rows.Count > 0)
+                                    {
+                                        dtResult = importValidations.SaveSalesReturn(dtSRHeader, dtItemsCorrectValues, UserID);
+                                        int SRNotCompletecount = dtResult.AsEnumerable().Count(row => row["Error"].ToString() != "Completed");
+                                        if (SRNotCompletecount > 0)
+                                        {
+                                            job.ProgressMessage = "Error Occured when Save SR...";
+                                            foreach (DataRow item in dtResult.Rows)
+                                            {
+                                                string DocPrefix = item["DocPrefix"].ToString();
+                                                string DocID = item["DocID"].ToString();
+                                                string DocDate = item["DocDate"].ToString();
+                                                string ErrororInfoMsg = item["Error"].ToString();
+                                                dtHeaderWrongValues.AsEnumerable()
+                                                .Where(r => r.Field<string>("DOC ID *") == DocID &&
+                                                (r.Field<string>("DOC Prefix *") ?? "").ToLower() == (DocPrefix ?? "").ToLower())
+                                                .ToList().ForEach(r => r["ERROR"] = ErrororInfoMsg);
+
+                                                dtItemsWrongValues.AsEnumerable()
+                                                                        .Where(r => r.Field<string>("DOC ID *") == DocID)
+                                                                        .ToList()
+                                                                        .ForEach(r => r["ERROR"] = ErrororInfoMsg);
+                                            }
+                                            strFileName = TransName + "_error_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                                            clsExport.strFileName = strFileName;
+                                            clsExport.TransImport_ExportToExcel(dtHeaderWrongValues, dtItemsWrongValues, true);
+                                            DataSet dtset = new DataSet("Help Data");
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                                            dtset.Tables[0].TableName = "Header";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                                            dtset.Tables[1].TableName = "Detail";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 4));
+                                            dtset.Tables[2].TableName = "Help";
+                                            job.ProgressMessage = "SR Errors Downloading ...";
+                                            fullPath = Path.Combine(strFilePath, strFileName + ".xlsx");
+                                            clsExport.AddingHelptoExcel(fullPath, 3, dtset);
+                                            job.ProgressMessage = "SR Errors Downloaded ...";
+                                            job.FilePath = fullPath;
+                                            job.IsCompleted = true;
+                                            MTM.Add(new ImportResults()
+                                            {
+                                                ID = "2",
+                                                Msg = "Error occured when Save SR",
+                                            });
+                                            return MTM;
+                                        }
+                                    }
+                                    job.Progress = 85;
+                                    job.ProgressMessage = "Sales Save Progress..."; //Thread.Sleep(10000);
+                                    DataRow[] drinvoicess = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'Sales'", "[DOC ID *] ASC");
+                                    if (drinvoicess.Length > 0)
+                                    {
+                                        dtSalesHeader = drinvoicess.CopyToDataTable();
+                                    }
+                                    if (dtSalesHeader.Rows.Count > 0)
+                                    {
+                                        dtResult = importValidations.SaveSales(dtSalesHeader, dtItemsCorrectValues, UserID);
+                                        int InvoiceNotCompletecount = dtResult.AsEnumerable().Count(row => row["Error"].ToString() != "Completed");
+                                        if (InvoiceNotCompletecount > 0)
+                                        {
+                                            job.ProgressMessage = "Error Occured when Save Sales...";
+                                            foreach (DataRow item in dtResult.Rows)
+                                            {
+                                                string DocPrefix = item["DocPrefix"].ToString();
+                                                string DocID = item["DocID"].ToString();
+                                                string DocDate = item["DocDate"].ToString();
+                                                string ErrororInfoMsg = item["Error"].ToString();
+                                                dtHeaderWrongValues.AsEnumerable()
+                                                .Where(r => r.Field<string>("DOC ID *") == DocID &&
+                                                (r.Field<string>("DOC Prefix *") ?? "").ToLower() == (DocPrefix ?? "").ToLower())
+                                                .ToList().ForEach(r => r["ERROR"] = ErrororInfoMsg);
+
+                                                dtItemsWrongValues.AsEnumerable()
+                                                                        .Where(r => r.Field<string>("DOC ID *") == DocID)
+                                                                        .ToList()
+                                                                        .ForEach(r => r["ERROR"] = ErrororInfoMsg);
+                                            }
+                                            strFileName = TransName + "_error_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                                            clsExport.strFileName = strFileName;
+                                            clsExport.TransImport_ExportToExcel(dtHeaderWrongValues, dtItemsWrongValues, true);
+                                            DataSet dtset = new DataSet("Help Data");
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                                            dtset.Tables[0].TableName = "Header";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                                            dtset.Tables[1].TableName = "Detail";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 4));
+                                            dtset.Tables[2].TableName = "Help";
+                                            job.ProgressMessage = "Sales Errors Downloading ...";
+                                            fullPath = Path.Combine(strFilePath, strFileName + ".xlsx");
+                                            clsExport.AddingHelptoExcel(fullPath, 3, dtset);
+                                            job.ProgressMessage = "Sales Errors Downloaded ...";
+                                            job.FilePath = fullPath;
+                                            job.IsCompleted = true;
+                                            MTM.Add(new ImportResults()
+                                            {
+                                                ID = "2",
+                                                Msg = "Error occured when Save Sales",
+                                            });
+                                            return MTM;
+                                        }
+                                    }
+                                    //purchase return
+                                    job.Progress = 90;
+                                    job.ProgressMessage = "PR Save Progress..."; //Thread.Sleep(10000);
+                                    DataRow[] drprss = dtHeaderCorrectValues.Select("[DOC PREFIX *] = 'PR'", "[DOC ID *] ASC");
+                                    if (drprss.Length > 0)
+                                    {
+                                        dtPRHeader = drprss.CopyToDataTable();
+                                    }
+                                    if (dtPRHeader.Rows.Count > 0)
+                                    {
+                                        dtResult = importValidations.SavePurchaseReturn(dtPRHeader, dtItemsCorrectValues, UserID);
+                                        int PRNotCompletecount = dtResult.AsEnumerable().Count(row => row["Error"].ToString() != "Completed");
+                                        if (PRNotCompletecount > 0)
+                                        {
+                                            job.ProgressMessage = "Error Occured when Save PR...";
+                                            foreach (DataRow item in dtResult.Rows)
+                                            {
+                                                string DocPrefix = item["DocPrefix"].ToString();
+                                                string DocID = item["DocID"].ToString();
+                                                string DocDate = item["DocDate"].ToString();
+                                                string ErrororInfoMsg = item["Error"].ToString();
+                                                dtHeaderWrongValues.AsEnumerable()
+                                                .Where(r => r.Field<string>("DOC ID *") == DocID &&
+                                                (r.Field<string>("DOC Prefix *") ?? "").ToLower() == (DocPrefix ?? "").ToLower())
+                                                .ToList().ForEach(r => r["ERROR"] = ErrororInfoMsg);
+
+                                                dtItemsWrongValues.AsEnumerable()
+                                                                        .Where(r => r.Field<string>("DOC ID *") == DocID)
+                                                                        .ToList()
+                                                                        .ForEach(r => r["ERROR"] = ErrororInfoMsg);
+                                            }
+                                            strFileName = TransName + "_error_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                                            clsExport.strFileName = strFileName;
+                                            clsExport.TransImport_ExportToExcel(dtHeaderWrongValues, dtItemsWrongValues, true);
+                                            DataSet dtset = new DataSet("Help Data");
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                                            dtset.Tables[0].TableName = "Header";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                                            dtset.Tables[1].TableName = "Detail";
+                                            dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 4));
+                                            dtset.Tables[2].TableName = "Help";
+                                            job.ProgressMessage = "PR Errors Downloading ...";
+                                            fullPath = Path.Combine(strFilePath, strFileName + ".xlsx");
+                                            clsExport.AddingHelptoExcel(fullPath, 3, dtset);
+                                            job.ProgressMessage = "PR Errors Downloaded ...";
+                                            job.FilePath = fullPath;
+                                            job.IsCompleted = true;
+                                            MTM.Add(new ImportResults()
+                                            {
+                                                ID = "2",
+                                                Msg = "Error occured when Save Sales",
+                                            });
+                                            return MTM;
+                                        }
+                                    }
+
                                     job.Progress = 100;
                                     job.ProgressMessage = "Data Saved Successfully...";
+                                    job.IsCompleted = true;
                                 }
                                 else
                                 {

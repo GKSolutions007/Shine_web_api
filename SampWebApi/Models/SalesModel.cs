@@ -116,6 +116,8 @@ namespace SampWebApi.Models
         public string TaxPern { get; set; }
         public string TaxName { get; set; }
         public string GoodsAmt { get; set; }
+        public string MRPonTax { get; set; }
+        public string CumMRPonTax { get; set; }
         public string ProdDiscPern { get; set; }
         public string TradeDiscPern { get; set; }
         public string AddnlDiscPern { get; set; }

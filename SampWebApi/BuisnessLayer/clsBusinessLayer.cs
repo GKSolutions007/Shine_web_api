@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Configuration;
 namespace SampWebApi.BuisnessLayer
 {
     public class clsBusinessLayer
@@ -49,6 +50,45 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ManageTrans(strStoredProc, obj);
         }
+        public decimal ReturnGrossorMRPTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP,bool IsRuninScope = false)
+        {
+            decimal dTaxAmt = 0;
+            DataTable dtMTdetail = new DataTable();
+            if (!IsRuninScope)
+                dtMTdetail = BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+            else
+                dtMTdetail = bl_ManageTrans("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+            decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+          .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+          .DefaultIfEmpty(0)
+          .Sum();
+            decimal dApponPriceCum = dtMTdetail.Select("AppOn <> -1")
+              .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+              .DefaultIfEmpty(0)
+              .Sum();
+            if (GrossorTax == 1)
+            {
+                decimal dGrossAmt = dApponMRPCum > 0 ? (MRP / (1 + (dApponMRPCum / 100))) : (Price / (1 + (dApponMRPCum / 100)));
+                return BL_dValidation(dGrossAmt);
+            }
+            for (int i = 0; i < dtMTdetail.Rows.Count; i++)
+            {
+                int nAppon = BL_nValidation(dtMTdetail.Rows[i]["AppOn"].ToString());
+                decimal dCumTax = BL_dValidation(dtMTdetail.Rows[i]["CumulativeTax"].ToString());
+                if (nAppon == -1)
+                {
+                    decimal dPrice = (MRP / (1 + (dApponMRPCum / 100)));
+                    dTaxAmt += (dPrice * dCumTax) / 100;
+                }
+                else
+                {
+                    //decimal dPrice = (Price / (1 + (dApponPriceCum / 100)));
+                    dTaxAmt += (Price * dCumTax) / 100;
+                }
+            }
+            return BL_dValidation(dTaxAmt);
+        }
+
         public string CheckString(string str,string DefaultValue = "0")
         {
             if (string.IsNullOrEmpty(str))
@@ -101,17 +141,17 @@ namespace SampWebApi.BuisnessLayer
                 //    EMail = dtNames.Rows[0]["EMailID"].ToString();
                 //    Pwd = dtNames.Rows[0]["Password"].ToString();
                 //}
-                HostName = "smtp.gmail.com";
-                EMail = "gksolutions.work007@gmail.com";
-                Pwd = "ujrx zkfl kpfo dehr";
+                HostName = ConfigurationManager.AppSettings["smtphost"].ToString();// "smtp.gmail.com";
+                EMail = ConfigurationManager.AppSettings["email"].ToString();// "shineasst@gmail.com";
+                Pwd = clsEncryptDecrypt.Decrypt(ConfigurationManager.AppSettings["passkey"].ToString());// "mmjs bxlv sqgp pivo";
                 if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(EMail) && !string.IsNullOrEmpty(Pwd))
-                {
-                    //
+                {                    
                     MailMessage message = new MailMessage();
                     SmtpClient smtp = new SmtpClient();
                     //message.From = new MailAddress("gks.helpdesk@gmail.com");//gks.helpdesk@gmail.com
                     message.From = new MailAddress(EMail);//gks.helpdesk@gmail.com//"vipassana.pveasllp@gmail.com"
                     message.To.Add(new MailAddress(ToMailID));
+                    //message.Bcc.Add(new MailAddress("shineasst@gmail.com"));
                     message.Subject = Subject;
                     message.IsBodyHtml = true; //to make message body as html  
                     message.Body = Body;

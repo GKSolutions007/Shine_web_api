@@ -280,11 +280,11 @@ namespace SampWebApi.Controllers
             dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate,ToDate, EInvOnly);
             DS.Tables.Add(dtdata); DS.Tables[13].TableName = "hsn(b2c)";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
-            DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
+            //dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
+            //DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
             
             dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate,ToDate, EInvOnly);
-            DS.Tables.Add(dtdata); DS.Tables[15].TableName = "Documents";
+            DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Documents";
             
            
                 strSheetName = "Data";
