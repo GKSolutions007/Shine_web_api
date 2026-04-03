@@ -24,6 +24,7 @@ using System.IO;
 using DocumentFormat.OpenXml.Vml;
 using System.Web.Http.Results;
 using iTextSharp.text;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace SampWebApi.Controllers
 {
@@ -298,6 +299,12 @@ namespace SampWebApi.Controllers
                                     bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
                                     bl.bl_Transaction(2);
                                 }
+                                DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
+                                int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
+                                DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
+                                string ThemeJson = JsonConvert.SerializeObject(DTTHEME);
+                                DataTable DDTFilterData = bl.BL_ExecuteParamSP("uspGetFilterDates");
+                                string FilterData = JsonConvert.SerializeObject(DDTFilterData);
                                 list.Add(new Users
                                 {
                                     Mode = "1",
@@ -312,6 +319,8 @@ namespace SampWebApi.Controllers
                                     PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
                                     LPin = DDT.Rows[0]["LPin"].ToString(),
                                     UserID = DDT.Rows[0]["CBy"].ToString(),
+                                    ThemeData = ThemeJson,
+                                    FilterDatelist = FilterData,
                                     ResponseMessage = "Login Successful"
                                 });
                                 var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
@@ -553,6 +562,8 @@ namespace SampWebApi.Controllers
             DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
             dtAppconfig.TableName = "AppConfig";
             ds.Tables.Add(dtAppconfig);
+            int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
+
             DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 4, UID);
             dtRes.TableName = "UserData";
             ds.Tables.Add(dtRes);
@@ -576,7 +587,9 @@ namespace SampWebApi.Controllers
             DataTable dtFinReportPermission = bl.BL_ExecuteParamSP("uspFinancialReportPermission", 2, RID, UID);
             dtFinReportPermission.TableName = "UserFinRepMenus";
             ds.Tables.Add(dtFinReportPermission);
-
+            DataTable DDT = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
+            dtFinReportPermission.TableName = "ThemeData";
+            ds.Tables.Add(DDT);
             string dtjson = JsonConvert.SerializeObject(ds);
             return Ok(dtjson);
         }

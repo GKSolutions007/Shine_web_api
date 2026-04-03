@@ -200,6 +200,7 @@ namespace SampWebApi.Controllers
                         RefNo = DDT.Rows[i]["RefNo"].ToString(),
                         BranchID = DDT.Rows[i]["Branch"].ToString(),
                         GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                        DiffValueNet = DDT.Rows[i]["Final Diff Value"].ToString(),
                         Status = DDT.Rows[i]["Status"].ToString(),
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
