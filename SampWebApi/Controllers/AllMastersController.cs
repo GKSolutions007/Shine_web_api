@@ -37,7 +37,7 @@ namespace SampWebApi.Controllers
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
-            {                
+            {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 List<SingleMasterModel> list = new List<SingleMasterModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
@@ -102,15 +102,21 @@ namespace SampWebApi.Controllers
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
-            if (Mode == "8" || Mode == "9")
+            if (Mode == "8" || Mode == "9" || Mode == "11")
             {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
                 string Jsondata = JsonConvert.SerializeObject(DDT);
                 return Ok(Jsondata);
             }
+            if (Mode == "10")
+            {
+                DataSet dtbrdata = bl.BL_ExecuteParamSPDataset("uspHomescreenData", Mode, Trans);
+                string Jsondata = JsonConvert.SerializeObject(dtbrdata);
+                return Ok(Jsondata);
+            }
             return Ok();
         }
-        
+
         [HttpGet]
         [Route("api/getfilterdates/get")]
         public IHttpActionResult GetFilterDates()
@@ -292,6 +298,99 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Route("api/taxmaster/get")]
+        public IHttpActionResult GetTaxData(string Mode, string ID)
+        {
+            if (Mode == "1")
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetTaxMaster", Mode);
+                string TaxData = JsonConvert.SerializeObject(DDT);
+                return Ok(TaxData);
+            }
+            else if (Mode == "2")
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetTaxMaster", Mode, ID);
+                string TaxData = JsonConvert.SerializeObject(DDT);
+                return Ok(TaxData);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/taxmaster/save")]
+        public IHttpActionResult SaveTaxMaster(Tax lstMaster)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                if (lstMaster != null)
+                {
+                    DataTable dtTaxDetail = new DataTable();
+
+                    dtTaxDetail.Columns.Add("TaxID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxTypeID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxCompID", typeof(int));
+                    dtTaxDetail.Columns.Add("TaxRate", typeof(decimal));
+                    dtTaxDetail.Columns.Add("AppOn", typeof(int));
+                    dtTaxDetail.Columns.Add("PartOff", typeof(int));
+                    dtTaxDetail.Columns.Add("CumulativeTax", typeof(decimal));
+                    dtTaxDetail.Columns.Add("GSTTaxType", typeof(int));
+
+                    foreach(TaxDetil taxDetil in lstMaster.lstTaxDetil)
+                    {
+                        DataRow dr = dtTaxDetail.NewRow();
+                        dr["TaxID"] = 0;
+                        dr["TaxTypeID"] = taxDetil.TaxTypeID;
+                        dr["TaxCompID"] = taxDetil.TaxCompID;
+                        dr["TaxRate"] = taxDetil.TaxPern;
+                        dr["AppOn"] = taxDetil.ApponID;
+                        dr["PartOff"] = taxDetil.Partoff;
+                        dr["CumulativeTax"] = taxDetil.Cumulative;
+                        dr["GSTTaxType"] = taxDetil.GSTTypeID;
+                        dtTaxDetail.Rows.Add(dr);
+                    }
+
+                    bl.bl_Transaction(1);
+                    DataTable DDT = bl.bl_ManageTrans("uspManageTax", lstMaster.Mode, bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
+                        bl.BL_dValidation(lstMaster.GST), bl.BL_dValidation(lstMaster.IGST),
+                        bl.BL_dValidation(lstMaster.GUOM), bl.BL_dValidation(lstMaster.IUOM), dtTaxDetail, lstMaster.UserID, lstMaster.Active);
+                    if (DDT.Columns.Count == 1)
+                    {
+                        bl.bl_Transaction(2);
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "0",
+                            Message = "Saved Successfully"
+                        });
+                    }
+                    else
+                    {
+                        bl.bl_Transaction(3);
+                        list.Add(new SaveMessage()
+                        {
+                            ID = 0.ToString(),
+                            MsgID = "1",
+                            Message = DDT.Rows[0][0].ToString()
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.bl_Transaction(3);
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("Tax Master", "SaveTaxMaster", ex.Message);
+            }
+            return Ok(list);
+        }
         [HttpGet]
         [Route("api/bankaccount/get")]
         public IHttpActionResult GetBAData(string Mode, string Name)
@@ -408,7 +507,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/financialaccount/get")]
-        public IHttpActionResult GetFAData(string Mode, string Name)
+        public IHttpActionResult GetFAData(string Mode, string Name,string BranchID = "0")
         {
             if (Mode == "3" || Mode == "6")
             {
@@ -444,6 +543,46 @@ namespace SampWebApi.Controllers
                     {
                         ID = DDT.Rows[i][0].ToString(),
                         Name = DDT.Rows[i][1].ToString(),
+                    });
+                }
+                return Ok(list);
+            }
+            if (Mode == "7")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageFinancialAccount", Mode);
+                List<SingleMasterModel> list = new List<SingleMasterModel>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new SingleMasterModel
+                    {
+                        ID = DDT.Rows[i][0].ToString(),
+                        Name = DDT.Rows[i][1].ToString(),
+                    });
+                }
+                return Ok(list);
+            }
+            if (Mode == "8")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageFinancialAccount", Mode, Name, BranchID);
+                List<FinancialAccount> list = new List<FinancialAccount>();
+                if (DDT.Rows.Count > 0)
+                {
+                    list.Add(new FinancialAccount
+                    {
+                        FAType = DDT.Rows[0][0].ToString(),
+                        OpenBalance = DDT.Rows[0][1].ToString(),
+                        CloseBal = DDT.Rows[0][2].ToString(),
+                    });
+                }
+                else
+                {
+                    list.Add(new FinancialAccount
+                    {
+                        FAType = "1",
+                        OpenBalance = "0.00",
+                        CloseBal = "0.00 Cr",
                     });
                 }
                 return Ok(list);
@@ -646,6 +785,100 @@ namespace SampWebApi.Controllers
                 return Ok(list);
             }
             return Ok();
+        }
+        [HttpGet]
+        [Route("api/faopening/get")]
+        public IHttpActionResult GetfaopeingData(string Mode, string ID)
+        {
+            if (Mode == "1")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspgetsetFAAccOpening", Mode);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "2")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspgetsetFAAccOpening", Mode,ID);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "3")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspgetsetFAAccOpening", Mode, ID);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "4")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspgetsetFAAccOpening", Mode);
+                string Masterdata = JsonConvert.SerializeObject(DDT);
+                return Ok(Masterdata);
+            }
+            else if (Mode == "5")
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspgetsetFAAccOpening", Mode);
+                List<SingleMasterModel> list = new List<SingleMasterModel>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new SingleMasterModel
+                    {
+                        ID = DDT.Rows[i][0].ToString(),
+                        Name = DDT.Rows[i][1].ToString(),
+                    });
+                }
+                return Ok(list);
+            }
+            return Ok();
+        }
+        //FAOpening
+        [HttpPost]
+        [Route("api/faopening/save")]
+        public IHttpActionResult Savedocumentseries(FAOpening lstMaster)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();            
+            DataTable dtFAAccData = new DataTable();
+            DataColumn column = new DataColumn("ID");
+            column.DataType = System.Type.GetType("System.Int32");
+            column.AutoIncrement = true;
+            column.AutoIncrementSeed = 1;
+            column.AutoIncrementStep = 1;
+            dtFAAccData.Columns.Add(column);
+            dtFAAccData.Columns.Add("FAID", typeof(int));
+            dtFAAccData.Columns.Add("FAType", typeof(int));
+            dtFAAccData.Columns.Add("OpeningValue", typeof(decimal));
+            foreach (clsAccOpeningValues item in lstMaster.lstAccOpeningvalues)
+            {
+                DataRow dr = dtFAAccData.NewRow();
+                dr[1] = item.FAID;
+                dr[2] = item.FAType;
+                dr[3] = item.OpeningValue;
+                dtFAAccData.Rows.Add(dr);                
+            }
+            bl.bl_Transaction(1);
+            DataTable dt = bl.bl_ManageTrans("uspSaveFAAccOpening", lstMaster.Mode, !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, lstMaster.Period, lstMaster.UserID,
+                dtFAAccData);
+            if (dt.Columns.Count > 1)
+            {
+                bl.bl_Transaction(3);
+                list.Add(new SaveMessage
+                {
+                    MsgID = "1",
+                    Message = dt.Rows[0][0].ToString()
+                });
+                return Ok(list);
+            }
+            bl.bl_Transaction(2);
+            list.Add(new SaveMessage
+            {
+                MsgID = "0",
+                Message = "Saved successfully"
+            });
+            return Ok(list);
         }
         [HttpGet]
         [Route("api/chequebook/get")]
@@ -1062,7 +1295,7 @@ namespace SampWebApi.Controllers
             {
                 string DOPurchase = !string.IsNullOrEmpty(lstMaster.DOPurchase) ? Convert.ToDateTime(lstMaster.DOPurchase).ToString("yyy-MM-dd") : null;
                 string InsuranceDate = !string.IsNullOrEmpty(lstMaster.InsuranceDate) ? Convert.ToDateTime(lstMaster.InsuranceDate).ToString("yyy-MM-dd") : null;
-                string InsuranceExpire = !string.IsNullOrEmpty(lstMaster.DOPurchase) ? Convert.ToDateTime(lstMaster.DOPurchase).ToString("yyy-MM-dd") : null;
+                string InsuranceExpire = !string.IsNullOrEmpty(lstMaster.InsuranceExpire) ? Convert.ToDateTime(lstMaster.InsuranceExpire).ToString("yyy-MM-dd") : null;
                 string FCDate = !string.IsNullOrEmpty(lstMaster.FCDate) ? Convert.ToDateTime(lstMaster.FCDate).ToString("yyy-MM-dd") : null;
                 SqlConnection sqlConnection = new SqlConnection(connectionString);
                 sqlConnection.Open();
@@ -1405,7 +1638,7 @@ namespace SampWebApi.Controllers
                              lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
-                            lstMaster.InvoiceStockOnlyProduct, lstMaster.PurchaseOneView, lstMaster.SalesOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
+                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView,  lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
                             lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval,lstMaster.HomePeriod,lstMaster.AutoRefresh);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
@@ -1543,6 +1776,26 @@ namespace SampWebApi.Controllers
         {
             List<SaveMessage> list = new List<SaveMessage>();
             int alreadycheck = 0,verifyID = 0;
+            foreach (clsDocSeries item in lstMaster.lstDocSeries)
+            {
+                DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", 3,
+                    !string.IsNullOrEmpty(lstMaster.ID) ? lstMaster.ID : "0", lstMaster.BranchID, item.ID, item.Prefix, item.DocValue,
+                    lstMaster.FromDate, lstMaster.ToDate, lstMaster.UserID, !string.IsNullOrEmpty(lstMaster.orgFromDate) ? lstMaster.orgFromDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgToDate) ? lstMaster.orgToDate : null,
+                     !string.IsNullOrEmpty(lstMaster.orgBranchID) ? lstMaster.orgBranchID : "0", alreadycheck, verifyID);
+                if (dt.Columns.Count > 1)
+                {
+                    list.Add(new SaveMessage
+                    {
+                        MsgID = "1",
+                        Message = dt.Rows[0][0].ToString()
+                    });
+                    return Ok(list);
+                }
+                verifyID = 0;// bl.BL_nValidation(dt.Rows[0][0].ToString());
+                alreadycheck = 1;
+            }
+            alreadycheck = 0; verifyID = 0;
             foreach (clsDocSeries item in lstMaster.lstDocSeries)
             {
                 DataTable dt = bl.BL_ExecuteParamSP("uspSaveDocumentSeries", lstMaster.Mode,

@@ -484,6 +484,8 @@ namespace SampWebApi.Controllers
                                 DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
                                 ProductTransPrice = DDT2.Rows[k]["InvoicePrice"].ToString(),
                                 QtyType = DDT2.Rows[k]["QtyType"].ToString(),
+                                MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
+                                CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
                                 UOMList = ulist,
                                 lstInvPopup = ulistBatch
                             });
@@ -494,6 +496,7 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             DocDate = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             TransID = DDT.Rows[i]["TransID"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             DocId = DDT.Rows[i]["DocID"].ToString(),
                             DocValue = DDT.Rows[i]["DocValue"].ToString(),
@@ -535,6 +538,7 @@ namespace SampWebApi.Controllers
                             TransactionName = DDT.Rows[i]["TransportName"].ToString(),
                             DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                             DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
+                            Balance = DDT.Rows[i]["Balance"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });
@@ -797,10 +801,10 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/invoice/invoicecollectiondata")]
-        public IHttpActionResult invoicecollectiondata(string InvoiceID)
+        public IHttpActionResult invoicecollectiondata(string InvoiceID,string TransID)
         {
 
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, InvoiceID);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, InvoiceID, TransID);
             string invjson = JsonConvert.SerializeObject(DDT);
             return Ok(invjson);
         }
@@ -1157,12 +1161,19 @@ namespace SampWebApi.Controllers
                                         nProdID = bl.BL_nValidation(dtProd.Rows[nCount]["ProdId"]);
                                         nTaxID = bl.BL_nValidation(dtProd.Rows[nCount]["TaxID"]);
                                         nTaxTypeID = bl.BL_nValidation(listTrans.TaxTypeID);
+                                        decimal dMRP = bl.BL_dValidation(dtProd.Rows[nCount]["MRP"].ToString());
+                                        DataTable dtMTdetail = bl.bl_ManageTrans("uspGetTaxCumulative", nTaxID, nTaxTypeID, 1);
+                                        decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+                                      .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+                                      .DefaultIfEmpty(0)
+                                      .Sum();
                                         dQtnGrossAmount = bl.BL_dValidation(dtProd.Rows[nCount]["GrossAmt"]);
 
                                         //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dtProd.Rows[nCount]["UomGrpID"]) + "," + bl.BL_nValidation(dtProd.Rows[nCount]["UomId"]) + ")");
 
                                         dQtys = (bl.BL_dValidation(dtProd.Rows[nCount]["UomQty"])) * 1;// bl.BL_dValidation(dtResult.Rows[0][0]);
-
+                                        decimal newgrossamt = dApponMRPCum == 0 ? dQtnGrossAmount : bl.ReturnGrossorMRPTaxAmt(1, nTaxID, nTaxTypeID, dQtnGrossAmount,
+                                              dMRP * dQtys, true);
                                         DataTable dtTaxCompInfo = bl.bl_ManageTrans("uspGetTaxCompInfo", nTaxID, nTaxTypeID);
                                         if (dtTaxCompInfo.Rows.Count > 0)
                                         {
@@ -1182,9 +1193,9 @@ namespace SampWebApi.Controllers
                                                 dr["TaxTypeID"] = nTaxTypeID;
                                                 dr["TaxCompID"] = bl.BL_nValidation(dtTaxCompInfo.Rows[nTaxComp][0]);
                                                 dr["TaxCompPern"] = bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]);
-                                                dr["TaxCompAmount"] = ValidtoCalc ? ((dQtnGrossAmount * bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2])) / 100) :
-                                                        bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]) * dQtys;
-                                                dr["GrossAmount"] = dQtnGrossAmount;
+                                                dr["TaxCompAmount"] = ValidtoCalc ? ((newgrossamt * bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2])) / 100) :
+                                                        bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]) * dQtys;//dQtnGrossAmount
+                                                dr["GrossAmount"] = newgrossamt;// dQtnGrossAmount;
                                                 //dr["TransSerial"] = nTranSerial;
                                                 dr["TransSerial"] = (nCount + 1);
                                                 dr["SerialNo"] = SRSerial;
@@ -1222,7 +1233,7 @@ namespace SampWebApi.Controllers
                                     dtMop,
                                     listTrans.BeatID,
                                     listTrans.SalesmanID,
-                                    dtDenominationPMDetail
+                                    dtDenominationPMDetail, listTrans.BranchID
                                     );
                                     //Error Raised in Collection Level
                                     if (dtCheck.Columns.Count > 1)
@@ -1501,6 +1512,62 @@ namespace SampWebApi.Controllers
             }
             return Ok(list);
         }
+
+        [HttpGet]
+        [Route("api/invoice/AutomaticMailGenerate")]
+        public IHttpActionResult AutomaticMailGenerate(string DocID, string TransID = "", string Copies = "1")
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                DataTable dtPrinterConfig = bl.BL_ExecuteParamSP("uspGetPrinterConfigByTransID", TransID);
+
+                if (dtPrinterConfig.Rows.Count > 0)
+                {
+                    string configID = dtPrinterConfig.Rows[0][0].ToString();
+
+                    DataTable dtMailData = bl.BL_ExecuteParamSP("uspGetMailId", TransID, DocID);
+                    if (dtMailData.Rows.Count > 0)
+                    {
+                        string PartyEmail = dtMailData.Rows[6][0].ToString();
+                        if (!string.IsNullOrEmpty(PartyEmail))
+                        {
+                            PrintBase PB = new PrintBase { GKS_BL = bl };
+                            PB.SendEmail(Convert.ToInt32(TransID), Convert.ToInt32(DocID), PartyEmail, Convert.ToInt32(configID));
+
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "0",
+                                Message = "Mail Send Successfully"
+                            });
+                        }
+                        else
+                        {
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "1",
+                                Message = "Party Mail ID not found"
+                            });
+                        }
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("MailGenerate", "MailGenerate", ex.Message);
+            }
+            return Ok(list);
+        }
+
         [HttpGet]
         [Route("api/invoice/WhatsappGenerate")]
         public IHttpActionResult WhatsappGenerate(string DocID, string TransID = "", string ConfigID = "", 

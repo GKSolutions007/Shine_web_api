@@ -93,6 +93,18 @@ namespace SampWebApi.Controllers
                     #endregion
                     if (blHeaderResult && blItemsResult)
                     {
+                        if (dtHeaderData == null && dtItemsData == null)
+                        {
+                            return Ok("0.1");
+                        }
+                        else if (dtHeaderData == null)
+                        {
+                            return Ok("0.2");
+                        }
+                        else if (dtItemsData == null)
+                        {
+                            return Ok("0.3");
+                        }
                         DataTable dtHeaderCorrectValues = new DataTable();
                         DataTable dtHeaderWrongValues = new DataTable();
                         foreach (string str in lstHeader)

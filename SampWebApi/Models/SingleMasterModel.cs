@@ -113,7 +113,21 @@ namespace SampWebApi.Models
         public string CBy { get; set; }
         public string CDate { get; set; }
 
-
+    }
+    public class FAOpening
+    {
+        public string ID { get; set; }
+        public string BranchID { get; set; }
+        public string Period { get; set; }
+        public string UserID { get; set; }
+        public string Mode { get; set; }
+        public List<clsAccOpeningValues> lstAccOpeningvalues { get; set; }
+    }
+    public class clsAccOpeningValues
+    {
+        public string FAID { get; set; }
+        public string OpeningValue { get; set; }
+        public string FAType { get; set; }
     }
     public class Salesman
     {
@@ -205,6 +219,10 @@ namespace SampWebApi.Models
         public string BranchID { get; set; }
         public string CBy { get; set; }
         public string CDate { get; set; }
+        public string UserImageData { get; set; }
+        public string ThemeData { get; set; }
+        public string FilterDatelist { get; set; }
+        public string ResponseMessage { get; set; }
     }
     public class Chequebook
     {
@@ -492,6 +510,8 @@ namespace SampWebApi.Models
         public string TotalYN { get; set; }
         public bool EnableSum { get; set; }
         public bool EnableAvg { get; set; }        
+        public bool EnableCount { get; set; }
+        public bool EnableUnique { get; set; }
         public string precision { get; set; }
         public bool ClickPopup { get; set; }
         public int Printwidth { get; set; }
@@ -509,6 +529,8 @@ namespace SampWebApi.Models
         public string EnableAvg { get; set; }
         public string EnableColumnMenu { get; set; }
         public string EnableSum { get; set; }
+        public string EnableCount { get; set; }
+        public string EnableUnique { get; set; }
         public string FormID { get; set; }
         public string FormName { get; set; }
         public string FormorReport { get; set; }
@@ -567,5 +589,34 @@ namespace SampWebApi.Models
         public string Party { get; set; }
         public string FilterType { get; set; }
 
+    }
+    public class Tax
+    {
+        public string Mode { get; set; }
+        public string ID { get; set; }        
+        public string Name { get; set; }
+        public string GST { get; set; }
+        public string IGST { get; set; }
+        public string GUOM { get; set; }
+        public string IUOM { get; set; }
+        public string Active { get; set; }
+        public string UserID { get; set; }
+        public List<TaxDetil> lstTaxDetil { get; set; }
+    }
+    public class TaxDetil
+    {
+        public string TaxID { get; set; }
+        public string TaxPern { get; set; }
+        public string TaxTypeID { get; set; }
+        public string TaxTypeName { get; set; }
+        public string GSTTypeID { get; set; }
+        public string GSTTypeName { get; set; }
+        public string TaxCompID { get; set; }
+        public string TaxCompName { get; set; }
+        public string ApponID { get; set; }
+        public string ApponName { get; set; }
+        public string Partoff { get; set; }
+        public string Cumulative { get; set; }
+        public string Serial { get; set; }
     }
 }

@@ -1,0 +1,9 @@
+07/02/2026 06:57:16 PM |PDFGenerate | SaveFileinLocation | Value cannot be null.
+Parameter name: extension
+07/02/2026 06:57:22 PM |PDFGenerate | SaveFileinLocation | Value cannot be null.
+Parameter name: extension
+07/02/2026 07:19:50 PM |Stop Watch | Check Print Completion Time | 1.3994228 Secs
+07/02/2026 07:20:18 PM |Stop Watch | Check Print Completion Time | 3.2213371 Secs
+07/02/2026 07:29:40 PM |Stop Watch | Check Print Completion Time | 1.3648859 Secs
+07/02/2026 07:29:50 PM |Stop Watch | Check Print Completion Time | 1.1630703 Secs
+07/02/2026 07:29:58 PM |Stop Watch | Check Print Completion Time | 1.2615609 Secs

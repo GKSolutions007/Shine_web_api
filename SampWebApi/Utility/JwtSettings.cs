@@ -13,7 +13,8 @@ namespace SampWebApi.Utility
         public static string Audience = ConfigurationManager.AppSettings["ValidAudience"] ?? "default_audience";
         public static string AuthTokenExpiresInMins = ConfigurationManager.AppSettings["AuthTokenExpiresInMins"] ?? "15";
         public static string RefreshTokenExpiresInDays = ConfigurationManager.AppSettings["RefreshTokenExpiresInDays"] ?? "1";
-        public static string SecretKey = "yPqB3dmFXNfJg6X1W/JzNX4A2Sc6sZ7Q7+p2lYxPrCY=";
+        public static string SecretKey = "dbCed6XiHRSd7RoF5YAjXLD72pB1IkXlbyKHhtzS/DQ=";
+        //public static string SecretKey = "yPqB3dmFXNfJg6X1W/JzNX4A2Sc6sZ7Q7+p2lYxPrCY=";
 
         public static byte[] GetKey() => Encoding.UTF8.GetBytes(SecretKey);
     }

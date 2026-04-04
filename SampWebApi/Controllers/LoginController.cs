@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,6 +20,11 @@ using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Cryptography;
+using System.IO;
+using DocumentFormat.OpenXml.Vml;
+using System.Web.Http.Results;
+using iTextSharp.text;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace SampWebApi.Controllers
 {
@@ -45,6 +53,12 @@ namespace SampWebApi.Controllers
                 List<Users> list = new List<Users>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
+                    string imgdata = null;
+                    if (!string.IsNullOrEmpty(DDT.Rows[i]["ImgData"].ToString()))
+                    {
+                        byte[] photoBytes = (byte[])DDT.Rows[i]["ImgData"];
+                        imgdata = Convert.ToBase64String(photoBytes);
+                    }
                     list.Add(new Users
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
@@ -61,6 +75,7 @@ namespace SampWebApi.Controllers
                         UserID = DDT.Rows[i]["CBy"].ToString(),
                         CBy = DDT.Rows[i]["AUserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                        UserImageData = imgdata
                     });
                 }
                 return Ok(list);
@@ -134,9 +149,123 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        [HttpGet]
+        [HttpPost]
+        [Route("api/signup/updateuser")]
+        public IHttpActionResult Saveupdateuser()
+        {
+            var httpRequest = HttpContext.Current.Request;
+
+            // Get normal form values
+            string FormID = httpRequest.Form["FormID"];
+            string nMode = httpRequest.Form["Mode"];
+            string ID = httpRequest.Form["ID"];
+            string Name = httpRequest.Form["UserName"];
+            string MobileNo = httpRequest.Form["Mobilenumber"];
+            string Email = httpRequest.Form["EMailID"];
+            string UserID = httpRequest.Form["UserID"];
+            byte[] photoBytes = null;
+
+            bool removePhoto = !string.IsNullOrEmpty(httpRequest.Form["RemovePhoto"]);
+
+            if (!removePhoto && httpRequest.Files.Count > 0)
+            {
+                var file = httpRequest.Files["UserPhoto"]; // must match frontend key
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    using (var image = SixLabors.ImageSharp.Image.Load(file.InputStream))
+                    {
+                        // OPTIONAL: Resize if too large
+                        image.Mutate(x =>
+                        {
+                            x.Resize(new ResizeOptions
+                            {
+                                Mode = ResizeMode.Max,
+                                Size = new Size(800, 800)
+                            });
+
+                            // Flatten transparency over white background
+                            x.BackgroundColor(SixLabors.ImageSharp.Color.White);
+                        });
+
+                        using (var ms = new MemoryStream())
+                        {
+                            var encoder = new JpegEncoder
+                            {
+                                Quality = 75 // 0-100 (lower = more compression)
+                            };
+
+                            image.Save(ms, encoder);
+                            photoBytes = ms.ToArray();
+                        }
+                    }
+                }
+            }
+            // ✅ Save into SQL Server
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string query;
+
+                if (removePhoto)
+                {
+                    // Explicitly clear the photo field
+                    query = @"UPDATE tblUsers 
+                  SET UserName=@Name,
+                      Mobilenumber=@MobileNo,
+                      EMailID=@Email,
+                      ImgData=NULL
+                  WHERE ID = @ID";
+                }
+                else if (photoBytes != null)
+                {
+                    query = @"UPDATE tblUsers 
+              SET UserName=@Name,
+                  Mobilenumber=@MobileNo,
+                  EMailID=@Email,
+                  ImgData=@UserPhoto
+              WHERE ID = @ID";
+                }
+                else
+                {
+                    query = @"UPDATE tblUsers 
+              SET UserName=@Name,
+                  Mobilenumber=@MobileNo,
+                  EMailID=@Email
+              WHERE ID = @ID";
+                }
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@ID", ID);
+                    cmd.Parameters.AddWithValue("@Name", Name);
+                    cmd.Parameters.AddWithValue("@MobileNo", MobileNo);
+                    cmd.Parameters.AddWithValue("@Email", Email);
+
+                    // ✅ Save Photo (varbinary)
+                    if (photoBytes != null)
+                    {
+                        cmd.Parameters.Add("@UserPhoto", SqlDbType.VarBinary).Value = photoBytes;
+                    }
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
+            List<SaveMessage> list = new List<SaveMessage>();
+            list.Add(new SaveMessage()
+            {
+                ID = ID,
+                MsgID = "0",
+                Message = "Saved Successfully",
+            });
+            return Ok(list);
+
+        }
+            [HttpGet]
         [Route("api/login/get")]
-        public IHttpActionResult GetloginData(string UserName, string Password)
+        public IHttpActionResult GetloginData(string UserName, string Password, string DeviceID, 
+                string Latitude, string Longitude, string Pincode)
         {
             if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password))
             {
@@ -144,42 +273,173 @@ namespace SampWebApi.Controllers
                 List<Users> list = new List<Users>();
                 if (DDT.Rows.Count > 0)
                 {
+                    DataTable dtDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 1, DeviceID, DDT.Rows[0]["ID"].ToString());
+                    if (dtDevData.Rows.Count > 0 || DDT.Rows[0]["ID"].ToString() == "1")//Device already exists
+                    {
+                        string IsDevActive = "0";
+                        if (DDT.Rows[0]["ID"].ToString() == "1")
+                        {
+                            IsDevActive = "1";
+                        }
+                        else
+                        {
+                            IsDevActive = dtDevData.Rows[0]["Active"].ToString();
+                        }
+                        if (IsDevActive == "1")
+                        {
+                            DateTime dtExpiryDate = Convert.ToDateTime(clsEncryptDecrypt.Decrypt(DDT.Rows[0]["ExpiryDate"].ToString()));
+                            if (dtExpiryDate >= DateTime.Today)
+                            {
 
-                    DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
-                    if (dtClssTKDate.Date != DateTime.Today)
-                    {
-                        bl.bl_Transaction(1);
-                        bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
-                        bl.bl_Transaction(2);
+
+                                DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
+                                if (dtClssTKDate.Date != DateTime.Today)
+                                {
+                                    bl.bl_Transaction(1);
+                                    bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
+                                    bl.bl_Transaction(2);
+                                }
+                                DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
+                                int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
+                                DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
+                                string ThemeJson = JsonConvert.SerializeObject(DTTHEME);
+                                DataTable DDTFilterData = bl.BL_ExecuteParamSP("uspGetFilterDates");
+                                string FilterData = JsonConvert.SerializeObject(DDTFilterData);
+                                list.Add(new Users
+                                {
+                                    Mode = "1",
+                                    ID = DDT.Rows[0]["ID"].ToString(),
+                                    UserName = DDT.Rows[0]["UserName"].ToString(),
+                                    Active = DDT.Rows[0]["Active"].ToString(),
+                                    //Password = DDT.Rows[0]["Password"].ToString(),
+                                    Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
+                                    EMailID = DDT.Rows[0]["EMailID"].ToString(),
+                                    RoleID = DDT.Rows[0]["RoleID"].ToString(),
+                                    PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
+                                    PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
+                                    LPin = DDT.Rows[0]["LPin"].ToString(),
+                                    UserID = DDT.Rows[0]["CBy"].ToString(),
+                                    ThemeData = ThemeJson,
+                                    FilterDatelist = FilterData,
+                                    ResponseMessage = "Login Successful"
+                                });
+                                var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
+                                var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                            }
+                            else
+                            {
+                                list.Add(new Users
+                                {
+                                    Mode = "4",
+                                    ResponseMessage = "License Expired. Contact Admin"
+                                });
+                            }
+                        }
+                        else
+                        {
+                            DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
+                            string ToEmail = dtCompData.Rows[0]["Email"].ToString();
+                            string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                            Random random = new Random();
+                            int OTP = random.Next(100000, 999999);
+                            bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                            if (Issend)
+                            {
+                                int OTPID = 0;
+                                DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "DeviceVerify", OTP, DDT.Rows[0]["ID"].ToString());
+                                if (dtOTP.Rows.Count > 0)
+                                {
+                                    OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
+                                }
+                                list.Add(new Users
+                                {
+                                    Mode = "2",
+                                    ID = OTPID.ToString(),// DDT.Rows[0]["ID"].ToString(),
+                                    UserID = DDT.Rows[0]["ID"].ToString(),
+                                    EMailID = ToEmail,
+                                    ResponseMessage = "OTP Send to this Email ID (" + ToEmail + ")"
+                                });
+                            }
+                            else
+                            {
+                                list.Add(new Users
+                                {
+                                    Mode = "3",
+                                    ResponseMessage = "OTP E-Mail is not sending. Please check E-mail ID and try again"
+                                });
+                            }
+                        }
                     }
-                    list.Add(new Users
+                    else//New Device
                     {
-                        ID = DDT.Rows[0]["ID"].ToString(),
-                        UserName = DDT.Rows[0]["UserName"].ToString(),
-                        Active = DDT.Rows[0]["Active"].ToString(),
-                        //Password = DDT.Rows[0]["Password"].ToString(),
-                        Mobilenumber = DDT.Rows[0]["Mobilenumber"].ToString(),
-                        EMailID = DDT.Rows[0]["EMailID"].ToString(),
-                        RoleID = DDT.Rows[0]["RoleID"].ToString(),
-                        PwdResetCount = DDT.Rows[0]["PwdResetCount"].ToString(),
-                        PwdResetTime = DDT.Rows[0]["PwdResetTime"].ToString(),
-                        LPin = DDT.Rows[0]["LPin"].ToString(),
-                        UserID = DDT.Rows[0]["CBy"].ToString(),
-                    });
-                    //HttpContext.Current.Session["LoginUserID"] = DDT.Rows[0]["ID"].ToString();
-                    //HttpContext.Current.Session.Add("LoginUserID", DDT.Rows[0]["ID"].ToString());// = DDT.Rows[0]["ID"].ToString();
-                    //DataTable dtParent = bl.BL_ExecuteParamSP("uspMenuPermission", 1, null);
-                    //DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, DDT.Rows[0]["RoleID"].ToString(), DDT.Rows[0]["ID"].ToString());//Convert.ToInt32(Session["LoginUserID"])
-                    //HttpContext.Current.Session["dtParent"] = dtParent;
-                    //HttpContext.Current.Session["dtPermission"] = dtPermission;
-                    //Session["dtParent"] = dtParent;
-                    //Session["dtPermission"] = dtPermission;
-                    var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
-                    var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                        DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 2, DeviceID, DDT.Rows[0]["ID"].ToString(),
+                            "Browser", Latitude, Longitude, Pincode);
+                        DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
+                        string ToEmail = dtCompData.Rows[0]["Email"].ToString();
+                        string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                        Random random = new Random();
+                        int OTP = random.Next(100000, 999999);
+                        bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                        if (Issend)
+                        {
+                            int OTPID = 0;
+                            DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "DeviceVerify", OTP, DDT.Rows[0]["ID"].ToString());
+                            if (dtOTP.Rows.Count > 0)
+                            {
+                                OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
+                            }
+                            list.Add(new Users
+                            {
+                                Mode = "2",
+                                ID = OTPID.ToString(),// DDT.Rows[0]["ID"].ToString(),
+                                UserID = DDT.Rows[0]["ID"].ToString(),
+                                EMailID= ToEmail,
+                                ResponseMessage = "OTP Send to this Email ID (" + ToEmail + ")"
+                            });
+                        }
+                        else
+                        {
+                            list.Add(new Users
+                            {
+                                Mode = "3",                               
+                                ResponseMessage = "OTP E-Mail is not sending. Please check E-mail ID and try again"
+                            });
+                        }
+                       
+                    }
                     return Ok(list);
                 }
             }
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/login/otpverify")]
+        public IHttpActionResult loginotpverify(string OTPID, string UserID, string DeviceID, string OTP,
+            string Latitude, string Longitude, string Pincode)
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 2, OTPID, null, OTP);
+            if (dtOTP.Rows.Count > 0)
+            {
+                DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
+                            "Browser", Latitude, Longitude, Pincode);
+                list.Add(new SaveMessage
+                {
+                    MsgID = "0",
+                    ID = UserID.ToString(),
+                    Message = "OTP Verified Successfully"
+                });
+            }
+            else
+            {
+                list.Add(new SaveMessage
+                {
+                    MsgID = "1",
+                    Message = "Invalid OTP"
+                });
+            }
+            return Ok(list);
         }
         [HttpGet]
         [Route("api/forgotpassword/validate")]
@@ -302,6 +562,8 @@ namespace SampWebApi.Controllers
             DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
             dtAppconfig.TableName = "AppConfig";
             ds.Tables.Add(dtAppconfig);
+            int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
+
             DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 4, UID);
             dtRes.TableName = "UserData";
             ds.Tables.Add(dtRes);
@@ -325,7 +587,9 @@ namespace SampWebApi.Controllers
             DataTable dtFinReportPermission = bl.BL_ExecuteParamSP("uspFinancialReportPermission", 2, RID, UID);
             dtFinReportPermission.TableName = "UserFinRepMenus";
             ds.Tables.Add(dtFinReportPermission);
-
+            DataTable DDT = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
+            dtFinReportPermission.TableName = "ThemeData";
+            ds.Tables.Add(DDT);
             string dtjson = JsonConvert.SerializeObject(ds);
             return Ok(dtjson);
         }

@@ -97,9 +97,10 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/creditdebitnote/getfilterdata")]
-        public IHttpActionResult GetCDFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetCDFilterData(string Mode, string TransID, string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetCreditDebitNoteData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall);
+
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetCreditDebitNoteData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall , Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -286,7 +287,8 @@ namespace SampWebApi.Controllers
                         SACHSN = DDT.Rows[i][20].ToString(),
                         RoundoffAmt = DDT.Rows[i][21].ToString(),
                         BranchID = DDT.Rows[i][22].ToString(),
-                        BranchName = DDT.Rows[i][23].ToString()
+                        BranchName = DDT.Rows[i][23].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                     });
                 }
                 return Ok(list);
@@ -295,9 +297,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/prvoucher/getfilterdata")]
-        public IHttpActionResult GetPRFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetPRFilterData(string Mode, string TransID, string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetVoucherData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetVoucherData", Mode, TransID, 0, AccName, Party, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -462,6 +464,7 @@ namespace SampWebApi.Controllers
                         Status = DDT.Rows[i]["Status"].ToString(),
                         BranchID = DDT.Rows[i]["BranchID"].ToString(),
                         BranchName = DDT.Rows[i]["Branch Name"].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -485,9 +488,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/contra/getfilterdata")]
-        public IHttpActionResult GetContFilterData(string Mode, string TransID, string AccName, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetContFilterData(string Mode, string TransID, string Branch, string AccName, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -658,6 +661,7 @@ namespace SampWebApi.Controllers
                         AdjYN = DDT.Rows[i][14].ToString(),
                         BranchID = DDT.Rows[i]["BranchID"].ToString(),
                         BranchName = DDT.Rows[i]["Branch Name"].ToString(),
+                        DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                         UDFId = "0"
                     });
                 }
@@ -667,9 +671,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/journalentry/getfilterdata")]
-        public IHttpActionResult GetJEFilterData(string Mode, string TransID, string AccName, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetJEFilterData(string Mode, string TransID,string Branch, string AccName, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetJournalEntryData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetJournalEntryData", Mode, TransID, null, 0, AccName, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -736,7 +740,7 @@ namespace SampWebApi.Controllers
                         dtTVPTable.Rows.Add(dr);
                     }
                     bl.bl_Transaction(1);
-                    DataTable dtResult = bl.bl_ManageTrans("uspManageFAJournal", dtTVPTable, dtAdjRefId, bl.BL_nValidation(listTrans.UDFId),
+                    DataTable dtResult = bl.bl_ManageTrans("uspManageFAJournal",listTrans.DocDate, dtTVPTable, dtAdjRefId, bl.BL_nValidation(listTrans.UDFId),
                         listTrans.TransMode, bl.BL_nValidation(listTrans.CurrentStatus), bl.BL_nValidation(listTrans.ID), listTrans.CBy,0,listTrans.Narration,
                         bl.BL_nValidation(listTrans.BranchID));
                     if (dtResult.Columns.Count > 1)
@@ -884,6 +888,7 @@ namespace SampWebApi.Controllers
                             Status = dtPM.Rows[i][12].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString()
                         });
                     }
                     for (int i = 0; i < DDT.Rows.Count; i++)
@@ -910,6 +915,7 @@ namespace SampWebApi.Controllers
                             ContMode = DDT.Rows[i][17].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             Branch_Name = DDT.Rows[i]["Branch Name"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             OCPPMData = listOCPM
                         });
                     }
@@ -920,9 +926,9 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/othercollectionpayment/getfilterdata")]
-        public IHttpActionResult GetOCPFilterData(string Mode, string TransID, string AccName, string Party, string FromDate, string ToDate, string Showall)
+        public IHttpActionResult GetOCPFilterData(string Mode, string TransID,string Branch, string AccName, string Party, string FromDate, string ToDate, string Showall)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, null, 0, AccName, Party, FromDate, ToDate, Showall);
+            DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, null, 0, AccName, Party, FromDate, ToDate, Showall, Branch);
             List<AccouuntsModel> list = new List<AccouuntsModel>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
@@ -1494,6 +1500,10 @@ namespace SampWebApi.Controllers
                         else if (nCheck == 3)
                         {
                             strmsg = "Deposit Account Already deactivated";
+                        }
+                        else
+                        {
+                            strmsg = dtResult.Rows[0][0].ToString();
                         }
                         list.Add(new SaveMessage()
                         {

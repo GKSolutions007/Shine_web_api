@@ -12,6 +12,7 @@ namespace SampWebApi.Models
         public string Date { get; set; }
         public string TransID { get; set; }
         public string EncDocPrefix { get; set; }
+        public string DocPrefix { get; set; }
         public string TransMode { get; set; }
         public string TransName { get; set; }
         public string IsDraft { get; set; }
@@ -219,6 +220,8 @@ namespace SampWebApi.Models
         public string NetAmt { get; set; }
         public string TransactionPrice { get; set; }
         public string DiffAmt { get; set; }
+        public string MRPonTax { get; set; }
+        public string CumMRPonTax { get; set; }
     }
     public class PRBatch
     {
@@ -226,6 +229,7 @@ namespace SampWebApi.Models
         public string Code { get; set; }
         public string Name { get; set; }
         public string HSNCode { get; set; }
+        public string DocPrefix { get; set; }
         public string ProductDiscPerc { get; set; }
         public string BaseUomID { get; set; }
         public string BaseCR { get; set; }

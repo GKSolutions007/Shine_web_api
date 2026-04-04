@@ -16,6 +16,7 @@ namespace SampWebApi.Models
         public string DraftID { get; set; }
         public string DocDate { get; set; }
         public string DocId { get; set; }
+        public string Balance { get; set; }
         public string DocPrefix { get; set; }
         public string DocValue { get; set; }
         public string BranchID { get; set; }
@@ -115,6 +116,8 @@ namespace SampWebApi.Models
         public string TaxPern { get; set; }
         public string TaxName { get; set; }
         public string GoodsAmt { get; set; }
+        public string MRPonTax { get; set; }
+        public string CumMRPonTax { get; set; }
         public string ProdDiscPern { get; set; }
         public string TradeDiscPern { get; set; }
         public string AddnlDiscPern { get; set; }
@@ -242,6 +245,7 @@ namespace SampWebApi.Models
         public string Mode { get; set; }
         public string Date { get; set; }
         public string DocID { get; set; }
+        public string DocPrefix { get; set; }
         public string TransID { get; set; }
         public string TransMode { get; set; }
         public string TransName { get; set; }

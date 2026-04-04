@@ -84,7 +84,7 @@ namespace SampWebApi.Controllers
             string jsonAssignInv = JsonConvert.SerializeObject(DDT);
             DDT = bl.BL_ExecuteParamSP("uspInvoiceTrackReportData", 2, DocValue);
             string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
-            DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, DDT.Rows[0][0].ToString());
+            DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", 6, DDT.Rows[0][0].ToString(),15);
             string invjson = JsonConvert.SerializeObject(DDT);
             var InvoiceData = new
             {
@@ -93,6 +93,32 @@ namespace SampWebApi.Controllers
                 InvoiceCollection = invjson
             };
             return Ok(InvoiceData);
+        }
+        [HttpGet]
+        [Route("api/customeros/initiatedata")]
+        public IHttpActionResult COSinitiatedata()
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMobileCustomerOS", 1);
+            string invjson = JsonConvert.SerializeObject(DDT);
+            return Ok(invjson);
+        }
+        [HttpGet]
+        [Route("api/customeros/generatedata")]
+        public IHttpActionResult COSgeneratedata(int Mode, string BeatID, string SalesmanID, string Party, string Period, string CustomerType, string Rating)
+        {
+            if (Mode == 2)
+            {
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspMobileCustomerOS", Mode, BeatID, SalesmanID, Party, Period, CustomerType, Rating);
+                string invjson = JsonConvert.SerializeObject(dtResult);
+                return Ok(invjson);
+            }
+            else if (Mode == 3)
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMobileCustomerOS", Mode, BeatID);
+                string invjson = JsonConvert.SerializeObject(DDT);
+                return Ok(invjson);
+            }
+            return Ok();
         }
     }
 }

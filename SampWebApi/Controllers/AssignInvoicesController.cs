@@ -141,6 +141,7 @@ namespace SampWebApi.Controllers
                     {
                         ID = DDT.Rows[0]["ID"].ToString(),
                         DocID = DDT.Rows[0]["DocID"].ToString(),
+                        DocPrefix = DDT.Rows[0]["Prefix"].ToString(),
                         Date = Convert.ToDateTime(DDT.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
                         RefNo = DDT.Rows[0]["RefNo"].ToString(),
                         SalesmanID = DDT.Rows[0]["SalesmanID"].ToString(),
@@ -257,10 +258,11 @@ namespace SampWebApi.Controllers
                     }
                 }
                 else
-                {
+                { 
                     bl.bl_Transaction(1);
                     DataTable dtResult = bl.bl_ManageTrans("uspManageAssignInvoices", listTrans.TransMode, bl.BL_nValidation(listTrans.TransID), bl.BL_nValidation(listTrans.ID),
-                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus), dtDocument);
+                        listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus),
+                         dtDocument, listTrans.Remarks, listTrans.Narration );
                     if (dtResult.Columns.Count > 1)
                     {
                         bl.bl_Transaction(3);

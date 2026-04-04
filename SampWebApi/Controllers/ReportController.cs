@@ -280,11 +280,11 @@ namespace SampWebApi.Controllers
             dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate,ToDate, EInvOnly);
             DS.Tables.Add(dtdata); DS.Tables[13].TableName = "hsn(b2c)";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
-            DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
+            //dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
+            //DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
             
             dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate,ToDate, EInvOnly);
-            DS.Tables.Add(dtdata); DS.Tables[15].TableName = "Documents";
+            DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Documents";
             
            
                 strSheetName = "Data";
@@ -486,6 +486,8 @@ namespace SampWebApi.Controllers
                         TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
                         EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
                         EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                        EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
+                        EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
                         ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
                         precision = dtResult.Rows[i]["precision"].ToString(),
                         PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
@@ -508,7 +510,7 @@ namespace SampWebApi.Controllers
                 {
                     bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
                       item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
-                      item.EnableAvg, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
+                      item.EnableAvg,item.EnableCount,item.EnableUnique, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
                       !string.IsNullOrEmpty(item.Printwidth.ToString()) ? item.Printwidth : 0);
                 }
                 List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
@@ -530,6 +532,8 @@ namespace SampWebApi.Controllers
                         TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
                         EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
                         EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                        EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
+                        EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
                         ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
                         precision = dtResult.Rows[i]["precision"].ToString(),
                         PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,

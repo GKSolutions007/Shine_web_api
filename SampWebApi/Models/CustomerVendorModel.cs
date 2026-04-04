@@ -13,6 +13,7 @@ namespace SampWebApi.Models
         public string ID { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
+        public string DocPrefix { get; set; }
         public string CustomerType { get; set; }
         public string Ratings { get; set; }
         public string RatingName { get; set; }
@@ -259,4 +260,14 @@ namespace SampWebApi.Models
         public string AutoMail { get; set; }
         public string UserID { get; set; }
     }
+
+    public class BranchMapping
+    {
+        public string RoleID { get; set; }
+        public string BranchID { get; set; }
+        public string Active { get; set; }
+        public string SetAsDefault { get; set; }
+        public string UserID { get; set; }
+    }
+
 }
