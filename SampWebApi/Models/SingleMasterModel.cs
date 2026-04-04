@@ -220,6 +220,8 @@ namespace SampWebApi.Models
         public string CBy { get; set; }
         public string CDate { get; set; }
         public string UserImageData { get; set; }
+        public string ThemeData { get; set; }
+        public string FilterDatelist { get; set; }
         public string ResponseMessage { get; set; }
     }
     public class Chequebook
