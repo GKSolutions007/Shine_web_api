@@ -80,6 +80,7 @@ namespace SampWebApi.Models
         public List<clsCustomerRemarks> lstCustRemark { set; get; }
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
+        public string CustomerScheme { get; set; }
     }
     public class clsCustomerRemarks
     {

@@ -39,7 +39,8 @@ namespace SampWebApi.Controllers
             dtMop = new DataTable();
         [HttpGet]
         [Route("api/invoice/get")]
-        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null, string BranchID = "0", string Date = "", string PriceID = "2")
+        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null, string BranchID = "0", string Date = "",
+            string PriceID = "2", string SchemeApply = "0")
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
@@ -156,6 +157,9 @@ namespace SampWebApi.Controllers
                         strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
                         ACDay = dtPartyOs.Rows[0]["ACC"].ToString();
                     }
+                    DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, DDT.Rows[i]["ID"].ToString(), 0);
+                    string strCustomerScheme = dtDiscScheme.Rows.Count > 0 ? "1" : "0";
+
                     list.Add(new CustomerVendorModel
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
@@ -195,7 +199,8 @@ namespace SampWebApi.Controllers
                         ACDate = ACDay,
                         BeatID = strBeatID,
                         SalesmanID = strSalesmanID,
-                        lstCustRemark = listRemark
+                        lstCustRemark = listRemark,
+                        CustomerScheme = strCustomerScheme
                     });
                 }
                 return Ok(list);
@@ -237,8 +242,9 @@ namespace SampWebApi.Controllers
                     #region Discount Schemme
                     decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
                     decimal ApplyPrice = dtBatch.Rows.Count > 0 ? bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString()) * dConvFact : 0;
-
-                    DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
+                    DataTable dtDiscScheme = new DataTable();
+                    if (SchemeApply == "1")//Go when scheme applied for selected Customer
+                        dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
                     decimal OrgDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
                     decimal OrgTradeDiscPern = 0;
                     decimal OldDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
@@ -374,6 +380,9 @@ namespace SampWebApi.Controllers
                             strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
                             ACDay = dtPartyOs.Rows[0]["ACC"].ToString();
                         }
+                        DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), 
+                            DDT1.Rows[0]["ID"].ToString(), 0);
+                        string strCustomerScheme = dtDiscScheme.Rows.Count > 0 ? "1" : "0";
                         for (int j = 0; j < DDT1.Rows.Count; j++)
                         {
                             listParty.Add(new CustomerVendorModel
@@ -412,7 +421,8 @@ namespace SampWebApi.Controllers
                                 CloseBal = strOSVal,
                                 OSType = strOSType,
                                 ACDate = ACDay,
-                                lstCustRemark = listRemark
+                                lstCustRemark = listRemark,
+                                CustomerScheme= strCustomerScheme
                             });
                         }
 
@@ -692,6 +702,12 @@ namespace SampWebApi.Controllers
                 });
             }
             return Ok(list);
+        }
+        [HttpGet]
+        [Route("api/invoice/discountschemeinfo")]
+        public IHttpActionResult getDiscountschemeinfo(string CustomerID, string Date)
+        {
+            return Ok(bl.BL_ExecuteParamSP("uspDiscountSchemeInfo", Date, CustomerID));
         }
         [HttpGet]
         [Route("api/invoice/getfilterdata")]

@@ -394,6 +394,7 @@ namespace SampWebApi.Models
         public string ReplaceExists { get; set; }
         public string FromDate { get; set; }
         public string ToDate { get; set; }
+        public string MapByID { get; set; }
         public string lstCustomers { get; set; }
         public string lstProducts { get; set; }
         public string CustomerCount { get; set; }

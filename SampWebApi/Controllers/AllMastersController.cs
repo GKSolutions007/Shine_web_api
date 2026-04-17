@@ -2034,6 +2034,7 @@ namespace SampWebApi.Controllers
                         FromDate = Convert.ToDateTime(DDT.Rows[0][3].ToString()).ToString("yyyy-MM-dd"),
                         ToDate = Convert.ToDateTime(DDT.Rows[0][4].ToString()).ToString("yyyy-MM-dd"),
                         Active = DDT.Rows[0][5].ToString(),
+                        MapByID = DDT.Rows[0]["ApplyIn"].ToString(),
                         lstCustomers = CustomerJSONCONV,
                         lstProducts = ProductJSONCONV,
                         lstSchemeCustomer = listCust,
@@ -2046,12 +2047,14 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/discountscheme/getfilterdata")]
-        public IHttpActionResult GetdiscountschemefilterData(string Mode, string Type, string CustTypeorManuf, string BeatorBrand, string SalesmanorCategory, string CustomerorProduct)
+        public IHttpActionResult GetdiscountschemefilterData(string Mode, string Type, string CustTypeorManuf, string BeatorBrand, 
+            string SalesmanorCategory, string CustomerorProduct,string MapBy)
         {
             if (Mode == "4")
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspgetsetDiscountSchemeData", Mode, Type, CustTypeorManuf, BeatorBrand, SalesmanorCategory, CustomerorProduct);
+                DDT = bl.BL_ExecuteParamSP("uspgetsetDiscountSchemeData", Mode, Type, CustTypeorManuf, BeatorBrand, SalesmanorCategory,
+                    CustomerorProduct, MapBy);
                 List<DiscountschemeDetail> list = new List<DiscountschemeDetail>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -2098,59 +2101,86 @@ namespace SampWebApi.Controllers
         [Route("api/discountscheme/save")]
         public IHttpActionResult Savediscountschemedetails(DiscountScheme lstMaster)
         {
-            DataTable dtCustProdDisc = new DataTable();
-            dtCustProdDisc.Columns.Add("CustID", typeof(int));
-            dtCustProdDisc.Columns.Add("ProdID", typeof(int));
-            dtCustProdDisc.Columns.Add("ProdDisc", typeof(decimal));
-            dtCustProdDisc.Columns.Add("ProdDiscAmt", typeof(decimal));
-            dtCustProdDisc.Columns.Add("TradeDisc", typeof(decimal));
-            dtCustProdDisc.Columns.Add("TradeDiscAmt", typeof(decimal));
-            dtCustProdDisc.Columns.Add("Serial", typeof(int));
             List<SaveMessage> list = new List<SaveMessage>();
-            int nRow = 0;
-            foreach (DiscountSchemeCustomer item in lstMaster.lstSchemeCustomer)
+
+            try
             {
-                int nCustID = Convert.ToInt32(item.CustomerID);
+                DataTable dtCustProdDisc = new DataTable();
+                dtCustProdDisc.Columns.Add("CustID", typeof(int));
+                dtCustProdDisc.Columns.Add("ProdID", typeof(int));
+                dtCustProdDisc.Columns.Add("ProdDisc", typeof(decimal));
+                dtCustProdDisc.Columns.Add("ProdDiscAmt", typeof(decimal));
+                dtCustProdDisc.Columns.Add("TradeDisc", typeof(decimal));
+                dtCustProdDisc.Columns.Add("TradeDiscAmt", typeof(decimal));
+                dtCustProdDisc.Columns.Add("Serial", typeof(int));
+                DataTable dtCustomers = new DataTable();
+                dtCustomers.Columns.Add("TransName", typeof(string));
+                dtCustomers.Columns.Add("Status", typeof(int));
+                dtCustomers.Columns.Add("DocumentId", typeof(int));
+
+                int nRow = 0;
+                foreach (DiscountSchemeCustomer item in lstMaster.lstSchemeCustomer)
+                {
+                    int nCustID = Convert.ToInt32(item.CustomerID);
+                    dtCustomers.Rows.Add();
+                    dtCustomers.Rows[nRow]["DocumentId"] = nCustID;
+                    dtCustomers.Rows[nRow]["TransName"] = "Discount Scheme";
+                    dtCustomers.Rows[nRow]["Status"] = (nRow+1);
+                    nRow++;
+                }
+                nRow = 0;
                 foreach (DiscountSchemeProduct itemProduct in lstMaster.lstSchemeProduct)
                 {
                     dtCustProdDisc.Rows.Add();
-                    dtCustProdDisc.Rows[nRow]["CustID"] = nCustID;
+                    dtCustProdDisc.Rows[nRow]["CustID"] = 0;
                     dtCustProdDisc.Rows[nRow]["ProdID"] = Convert.ToInt32(itemProduct.ProductID);
                     dtCustProdDisc.Rows[nRow]["ProdDisc"] = Convert.ToDecimal(itemProduct.ProdDiscPern);
                     dtCustProdDisc.Rows[nRow]["ProdDiscAmt"] = Convert.ToDecimal(itemProduct.ProdDiscAmt);
                     dtCustProdDisc.Rows[nRow]["TradeDisc"] = Convert.ToDecimal(itemProduct.TradeDiscPern);
                     dtCustProdDisc.Rows[nRow]["TradeDiscAmt"] = Convert.ToDecimal(itemProduct.TradeDiscAmt);
-                    dtCustProdDisc.Rows[nRow]["Serial"] = (nRow + 1);
+                    dtCustProdDisc.Rows[nRow]["Serial"] = (nRow+1);
                     nRow++;
                 }
+                bl.bl_Transaction(1);
+                DataTable dtResult = bl.bl_ManageTrans("uspSaveSchemeDiscount", bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
+                    lstMaster.ReplaceExists, lstMaster.FromDate, lstMaster.ToDate, lstMaster.Active,
+                    lstMaster.UserID, dtCustProdDisc, dtCustomers, lstMaster.MapByID);
+                if (dtResult.Columns.Count > 1)
+                {
+                    bl.bl_Transaction(3);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = 0.ToString(),
+                        MsgID = "1",
+                        Message = "Name already exists"
+                    });
+                    return Ok(list);
+                }
+                else
+                {
+                    bl.bl_Transaction(2);
+                    int ScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = ScopeID.ToString(),
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                    return Ok(list);
+                }
+                
             }
-            bl.bl_Transaction(1);
-            DataTable dtResult = bl.bl_ManageTrans("uspSaveSchemeDiscount", bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
-                lstMaster.ReplaceExists, lstMaster.FromDate, lstMaster.ToDate, lstMaster.Active, lstMaster.UserID, dtCustProdDisc);
-            if (dtResult.Columns.Count > 1)
+            catch(Exception ex)
             {
-                bl.bl_Transaction(3);
+                bl.BL_WriteErrorMsginLog("Discount Scheme", "Save", ex.Message);
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),
                     MsgID = "1",
-                    Message = "Name already exists"
+                    Message = ex.Message
                 });
                 return Ok(list);
             }
-            else
-            {
-                bl.bl_Transaction(2);
-                int ScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
-                list.Add(new SaveMessage()
-                {
-                    ID = ScopeID.ToString(),
-                    MsgID = "0",
-                    Message = "Saved Successfully"
-                });
-                return Ok(list);
-            }
-            return Ok(list);
         }
         [HttpGet]
         [Route("api/verifyapppassword/verify")]
