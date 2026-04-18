@@ -424,6 +424,8 @@ namespace SampWebApi.Controllers
             {
                 DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
                             "Browser", Latitude, Longitude, Pincode);
+                var authToken = TokenHelper.GenerateToken(UserID);
+                var refreshToken = TokenHelper.GenerateRefreshToken(UserID);
                 list.Add(new SaveMessage
                 {
                     MsgID = "0",

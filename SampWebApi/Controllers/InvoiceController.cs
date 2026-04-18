@@ -355,7 +355,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, null, CodeName);
                 List<SalesModel> list = new List<SalesModel>();
                 if (DDT.Rows.Count > 0)
-                {
+                {                    
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
                         DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, DDT.Rows[i][8].ToString());
@@ -460,6 +460,68 @@ namespace SampWebApi.Controllers
                                     SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                 });
                             }
+                            bool OrderSchemeApply = true;
+                            #region Discount Schemme
+                            decimal OrgDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
+                            decimal OrgTradeDiscPern = bl.BL_dValidation(DDT2.Rows[k]["TradePern"].ToString());
+                            decimal OldDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
+                            decimal DSProdDiscPern = 0, DSProdDiscAmt = 0, DSTradeDiscPern = 0, DSTradeDiscAmt = 0;
+                            if (TMode == 22 && OrderSchemeApply)//only for ordertaken
+                            {
+                                OrgTradeDiscPern = 0;
+                                decimal dConvFact = 1;
+                                decimal ApplyPrice = dtBatch.Rows.Count > 0 ? bl.BL_dValidation(DDT2.Rows[k]["ExclPrice"].ToString()) * dConvFact : 0;
+                                dtDiscScheme = new DataTable();
+                                if (strCustomerScheme == "1")//Go when scheme applied for selected Customer
+                                    dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
+                                        DDT1.Rows[0]["ID"].ToString(), DDT2.Rows[k]["ProdID"].ToString());
+
+
+                                if (dtDiscScheme.Rows.Count > 0)
+                                {
+                                    DSProdDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][2]);
+                                    DSProdDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][3]) * dConvFact;
+                                    DSTradeDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][4]);
+                                    DSTradeDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][5]) * dConvFact;
+                                    int ReplaceExists = bl.BL_nValidation(dtDiscScheme.Rows[0][1]);
+
+                                    decimal PDiscAmt = 0, dTradPernfromAmt = 0, dProdPernfromAmt = 0;
+                                    if (ReplaceExists == 1)//Replay exists
+                                    {
+                                        PDiscAmt = (ApplyPrice * DSProdDiscPern) / 100;
+                                    }
+                                    else
+                                    {
+                                        PDiscAmt = (ApplyPrice * (DSProdDiscPern + OldDiscPern)) / 100;
+                                    }
+                                    if (DSTradeDiscAmt > 0)
+                                    {
+                                        if (ApplyPrice > 0)
+                                            dTradPernfromAmt = bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
+                                        else
+                                            dTradPernfromAmt = 0;
+                                    }
+                                    if (DSProdDiscAmt > 0)
+                                    {
+                                        if (ApplyPrice > 0)
+                                            dProdPernfromAmt = bl.BL_dValidation((DSProdDiscAmt / ApplyPrice) * 100);
+                                        else
+                                            dProdPernfromAmt = 0;
+                                    }
+                                    if (ReplaceExists == 1)//Replay exists
+                                    {
+                                        OrgDiscPern = DSProdDiscPern;
+                                        OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                                    }
+                                    else
+                                    {
+                                        OrgDiscPern = dProdPernfromAmt + DSProdDiscPern + OldDiscPern;
+                                        OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                                    }
+                                }
+                            }
+                            #endregion
+
                             listProductGrid.Add(new SalesDetail
                             {
                                 ProdID = DDT2.Rows[k]["ProdID"].ToString(),
@@ -471,9 +533,9 @@ namespace SampWebApi.Controllers
                                 MRP = DDT2.Rows[k]["DetailMRP"].ToString(),
                                 UomSalePrice = DDT2.Rows[k]["ExclPrice"].ToString(),
                                 UomSalePriceIncl = DDT2.Rows[k]["InclPrice"].ToString(),
-                                ProdDiscPern = DDT2.Rows[k]["ProdPern"].ToString(),
-                                ProdDiscAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
-                                TradeDiscPern = DDT2.Rows[k]["TradePern"].ToString(),
+                                ProdDiscPern = OrgDiscPern.ToString(),// DDT2.Rows[k]["ProdPern"].ToString(),
+                                ProdDiscAmt =  DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                TradeDiscPern = OrgTradeDiscPern.ToString(),//DDT2.Rows[k]["TradePern"].ToString(),
                                 TradeDiscAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
                                 AddnlDiscPern = DDT2.Rows[k]["AddnlPern"].ToString(),
                                 AddnlDiscAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
