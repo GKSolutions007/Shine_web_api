@@ -418,7 +418,7 @@ namespace SampWebApi.Controllers
         public IHttpActionResult loginotpverify(string OTPID, string UserID, string DeviceID, string OTP,
             string Latitude, string Longitude, string Pincode)
         {
-            List<SaveMessage> list = new List<SaveMessage>();
+            var list = new List<object>();
             DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 2, OTPID, null, OTP);
             if (dtOTP.Rows.Count > 0)
             {
@@ -426,16 +426,24 @@ namespace SampWebApi.Controllers
                             "Browser", Latitude, Longitude, Pincode);
                 var authToken = TokenHelper.GenerateToken(UserID);
                 var refreshToken = TokenHelper.GenerateRefreshToken(UserID);
-                list.Add(new SaveMessage
+                DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
+                int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
+                DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
+                string ThemeJson = JsonConvert.SerializeObject(DTTHEME);
+                DataTable DDTFilterData = bl.BL_ExecuteParamSP("uspGetFilterDates");
+                string FilterData = JsonConvert.SerializeObject(DDTFilterData);
+                list.Add(new 
                 {
                     MsgID = "0",
                     ID = UserID.ToString(),
-                    Message = "OTP Verified Successfully"
+                    Message = "OTP Verified Successfully",
+                    ThemeData = ThemeJson,
+                    FilterDatelist = FilterData,
                 });
             }
             else
             {
-                list.Add(new SaveMessage
+                list.Add(new
                 {
                     MsgID = "1",
                     Message = "Invalid OTP"

@@ -1,0 +1,18 @@
+22/04/2026 07:16:19 PM |Invoice filter | Start | 22-Apr-2026 07:16:19 2065
+22/04/2026 07:16:20 PM |Invoice filter | Data Timing | 
+Start : 22-Apr-2026 07:16:19 2065
+Data Get : 22-Apr-2026 07:16:20 4148
+Bind Complete : 22-Apr-2026 07:16:20 4188
+
+22/04/2026 07:16:55 PM |Invoice filter | Start | 22-Apr-2026 07:16:55 8892
+22/04/2026 07:16:57 PM |Invoice filter | Data Timing | 
+Start : 22-Apr-2026 07:16:55 8892
+Data Get : 22-Apr-2026 07:16:57 1785
+Bind Complete : 22-Apr-2026 07:16:57 1885
+
+22/04/2026 07:17:24 PM |Invoice filter | Start | 22-Apr-2026 07:17:24 3535
+22/04/2026 07:17:25 PM |Invoice filter | Data Timing | 
+Start : 22-Apr-2026 07:17:24 3535
+Data Get : 22-Apr-2026 07:17:25 5009
+Bind Complete : 22-Apr-2026 07:17:25 5039
+

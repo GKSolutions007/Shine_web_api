@@ -352,11 +352,13 @@ namespace SampWebApi.Controllers
 
             if (Mode == "7" || Mode == "11" || Mode == "17" || Mode == "21")
             {
+                //bl.BL_WriteErrorMsginLog("Invoice", "Item Load Start", DateTime.Now.ToLongTimeString());
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, null, CodeName);
                 List<SalesModel> list = new List<SalesModel>();
                 if (DDT.Rows.Count > 0)
-                {                    
-                    for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    int i = 0;
+                    //for (int i = 0; i < DDT.Rows.Count; i++)
                     {
                         DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, DDT.Rows[i][8].ToString());
                         List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
@@ -443,23 +445,23 @@ namespace SampWebApi.Controllers
                                 });
                             }
                             List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                            DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                                Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                            for (int j = 0; j < dtBatch.Rows.Count; j++)
-                            {
-                                ulistBatch.Add(new InvoiceBatchPopup
-                                {
-                                    QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                    QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                    ProdID = DDT.Rows[i]["ID"].ToString(),
-                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                    PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                    ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                    ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                    SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                                });
-                            }
+                            //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                            //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
+                            //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                            //{
+                            //    ulistBatch.Add(new InvoiceBatchPopup
+                            //    {
+                            //        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                            //        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                            //        ProdID = DDT.Rows[i]["ID"].ToString(),
+                            //        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                            //        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                            //        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                            //        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                            //        MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                            //        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                            //    });
+                            //}
                             bool OrderSchemeApply = true;
                             #region Discount Schemme
                             decimal OrgDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
@@ -470,7 +472,7 @@ namespace SampWebApi.Controllers
                             {
                                 OrgTradeDiscPern = 0;
                                 decimal dConvFact = 1;
-                                decimal ApplyPrice = dtBatch.Rows.Count > 0 ? bl.BL_dValidation(DDT2.Rows[k]["ExclPrice"].ToString()) * dConvFact : 0;
+                                decimal ApplyPrice = DDT2.Rows.Count > 0 ? bl.BL_dValidation(DDT2.Rows[k]["ExclPrice"].ToString()) * dConvFact : 0;
                                 dtDiscScheme = new DataTable();
                                 if (strCustomerScheme == "1")//Go when scheme applied for selected Customer
                                     dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
@@ -604,6 +606,12 @@ namespace SampWebApi.Controllers
                             WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
                             VehicleNo = DDT.Rows[i]["VehicleNo"].ToString(),
                             Distance = DDT.Rows[i]["Distance"].ToString(),
+                            IRN = DDT.Rows[i]["IRN"].ToString(),
+                            AckNo = DDT.Rows[i]["AckNo"].ToString(),
+                            AckDate = DDT.Rows[i]["AckDate"].ToString(),
+                            AckStatus = DDT.Rows[i]["AckStatus"].ToString(),
+                            EWBNo = DDT.Rows[i]["EWBNo"].ToString(),
+                            SignedQRCode = DDT.Rows[i]["SignedQRCode"].ToString(),
                             TransportType = DDT.Rows[i]["VehicleType"].ToString(),
                             TransportMode = DDT.Rows[i]["TransMode"].ToString(),
                             TransactionID = DDT.Rows[i]["TransportID"].ToString(),
@@ -616,6 +624,7 @@ namespace SampWebApi.Controllers
                         });
                     }
                 }
+                //bl.BL_WriteErrorMsginLog("Invoice", "Item Load End", DateTime.Now.ToLongTimeString());
                 return Ok(list);
             }
             if (Mode == "14")
@@ -775,8 +784,53 @@ namespace SampWebApi.Controllers
         [Route("api/invoice/getfilterdata")]
         public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
         {
+            int Method = 2;
+            string msglog = "\nStart : "+ DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff")+"\n";
+            bl.BL_WriteErrorMsginLog("Invoice filter", "Start", DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff"));
             string Mode = FType == "1" ? "6" : FType == "2" ? "10" : FType == "3" ? "16" : "20";
             DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
+            msglog += "Data Get : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
+            if (Method == 2)
+            {
+                var data2 = DDT.AsEnumerable().Select(row => new PurchaseModel
+                {
+                    ID = row["ID"]?.ToString(),
+                    DocID = row["DocID"]?.ToString(),
+                    Date = row["DocDate"]?.ToString(),
+                    RefNo = row["RefNo"]?.ToString(),
+                    BranchID = row["Branch"]?.ToString(),
+                    VendorID = row["Party"]?.ToString(),
+                    GrossAmt = row["GrossAmt"]?.ToString(),
+                    TaxAmt = row["TaxAmt"]?.ToString(),
+                    NetAmt = row["NetAmt"]?.ToString(),
+                    Status = row["Status"]?.ToString(),
+                    Balance = row["Balance"]?.ToString(),
+                    CBy = row["UserName"]?.ToString(),
+                    CDate = row["LastActionTime"]?.ToString(),
+                    CurrentStatus = row["StatusID"]?.ToString(),
+                    InfoMessage = row["Info"]?.ToString(),
+
+                    PriceID = row["PriceType"]?.ToString(),
+                    Remarks = row["Remarks"]?.ToString(),
+                    Narration = row["Narration"]?.ToString(),
+                    TotalDiscAmt = row["TotalDiscAmt"]?.ToString(),
+                    TotalProdDiscAmt = row["TotalProdDiscAmt"]?.ToString(),
+                    AddnlDiscPern = row["AddnlDiscPern"]?.ToString(),
+                    TotalAddnlDiscAmt = row["AddnlDiscAmt"]?.ToString(),
+                    TradeDiscPern = row["TradeDiscPern"]?.ToString(),
+                    TotalTradeDiscAmt = row["TradeDiscAmt"]?.ToString(),
+                    OtherChargePern = row["OtherChargePern"]?.ToString(),
+                    OtherChargeAmt = row["OtherChargeAmt"]?.ToString(),
+                    Frieght = row["FrightAmt"]?.ToString(),
+                    TCSTaxAmt = row["TCSTaxAmt"]?.ToString(),
+                    Salesman = row["Salesman"]?.ToString(),
+                    BeatName = row["BeatName"]?.ToString()
+                }).ToList();
+                msglog += "Bind Complete : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
+                bl.BL_WriteErrorMsginLog("Invoice filter", "Data Timing", msglog);
+                return Ok(data2);
+            }
+            
             List<PurchaseModel> list = new List<PurchaseModel>();
             //SalesModel
             for (int i = 0; i < DDT.Rows.Count; i++)
@@ -854,6 +908,8 @@ namespace SampWebApi.Controllers
                                BeatName = users.BeatName,
 
                            };
+            msglog += "Bind Complete : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
+            bl.BL_WriteErrorMsginLog("Invoice filter", "Data Timing", msglog);
             return Ok(data);
         }
         [HttpGet]
