@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -44,6 +45,8 @@ namespace SampWebApi.Controllers
             if (Mode == "2")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseOrderData", Mode, 3, CodeName);
+                string proddata = JsonConvert.SerializeObject(DDT);
+                return Ok(proddata);
                 List<ProductModel> list = new List<ProductModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {

@@ -784,7 +784,7 @@ namespace SampWebApi.Controllers
         [Route("api/invoice/getfilterdata")]
         public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
         {
-            int Method = 2;
+            int Method = 1;
             string msglog = "\nStart : "+ DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff")+"\n";
             bl.BL_WriteErrorMsginLog("Invoice filter", "Start", DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff"));
             string Mode = FType == "1" ? "6" : FType == "2" ? "10" : FType == "3" ? "16" : "20";
