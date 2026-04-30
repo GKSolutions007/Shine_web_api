@@ -340,9 +340,10 @@ namespace SampWebApi.Controllers
                             DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
                             string ToEmail = dtCompData.Rows[0]["Email"].ToString();
                             string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                            string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                             Random random = new Random();
                             int OTP = random.Next(100000, 999999);
-                            bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                            bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail, CCMail);
                             if (Issend)
                             {
                                 int OTPID = 0;
@@ -377,9 +378,10 @@ namespace SampWebApi.Controllers
                         DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
                         string ToEmail = dtCompData.Rows[0]["Email"].ToString();
                         string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                        string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                         Random random = new Random();
                         int OTP = random.Next(100000, 999999);
-                        bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail);
+                        bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail, CCMail);
                         if (Issend)
                         {
                             int OTPID = 0;

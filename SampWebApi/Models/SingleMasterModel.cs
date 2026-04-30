@@ -374,6 +374,7 @@ namespace SampWebApi.Models
         public string PhoneNo { get; set; }
         public string Website { get; set; }
         public string Email { get; set; }
+        public string CCEmail { get; set; }
         public string FSSAI { get; set; }
         public string AadharNo { get; set; }
         public string PANNo { get; set; }

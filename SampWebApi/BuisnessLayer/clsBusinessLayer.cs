@@ -128,7 +128,7 @@ namespace SampWebApi.BuisnessLayer
             }
             return dstrValue;
         }
-        public bool SendEmail(string Subject, string Body, string ToMailID)
+        public bool SendEmail(string Subject, string Body, string ToMailID,string CCMail = null)
         {
             bool MailSend = false;
             try
@@ -151,7 +151,8 @@ namespace SampWebApi.BuisnessLayer
                     //message.From = new MailAddress("gks.helpdesk@gmail.com");//gks.helpdesk@gmail.com
                     message.From = new MailAddress(EMail);//gks.helpdesk@gmail.com//"vipassana.pveasllp@gmail.com"
                     message.To.Add(new MailAddress(ToMailID));
-                    //message.Bcc.Add(new MailAddress("shineasst@gmail.com"));
+                    if (!string.IsNullOrEmpty(CCMail))
+                        message.CC.Add(new MailAddress(CCMail));
                     message.Subject = Subject;
                     message.IsBodyHtml = true; //to make message body as html  
                     message.Body = Body;

@@ -1860,6 +1860,7 @@ namespace SampWebApi.Controllers
                         PhoneNo = DDT.Rows[i]["PhoneNo"].ToString(),
                         Website = DDT.Rows[i]["Website"].ToString(),
                         Email = DDT.Rows[i]["Email"].ToString(),
+                        CCEmail = DDT.Rows[i]["CCEmail"].ToString(),
                         FSSAI = DDT.Rows[i]["FSSAI"].ToString(),
                         AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
                         PANNo = DDT.Rows[i]["PANNo"].ToString(),
@@ -1879,7 +1880,8 @@ namespace SampWebApi.Controllers
         {
             bl.BL_ExecuteParamSP("uspManageUpdateCompanyDetail", 3, lstMaster.CompanyId, lstMaster.CompanyCode, lstMaster.CompanyName, lstMaster.StateID,
                  lstMaster.Address, lstMaster.Country, lstMaster.State, lstMaster.City, lstMaster.Pincode, lstMaster.Contact_Person, lstMaster.MobileNo,
-                 lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20, lstMaster.Dl_21);
+                 lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20, 
+                 lstMaster.Dl_21, lstMaster.CCEmail);
             List<SaveMessage> list = new List<SaveMessage>();
             list.Add(new SaveMessage
             {
