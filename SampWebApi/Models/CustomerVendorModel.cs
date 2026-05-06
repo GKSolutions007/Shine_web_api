@@ -80,6 +80,8 @@ namespace SampWebApi.Models
         public List<clsCustomerRemarks> lstCustRemark { set; get; }
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
+        public string CBy { get; set; }
+        public string CDate { get; set; }
     }
     public class clsCustomerRemarks
     {
@@ -156,6 +158,7 @@ namespace SampWebApi.Models
         public string IndentVendor { get; set; }
         public string Active { get; set; }
         public string CBy { get; set; }
+        public string CDate { get; set; }
         public string ABSValue { get; set; }
         public string ABSQty { get; set; }
         public string ABSFreeQty { get; set; }

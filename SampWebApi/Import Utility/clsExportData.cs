@@ -515,6 +515,10 @@ namespace SampWebApi.Import_Utility
                     CellFormat cf = doc.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats.ChildElements[int.Parse(cell.StyleIndex.InnerText)] as CellFormat;
                     if (cf.NumberFormatId == 14)
                     {
+                        if (cell.CellValue == null)
+                        {
+                            return null;
+                        }
                         return DateTime.FromOADate(double.Parse(cell.CellValue.InnerText)).ToString("dd/MM/yyyy");
                     }
                     return cell.InnerText;

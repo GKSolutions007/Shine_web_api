@@ -315,7 +315,12 @@ namespace SampWebApi.Models
         public string DraftAutoSaveTimeInterval { get; set; }        
         public string HomePeriod { get; set; }
         public string AutoRefresh { get; set; }
-        
+
+        public string CTPAmount { get; set; }
+        public string CTPPoint { get; set; }
+        public string CTPPerPointAmount { get; set; }
+        public string UpdateVendorinProduct { get; set; }
+
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         

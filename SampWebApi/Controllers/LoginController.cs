@@ -550,8 +550,7 @@ namespace SampWebApi.Controllers
         {
             DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 5, UID);
             return Ok();
-        }
-        [CookieAuthorize]
+        }        
         [HttpGet]
         [Route("api/validatepermissions")]
         public IHttpActionResult validatepermissionsData(string UID)
