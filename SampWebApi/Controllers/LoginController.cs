@@ -426,6 +426,7 @@ namespace SampWebApi.Controllers
             {
                 DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
                             "Browser", Latitude, Longitude, Pincode);
+                //Token assign
                 var authToken = TokenHelper.GenerateToken(UserID);
                 var refreshToken = TokenHelper.GenerateRefreshToken(UserID);
                 DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
