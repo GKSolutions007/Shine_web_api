@@ -286,10 +286,10 @@ namespace SampWebApi.Controllers
             string dt = "";
             List<ImportResults> MTM = new List<ImportResults>();
             clsExportData clsExport = new clsExportData();
-
+            var job = ExportJobManager.Jobs[jobId];
             try
             {
-                var job = ExportJobManager.Jobs[jobId];
+               
                 job.Progress = 5;
                 job.ProgressMessage = "Initialize..."; //Thread.Sleep(3000);
                 //var file = HttpContext.Current.Request.Files.Count > 1 ? HttpContext.Current.Request.Files[0] : null;
@@ -543,7 +543,13 @@ namespace SampWebApi.Controllers
                                     DataTable dtValidate = dtItemsData.Clone();
                                     dtValidate.TableName = "Validation";
                                     dtValidate.Rows.Add(item.ItemArray);
-                                    string RowError = importValidations.SaleSRBillPRDetailValidation(dtValidate);
+                                    // Filter items
+                                    string strDocID = item.ItemArray[0].ToString();
+                                    var items = dtHeaderData.AsEnumerable()
+                                        .Where(r => r["DOC ID *"].ToString() == strDocID)
+                                        .ToList();
+                                    string DocType = items.Any() ? items[0].ItemArray[1].ToString() : string.Empty;
+                                    string RowError = importValidations.SaleSRBillPRDetailValidation(dtValidate, DocType);
                                     if (string.IsNullOrEmpty(RowError))
                                     {
                                         DataRow drW = dtItemsWrongValues.NewRow();
@@ -922,7 +928,9 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-
+                job.ErrorID = 24;
+                job.ErrorMessage = ex.Message;
+                job.IsCompleted = true;
                 MTM.Add(new ImportResults()
                 {
                     ID = "2",

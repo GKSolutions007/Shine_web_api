@@ -418,6 +418,8 @@ namespace SampWebApi.Controllers
                 DataSet dtProdData = bl.BL_ExecuteParamSPDataset("uspManageProductMaster", Mode, Name);
                 DDT = dtProdData.Tables[0];
                 DataTable dtProductLocation= dtProdData.Tables[1];
+                DataTable dtProductStock = dtProdData.Tables[2];
+
                 //bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
                 List<ProductModel> list = new List<ProductModel>();
                 List<clsProdLocMapping> listProcLocMap = new List<clsProdLocMapping>();
@@ -443,6 +445,11 @@ namespace SampWebApi.Controllers
                                 LocationID = dtProductLocation.Rows[k][2].ToString(),
                             });
                         }
+                    }
+                    string ItemStock = "0.00";
+                    if (dtProductStock.Rows.Count > 0)
+                    {
+                        ItemStock = dtProductStock.Rows[0][1].ToString();
                     }
                     list.Add(new ProductModel
                     {
@@ -503,7 +510,7 @@ namespace SampWebApi.Controllers
                         PurchaseReturnPrice = PRPrice,
                         InvoicePrice = InvPrice,
                         SalesReturnPrice = SRPrice,
-                        lstProdLocMapping= listProcLocMap
+                        lstProdLocMapping= listProcLocMap,ABSQty = ItemStock
                     });
                 }
                 return Ok(list);

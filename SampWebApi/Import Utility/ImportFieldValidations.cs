@@ -417,11 +417,13 @@ namespace SampWebApi.Import_Utility
             #endregion
             return RowError;
         }
-        public string SaleSRBillPRDetailValidation(DataTable dtCheck)
+        public string SaleSRBillPRDetailValidation(DataTable dtCheck,string DocType)
         {
             string RowError = "";
             DataRow row = dtCheck.Rows[0];
+            DataTable dtProdData = new DataTable();
             #region Mandatory Field Validation
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
             {
                 if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
@@ -433,6 +435,7 @@ namespace SampWebApi.Import_Utility
             {
                 RowError += "DOC ID * : DOC ID should not be empty\n";
             }
+            
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
             {
                 if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
@@ -441,15 +444,18 @@ namespace SampWebApi.Import_Utility
                 }
                 else
                 {
-                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
-                    if (dt.Rows.Count == 0)
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
                     {
                         RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
                         ProductID = 0;
                     }
                     else
                     {
-                        ProductID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
                     }
                 }
             }
@@ -481,24 +487,54 @@ namespace SampWebApi.Import_Utility
             {
                 RowError += "TAX NAME * : TAX Name should not be empty\n";
             }
+            if (DocType.ToLower() == "bill" || DocType.ToLower() == "pr")
+            {
+                if (TrackInvYN == 0)
+                {
+                    RowError += "* Track Inventory No Products should not be allowed\n";
+                }
+            }
             #endregion
             #region Non-Mandatory Field Validations
-            ValidateAlphaNumericSplField(row, "BATCH NUMBER", false, ref RowError);
-
-            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+            
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
             {
-                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
                 {
-                    RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
                 }
             }
-            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+            else
             {
-                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
                 {
-                    RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
                 }
             }
+            
             string[] fields = {"ACTUAL QTY","DAMAGE QTY","FREE QTY","UOM PURCHASE PRICE",
                                 "UOM SALE PRICE","UOM ECP PRICE","UOM SPL PRICE","UOM MRP PRICE",
                                  "RETURN PRICE"};
@@ -803,6 +839,9 @@ namespace SampWebApi.Import_Utility
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         uomcr = objBL.BL_dValidation(dtProductData.Rows[0]["BaseCR"]);
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
+                        var Proditems = items.AsEnumerable()
+                        .Where(r => r["PRODUCT NAME *"].ToString() == strDocID)
+                        .ToList();
                         BillTransAmount = dtItemTransPrices.Rows.Count > 0 ? objBL.BL_dValidation(dtItemTransPrices.Rows[0]["PurchaseBillPrice"]) : 0;
                         // Values
                         qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());

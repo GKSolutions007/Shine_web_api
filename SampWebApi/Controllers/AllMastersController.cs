@@ -24,6 +24,7 @@ using System.Windows.Interop;
 using System.Diagnostics;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Math.EC;
 namespace SampWebApi.Controllers
 {
     [CookieAuthorize]
@@ -1603,6 +1604,10 @@ namespace SampWebApi.Controllers
                         DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
                         HomePeriod = DDT.Rows[i]["HomePeriod"].ToString(),
                         AutoRefresh = DDT.Rows[i]["AutoRefresh"].ToString(),
+                        CTPAmount = DDT.Rows[i]["CTPAmount"].ToString(),
+                        CTPPoint = DDT.Rows[i]["CTPPoint"].ToString(),
+                        CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
+                        UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
                         lstPaymode = pmlist,
                         lstConfigPasswords = lstpwd
                     });
@@ -1635,12 +1640,13 @@ namespace SampWebApi.Controllers
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
                             lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
-                             lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                            lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
-                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView,  lstMaster.FilterDate, lstMaster.ItemsperPage,
-                            lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
-                            lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval,lstMaster.HomePeriod,lstMaster.AutoRefresh);
+                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
+                            lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
+                            lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
+                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
