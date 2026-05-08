@@ -548,13 +548,87 @@ namespace SampWebApi.Import_Utility
             }
             return null;
         }
+        #region Sales Header Columns
         public static List<string> AddSalesHeaderColumnForExport(bool WithError)
         {
             if (!WithError)
             {
                 return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "BEAT NAME",
+            "SALESMAN NAME",
+            "PARTY NAME *",
+            "PAYMENT MODE *",
+            "CREDIT TERM *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO"
+        };
+            }
+            else
             {
-                "DOC ID *",   "DOC PREFIX *",   "BRANCH NAME *",   "DOC DATE *", "PARTY NAME *",    "PAYMENT MODE *", "CREDIT TERM *",  "ADDITIONAL DISCOUNT",  "TRADE DISCOUNT",   "FRIEGHT",  "OTHER CHARGE", "NET AMOUNT *",   "STATUS *",   "BEAT NAME",    "SALESMAN NAME",    "WRITEOFF AMT", "TRANSACTION TYPE", "RETURN TYPE",  "REMARKS",
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "BEAT NAME",
+            "SALESMAN NAME",
+            "PARTY NAME *",
+            "PAYMENT MODE *",
+            "CREDIT TERM *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        public static List<string> AddSalesHeaderColumnForExport_old(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+            {
+                "DOC ID *",   "DOC PREFIX *",   "BRANCH NAME *",   "DOC DATE *", "PARTY NAME *",    "PAYMENT MODE *", "CREDIT TERM *",  "ADDITIONAL DISCOUNT %",  "TRADE DISCOUNT %",   "FRIEGHT",  "OTHER CHARGE %", "NET AMOUNT *",   "STATUS *",   "BEAT NAME",    "SALESMAN NAME",    "WRITEOFF AMT", "TRANSACTION TYPE", "RETURN TYPE",  "REMARKS",
                 "TRANSPORT MODE","TRANSPORT TYPE","VECHICLE NUMBER","TRANSPORT ID","TRANSPORT NAME","DISTANCE","IRN","ACKNOWLEDGE NO","ACKNOWLEDGE DATE","ACKNOWLEDGE STATUS","SIGNED QRCODE","EWAY BILL NO"
             };
             }
@@ -562,13 +636,404 @@ namespace SampWebApi.Import_Utility
             {
                 return new List<string>()
             {
-                "DOC ID *",   "DOC PREFIX *",   "BRANCH NAME *",   "DOC DATE *", "PARTY NAME *",    "PAYMENT MODE *", "CREDIT TERM *",  "ADDITIONAL DISCOUNT",  "TRADE DISCOUNT",   "FRIEGHT",  "OTHER CHARGE", "NET AMOUNT *",   "STATUS *",   "BEAT NAME",    "SALESMAN NAME",    "WRITEOFF AMT", "TRANSACTION TYPE", "RETURN TYPE",  "REMARKS",
+                "DOC ID *",   "DOC PREFIX *",   "BRANCH NAME *",   "DOC DATE *", "PARTY NAME *",    "PAYMENT MODE *", "CREDIT TERM *",  "ADDITIONAL DISCOUNT %",  "TRADE DISCOUNT %",   "FRIEGHT",  "OTHER CHARGE %", "NET AMOUNT *",   "STATUS *",   "BEAT NAME",    "SALESMAN NAME",    "WRITEOFF AMT", "TRANSACTION TYPE", "RETURN TYPE",  "REMARKS",
                 "TRANSPORT MODE","TRANSPORT TYPE","VECHICLE NUMBER","TRANSPORT ID","TRANSPORT NAME","DISTANCE","IRN","ACKNOWLEDGE NO","ACKNOWLEDGE DATE","ACKNOWLEDGE STATUS","SIGNED QRCODE","EWAY BILL NO","ERROR"
             };
             }
         }
-
+        #region Sales Detail Columns
         public static List<string> AddSalesDetailColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "QTY *",
+            "PRICE *",
+            "MRP *",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "QTY *",
+            "PRICE *",
+            "MRP *",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Sales Return Header Columns
+        public static List<string> AddSalesReturnHeaderColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "BEAT NAME",
+            "SALESMAN NAME",
+            "PARTY NAME *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "TRANSACTION TYPE",
+            "RETURN TYPE",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "BEAT NAME",
+            "SALESMAN NAME",
+            "PARTY NAME *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "TRANSACTION TYPE",
+            "RETURN TYPE",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Sales Return Detail Columns
+        public static List<string> AddSalesReturnDetailColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "QTY *",
+            "PRICE *",
+            "MRP *",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "QTY *",
+            "PRICE *",
+            "MRP *",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Bill Header Columns
+        public static List<string> AddBillHeaderColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "PARTY NAME *",
+            "PAYMENT MODE *",
+            "CREDIT TERM *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "PARTY NAME *",
+            "PAYMENT MODE *",
+            "CREDIT TERM *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Bill Detail Columns
+        public static List<string> AddBillDetailColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "ACTUAL QTY",
+            "DAMAGE QTY",
+            "FREE QTY",
+            "PURCHASE PRICE",
+            "SALE PRICE",
+            "ECP PRICE",
+            "SPL PRICE",
+            "MRP",
+            "RETURN PRICE",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "ACTUAL QTY",
+            "DAMAGE QTY",
+            "FREE QTY",
+            "PURCHASE PRICE",
+            "SALE PRICE",
+            "ECP PRICE",
+            "SPL PRICE",
+            "MRP",
+            "RETURN PRICE",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Purchse Return Header Columns
+        public static List<string> AddPurchaseReturnHeaderColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "PARTY NAME *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "RETURN TYPE",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "DOC DATE *",
+            "BRANCH NAME *",
+            "PARTY NAME *",
+            "ADDITIONAL DISCOUNT %",
+            "TRADE DISCOUNT %",
+            "FRIEGHT",
+            "OTHER CHARGE %",
+            "WRITEOFF AMT",
+            "NET AMOUNT *",
+            "STATUS *",
+            "RETURN TYPE",
+            "REMARKS",
+            "TRANSPORT MODE",
+            "TRANSPORT TYPE",
+            "VECHICLE NUMBER",
+            "TRANSPORT ID",
+            "TRANSPORT NAME",
+            "DISTANCE",
+            "IRN",
+            "ACKNOWLEDGE NO",
+            "ACKNOWLEDGE DATE",
+            "ACKNOWLEDGE STATUS",
+            "SIGNED QRCODE",
+            "EWAY BILL NO",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        #region Purchse Return Detail Columns
+        public static List<string> AddPurchaseReturnDetailColumnForExport(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "ACTUAL QTY",
+            "DAMAGE QTY",
+            "FREE QTY",
+            "PURCHASE PRICE",           
+            "MRP",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME"
+        };
+            }
+            else
+            {
+                return new List<string>()
+        {
+            "DOC ID *",
+            "PRODUCT NAME *",
+            "BATCH NUMBER",
+            "PKD DATE",
+            "EXPIRY DATE",
+            "ACTUAL QTY",
+            "DAMAGE QTY",
+            "FREE QTY",
+            "PURCHASE PRICE",
+            "SALE PRICE",
+            "ECP PRICE",
+            "SPL PRICE",
+            "MRP",
+            "RETURN PRICE",
+            "PRODUCT DISCOUNT",
+            "TAX NAME *",
+            "REASON NAME",
+            "ERROR"
+        };
+            }
+        }
+        #endregion
+        public static List<string> AddSalesDetailColumnForExport_old(bool WithError)
         {
             if (!WithError)
             {
@@ -585,26 +1050,6 @@ namespace SampWebApi.Import_Utility
             };
             }
         }
-        public static List<string> AddSalesSerialInfoColumnForExport(bool WithError)
-        {
-            if (!WithError)
-            {
-                return new List<string>()
-            {
-                "DOC ID",
-                "PRODUCT NAME",
-                "SERIAL"
-            };
-            }
-            else
-            {
-                return new List<string>()
-            {
-                "DOC ID",
-                "PRODUCT NAME",
-                "SERIAL","ERROR"
-            };
-            }
-        }
+        
     }
 }
