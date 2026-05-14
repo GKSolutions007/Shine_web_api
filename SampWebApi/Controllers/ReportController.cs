@@ -447,7 +447,7 @@ namespace SampWebApi.Controllers
                         DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
                     }
                 }
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
                     DocValue, FilterData.Party, FilterData.FilterType);
                 string JSONCONV = JsonConvert.SerializeObject(dtResult);
                 return Ok(JSONCONV);

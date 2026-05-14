@@ -709,19 +709,19 @@ namespace SampWebApi.Controllers
                     DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
                     if (dtBatch.Rows.Count > 0)
                     {
-                        //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        for (int j = 0; j < dtBatch.Rows.Count; j++)
                         {
                             ulistBatch.Add(new InvoiceBatchPopup
                             {
-                                QtyType = dtBatch.Rows[0]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[0]["Tag"].ToString(),
+                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
                                 ProdID = CodeName,
-                                BatchNo = dtBatch.Rows[0]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[0]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[0]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[0]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[0]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[0]["Price"].ToString(),
+                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                 TrackBatch = BATCH,
                                 TrackPKD = PKD,
                                 TrackInventory = TrkInv
@@ -1761,7 +1761,8 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/transactionprint/generateprint")]
-        public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",string Copies="1")
+        public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",
+            string Copies="1",string Branch = "0")
         {
             DataView dtView = new DataView(bl.BL_StringSplitCommaHyphen(DocValue.Trim()));
             DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
@@ -1780,7 +1781,7 @@ namespace SampWebApi.Controllers
                     {
                         int Ident = 0;
                         nTransrange = bl.BL_nValidation(dtDocIDs.Rows[nCount][0]);
-                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange);
+                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange, Branch);
                         if (dtID.Rows.Count > 0)
                         {
                             Ident = bl.BL_nValidation(dtID.Rows[0][0]);

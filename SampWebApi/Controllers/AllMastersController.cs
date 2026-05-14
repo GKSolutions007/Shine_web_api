@@ -1485,6 +1485,7 @@ namespace SampWebApi.Controllers
                         AutocompleteBG = DDT.Rows[i]["AutocompleteBG"].ToString(),
                         AutocompleteLine1 = DDT.Rows[i]["AutocompleteLine1"].ToString(),
                         AutocompleteLine2 = DDT.Rows[i]["AutocompleteLine2"].ToString(),
+                        ButtonTextColor = DDT.Rows[i]["ButtonTextColor"].ToString(),
                     });
                 }
                 return Ok(list);
@@ -1502,7 +1503,7 @@ namespace SampWebApi.Controllers
                             lstMaster.CloseButton, lstMaster.PDFButton, lstMaster.PreviewButton, lstMaster.PopupHeader, lstMaster.PopupFooter,
                             lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                             lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
-                            lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2);
+                            lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2,lstMaster.ButtonTextColor);
                 List<SaveMessage> list = new List<SaveMessage>();
                 if (DDT.Columns.Count == 1)
                 {
@@ -1608,6 +1609,7 @@ namespace SampWebApi.Controllers
                         CTPPoint = DDT.Rows[i]["CTPPoint"].ToString(),
                         CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
                         UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
+                        Radius = DDT.Rows[i]["Radius"].ToString(),
                         lstPaymode = pmlist,
                         lstConfigPasswords = lstpwd
                     });
@@ -1646,7 +1648,7 @@ namespace SampWebApi.Controllers
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
                             lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
-                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct);
+                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct,lstMaster.Radius);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {

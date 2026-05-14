@@ -272,7 +272,7 @@ namespace SampWebApi.Models
         public string AutocompleteBG { get; set; }
         public string AutocompleteLine1 { get; set; }
         public string AutocompleteLine2 { get; set; }
-
+        public string ButtonTextColor { get; set; }
     }
     public class ApplicationConfig
     {
@@ -320,7 +320,7 @@ namespace SampWebApi.Models
         public string CTPPoint { get; set; }
         public string CTPPerPointAmount { get; set; }
         public string UpdateVendorinProduct { get; set; }
-
+        public string Radius { get; set; }
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         
@@ -595,6 +595,7 @@ namespace SampWebApi.Models
         public string DocRange { get; set; }
         public string Party { get; set; }
         public string FilterType { get; set; }
+        public string Branch { get; set; }
 
     }
     public class Tax

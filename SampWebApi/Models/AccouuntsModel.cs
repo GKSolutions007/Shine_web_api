@@ -147,7 +147,7 @@ namespace SampWebApi.Models
         public string DocID { get; set; }
         public string DocDate { get; set; }
         public string DocType { get; set; }
-
+        public string Branch { get; set; }
 
         public string VehicleNo { get; set; }
         public string Distance { get; set; }
