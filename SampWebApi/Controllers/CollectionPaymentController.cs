@@ -274,7 +274,7 @@ namespace SampWebApi.Controllers
                 }
                 return Ok(list);
             }
-            if(Mode == "6")
+            if (Mode == "6")
             {
                 List<CustomerVendorModel> list = new List<CustomerVendorModel>();
                 DDT = bl.BL_ExecuteParamSP("uspGetSetCollPayData", Mode, CodeName, ID, DocPrefix);
@@ -987,7 +987,7 @@ namespace SampWebApi.Controllers
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),
-                                MsgID = "0",
+                                MsgID = "1",
                                 Message = ErrMsg
                             });
                             return Ok(list);

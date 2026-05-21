@@ -444,11 +444,20 @@ namespace SampWebApi.Controllers
 
                     for (int i = 0; i < dtRanges.Rows.Count; i++)
                     {
-                        DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                        DocValue += FilterData.TransName.ToLower() == "delivery" ? (dtRanges.Rows[i][0].ToString() + ",") : ("'" + dtRanges.Rows[i][0].ToString() + "',");
                     }
                 }
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
-                    DocValue, FilterData.Party, FilterData.FilterType);
+                DataTable dtResult = new DataTable();
+                if (FilterData.TransName.ToLower() == "delivery")
+                {
+                    dtResult = bl.BL_ExecuteParamSP("uspLoadDeliveryDocumentData", FilterData.Branch, FilterData.FromDate, FilterData.ToDate,
+                        DocValue, FilterData.Party, FilterData.FilterType, FilterData.TransMode, FilterData.TransIdentID);
+                }
+                else
+                {
+                    dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
+                           DocValue, FilterData.Party, FilterData.FilterType);
+                }
                 string JSONCONV = JsonConvert.SerializeObject(dtResult);
                 return Ok(JSONCONV);
             }

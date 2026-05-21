@@ -784,53 +784,8 @@ namespace SampWebApi.Controllers
         [Route("api/invoice/getfilterdata")]
         public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
         {
-            int Method = 1;
-            string msglog = "\nStart : "+ DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff")+"\n";
-            bl.BL_WriteErrorMsginLog("Invoice filter", "Start", DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff"));
             string Mode = FType == "1" ? "6" : FType == "2" ? "10" : FType == "3" ? "16" : "20";
             DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
-            msglog += "Data Get : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
-            if (Method == 2)
-            {
-                var data2 = DDT.AsEnumerable().Select(row => new PurchaseModel
-                {
-                    ID = row["ID"]?.ToString(),
-                    DocID = row["DocID"]?.ToString(),
-                    Date = row["DocDate"]?.ToString(),
-                    RefNo = row["RefNo"]?.ToString(),
-                    BranchID = row["Branch"]?.ToString(),
-                    VendorID = row["Party"]?.ToString(),
-                    GrossAmt = row["GrossAmt"]?.ToString(),
-                    TaxAmt = row["TaxAmt"]?.ToString(),
-                    NetAmt = row["NetAmt"]?.ToString(),
-                    Status = row["Status"]?.ToString(),
-                    Balance = row["Balance"]?.ToString(),
-                    CBy = row["UserName"]?.ToString(),
-                    CDate = row["LastActionTime"]?.ToString(),
-                    CurrentStatus = row["StatusID"]?.ToString(),
-                    InfoMessage = row["Info"]?.ToString(),
-
-                    PriceID = row["PriceType"]?.ToString(),
-                    Remarks = row["Remarks"]?.ToString(),
-                    Narration = row["Narration"]?.ToString(),
-                    TotalDiscAmt = row["TotalDiscAmt"]?.ToString(),
-                    TotalProdDiscAmt = row["TotalProdDiscAmt"]?.ToString(),
-                    AddnlDiscPern = row["AddnlDiscPern"]?.ToString(),
-                    TotalAddnlDiscAmt = row["AddnlDiscAmt"]?.ToString(),
-                    TradeDiscPern = row["TradeDiscPern"]?.ToString(),
-                    TotalTradeDiscAmt = row["TradeDiscAmt"]?.ToString(),
-                    OtherChargePern = row["OtherChargePern"]?.ToString(),
-                    OtherChargeAmt = row["OtherChargeAmt"]?.ToString(),
-                    Frieght = row["FrightAmt"]?.ToString(),
-                    TCSTaxAmt = row["TCSTaxAmt"]?.ToString(),
-                    Salesman = row["Salesman"]?.ToString(),
-                    BeatName = row["BeatName"]?.ToString()
-                }).ToList();
-                msglog += "Bind Complete : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
-                bl.BL_WriteErrorMsginLog("Invoice filter", "Data Timing", msglog);
-                return Ok(data2);
-            }
-            
             List<PurchaseModel> list = new List<PurchaseModel>();
             //SalesModel
             for (int i = 0; i < DDT.Rows.Count; i++)
@@ -868,7 +823,7 @@ namespace SampWebApi.Controllers
                     TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
                     Salesman = DDT.Rows[i]["Salesman"].ToString(),
                     BeatName = DDT.Rows[i]["BeatName"].ToString(),
-
+                    DeliveryCount = DDT.Rows[i]["DeliveryCount"].ToString(),
                 });
             }
             //return Ok(list);            
@@ -906,10 +861,8 @@ namespace SampWebApi.Controllers
                                TCSTaxAmt = users.TCSTaxAmt,
                                Salesman = users.Salesman,
                                BeatName = users.BeatName,
-
+                               DeliveryCount = users.DeliveryCount,
                            };
-            msglog += "Bind Complete : " + DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss ffff") + "\n";
-            bl.BL_WriteErrorMsginLog("Invoice filter", "Data Timing", msglog);
             return Ok(data);
         }
         [HttpGet]
@@ -1762,7 +1715,7 @@ namespace SampWebApi.Controllers
         [HttpGet]
         [Route("api/transactionprint/generateprint")]
         public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",
-            string Copies="1",string Branch = "0")
+            string Copies="1",string Branch = "0", string FromDate = null, string ToDate = null)
         {
             DataView dtView = new DataView(bl.BL_StringSplitCommaHyphen(DocValue.Trim()));
             DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
@@ -1781,7 +1734,8 @@ namespace SampWebApi.Controllers
                     {
                         int Ident = 0;
                         nTransrange = bl.BL_nValidation(dtDocIDs.Rows[nCount][0]);
-                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange, Branch);
+                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange,
+                            Branch, FromDate,ToDate);
                         if (dtID.Rows.Count > 0)
                         {
                             Ident = bl.BL_nValidation(dtID.Rows[0][0]);

@@ -596,7 +596,9 @@ namespace SampWebApi.Models
         public string Party { get; set; }
         public string FilterType { get; set; }
         public string Branch { get; set; }
-
+        public string TransName { get; set; }
+        public string TransMode { get; set; }
+        public string TransIdentID { get; set; }
     }
     public class Tax
     {

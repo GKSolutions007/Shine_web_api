@@ -9,3 +9,9 @@ Start : 14-May-2026 02:22:07 1549
 Data Get : 14-May-2026 02:22:07 2870
 Bind Complete : 14-May-2026 02:22:07 3070
 
+14/05/2026 05:53:19 PM |Invoice filter | Start | 14-May-2026 05:53:19 9449
+14/05/2026 05:53:20 PM |Invoice filter | Data Timing | 
+Start : 14-May-2026 05:53:19 9449
+Data Get : 14-May-2026 05:53:20 0212
+Bind Complete : 14-May-2026 05:53:20 0247
+

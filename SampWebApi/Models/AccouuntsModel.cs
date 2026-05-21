@@ -158,5 +158,7 @@ namespace SampWebApi.Models
         public string TransactionName { get; set; }
         public string DocRange { get; set; }
 
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
     }
 }
