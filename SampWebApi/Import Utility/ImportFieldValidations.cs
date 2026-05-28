@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -3156,6 +3157,7 @@ namespace SampWebApi.Import_Utility
                         //ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
                         //SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
                         MRP = objBL.BL_dValidation(row["MRP *"].ToString());
+                        decimal MRPExcl = Math.Round(MRP / (1 + (taxValue / 100)), 4);
                         //Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
 
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
@@ -3189,7 +3191,7 @@ namespace SampWebApi.Import_Utility
                         dtRow["BatchYesNo"] = TrackBatchYN;
                         dtRow["PKDYesNo"] = TrackPKDYN;
                         dtRow["SerialYesNo"] = TrackSerialYN;
-                        dtRow["BaseUomPrice"] = Saleprice;
+                        dtRow["BaseUomPrice"] = MRPExcl;// Saleprice;
                         dtRow["UomId"] = BaseUOMID;
                         dtRow["UomQty"] = qty;
                         dtRow["UomPrice"] = Saleprice;
@@ -3214,7 +3216,7 @@ namespace SampWebApi.Import_Utility
                         string Exp = !string.IsNullOrEmpty(row["EXPIRY DATE"].ToString()) ? Convert.ToDateTime(row["EXPIRY DATE"].ToString()).ToString("dd/MM/yyyy") : null;
                         dtRow["PkgDate"] = PKD;
                         dtRow["ExpiryDate"] = Exp;
-                        dtRow["InventoryPrice"] = Saleprice;
+                        dtRow["InventoryPrice"] = MRPExcl;// Saleprice;
                         dtRow["MRP"] = MRP;
                         dtRow["UomCR"] = uomcr;
                         dtRow["InvQtyType"] = 1;
@@ -3466,8 +3468,18 @@ namespace SampWebApi.Import_Utility
                         Saleprice = objBL.BL_dValidation(row["PRICE *"].ToString());
                         //ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
                         //SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
+
                         MRP = objBL.BL_dValidation(row["MRP *"].ToString());
-                        decimal MRPExcl = MRP / (1 + (taxValue / 100));                        
+                        if(MRP == 0)
+                        {
+                            DataTable dtBatch = objBL.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, 4, headerRow["DOC DATE *"], objBL.BL_nValidation(Convert.ToString(row["PRODUCT NAME *"])), 0);
+                            if(dtBatch.Rows.Count > 0)
+                            {
+                                MRP = objBL.BL_dValidation(dtBatch.Rows[0]["MRP"]);
+                            }
+                        }
+                        
+                        decimal MRPExcl = Math.Round(MRP / (1 + (taxValue / 100)),4);                        
 
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
 
@@ -3500,7 +3512,7 @@ namespace SampWebApi.Import_Utility
                         dtRow["BatchYesNo"] = TrackBatchYN;
                         dtRow["PKDYesNo"] = TrackPKDYN;
                         dtRow["SerialYesNo"] = TrackSerialYN;
-                        dtRow["BaseUomPrice"] = Saleprice;
+                        dtRow["BaseUomPrice"] = MRPExcl;// Saleprice;
                         dtRow["UomId"] = BaseUOMID;
                         dtRow["UomQty"] = qty;
                         dtRow["UomPrice"] = Saleprice;

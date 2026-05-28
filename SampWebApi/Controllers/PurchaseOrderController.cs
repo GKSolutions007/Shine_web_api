@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.VariantTypes;
 using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -13,6 +14,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -260,6 +262,7 @@ namespace SampWebApi.Controllers
                                 NetAmt = DDT2.Rows[k]["NetAmt"].ToString(),
                                 UOM = DDT2.Rows[k]["UomCR"].ToString(),
                                 MRPonTax= dApponMRPCum.ToString(),
+                                MRP = DDT2.Rows[k]["MRP"].ToString(),
                             });
                         }
                         list.Add(new PurchaseModel
@@ -392,7 +395,33 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        [HttpPost]
+        [HttpGet]
+        [Route("api/purchaseorder/manufitems")]
+        public IHttpActionResult GetManufItems(string PartyID, string ManufID, string DaysAvg, string BaseorPurchase)
+        {
+            string[] strSaperates = { };
+            if (DaysAvg.Contains("/"))
+            {
+                strSaperates = DaysAvg.Split('/').Select(sValue => sValue.Trim()).ToArray();
+            }
+            else if (DaysAvg.Contains("-"))
+            {
+                strSaperates = DaysAvg.Split('-').Select(sValue => sValue.Trim()).ToArray();
+            }
+            string Days = "0", Avg = "1";
+            if (strSaperates.Length == 2)
+            {
+                Days = strSaperates[0];
+                Avg = strSaperates[1];
+            }
+            else
+            {
+                Days = DaysAvg;
+            }
+            DataTable DDT = bl.BL_ExecuteParamSP("uspLoadManufItemsinPO", PartyID, ManufID, Days, Avg, BaseorPurchase);
+            return Ok(DDT);
+        }
+            [HttpPost]
         [Route("api/purchaseorder/save")]
         public IHttpActionResult Save(PurchaseModel listTrans)
         {

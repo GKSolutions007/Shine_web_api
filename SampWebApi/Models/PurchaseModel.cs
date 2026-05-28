@@ -224,6 +224,7 @@ namespace SampWebApi.Models
         public string DiffAmt { get; set; }
         public string MRPonTax { get; set; }
         public string CumMRPonTax { get; set; }
+        public string MRP { get; set; }
     }
     public class PRBatch
     {
