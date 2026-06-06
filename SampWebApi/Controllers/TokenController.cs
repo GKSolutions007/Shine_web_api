@@ -23,21 +23,30 @@ namespace SampWebApi.Controllers
             {
                 return Unauthorized();
             }
+            var cookie = HttpContext.Current.Request.Cookies["AuthToken"];
+
+            var token = cookie.Value;
+            var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
+            if (AuthTokenValidate.AuthToken == null)// || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || AuthTokenValidate.IsRevoked
+            {
+                return BadRequest("Invalid Auth token.");
+            }
             var refreshToken = _refreshTokenRepo.GetRefreshToken(refreshTokenCookie.Value);
-            if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.UtcNow || refreshToken.IsRevoked)
+            if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.Now)// || refreshToken.IsRevoked
             {
                 return BadRequest("Invalid or expired refresh token.");
             }
-
+            _refreshTokenRepo.RevokeRefreshToken(2, token);
             // Validate and generate new access token
             var newAccessToken = TokenHelper.GenerateToken(refreshToken.UserId);
+            var newRefreshToken= TokenHelper.GenerateRefreshToken(refreshToken.UserId, newAccessToken);
 
             if (newAccessToken == null)
             {
                 return Unauthorized();
             }
 
-            return Ok(new { access_token = newAccessToken });
+            return Ok();//new { access_token = newAccessToken }
         }
     }
 }

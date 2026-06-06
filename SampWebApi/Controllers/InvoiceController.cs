@@ -27,6 +27,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -46,10 +47,11 @@ namespace SampWebApi.Controllers
             if (Mode == "1")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                //List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -62,7 +64,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 111, 0);
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -74,7 +76,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 112, CodeName);
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -88,10 +90,11 @@ namespace SampWebApi.Controllers
             if (Mode == "33")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, ID);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                //List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -106,10 +109,11 @@ namespace SampWebApi.Controllers
             if (Mode == "2")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, PriceID, null, null, Convert.ToDateTime(ID));
-                List<ProductModel> list = new List<ProductModel>();
+                //List<ProductModel> list = new List<ProductModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new ProductModel
+                    list.Add(new //ProductModel
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
                         Code = DDT.Rows[i]["Code"].ToString(),
@@ -757,10 +761,25 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetgetproductlistData(string TransID, string Branch, string PriceType, string Date)
         {
             DataTable DDT = bl.BL_ExecuteParamSP("uspTransProductAutocomplete", TransID, Branch, PriceType, Convert.ToDateTime(Date));
-            List<ProductModel> list = new List<ProductModel>();
+            //List<ProductModel> list = new List<ProductModel>();
+            //for (int i = 0; i < DDT.Rows.Count; i++)
+            //{
+            //    list.Add(new ProductModel
+            //    {
+            //        ID = DDT.Rows[i]["ID"].ToString(),
+            //        Code = DDT.Rows[i]["Code"].ToString(),
+            //        Name = DDT.Rows[i]["Name"].ToString(),
+            //        EAN = DDT.Rows[i]["EAN"].ToString(),
+            //        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+            //        PurchasePrice = DDT.Rows[i]["Price"].ToString(),
+            //        ABSQty = TransID != "17" ? DDT.Rows[i]["ABSQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
+            //        LocationID = DDT.Rows[i]["LocationName"].ToString(),
+            //    });
+            //}
+            var list = new List<object>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
-                list.Add(new ProductModel
+                list.Add(new
                 {
                     ID = DDT.Rows[i]["ID"].ToString(),
                     Code = DDT.Rows[i]["Code"].ToString(),
@@ -775,6 +794,35 @@ namespace SampWebApi.Controllers
             return Ok(list);
         }
         [HttpGet]
+        [Route("api/invoice/getcustomerlist")]
+        public IHttpActionResult GetgetcusotmerlistData()
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetInvoiceData", 0);
+            DataTable dtCustomer = DDT.Tables[0];
+            DataTable dtBeat = DDT.Tables[1];
+            var customers = dtCustomer.AsEnumerable()
+    .Select(c => new CustomerList
+    {
+        ID = Convert.ToInt32(c["ID"]),
+        Code = c["Code"].ToString(),
+        Name = c["Name"].ToString(),
+        Address = c["Address"].ToString(),
+
+        BeatDetails = dtBeat.AsEnumerable()
+            .Where(b => Convert.ToInt32(b["CustomerID"]) == Convert.ToInt32(c["ID"]))
+            .Select(b => new BeatDetail
+            {
+                BeatID = Convert.ToInt32(b["BeatID"]),
+                SalesmanID = Convert.ToInt32(b["SalesmanID"]),
+                Beat = b["Beat"].ToString(),
+                Salesman = b["Salesman"].ToString()
+            })
+            .ToList()
+    })
+    .ToList();
+            return Ok(customers);
+        }
+            [HttpGet]
         [Route("api/invoice/discountschemeinfo")]
         public IHttpActionResult getDiscountschemeinfo(string CustomerID, string Date)
         {

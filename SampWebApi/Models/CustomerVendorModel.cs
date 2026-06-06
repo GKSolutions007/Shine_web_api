@@ -271,5 +271,20 @@ namespace SampWebApi.Models
         public string SetAsDefault { get; set; }
         public string UserID { get; set; }
     }
+    public class CustomerList
+    {
+        public int ID { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public List<BeatDetail> BeatDetails { get; set; }
+    }
 
+    public class BeatDetail
+    {
+        public int BeatID { get; set; }
+        public int SalesmanID { get; set; }
+        public string Beat { get; set; }
+        public string Salesman { get; set; }
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using SampWebApi.BuisnessLayer;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,12 +11,19 @@ namespace SampWebApi.Utility
 {
     public class CookieAuthorizeAttribute : AuthorizeAttribute
     {
+        private readonly RefreshTokenRepo _refreshTokenRepo = new RefreshTokenRepo();
+
         protected override bool IsAuthorized(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
             var cookie = HttpContext.Current.Request.Cookies["AuthToken"];
             if (cookie != null)
             {
                 var token = cookie.Value;
+                var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
+                if (AuthTokenValidate == null || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || !AuthTokenValidate.IsRevoked)
+                {
+                    return false;
+                }
                 var Issuer = JwtSettings.Issuer;
                 var Audience = JwtSettings.Audience;
                 var key = JwtSettings.GetKey();

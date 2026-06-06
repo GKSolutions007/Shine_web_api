@@ -15,16 +15,12 @@ using SampWebApi.BuisnessLayer;
 using System.Configuration;
 using SampWebApi.Utility;
 using System.Web;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Newtonsoft.Json;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Cryptography;
 using System.IO;
-using DocumentFormat.OpenXml.Vml;
-using System.Web.Http.Results;
-using iTextSharp.text;
-using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Users = SampWebApi.Models.Users;
+using DocumentFormat.OpenXml.InkML;
 
 namespace SampWebApi.Controllers
 {
@@ -324,7 +320,8 @@ namespace SampWebApi.Controllers
                                     ResponseMessage = "Login Successful"
                                 });
                                 var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
-                                var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString());
+                                var refreshToken = TokenHelper.GenerateRefreshToken(DDT.Rows[0]["ID"].ToString(), authToken);
+                                
                             }
                             else
                             {
@@ -340,10 +337,124 @@ namespace SampWebApi.Controllers
                             DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
                             string ToEmail = dtCompData.Rows[0]["Email"].ToString();
                             string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                            string CompCode = dtCompData.Rows[0]["CompanyCode"].ToString();
                             string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
+                            string LoginUserName = DDT.Rows[0]["UserName"].ToString();
                             Random random = new Random();
                             int OTP = random.Next(100000, 999999);
-                            bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail, CCMail);
+                            #region Body Mail Content
+                            string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) &&
+    !string.IsNullOrWhiteSpace(Longitude))
+    ? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank"">
+                        Open Location </a>"
+    : "Location Not Found";
+
+                            //                        string MailBody = $@"
+                            //Dear <b>{LoginUserName}</b>,<br/><br/>
+
+                            //Your device verification OTP is <label style='color:#0070C0;margin:0;font-size:16px'>{OTP}</label><br/>
+
+                            //<b>Company Code:</b> {CompCode}<br/> <b>Company Name:</b> {CompName}<br/> <b>User Name:</b> {LoginUserName}<br/> <b>Location:</b> {locationHtml}<br/><br/>
+
+                            //Please do not share this OTP with anyone.<br/><br/>
+
+                            //Regards,<br/> <b>{CompName}</b>
+                            //";
+                            string MailBody = $@"
+
+<html>
+<body style='margin:0;padding:0;background-color:#f4f6f9;font-family:Segoe UI,Arial,sans-serif;'>
+
+<div style='max-width:600px;margin:10px auto;background:#ffffff;
+            border-radius:10px;overflow:hidden;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);'>
+
+    <div style='background:#0d6efd;padding:10px;text-align:center;color:#ffffff;'>
+        <h2 style='margin:0;'>Device Verification</h2>
+    </div>
+
+    <div style='padding:15px;'>
+
+        <p style='font-size:15px;color:#333;margin-top:0;'>
+            Dear <b>{LoginUserName}</b>,
+        </p>
+
+        <p style='font-size:14px;color:#555;line-height:1.6;'>
+            A device verification request has been initiated for your account.
+            Please use the OTP below to complete the verification process.
+        </p>
+
+        <div style='background:#f8f9fa;
+                    border:2px dashed #0d6efd;
+                    border-radius:8px;
+                    text-align:center;
+                    padding:20px;
+                    margin:15px 0;'>
+
+            <div style='font-size:12px;color:#6c757d;letter-spacing:1px;'>
+                ONE-TIME PASSWORD (OTP)
+            </div>
+
+            <div style='font-size:32px;
+                        font-weight:700;
+                        color:#0d6efd;
+                        letter-spacing:5px;
+                        margin-top:10px;'>
+                {OTP}
+            </div>
+        </div>
+
+        <table style='width:100%;border-collapse:collapse;font-size:14px;'>
+            <tr>
+                <td style='padding:8px 0;color:#666;width:35%;'><b>Company Code</b></td>
+                <td style='padding:8px 0;color:#333;'>{CompCode}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>Company Name</b></td>
+                <td style='padding:8px 0;color:#333;'>{CompName}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>User Name</b></td>
+                <td style='padding:8px 0;color:#333;'>{LoginUserName}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>Location</b></td>
+                <td style='padding:8px 0;color:#333;'>{locationHtml}</td>
+            </tr>
+        </table>
+
+        <div style='margin-top:10px;
+                    padding:12px;
+                    background:#fff3cd;
+                    border-left:4px solid #ffc107;
+                    color:#856404;
+                    font-size:13px;'>
+            Please do not share this OTP with anyone. If you did not request this verification,
+            contact your system administrator immediately.
+        </div>
+
+        <p style='margin-top:15px;color:#555;font-size:14px;'>
+            Regards,<br/>
+            <b>{CompName}</b>
+        </p>
+
+    </div>
+
+    <div style='background:#f8f9fa;
+                padding:15px;
+                text-align:center;
+                font-size:12px;
+                color:#888;'>
+        This is an automated email. Please do not reply.
+    </div>
+
+</div>
+</body>
+</html>";
+                            #endregion
+                            bool Issend = bl.SendEmail("Device Verification OTP", MailBody,
+                                //"Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", 
+                                ToEmail, CCMail);
                             if (Issend)
                             {
                                 int OTPID = 0;
@@ -378,10 +489,124 @@ namespace SampWebApi.Controllers
                         DataTable dtCompData = bl.BL_ExecuteParamSP("uspValidateDevice", 4);
                         string ToEmail = dtCompData.Rows[0]["Email"].ToString();
                         string CompName = dtCompData.Rows[0]["CompanyName"].ToString();
+                        string CompCode = dtCompData.Rows[0]["CompanyCode"].ToString();
                         string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
+                        string LoginUserName = DDT.Rows[0]["UserName"].ToString();
                         Random random = new Random();
                         int OTP = random.Next(100000, 999999);
-                        bool Issend = bl.SendEmail("Device Verification OTP", "Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", ToEmail, CCMail);
+                        #region Body Mail Content
+                        string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) &&
+!string.IsNullOrWhiteSpace(Longitude))
+? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank"">
+                        Open Location </a>"
+: "Location Not Found";
+
+                        //                        string MailBody = $@"
+                        //Dear <b>{LoginUserName}</b>,<br/><br/>
+
+                        //Your device verification OTP is <label style='color:#0070C0;margin:0;font-size:16px'>{OTP}</label><br/>
+
+                        //<b>Company Code:</b> {CompCode}<br/> <b>Company Name:</b> {CompName}<br/> <b>User Name:</b> {LoginUserName}<br/> <b>Location:</b> {locationHtml}<br/><br/>
+
+                        //Please do not share this OTP with anyone.<br/><br/>
+
+                        //Regards,<br/> <b>{CompName}</b>
+                        //";
+                        string MailBody = $@"
+
+<html>
+<body style='margin:0;padding:0;background-color:#f4f6f9;font-family:Segoe UI,Arial,sans-serif;'>
+
+<div style='max-width:600px;margin:10px auto;background:#ffffff;
+            border-radius:10px;overflow:hidden;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);'>
+
+    <div style='background:#0d6efd;padding:10px;text-align:center;color:#ffffff;'>
+        <h2 style='margin:0;'>Device Verification</h2>
+    </div>
+
+    <div style='padding:15px;'>
+
+        <p style='font-size:15px;color:#333;margin-top:0;'>
+            Dear <b>{LoginUserName}</b>,
+        </p>
+
+        <p style='font-size:14px;color:#555;line-height:1.6;'>
+            A device verification request has been initiated for your account.
+            Please use the OTP below to complete the verification process.
+        </p>
+
+        <div style='background:#f8f9fa;
+                    border:2px dashed #0d6efd;
+                    border-radius:8px;
+                    text-align:center;
+                    padding:20px;
+                    margin:15px 0;'>
+
+            <div style='font-size:12px;color:#6c757d;letter-spacing:1px;'>
+                ONE-TIME PASSWORD (OTP)
+            </div>
+
+            <div style='font-size:32px;
+                        font-weight:700;
+                        color:#0d6efd;
+                        letter-spacing:5px;
+                        margin-top:10px;'>
+                {OTP}
+            </div>
+        </div>
+
+        <table style='width:100%;border-collapse:collapse;font-size:14px;'>
+            <tr>
+                <td style='padding:8px 0;color:#666;width:35%;'><b>Company Code</b></td>
+                <td style='padding:8px 0;color:#333;'>{CompCode}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>Company Name</b></td>
+                <td style='padding:8px 0;color:#333;'>{CompName}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>User Name</b></td>
+                <td style='padding:8px 0;color:#333;'>{LoginUserName}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#666;'><b>Location</b></td>
+                <td style='padding:8px 0;color:#333;'>{locationHtml}</td>
+            </tr>
+        </table>
+
+        <div style='margin-top:10px;
+                    padding:12px;
+                    background:#fff3cd;
+                    border-left:4px solid #ffc107;
+                    color:#856404;
+                    font-size:13px;'>
+            Please do not share this OTP with anyone. If you did not request this verification,
+            contact your system administrator immediately.
+        </div>
+
+        <p style='margin-top:15px;color:#555;font-size:14px;'>
+            Regards,<br/>
+            <b>{CompName}</b>
+        </p>
+
+    </div>
+
+    <div style='background:#f8f9fa;
+                padding:15px;
+                text-align:center;
+                font-size:12px;
+                color:#888;'>
+        This is an automated email. Please do not reply.
+    </div>
+
+</div>
+</body>
+</html>";
+                        #endregion
+                        bool Issend = bl.SendEmail("Device Verification OTP", MailBody,
+                            //"Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", 
+                            ToEmail, CCMail);
                         if (Issend)
                         {
                             int OTPID = 0;
@@ -428,7 +653,8 @@ namespace SampWebApi.Controllers
                             "Browser", Latitude, Longitude, Pincode);
                 //Token assign
                 var authToken = TokenHelper.GenerateToken(UserID);
-                var refreshToken = TokenHelper.GenerateRefreshToken(UserID);
+                var tkn = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
+                var refreshToken = TokenHelper.GenerateRefreshToken(UserID, authToken);
                 DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
                 int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
                 DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);

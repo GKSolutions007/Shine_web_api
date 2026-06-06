@@ -13,5 +13,9 @@ namespace SampWebApi.Models
         public DateTime ExpiresAt { get; set; }
         public bool IsRevoked { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public string Session_id { get; set; }
+        public string AuthToken { get; set; }
+        public DateTime AuthTokenExpiresAt { get; set; }
     }
 }
