@@ -5,9 +5,11 @@ using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Web.Http;
 using System.Windows.Forms;
 
@@ -93,6 +95,95 @@ namespace SampWebApi.Controllers
         {
             DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
             return Ok(dtMTdetail);
+        }
+        [HttpGet]
+        [Route("api/logfiles")]
+        public IHttpActionResult logfiles()
+        {
+            try
+            {
+                string strFol = AppDomain.CurrentDomain.BaseDirectory + "\\Log File Errors\\";
+                var files = new DirectoryInfo(strFol)
+                                   .GetFiles()
+                                   .OrderByDescending(f => f.CreationTime);
+                var fileList = new List<object>();
+                foreach (FileInfo fi in files)
+                {
+                    string fullPath = fi.FullName;          // Full path
+                    string fileName = fi.Name;              // File name with extension
+                    string extension = fi.Extension;        // Extension (.txt, .xls etc.)
+                    string CreateTime = fi.CreationTime.ToString("dd/MMM/yyyy hh:mm:ss tt");
+                    long sizeInBytes = fi.Length;
+
+                    string fileSize;
+                    if (sizeInBytes < 1024 * 1024) // less than 1 MB
+                        fileSize = $"{(sizeInBytes / 1024.0):N2} KB";
+                    else
+                        fileSize = $"{(sizeInBytes / 1024.0 / 1024.0):N2} MB";
+
+                    fileList.Add(new
+                    {
+                        //fullPath = fullPath,
+                        fileName = fileName,
+                        extension = extension,
+                        fileSize = fileSize,
+                        CreateTime = CreateTime
+                    });
+                }
+                return Ok(fileList);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Common", "logfiles", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/logfiledata")]
+        public IHttpActionResult logfiledata(string FileName)
+        {
+            try
+            {
+                string strFol = AppDomain.CurrentDomain.BaseDirectory + "\\Log File Errors\\"+ FileName;
+                FileInfo logFileInfo = new FileInfo(strFol);
+                string JsonData = ""; var filedata = new List<object>();
+                if (logFileInfo.Exists)
+                {
+                    string objReader = File.ReadAllText(strFol);
+                    if (!string.IsNullOrEmpty(objReader))
+                    {
+                        JsonData += "[" + objReader.Remove(objReader.Length - 3,1) + "]";
+                        filedata.Add(new
+                        {
+                            ResponseID = 1,
+                            ResponseMessage = "File Data fetched",
+                            FileData = JsonData
+                        });
+                    }
+                    else
+                    {
+                        filedata.Add(new
+                        {
+                            ResponseID = 2,
+                            ResponseMessage = "No Data Found",
+                        });
+                    }
+                }
+                else//file not exists
+                {
+                    filedata.Add(new
+                    {
+                        ResponseID = 3,
+                        ResponseMessage = "File Not Found",
+                    });
+                }
+                return Ok(filedata);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Common", "logfiledata", ex.Message);
+            }
+            return Ok();
         }
     }
 }

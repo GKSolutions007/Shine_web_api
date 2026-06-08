@@ -291,7 +291,7 @@ namespace SampWebApi.Models
         
         public string DecimalValues { get; set; }
         public string Showallstatus { get; set; }
-        public string DefaultBranch { get; set; }
+        public string ItemOrderby { get; set; }
         public string EnableReturnPrice { get; set; }
         public string VisaPern { get; set; }
         public string DefaultCustID { get; set; }

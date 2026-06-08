@@ -37,7 +37,6 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetData(string Mode, string Trans)
         {
             DataTable DDT = new DataTable();
-            bl.BL_WriteErrorMsginLog("AllMaster", "homescreendraft/get", Trans);
             if (Mode == "1")
             {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
@@ -1579,7 +1578,7 @@ namespace SampWebApi.Controllers
                         Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
                         DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
                         Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
-                        DefaultBranch = DDT.Rows[i]["DefaultBranch"].ToString(),
+                        ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
                         EnableReturnPrice = DDT.Rows[i]["EnableReturnPrice"].ToString(),
                         VisaPern = DDT.Rows[i]["VisaPern"].ToString(),
                         DefaultCustID = DDT.Rows[i]["DefaultCustID"].ToString(),
@@ -1643,7 +1642,7 @@ namespace SampWebApi.Controllers
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
                             lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
-                            lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                            lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
