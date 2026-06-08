@@ -835,6 +835,7 @@ namespace SampWebApi.Controllers
             string Mode = FType == "1" ? "6" : FType == "2" ? "10" : FType == "3" ? "16" : "20";
             DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
             List<PurchaseModel> list = new List<PurchaseModel>();
+
             //SalesModel
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
