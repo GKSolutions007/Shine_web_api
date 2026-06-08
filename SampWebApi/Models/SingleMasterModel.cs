@@ -386,7 +386,8 @@ namespace SampWebApi.Models
         public string GSTIN { get; set; }
         public string Dl_20 { get; set; }
         public string Dl_21 { get; set; }
-        
+        public string F_SD { get; set; }
+        public string F_ED { get; set; }
         public List<PaymodeAppconfig> lstState { get; set; }
     }
     public class DiscountScheme

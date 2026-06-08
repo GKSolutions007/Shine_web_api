@@ -1875,6 +1875,8 @@ namespace SampWebApi.Controllers
                         GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
                         Dl_20 = DDT.Rows[i]["Dl_20"].ToString(),
                         Dl_21 = DDT.Rows[i]["Dl_21"].ToString(),
+                        F_SD = Convert.ToDateTime(DDT.Rows[i]["F_SD"].ToString()).ToString("yyyy-MM-dd"),
+                        F_ED = Convert.ToDateTime(DDT.Rows[i]["F_ED"].ToString()).ToString("yyyy-MM-dd"),
                         lstState = lststa
                     });
                 }
@@ -1889,7 +1891,7 @@ namespace SampWebApi.Controllers
             bl.BL_ExecuteParamSP("uspManageUpdateCompanyDetail", 3, lstMaster.CompanyId, lstMaster.CompanyCode, lstMaster.CompanyName, lstMaster.StateID,
                  lstMaster.Address, lstMaster.Country, lstMaster.State, lstMaster.City, lstMaster.Pincode, lstMaster.Contact_Person, lstMaster.MobileNo,
                  lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20, 
-                 lstMaster.Dl_21, lstMaster.CCEmail);
+                 lstMaster.Dl_21, lstMaster.CCEmail, lstMaster.F_SD, lstMaster.F_ED);
             List<SaveMessage> list = new List<SaveMessage>();
             list.Add(new SaveMessage
             {
