@@ -23,6 +23,7 @@ namespace SampWebApi.BuisnessLayer
             var Audience = JwtSettings.Audience;
             var key = JwtSettings.GetKey();
             var AuthTokenExpiresInMins = double.Parse(JwtSettings.AuthTokenExpiresInMins);
+            var RefreshTokenExpiresInDays = double.Parse(JwtSettings.RefreshTokenExpiresInDays);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -42,13 +43,13 @@ namespace SampWebApi.BuisnessLayer
                 Audience = Audience
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            var authToken = tokenHandler.WriteToken(token);
+            var authToken = tokenHandler.WriteToken(token);            
 
             HttpCookie authCookie = new HttpCookie("AuthToken", authToken)
             {
                 HttpOnly = true,
                 Secure = true,
-                Expires = DateTime.UtcNow.AddMinutes(AuthTokenExpiresInMins),
+                Expires = DateTime.Now.AddDays(RefreshTokenExpiresInDays),//DateTime.UtcNow.AddMinutes(AuthTokenExpiresInMins),
                 SameSite = SameSiteMode.Strict,
                 Path = "/"
             };
@@ -56,15 +57,19 @@ namespace SampWebApi.BuisnessLayer
 
             return authToken;
         }
-        public static string GenerateRefreshToken(string UserId)
+        public static string GenerateRefreshToken(string UserId,string AuthToken)
         {
             var RefreshTokenExpiresInDays = double.Parse(JwtSettings.RefreshTokenExpiresInDays);
+            var AuthTokenExpiresInMins = double.Parse(JwtSettings.AuthTokenExpiresInMins);
+            var AuthTokenCookie = AuthToken;// HttpContext.Current.Request.Cookies["AuthToken"];
+            var Sessionidcookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
             var refreshToken = "";
             using (var rng = new RNGCryptoServiceProvider())
             {
                 byte[] randomBytes = new byte[64];
                 rng.GetBytes(randomBytes);
                 refreshToken = Convert.ToBase64String(randomBytes);
+                
             }
 
             var refreshTokenRepo = new RefreshTokenRepo();
@@ -72,7 +77,10 @@ namespace SampWebApi.BuisnessLayer
             {
                 UserId = UserId,
                 Token = refreshToken,
-                ExpiresAt = DateTime.Now.AddDays(RefreshTokenExpiresInDays)
+                ExpiresAt = DateTime.Now.AddDays(RefreshTokenExpiresInDays),
+                Session_id = Sessionidcookie.Value,
+                AuthToken = AuthTokenCookie,
+                AuthTokenExpiresAt = DateTime.Now.AddMinutes(AuthTokenExpiresInMins),
             });
 
             HttpCookie refreshCookie = new HttpCookie("RefreshToken", refreshToken)
@@ -110,6 +118,9 @@ namespace SampWebApi.BuisnessLayer
                 sqlCommand.Parameters.AddWithValue("@Token", refreshToken.Token);
                 sqlCommand.Parameters.AddWithValue("@ExpiresAt", refreshToken.ExpiresAt);
                 sqlCommand.Parameters.AddWithValue("@IsRevoked", refreshToken.IsRevoked);
+                sqlCommand.Parameters.AddWithValue("@SessionID", refreshToken.Session_id);
+                sqlCommand.Parameters.AddWithValue("@AuthToken", refreshToken.AuthToken);
+                sqlCommand.Parameters.AddWithValue("@AuthTokenExpiresAt", refreshToken.AuthTokenExpiresAt);
                 DataTable DDT = new DataTable();
                 SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
                 SDA.Fill(DDT);
@@ -130,8 +141,9 @@ namespace SampWebApi.BuisnessLayer
                 conn.Open();
                 SqlCommand sqlCommand = new SqlCommand("uspGetRefreshToken", conn);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@TokenType", 1);
                 sqlCommand.Parameters.AddWithValue("@Token", token);
-                SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
+                SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);    
                 SDA.Fill(DDT);
                 conn.Close();
             }
@@ -151,8 +163,40 @@ namespace SampWebApi.BuisnessLayer
 
             return refreshToken;
         }
+        public RefreshToken GetAuthToken(string token)
+        {
+            DataTable DDT = new DataTable();
+            var refreshToken = new RefreshToken();
+            using (var conn = new SqlConnection(connectionString))
+            {
 
-        public void RevokeRefreshToken(string token)
+                //SqlConnection sqlConnection = new SqlConnection(connectionString);
+                conn.Open();
+                SqlCommand sqlCommand = new SqlCommand("uspGetRefreshToken", conn);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@TokenType", 2);
+                sqlCommand.Parameters.AddWithValue("@Token", token);
+                SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
+                SDA.Fill(DDT);
+                conn.Close();
+            }
+
+            if (DDT.Rows.Count > 0)
+            {
+                refreshToken = new RefreshToken
+                {
+                    Id = (Guid)(DDT.Rows[0]["Id"]),
+                    AuthToken = DDT.Rows[0]["AuthToken"].ToString(),
+                    UserId = DDT.Rows[0]["UserId"].ToString(),
+                    AuthTokenExpiresAt = Convert.ToDateTime(DDT.Rows[0]["AuthTokenExpireAt"]),
+                    CreatedAt = Convert.ToDateTime(DDT.Rows[0]["CreatedAt"]),
+                    IsRevoked = Convert.ToBoolean(DDT.Rows[0]["IsRevoked"])
+                };
+            }
+
+            return refreshToken;
+        }
+        public void RevokeRefreshToken(int TokenType,string token)
         {
             DataTable DDT = new DataTable();
             using (var conn = new SqlConnection(connectionString))
@@ -162,6 +206,8 @@ namespace SampWebApi.BuisnessLayer
                 conn.Open();
                 SqlCommand sqlCommand = new SqlCommand("uspUpdateRefreshToken", conn);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@TokenType", TokenType);
+                sqlCommand.Parameters.AddWithValue("@Token", token);
                 SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
                 SDA.Fill(DDT);
                 conn.Close();

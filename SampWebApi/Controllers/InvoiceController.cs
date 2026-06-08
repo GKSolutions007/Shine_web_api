@@ -27,6 +27,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -39,16 +40,18 @@ namespace SampWebApi.Controllers
             dtMop = new DataTable();
         [HttpGet]
         [Route("api/invoice/get")]
-        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null, string BranchID = "0", string Date = "", string PriceID = "2")
+        public IHttpActionResult GetData(string Mode, string CodeName, string ID = null, string BranchID = "0", string Date = "",
+            string PriceID = "2", string SchemeApply = "0")
         {
             DataTable DDT = new DataTable();
             if (Mode == "1")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                //List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -61,7 +64,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 111, 0);
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -73,7 +76,7 @@ namespace SampWebApi.Controllers
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 112, CodeName);
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -87,10 +90,11 @@ namespace SampWebApi.Controllers
             if (Mode == "33")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, ID);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                //List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CustomerVendorModel
+                    list.Add(new //CustomerVendorModel
                     {
                         FType = DDT.Rows[i][0].ToString(),
                         Form = DDT.Rows[i][1].ToString(),
@@ -105,10 +109,11 @@ namespace SampWebApi.Controllers
             if (Mode == "2")
             {
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, PriceID, null, null, Convert.ToDateTime(ID));
-                List<ProductModel> list = new List<ProductModel>();
+                //List<ProductModel> list = new List<ProductModel>();
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new ProductModel
+                    list.Add(new //ProductModel
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
                         Code = DDT.Rows[i]["Code"].ToString(),
@@ -156,6 +161,9 @@ namespace SampWebApi.Controllers
                         strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
                         ACDay = dtPartyOs.Rows[0]["ACC"].ToString();
                     }
+                    DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, DDT.Rows[i]["ID"].ToString(), 0);
+                    string strCustomerScheme = dtDiscScheme.Rows.Count > 0 ? "1" : "0";
+
                     list.Add(new CustomerVendorModel
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
@@ -195,7 +203,8 @@ namespace SampWebApi.Controllers
                         ACDate = ACDay,
                         BeatID = strBeatID,
                         SalesmanID = strSalesmanID,
-                        lstCustRemark = listRemark
+                        lstCustRemark = listRemark,
+                        CustomerScheme = strCustomerScheme
                     });
                 }
                 return Ok(list);
@@ -237,8 +246,9 @@ namespace SampWebApi.Controllers
                     #region Discount Schemme
                     decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
                     decimal ApplyPrice = dtBatch.Rows.Count > 0 ? bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString()) * dConvFact : 0;
-
-                    DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
+                    DataTable dtDiscScheme = new DataTable();
+                    if (SchemeApply == "1")//Go when scheme applied for selected Customer
+                        dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
                     decimal OrgDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
                     decimal OrgTradeDiscPern = 0;
                     decimal OldDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
@@ -346,11 +356,13 @@ namespace SampWebApi.Controllers
 
             if (Mode == "7" || Mode == "11" || Mode == "17" || Mode == "21")
             {
+                //bl.BL_WriteErrorMsginLog("Invoice", "Item Load Start", DateTime.Now.ToLongTimeString());
                 DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, null, CodeName);
                 List<SalesModel> list = new List<SalesModel>();
                 if (DDT.Rows.Count > 0)
                 {
-                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    int i = 0;
+                    //for (int i = 0; i < DDT.Rows.Count; i++)
                     {
                         DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, DDT.Rows[i][8].ToString());
                         List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
@@ -374,6 +386,9 @@ namespace SampWebApi.Controllers
                             strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
                             ACDay = dtPartyOs.Rows[0]["ACC"].ToString();
                         }
+                        DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), 
+                            DDT1.Rows[0]["ID"].ToString(), 0);
+                        string strCustomerScheme = dtDiscScheme.Rows.Count > 0 ? "1" : "0";
                         for (int j = 0; j < DDT1.Rows.Count; j++)
                         {
                             listParty.Add(new CustomerVendorModel
@@ -412,7 +427,8 @@ namespace SampWebApi.Controllers
                                 CloseBal = strOSVal,
                                 OSType = strOSType,
                                 ACDate = ACDay,
-                                lstCustRemark = listRemark
+                                lstCustRemark = listRemark,
+                                CustomerScheme= strCustomerScheme
                             });
                         }
 
@@ -433,23 +449,85 @@ namespace SampWebApi.Controllers
                                 });
                             }
                             List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                            DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                                Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                            for (int j = 0; j < dtBatch.Rows.Count; j++)
+                            //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                            //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
+                            //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                            //{
+                            //    ulistBatch.Add(new InvoiceBatchPopup
+                            //    {
+                            //        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                            //        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                            //        ProdID = DDT.Rows[i]["ID"].ToString(),
+                            //        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                            //        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                            //        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                            //        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                            //        MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                            //        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                            //    });
+                            //}
+                            bool OrderSchemeApply = true;
+                            #region Discount Schemme
+                            decimal OrgDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
+                            decimal OrgTradeDiscPern = bl.BL_dValidation(DDT2.Rows[k]["TradePern"].ToString());
+                            decimal OldDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
+                            decimal DSProdDiscPern = 0, DSProdDiscAmt = 0, DSTradeDiscPern = 0, DSTradeDiscAmt = 0;
+                            if (TMode == 22 && OrderSchemeApply)//only for ordertaken
                             {
-                                ulistBatch.Add(new InvoiceBatchPopup
+                                OrgTradeDiscPern = 0;
+                                decimal dConvFact = 1;
+                                decimal ApplyPrice = DDT2.Rows.Count > 0 ? bl.BL_dValidation(DDT2.Rows[k]["ExclPrice"].ToString()) * dConvFact : 0;
+                                dtDiscScheme = new DataTable();
+                                if (strCustomerScheme == "1")//Go when scheme applied for selected Customer
+                                    dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
+                                        DDT1.Rows[0]["ID"].ToString(), DDT2.Rows[k]["ProdID"].ToString());
+
+
+                                if (dtDiscScheme.Rows.Count > 0)
                                 {
-                                    QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                    QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                    ProdID = DDT.Rows[i]["ID"].ToString(),
-                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                    PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                    ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                    ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                    SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                                });
+                                    DSProdDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][2]);
+                                    DSProdDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][3]) * dConvFact;
+                                    DSTradeDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][4]);
+                                    DSTradeDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][5]) * dConvFact;
+                                    int ReplaceExists = bl.BL_nValidation(dtDiscScheme.Rows[0][1]);
+
+                                    decimal PDiscAmt = 0, dTradPernfromAmt = 0, dProdPernfromAmt = 0;
+                                    if (ReplaceExists == 1)//Replay exists
+                                    {
+                                        PDiscAmt = (ApplyPrice * DSProdDiscPern) / 100;
+                                    }
+                                    else
+                                    {
+                                        PDiscAmt = (ApplyPrice * (DSProdDiscPern + OldDiscPern)) / 100;
+                                    }
+                                    if (DSTradeDiscAmt > 0)
+                                    {
+                                        if (ApplyPrice > 0)
+                                            dTradPernfromAmt = bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
+                                        else
+                                            dTradPernfromAmt = 0;
+                                    }
+                                    if (DSProdDiscAmt > 0)
+                                    {
+                                        if (ApplyPrice > 0)
+                                            dProdPernfromAmt = bl.BL_dValidation((DSProdDiscAmt / ApplyPrice) * 100);
+                                        else
+                                            dProdPernfromAmt = 0;
+                                    }
+                                    if (ReplaceExists == 1)//Replay exists
+                                    {
+                                        OrgDiscPern = DSProdDiscPern;
+                                        OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                                    }
+                                    else
+                                    {
+                                        OrgDiscPern = dProdPernfromAmt + DSProdDiscPern + OldDiscPern;
+                                        OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                                    }
+                                }
                             }
+                            #endregion
+
                             listProductGrid.Add(new SalesDetail
                             {
                                 ProdID = DDT2.Rows[k]["ProdID"].ToString(),
@@ -461,9 +539,9 @@ namespace SampWebApi.Controllers
                                 MRP = DDT2.Rows[k]["DetailMRP"].ToString(),
                                 UomSalePrice = DDT2.Rows[k]["ExclPrice"].ToString(),
                                 UomSalePriceIncl = DDT2.Rows[k]["InclPrice"].ToString(),
-                                ProdDiscPern = DDT2.Rows[k]["ProdPern"].ToString(),
-                                ProdDiscAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
-                                TradeDiscPern = DDT2.Rows[k]["TradePern"].ToString(),
+                                ProdDiscPern = OrgDiscPern.ToString(),// DDT2.Rows[k]["ProdPern"].ToString(),
+                                ProdDiscAmt =  DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                TradeDiscPern = OrgTradeDiscPern.ToString(),//DDT2.Rows[k]["TradePern"].ToString(),
                                 TradeDiscAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
                                 AddnlDiscPern = DDT2.Rows[k]["AddnlPern"].ToString(),
                                 AddnlDiscAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
@@ -532,6 +610,12 @@ namespace SampWebApi.Controllers
                             WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
                             VehicleNo = DDT.Rows[i]["VehicleNo"].ToString(),
                             Distance = DDT.Rows[i]["Distance"].ToString(),
+                            IRN = DDT.Rows[i]["IRN"].ToString(),
+                            AckNo = DDT.Rows[i]["AckNo"].ToString(),
+                            AckDate = DDT.Rows[i]["AckDate"].ToString(),
+                            AckStatus = DDT.Rows[i]["AckStatus"].ToString(),
+                            EWBNo = DDT.Rows[i]["EWBNo"].ToString(),
+                            SignedQRCode = DDT.Rows[i]["SignedQRCode"].ToString(),
                             TransportType = DDT.Rows[i]["VehicleType"].ToString(),
                             TransportMode = DDT.Rows[i]["TransMode"].ToString(),
                             TransactionID = DDT.Rows[i]["TransportID"].ToString(),
@@ -544,6 +628,7 @@ namespace SampWebApi.Controllers
                         });
                     }
                 }
+                //bl.BL_WriteErrorMsginLog("Invoice", "Item Load End", DateTime.Now.ToLongTimeString());
                 return Ok(list);
             }
             if (Mode == "14")
@@ -628,19 +713,19 @@ namespace SampWebApi.Controllers
                     DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
                     if (dtBatch.Rows.Count > 0)
                     {
-                        //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        for (int j = 0; j < dtBatch.Rows.Count; j++)
                         {
                             ulistBatch.Add(new InvoiceBatchPopup
                             {
-                                QtyType = dtBatch.Rows[0]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[0]["Tag"].ToString(),
+                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
                                 ProdID = CodeName,
-                                BatchNo = dtBatch.Rows[0]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[0]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[0]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[0]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[0]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[0]["Price"].ToString(),
+                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                 TrackBatch = BATCH,
                                 TrackPKD = PKD,
                                 TrackInventory = TrkInv
@@ -676,10 +761,25 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetgetproductlistData(string TransID, string Branch, string PriceType, string Date)
         {
             DataTable DDT = bl.BL_ExecuteParamSP("uspTransProductAutocomplete", TransID, Branch, PriceType, Convert.ToDateTime(Date));
-            List<ProductModel> list = new List<ProductModel>();
+            //List<ProductModel> list = new List<ProductModel>();
+            //for (int i = 0; i < DDT.Rows.Count; i++)
+            //{
+            //    list.Add(new ProductModel
+            //    {
+            //        ID = DDT.Rows[i]["ID"].ToString(),
+            //        Code = DDT.Rows[i]["Code"].ToString(),
+            //        Name = DDT.Rows[i]["Name"].ToString(),
+            //        EAN = DDT.Rows[i]["EAN"].ToString(),
+            //        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+            //        PurchasePrice = DDT.Rows[i]["Price"].ToString(),
+            //        ABSQty = TransID != "17" ? DDT.Rows[i]["ABSQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
+            //        LocationID = DDT.Rows[i]["LocationName"].ToString(),
+            //    });
+            //}
+            var list = new List<object>();
             for (int i = 0; i < DDT.Rows.Count; i++)
             {
-                list.Add(new ProductModel
+                list.Add(new
                 {
                     ID = DDT.Rows[i]["ID"].ToString(),
                     Code = DDT.Rows[i]["Code"].ToString(),
@@ -692,6 +792,41 @@ namespace SampWebApi.Controllers
                 });
             }
             return Ok(list);
+        }
+        [HttpGet]
+        [Route("api/invoice/getcustomerlist")]
+        public IHttpActionResult GetgetcusotmerlistData()
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetInvoiceData", 0);
+            DataTable dtCustomer = DDT.Tables[0];
+            DataTable dtBeat = DDT.Tables[1];
+            var customers = dtCustomer.AsEnumerable()
+    .Select(c => new CustomerList
+    {
+        ID = Convert.ToInt32(c["ID"]),
+        Code = c["Code"].ToString(),
+        Name = c["Name"].ToString(),
+        Address = c["Address"].ToString(),
+
+        BeatDetails = dtBeat.AsEnumerable()
+            .Where(b => Convert.ToInt32(b["CustomerID"]) == Convert.ToInt32(c["ID"]))
+            .Select(b => new BeatDetail
+            {
+                BeatID = Convert.ToInt32(b["BeatID"]),
+                SalesmanID = Convert.ToInt32(b["SalesmanID"]),
+                Beat = b["Beat"].ToString(),
+                Salesman = b["Salesman"].ToString()
+            })
+            .ToList()
+    })
+    .ToList();
+            return Ok(customers);
+        }
+            [HttpGet]
+        [Route("api/invoice/discountschemeinfo")]
+        public IHttpActionResult getDiscountschemeinfo(string CustomerID, string Date)
+        {
+            return Ok(bl.BL_ExecuteParamSP("uspDiscountSchemeInfo", Date, CustomerID));
         }
         [HttpGet]
         [Route("api/invoice/getfilterdata")]
@@ -736,7 +871,7 @@ namespace SampWebApi.Controllers
                     TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
                     Salesman = DDT.Rows[i]["Salesman"].ToString(),
                     BeatName = DDT.Rows[i]["BeatName"].ToString(),
-
+                    DeliveryCount = DDT.Rows[i]["DeliveryCount"].ToString(),
                 });
             }
             //return Ok(list);            
@@ -774,7 +909,7 @@ namespace SampWebApi.Controllers
                                TCSTaxAmt = users.TCSTaxAmt,
                                Salesman = users.Salesman,
                                BeatName = users.BeatName,
-
+                               DeliveryCount = users.DeliveryCount,
                            };
             return Ok(data);
         }
@@ -1627,7 +1762,8 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/transactionprint/generateprint")]
-        public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",string Copies="1")
+        public IHttpActionResult TransprintPDFGenerate(int TransID = 0, int ConfigID = 0, string DocValue = "",
+            string Copies="1",string Branch = "0", string FromDate = null, string ToDate = null)
         {
             DataView dtView = new DataView(bl.BL_StringSplitCommaHyphen(DocValue.Trim()));
             DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
@@ -1646,7 +1782,8 @@ namespace SampWebApi.Controllers
                     {
                         int Ident = 0;
                         nTransrange = bl.BL_nValidation(dtDocIDs.Rows[nCount][0]);
-                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange);
+                        DataTable dtID = bl.BL_ExecuteParamSP("uspGetTransIdentforPrint", TransID, nTransrange,
+                            Branch, FromDate,ToDate);
                         if (dtID.Rows.Count > 0)
                         {
                             Ident = bl.BL_nValidation(dtID.Rows[0][0]);

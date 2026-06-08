@@ -860,14 +860,14 @@ namespace SampWebApi.Controllers
                                             int TaxID = bl.BL_nValidation(iRow["TaxID"].ToString());
                                             int TaxTypeID = bl.BL_nValidation(listTrans.TaxTypeID);
                                             decimal dMRP = bl.BL_dValidation(iRow["MRP"].ToString());
-                                            DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+                                            DataTable dtMTdetail = bl.bl_ManageTrans("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
                                             decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
                                           .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
                                           .DefaultIfEmpty(0)
                                           .Sum();
                                             if (dApponMRPCum > 0)
                                             {
-                                                MRPonTaxAMt = bl.ReturnGrossorMRPTaxAmt(0, TaxID, TaxTypeID, 0, dMRP) * dQty;
+                                                MRPonTaxAMt = bl.ReturnGrossorMRPTaxAmt(0, TaxID, TaxTypeID, 0, dMRP,true) * dQty;
                                             }
                                             decimal dGrs = dQty * bl.BL_dValidation(iRow["ReturnPrice"].ToString());
                                             decimal dTax = dApponMRPCum > 0 ? MRPonTaxAMt : (dGrs * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;

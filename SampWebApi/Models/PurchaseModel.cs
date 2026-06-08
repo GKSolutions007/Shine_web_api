@@ -86,6 +86,8 @@ namespace SampWebApi.Models
         public string DiffValueNet { get; set; }
         public string Salesman { get; set; }
         public string BeatName { get; set; }
+        public string UpdateVendor { get; set; }
+        public string DeliveryCount { get; set; }
         public List<PurchaseBatchInfo> lstBatchInfo { get; set; }
         public List<PurchaseDetail> lstProdInfo { get; set; }
         public List<CustomerVendorModel> lstPartyInfo { get; set; }
@@ -222,6 +224,7 @@ namespace SampWebApi.Models
         public string DiffAmt { get; set; }
         public string MRPonTax { get; set; }
         public string CumMRPonTax { get; set; }
+        public string MRP { get; set; }
     }
     public class PRBatch
     {

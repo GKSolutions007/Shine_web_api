@@ -24,6 +24,7 @@ using System.Windows.Interop;
 using System.Diagnostics;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Math.EC;
 namespace SampWebApi.Controllers
 {
     [CookieAuthorize]
@@ -1484,6 +1485,7 @@ namespace SampWebApi.Controllers
                         AutocompleteBG = DDT.Rows[i]["AutocompleteBG"].ToString(),
                         AutocompleteLine1 = DDT.Rows[i]["AutocompleteLine1"].ToString(),
                         AutocompleteLine2 = DDT.Rows[i]["AutocompleteLine2"].ToString(),
+                        ButtonTextColor = DDT.Rows[i]["ButtonTextColor"].ToString(),
                     });
                 }
                 return Ok(list);
@@ -1501,7 +1503,7 @@ namespace SampWebApi.Controllers
                             lstMaster.CloseButton, lstMaster.PDFButton, lstMaster.PreviewButton, lstMaster.PopupHeader, lstMaster.PopupFooter,
                             lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                             lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
-                            lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2);
+                            lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2,lstMaster.ButtonTextColor);
                 List<SaveMessage> list = new List<SaveMessage>();
                 if (DDT.Columns.Count == 1)
                 {
@@ -1603,6 +1605,11 @@ namespace SampWebApi.Controllers
                         DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
                         HomePeriod = DDT.Rows[i]["HomePeriod"].ToString(),
                         AutoRefresh = DDT.Rows[i]["AutoRefresh"].ToString(),
+                        CTPAmount = DDT.Rows[i]["CTPAmount"].ToString(),
+                        CTPPoint = DDT.Rows[i]["CTPPoint"].ToString(),
+                        CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
+                        UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
+                        Radius = DDT.Rows[i]["Radius"].ToString(),
                         lstPaymode = pmlist,
                         lstConfigPasswords = lstpwd
                     });
@@ -1635,12 +1642,13 @@ namespace SampWebApi.Controllers
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
                             lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
-                             lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                            lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
-                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView,  lstMaster.FilterDate, lstMaster.ItemsperPage,
-                            lstMaster.Invoiceallowduplicateitem,lstMaster.CommonAgeingCreditDays,lstMaster.RestrictBlocklistinInvoice,lstMaster.RetainDate,
-                            lstMaster.BeatMandatoryinCustomer,lstMaster.DraftAutoSaveTimeInterval,lstMaster.HomePeriod,lstMaster.AutoRefresh);
+                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
+                            lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
+                            lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
+                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct,lstMaster.Radius);
                 //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
@@ -1860,12 +1868,15 @@ namespace SampWebApi.Controllers
                         PhoneNo = DDT.Rows[i]["PhoneNo"].ToString(),
                         Website = DDT.Rows[i]["Website"].ToString(),
                         Email = DDT.Rows[i]["Email"].ToString(),
+                        CCEmail = DDT.Rows[i]["CCEmail"].ToString(),
                         FSSAI = DDT.Rows[i]["FSSAI"].ToString(),
                         AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
                         PANNo = DDT.Rows[i]["PANNo"].ToString(),
                         GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
                         Dl_20 = DDT.Rows[i]["Dl_20"].ToString(),
                         Dl_21 = DDT.Rows[i]["Dl_21"].ToString(),
+                        F_SD = Convert.ToDateTime(DDT.Rows[i]["F_SD"].ToString()).ToString("yyyy-MM-dd"),
+                        F_ED = Convert.ToDateTime(DDT.Rows[i]["F_ED"].ToString()).ToString("yyyy-MM-dd"),
                         lstState = lststa
                     });
                 }
@@ -1879,7 +1890,8 @@ namespace SampWebApi.Controllers
         {
             bl.BL_ExecuteParamSP("uspManageUpdateCompanyDetail", 3, lstMaster.CompanyId, lstMaster.CompanyCode, lstMaster.CompanyName, lstMaster.StateID,
                  lstMaster.Address, lstMaster.Country, lstMaster.State, lstMaster.City, lstMaster.Pincode, lstMaster.Contact_Person, lstMaster.MobileNo,
-                 lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20, lstMaster.Dl_21);
+                 lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20, 
+                 lstMaster.Dl_21, lstMaster.CCEmail, lstMaster.F_SD, lstMaster.F_ED);
             List<SaveMessage> list = new List<SaveMessage>();
             list.Add(new SaveMessage
             {
@@ -2034,6 +2046,7 @@ namespace SampWebApi.Controllers
                         FromDate = Convert.ToDateTime(DDT.Rows[0][3].ToString()).ToString("yyyy-MM-dd"),
                         ToDate = Convert.ToDateTime(DDT.Rows[0][4].ToString()).ToString("yyyy-MM-dd"),
                         Active = DDT.Rows[0][5].ToString(),
+                        MapByID = DDT.Rows[0]["ApplyIn"].ToString(),
                         lstCustomers = CustomerJSONCONV,
                         lstProducts = ProductJSONCONV,
                         lstSchemeCustomer = listCust,
@@ -2046,12 +2059,14 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/discountscheme/getfilterdata")]
-        public IHttpActionResult GetdiscountschemefilterData(string Mode, string Type, string CustTypeorManuf, string BeatorBrand, string SalesmanorCategory, string CustomerorProduct)
+        public IHttpActionResult GetdiscountschemefilterData(string Mode, string Type, string CustTypeorManuf, string BeatorBrand, 
+            string SalesmanorCategory, string CustomerorProduct,string MapBy)
         {
             if (Mode == "4")
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspgetsetDiscountSchemeData", Mode, Type, CustTypeorManuf, BeatorBrand, SalesmanorCategory, CustomerorProduct);
+                DDT = bl.BL_ExecuteParamSP("uspgetsetDiscountSchemeData", Mode, Type, CustTypeorManuf, BeatorBrand, SalesmanorCategory,
+                    CustomerorProduct, MapBy);
                 List<DiscountschemeDetail> list = new List<DiscountschemeDetail>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -2098,59 +2113,86 @@ namespace SampWebApi.Controllers
         [Route("api/discountscheme/save")]
         public IHttpActionResult Savediscountschemedetails(DiscountScheme lstMaster)
         {
-            DataTable dtCustProdDisc = new DataTable();
-            dtCustProdDisc.Columns.Add("CustID", typeof(int));
-            dtCustProdDisc.Columns.Add("ProdID", typeof(int));
-            dtCustProdDisc.Columns.Add("ProdDisc", typeof(decimal));
-            dtCustProdDisc.Columns.Add("ProdDiscAmt", typeof(decimal));
-            dtCustProdDisc.Columns.Add("TradeDisc", typeof(decimal));
-            dtCustProdDisc.Columns.Add("TradeDiscAmt", typeof(decimal));
-            dtCustProdDisc.Columns.Add("Serial", typeof(int));
             List<SaveMessage> list = new List<SaveMessage>();
-            int nRow = 0;
-            foreach (DiscountSchemeCustomer item in lstMaster.lstSchemeCustomer)
+
+            try
             {
-                int nCustID = Convert.ToInt32(item.CustomerID);
+                DataTable dtCustProdDisc = new DataTable();
+                dtCustProdDisc.Columns.Add("CustID", typeof(int));
+                dtCustProdDisc.Columns.Add("ProdID", typeof(int));
+                dtCustProdDisc.Columns.Add("ProdDisc", typeof(decimal));
+                dtCustProdDisc.Columns.Add("ProdDiscAmt", typeof(decimal));
+                dtCustProdDisc.Columns.Add("TradeDisc", typeof(decimal));
+                dtCustProdDisc.Columns.Add("TradeDiscAmt", typeof(decimal));
+                dtCustProdDisc.Columns.Add("Serial", typeof(int));
+                DataTable dtCustomers = new DataTable();
+                dtCustomers.Columns.Add("TransName", typeof(string));
+                dtCustomers.Columns.Add("Status", typeof(int));
+                dtCustomers.Columns.Add("DocumentId", typeof(int));
+
+                int nRow = 0;
+                foreach (DiscountSchemeCustomer item in lstMaster.lstSchemeCustomer)
+                {
+                    int nCustID = Convert.ToInt32(item.CustomerID);
+                    dtCustomers.Rows.Add();
+                    dtCustomers.Rows[nRow]["DocumentId"] = nCustID;
+                    dtCustomers.Rows[nRow]["TransName"] = "Discount Scheme";
+                    dtCustomers.Rows[nRow]["Status"] = (nRow+1);
+                    nRow++;
+                }
+                nRow = 0;
                 foreach (DiscountSchemeProduct itemProduct in lstMaster.lstSchemeProduct)
                 {
                     dtCustProdDisc.Rows.Add();
-                    dtCustProdDisc.Rows[nRow]["CustID"] = nCustID;
+                    dtCustProdDisc.Rows[nRow]["CustID"] = 0;
                     dtCustProdDisc.Rows[nRow]["ProdID"] = Convert.ToInt32(itemProduct.ProductID);
                     dtCustProdDisc.Rows[nRow]["ProdDisc"] = Convert.ToDecimal(itemProduct.ProdDiscPern);
                     dtCustProdDisc.Rows[nRow]["ProdDiscAmt"] = Convert.ToDecimal(itemProduct.ProdDiscAmt);
                     dtCustProdDisc.Rows[nRow]["TradeDisc"] = Convert.ToDecimal(itemProduct.TradeDiscPern);
                     dtCustProdDisc.Rows[nRow]["TradeDiscAmt"] = Convert.ToDecimal(itemProduct.TradeDiscAmt);
-                    dtCustProdDisc.Rows[nRow]["Serial"] = (nRow + 1);
+                    dtCustProdDisc.Rows[nRow]["Serial"] = (nRow+1);
                     nRow++;
                 }
+                bl.bl_Transaction(1);
+                DataTable dtResult = bl.bl_ManageTrans("uspSaveSchemeDiscount", bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
+                    lstMaster.ReplaceExists, lstMaster.FromDate, lstMaster.ToDate, lstMaster.Active,
+                    lstMaster.UserID, dtCustProdDisc, dtCustomers, lstMaster.MapByID);
+                if (dtResult.Columns.Count > 1)
+                {
+                    bl.bl_Transaction(3);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = 0.ToString(),
+                        MsgID = "1",
+                        Message = "Name already exists"
+                    });
+                    return Ok(list);
+                }
+                else
+                {
+                    bl.bl_Transaction(2);
+                    int ScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = ScopeID.ToString(),
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                    return Ok(list);
+                }
+                
             }
-            bl.bl_Transaction(1);
-            DataTable dtResult = bl.bl_ManageTrans("uspSaveSchemeDiscount", bl.BL_nValidation(lstMaster.ID), lstMaster.Name,
-                lstMaster.ReplaceExists, lstMaster.FromDate, lstMaster.ToDate, lstMaster.Active, lstMaster.UserID, dtCustProdDisc);
-            if (dtResult.Columns.Count > 1)
+            catch(Exception ex)
             {
-                bl.bl_Transaction(3);
+                bl.BL_WriteErrorMsginLog("Discount Scheme", "Save", ex.Message);
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),
                     MsgID = "1",
-                    Message = "Name already exists"
+                    Message = ex.Message
                 });
                 return Ok(list);
             }
-            else
-            {
-                bl.bl_Transaction(2);
-                int ScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
-                list.Add(new SaveMessage()
-                {
-                    ID = ScopeID.ToString(),
-                    MsgID = "0",
-                    Message = "Saved Successfully"
-                });
-                return Ok(list);
-            }
-            return Ok(list);
         }
         [HttpGet]
         [Route("api/verifyapppassword/verify")]

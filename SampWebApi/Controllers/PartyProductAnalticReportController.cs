@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Ajax.Utilities;
+using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -120,5 +121,31 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/monthwisesalesanaltic/filterdata")]
+        public IHttpActionResult mwsfilterdata(string Mode,string FilterID)
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMonthwisesalesAnalticsReport", Mode, FilterID);
+            return Ok(DDT);
+        }
+        [HttpPost]
+        [Route("api/monthwisesalesanaltic/generatedata")]
+        public IHttpActionResult mwsgeneratedata(MSWAfilters reportfilter)
+        {
+            DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMonthwisesalesAnalticsReport", 3, reportfilter.TransactionType,
+                reportfilter.PartyFilterTypeID, reportfilter.SelectPartyfilterIDs, reportfilter.ProductFilterTypeID,
+                reportfilter.SelectProductfilterIDs, reportfilter.ValueTypeID, reportfilter.FromDate, reportfilter.ToDate);
+            return Ok(DDT);
+        }
+    }
+    public class MSWAfilters{
+        public int TransactionType { get; set; }
+        public string PartyFilterTypeID { get; set; }
+        public string SelectPartyfilterIDs { get; set; }
+        public string ProductFilterTypeID { get; set; }
+        public string SelectProductfilterIDs { get; set; }
+        public string ValueTypeID { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
     }
 }

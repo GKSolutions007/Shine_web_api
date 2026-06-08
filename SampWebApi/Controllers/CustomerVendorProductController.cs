@@ -53,61 +53,7 @@ namespace SampWebApi.Controllers
             if (Mode == "444")
             {
                 DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 4, 0);
-                string dtjson = JsonConvert.SerializeObject(DDT);
-                if (!string.IsNullOrEmpty(dtjson))
-                {
-                    List<CustomerVendorModel> jsonlist = JsonConvert.DeserializeObject<List<CustomerVendorModel>>(dtjson);
-
-                    var data = from users in jsonlist
-                               select
-                                   new
-                                   {
-                                       ID = users.ID,
-                                       Code = users.Code,
-                                       Name = users.Name,
-                                       CustomerType = users.CustomerType,
-                                       PriceType = users.PriceType,
-                                       OwnerName = users.OwnerName,
-                                       ContactPerson = users.ContactPerson,
-                                       Email = users.Email,
-                                       Ph1 = users.Ph1,
-                                       Ph2 = users.Ph2,
-                                       Mob1 = users.Mob1,
-                                       Mob2 = users.Mob2,
-                                       Billadd1 = users.Billadd1,
-                                       Billadd2 = users.Billadd2,
-                                       Billadd3 = users.Billadd3,
-                                       Shipadd1 = users.Shipadd1,
-                                       Shipadd2 = users.Shipadd2,
-                                       Shipadd3 = users.Shipadd3,
-                                       Pincode = users.Pincode,
-                                       Distance = users.Distance,
-                                       CreditLimitValue = users.CreditLimitValue,
-                                       CreditLimitCount = users.CreditLimitCount,
-                                       OverDueValue = users.OverDueValue,
-                                       OverDueInvCount = users.OverDueInvCount,
-                                       PANNumber = users.PANNumber,
-                                       AadharNo = users.AadharNo,
-                                       FSSAINo = users.FSSAINo,
-                                       DLNo20 = users.DLNo20,
-                                       DLNo21 = users.DLNo21,
-                                       StateName = users.StateName,
-                                       GSTIN = users.GSTIN,
-                                       TaxTypeName = users.TaxTypeName,
-                                       PaymentMode = users.PaymentMode,
-                                       CreditTerm = users.CreditTerm,
-                                       DiscountPern = users.DiscountPern,
-                                       Remark = users.Remark,
-                                       Ratings = users.Ratings,
-                                       TCSTax = users.TCSTax,
-                                       TrackPoint = users.TrackPoint,
-                                       Active = users.Active,
-                                       CBy = users.UserName,
-                                       CDate = users.LastActionTime
-                                   };
-                    return Ok(data);
-                }
-                return Ok();
+                return Ok(DDT);                
             }
             if (Mode == "5")
             {
@@ -388,59 +334,7 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetAllVendorData(string Mode, string Name)
         {
             DataTable DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
-            string dtjson = JsonConvert.SerializeObject(DDT);
-            if (!string.IsNullOrEmpty(dtjson))
-            {
-                List<CustomerVendorModel> jsonlist = JsonConvert.DeserializeObject<List<CustomerVendorModel>>(dtjson);
-
-                var data = from users in jsonlist
-                           select
-                               new
-                               {
-                                   //ID = users.ID,
-                                   //Code = users.Code,
-                                   //Name = users.Name,
-                                   //CustomerType = users.Ph1,
-                                   //Mob1 = users.Mob1,
-                                   //GSTIN = users.GSTIN,
-                                   //Ratings = users.Ratings,
-                                   //Active = users.Active,
-                                   CBy = users.UserName,
-                                   CDate = users.LastActionTime,
-                                   ID = users.ID,
-                                   Code = users.Code,
-                                   Name = users.Name,
-                                   ContactPerson = users.ContactPerson,
-                                   Mob1 = users.Mob1,
-                                   Mob2 = users.Mob2,
-                                   Ph1 = users.Ph1,
-                                   Ph2 = users.Ph2,
-                                   GSTIN = users.GSTIN,
-                                   Ratings = users.Ratings,
-                                   Active = users.Active,
-                                   Email = users.Email,
-                                   Billadd1 = users.Billadd1,
-                                   Billadd2 = users.Billadd2,
-                                   Billadd3 = users.Billadd3,
-                                   Shipadd1 = users.Shipadd1,
-                                   Shipadd2 = users.Shipadd2,
-                                   Shipadd3 = users.Shipadd3,
-                                   Pincode = users.Pincode,
-                                   PANNumber = users.PANNumber,
-                                   AadharNo = users.AadharNo,
-                                   DLNo20 = users.DLNo20,
-                                   DLNo21 = users.DLNo21,
-                                   FSSAINo = users.FSSAINo,
-                                   StateName = users.StateName,
-                                   TaxTypeName = users.TaxTypeName,
-                                   PaymentMode = users.PaymentMode,
-                                   WeekCycle = users.WeekCycle,
-                                   CreditTerm = users.CreditTerm,
-
-                               };
-                return Ok(data);
-            }
-            return Ok();
+            return Ok(DDT);           
         }
         [HttpPost]
         [Route("api/vendormaster/save")]
@@ -524,6 +418,8 @@ namespace SampWebApi.Controllers
                 DataSet dtProdData = bl.BL_ExecuteParamSPDataset("uspManageProductMaster", Mode, Name);
                 DDT = dtProdData.Tables[0];
                 DataTable dtProductLocation= dtProdData.Tables[1];
+                DataTable dtProductStock = dtProdData.Tables[2];
+
                 //bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
                 List<ProductModel> list = new List<ProductModel>();
                 List<clsProdLocMapping> listProcLocMap = new List<clsProdLocMapping>();
@@ -549,6 +445,11 @@ namespace SampWebApi.Controllers
                                 LocationID = dtProductLocation.Rows[k][2].ToString(),
                             });
                         }
+                    }
+                    string ItemStock = "0.00";
+                    if (dtProductStock.Rows.Count > 0)
+                    {
+                        ItemStock = dtProductStock.Rows[0][1].ToString();
                     }
                     list.Add(new ProductModel
                     {
@@ -609,7 +510,7 @@ namespace SampWebApi.Controllers
                         PurchaseReturnPrice = PRPrice,
                         InvoicePrice = InvPrice,
                         SalesReturnPrice = SRPrice,
-                        lstProdLocMapping= listProcLocMap
+                        lstProdLocMapping= listProcLocMap,ABSQty = ItemStock
                     });
                 }
                 return Ok(list);
@@ -636,68 +537,9 @@ namespace SampWebApi.Controllers
         [HttpGet]
         [Route("api/productmaster/getalldata")]
         public IHttpActionResult GetAllProductData(string Mode, string Name)
-        {
+        {            
             DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
-            string dtjson = JsonConvert.SerializeObject(DDT);
-            if (!string.IsNullOrEmpty(dtjson))
-            {
-                List<ProductModel> jsonlist = JsonConvert.DeserializeObject<List<ProductModel>>(dtjson);
-                //ar dtjsonData = new
-                //{
-                var data = from users in jsonlist
-                           select
-                               new
-                               {
-                                   ID = users.ID,
-                                   Code = users.Code,
-                                   Name = users.Name,
-                                   EAN = users.EAN,
-                                   MfrID = users.MfrID,
-                                   BrandID = users.BrandID,
-                                   CategoryID = users.CategoryID,
-                                   HSNCode = users.HSNCode,
-                                   ProductDiscPerc = users.ProductDiscPerc,
-                                   BaseUOMName = users.BaseUOMName,
-                                   BaseCR = users.BaseCR,
-                                   PurchaseUOMName = users.PurchaseUomName,
-                                   PurchaseCR = users.PurchaseCR,
-                                   SalesUOMName = users.SalesUOMName,
-                                   SalesCR = users.SalesCR,
-                                   ReportingUOMName = users.ReportingUOMName,
-                                   ReportingCR = users.ReportingCR,
-                                   PurchaseTaxName = users.PurchaseTaxName,
-                                   SalesTaxName = users.SalesTaxName,
-                                   PurchasePrice = users.PurchasePrice,
-                                   MRP = users.MRP,
-                                   SalesPrice = users.SalesPrice,
-                                   ECP = users.ECP,
-                                   SPLPrice = users.SPLPrice,
-                                   TrackInventory = users.TrackInventory,
-                                   TrackBatch = users.TrackBatch,
-                                   TrackPDK = users.TrackPDK,
-                                   DateFormat = users.DateFormat,
-                                   BarcodePrint = users.BarcodePrint,
-                                   BarcodeUOMName = users.BarcodeUOMName,
-                                   BarcodePriceType = users.BarcodePriceType,
-                                   LocationName = users.LocationName,
-                                   IndentVendor = users.IndentVendor,
-                                   MOH = users.MOH,
-                                   MOQ = users.MOQ,
-                                   Weborder = users.Weborder,
-                                   Remarks = users.Remarks,
-                                   ProdLifeTime = users.ProdLifeTime,
-                                   PurchaseBillPrice = users.PurchaseBillPrice,
-                                   PurchaseReturnPrice = users.PurchaseBillPrice,
-                                   InvoicePrice = users.InvoicePrice,
-                                   SalesReturnPrice = users.SalesReturnPrice,
-                                   Active = users.Active,
-                                   CBy = users.UserName,
-                                   CDate = users.LastActionTime
-                               };
-                //};
-                return Ok(data);
-            }
-            return Ok();
+            return Ok(DDT);            
         }
         [HttpPost]
         [Route("api/productmaster/save")]

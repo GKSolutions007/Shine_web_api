@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -8,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using System.Windows.Forms;
+using static iTextSharp.text.pdf.qrcode.Version;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Import_Utility
@@ -16,7 +18,7 @@ namespace SampWebApi.Import_Utility
     {
         clsBusinessLayer objBL = new clsBusinessLayer();
         public int BranchID { get; set; }
-        public int PartyID { get; set; }        
+        public int PartyID { get; set; }
         public int PriceTypeID { get; set; }
         public int PaymentModeID { get; set; }
         public int StatusID { get; set; }
@@ -39,9 +41,10 @@ namespace SampWebApi.Import_Utility
         decimal CumGross = 0, CumGoods = 0, CumTax = 0, CumNet = 0, CumProdDiscAmt = 0, CumTradeDiscAmt = 0,
             CumAddnlDiscAmt = 0, CumDiffGross = 0, CumDiffNet = 0;
         decimal tradeDiscAmt = 0, addnlDiscAmt = 0, grossAmt = 0, taxAmt = 0, itemNetAmt = 0;
-        int BaseUOMID = 0, TrackInvYN = 0, TrackBatchYN = 0, TrackPKDYN = 0,TrackSerialYN = 0;
+        int BaseUOMID = 0, TrackInvYN = 0, TrackBatchYN = 0, TrackPKDYN = 0, TrackSerialYN = 0;
         string HSN = "";
         #endregion
+        //int docidcheckmode = strDocPrefix == "bill" ? 19 : strDocPrefix == "pr" ? 20 : strDocPrefix == "sales" ? 21 : strDocPrefix == "sr" ? 22 : 0;
         public string SaleSRBillPRHeaderValidation(DataTable dtCheck)
         {
             string RowError = "";
@@ -417,11 +420,312 @@ namespace SampWebApi.Import_Utility
             #endregion
             return RowError;
         }
-        public string SaleSRBillPRDetailValidation(DataTable dtCheck)
+        #region Sales Header Validation
+        public string SaleHeaderValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            #region Branch & Doc ID
+            ValidateAlphaNumericSplField(dtCheck.Rows[0], "DOC ID *", true, ref RowError);
+            DataTable dtdocidcheck = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 21, 3, dtCheck.Rows[0]["DOC ID *"].ToString());
+            if (dtdocidcheck.Rows.Count > 0)
+            {
+                RowError += "* DOC ID(" + dtCheck.Rows[0]["DOC ID *"].ToString() + ") already exists/imported\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+            {
+                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+                {
+                    RowError += "DOC DATE * : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC DATE * : DOC DATE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+                {
+                    RowError += "BRANCH NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 7, 3, dtCheck.Rows[0]["BRANCH NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* BRANCH NAME(" + dtCheck.Rows[0]["BRANCH NAME *"].ToString() + ") not found in Database\n";
+                        BranchID = 0;
+                    }
+                    else
+                    {
+                        BranchID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "BRANCH NAME * : Branch Name should not be empty\n";
+            }
+            #endregion
+            #region Beat & Salesman
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BEAT NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BEAT NAME"].ToString()))
+                {
+                    RowError += "BEAT NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 9, 3, dtCheck.Rows[0]["BEAT NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "BEAT NAME(" + dtCheck.Rows[0]["BEAT NAME"].ToString() + ") not found in Database\n";
+                        BeatID = 0;
+                    }
+                    else
+                    {
+                        BeatID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                BeatID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["SALESMAN NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["SALESMAN NAME"].ToString()))
+                {
+                    RowError += "SALESMAN NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 10, 3, dtCheck.Rows[0]["SALESMAN NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "SALESMAN NAME(" + dtCheck.Rows[0]["SALESMAN NAME"].ToString() + ") not found in Database\n";
+                        SalesmanID = 0;
+                    }
+                    else
+                    {
+                        SalesmanID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                SalesmanID = 0;
+            }
+            #endregion
+            #region Party , Payment Mode & Credit Term
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+                {
+                    RowError += "PARTY NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 8, 3, dtCheck.Rows[0]["PARTY NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PARTY NAME(" + dtCheck.Rows[0]["PARTY NAME *"].ToString() + ") not found in Database\n";
+                        PartyID = 0;
+                        PriceTypeID = 0;
+                        TaxTypeID = 0;
+                    }
+                    else
+                    {
+                        PartyID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        PriceTypeID = Convert.ToInt32(dt.Rows[0]["PriceTypeID"].ToString());
+                        TaxTypeID = Convert.ToInt32(dt.Rows[0]["TaxTypeID"].ToString());
+                    }
+
+                }
+            }
+            else
+            {
+                RowError += "PARTY NAME * : PARTY NAME should not be empty\n";
+            }
+
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PAYMENT MODE *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PAYMENT MODE *"].ToString()))
+                {
+                    RowError += "PAYMENT MODE * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 14, 3, dtCheck.Rows[0]["PAYMENT MODE *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PAYMENT MODE(" + dtCheck.Rows[0]["PAYMENT MODE *"].ToString() + ") not found in Database\n";
+                        PaymentModeID = 0;
+                    }
+                    else
+                    {
+                        PaymentModeID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PAYMENT MODE * : PAYMENT MODE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["CREDIT TERM *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["CREDIT TERM *"].ToString()))
+                {
+                    RowError += "CREDIT TERM * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 15, 3, dtCheck.Rows[0]["CREDIT TERM *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* CREDIT TERM(" + dtCheck.Rows[0]["CREDIT TERM *"].ToString() + ") not found in Database\n";
+                        CreditTermID = 0;
+                    }
+                    else
+                    {
+                        CreditTermID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "CREDIT TERM * : CREDIT TERM should not be empty\n";
+            }
+
+            #endregion
+            #region ADDITIONAL, TRADE Disc,FRIEGHT,WRITEOFF,Other Charge,DISTANCE & Net Amount
+            ValidatePercentageNumericField(dtCheck.Rows[0], "ADDITIONAL DISCOUNT %", false, ref RowError);
+            ValidatePercentageNumericField(dtCheck.Rows[0], "TRADE DISCOUNT %", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "FRIEGHT", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "WRITEOFF AMT", false, ref RowError);
+            ValidateNumericOnlyField(dtCheck.Rows[0], "DISTANCE", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "NET AMOUNT *", true, ref RowError);
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+            {
+                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+                {
+                    RowError += "OTHER CHARGE % : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    if (objBL.BL_dValidation(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()) > 100)
+                    {
+                        RowError += "OTHER CHARGE % : OTHER CHARGE % should be less than 100 only\n";
+                    }
+                }
+            }
+            #endregion
+            #region Status
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["STATUS *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["STATUS *"].ToString()))
+                {
+                    RowError += "STATUS * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 16, 3, dtCheck.Rows[0]["STATUS *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* STATUS(" + dtCheck.Rows[0]["STATUS *"].ToString() + ") not found in Database\n";
+                        StatusID = 0;
+                    }
+                    else
+                    {
+                        StatusID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "STATUS * : STATUS should not be empty\n";
+            }
+            #endregion
+            #region VECHICLE, TRANSPORT MODE, TRANSPORT TYPE
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+                {
+                    RowError += "VECHICLE NUMBER : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 17, 3, dtCheck.Rows[0]["VECHICLE NUMBER"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "VECHICLE NUMBER(" + dtCheck.Rows[0]["VECHICLE NUMBER"].ToString() + ") not found in Database\n";
+                        VehicleID = 0;
+                    }
+                    else
+                    {
+                        VehicleID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                VehicleID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                {
+                    RowError += "TRANSPORT MODE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Road", "Rail", "Air", "Ship/Road cum ship" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                    {
+                        RowError += "TRANSPORT MODE : Transport Mode Must be Road, Rail, Air ,Ship/Road cum ship";
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                {
+                    RowError += "TRANSPORT TYPE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Regular", "ODC" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                    {
+                        RowError += "TRANSPORT TYPE : Transport Type Must be Regular, ODC";
+                    }
+                }
+            }
+
+            #endregion
+            #region  REMARKS, TRANSPORT ID, TRANSPORT NAME, IRN, ACKNOWLEDGE NO & E-WAY NOO
+            string[] fields = { "REMARKS", "TRANSPORT ID", "TRANSPORT NAME", "IRN", "ACKNOWLEDGE NO", "ACKNOWLEDGE STATUS" };
+
+            DataRow row = dtCheck.Rows[0];
+
+            foreach (var field in fields)
+            {
+                ValidateAlphaNumericSplField(row, field, false, ref RowError);
+            }
+
+            ValidateNumericOnlyField(dtCheck.Rows[0], "EWAY BILL NO", false, ref RowError);
+            #endregion
+            return RowError;
+        }
+        #endregion        
+        #region Sale Detail Validation
+        public string SaleDetailValidation(DataTable dtCheck)
         {
             string RowError = "";
             DataRow row = dtCheck.Rows[0];
-            #region Mandatory Field Validation
+            DataTable dtProdData = new DataTable();
+            #region Doc ID
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
             {
                 if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
@@ -433,6 +737,8 @@ namespace SampWebApi.Import_Utility
             {
                 RowError += "DOC ID * : DOC ID should not be empty\n";
             }
+            #endregion
+            #region Product Name
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
             {
                 if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
@@ -441,15 +747,1395 @@ namespace SampWebApi.Import_Utility
                 }
                 else
                 {
-                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
-                    if (dt.Rows.Count == 0)
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
                     {
                         RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
                         ProductID = 0;
                     }
                     else
                     {
-                        ProductID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PRODUCT NAME * : PRODUCT Name should not be empty\n";
+            }
+            #endregion
+            #region Tax ame
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+                {
+                    RowError += "TAX NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 6, 3, dtCheck.Rows[0]["TAX NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* TAX NAME(" + dtCheck.Rows[0]["TAX NAME *"].ToString() + ") not found in Database\n";
+                        TaxID = 0;
+                    }
+                    else
+                    {
+                        TaxID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "TAX NAME * : TAX Name should not be empty\n";
+            }
+            #endregion
+            #region Batch No , PKD & Expiry
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
+                }
+            }
+            #endregion
+            #region QTY,PRICE,MRP,PRODUCT DISCOUNT
+            string[] fields = {"QTY *","PRICE *","MRP *"};
+            foreach (var field in fields)
+            {
+                ValidateNumericField(row, field, false, ref RowError);
+            }
+            ValidatePercentageNumericField(row, "PRODUCT DISCOUNT", false, ref RowError);
+
+            #endregion
+            #region REASON
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["REASON NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["REASON NAME"].ToString()))
+                {
+                    RowError += "REASON NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 23, 3, dtCheck.Rows[0]["REASON NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* REASON NAME(" + dtCheck.Rows[0]["REASON NAME"].ToString() + ") not found in Database\n";
+                        ReasonID = 0;
+                    }
+                    else
+                    {
+                        ReasonID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            #endregion
+            return RowError;
+        }
+        #endregion        
+        #region Bill Header Validation
+        public string BillHeaderValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            #region Branch & Doc ID
+            ValidateAlphaNumericSplField(dtCheck.Rows[0], "DOC ID *", true, ref RowError);
+            
+            DataTable dtdocidcheck = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 19, 3, dtCheck.Rows[0]["DOC ID *"].ToString());
+            if (dtdocidcheck.Rows.Count > 0)
+            {
+                RowError += "* DOC ID(" + dtCheck.Rows[0]["DOC ID *"].ToString() + ") already exists/imported\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+            {
+                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+                {
+                    RowError += "DOC DATE * : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC DATE * : DOC DATE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+                {
+                    RowError += "BRANCH NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 7, 3, dtCheck.Rows[0]["BRANCH NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* BRANCH NAME(" + dtCheck.Rows[0]["BRANCH NAME *"].ToString() + ") not found in Database\n";
+                        BranchID = 0;
+                    }
+                    else
+                    {
+                        BranchID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "BRANCH NAME * : Branch Name should not be empty\n";
+            }
+            #endregion            
+            #region Party , Payment Mode & Credit Term
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+                {
+                    RowError += "PARTY NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 4, 3, dtCheck.Rows[0]["PARTY NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PARTY NAME(" + dtCheck.Rows[0]["PARTY NAME *"].ToString() + ") not found in Database\n";
+                        PartyID = 0;                        
+                        TaxTypeID = 0;
+                    }
+                    else
+                    {
+                        PartyID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        TaxTypeID = Convert.ToInt32(dt.Rows[0]["TaxTypeID"].ToString());
+                    }
+
+                }
+            }
+            else
+            {
+                RowError += "PARTY NAME * : PARTY NAME should not be empty\n";
+            }
+
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PAYMENT MODE *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PAYMENT MODE *"].ToString()))
+                {
+                    RowError += "PAYMENT MODE * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 14, 3, dtCheck.Rows[0]["PAYMENT MODE *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PAYMENT MODE(" + dtCheck.Rows[0]["PAYMENT MODE *"].ToString() + ") not found in Database\n";
+                        PaymentModeID = 0;
+                    }
+                    else
+                    {
+                        PaymentModeID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PAYMENT MODE * : PAYMENT MODE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["CREDIT TERM *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["CREDIT TERM *"].ToString()))
+                {
+                    RowError += "CREDIT TERM * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 15, 3, dtCheck.Rows[0]["CREDIT TERM *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* CREDIT TERM(" + dtCheck.Rows[0]["CREDIT TERM *"].ToString() + ") not found in Database\n";
+                        CreditTermID = 0;
+                    }
+                    else
+                    {
+                        CreditTermID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "CREDIT TERM * : CREDIT TERM should not be empty\n";
+            }
+
+            #endregion
+            #region ADDITIONAL, TRADE Disc,FRIEGHT,WRITEOFF,Other Charge,DISTANCE & Net Amount
+            ValidatePercentageNumericField(dtCheck.Rows[0], "ADDITIONAL DISCOUNT %", false, ref RowError);
+            ValidatePercentageNumericField(dtCheck.Rows[0], "TRADE DISCOUNT %", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "FRIEGHT", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "WRITEOFF AMT", false, ref RowError);
+            ValidateNumericOnlyField(dtCheck.Rows[0], "DISTANCE", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "NET AMOUNT *", true, ref RowError);
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+            {
+                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+                {
+                    RowError += "OTHER CHARGE % : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    if (objBL.BL_dValidation(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()) > 100)
+                    {
+                        RowError += "OTHER CHARGE % : OTHER CHARGE % should be less than 100 only\n";
+                    }
+                }
+            }
+            #endregion
+            #region Status
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["STATUS *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["STATUS *"].ToString()))
+                {
+                    RowError += "STATUS * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 16, 3, dtCheck.Rows[0]["STATUS *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* STATUS(" + dtCheck.Rows[0]["STATUS *"].ToString() + ") not found in Database\n";
+                        StatusID = 0;
+                    }
+                    else
+                    {
+                        StatusID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "STATUS * : STATUS should not be empty\n";
+            }
+            #endregion
+            #region VECHICLE, TRANSPORT MODE, TRANSPORT TYPE
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+                {
+                    RowError += "VECHICLE NUMBER : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 17, 3, dtCheck.Rows[0]["VECHICLE NUMBER"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "VECHICLE NUMBER(" + dtCheck.Rows[0]["VECHICLE NUMBER"].ToString() + ") not found in Database\n";
+                        VehicleID = 0;
+                    }
+                    else
+                    {
+                        VehicleID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                VehicleID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                {
+                    RowError += "TRANSPORT MODE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Road", "Rail", "Air", "Ship/Road cum ship" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                    {
+                        RowError += "TRANSPORT MODE : Transport Mode Must be Road, Rail, Air ,Ship/Road cum ship";
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                {
+                    RowError += "TRANSPORT TYPE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Regular", "ODC" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                    {
+                        RowError += "TRANSPORT TYPE : Transport Type Must be Regular, ODC";
+                    }
+                }
+            }
+
+            #endregion
+            #region  REMARKS, TRANSPORT ID, TRANSPORT NAME, IRN, ACKNOWLEDGE NO & E-WAY NOO
+            string[] fields = { "REMARKS", "TRANSPORT ID", "TRANSPORT NAME", "IRN", "ACKNOWLEDGE NO", "ACKNOWLEDGE STATUS" };
+
+            DataRow row = dtCheck.Rows[0];
+
+            foreach (var field in fields)
+            {
+                ValidateAlphaNumericSplField(row, field, false, ref RowError);
+            }
+
+            ValidateNumericOnlyField(dtCheck.Rows[0], "EWAY BILL NO", false, ref RowError);
+            #endregion
+            return RowError;
+        }
+        #endregion
+        #region Bill Detail Validation
+        public string BillDetailValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            DataRow row = dtCheck.Rows[0];
+            DataTable dtProdData = new DataTable();
+            #region Doc ID
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
+                {
+                    RowError += "DOC ID * : Invalid Characters\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC ID * : DOC ID should not be empty\n";
+            }
+            #endregion
+            #region Product Name
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+                {
+                    RowError += "PRODUCT NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
+                    {
+                        RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
+                        ProductID = 0;
+                    }
+                    else
+                    {
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PRODUCT NAME * : PRODUCT Name should not be empty\n";
+            }
+            #endregion
+            #region Tax ame
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+                {
+                    RowError += "TAX NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 6, 3, dtCheck.Rows[0]["TAX NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* TAX NAME(" + dtCheck.Rows[0]["TAX NAME *"].ToString() + ") not found in Database\n";
+                        TaxID = 0;
+                    }
+                    else
+                    {
+                        TaxID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "TAX NAME * : TAX Name should not be empty\n";
+            }
+            #endregion
+            #region Batch No , PKD & Expiry
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
+                }
+            }
+            #endregion
+            #region "ACTUAL QTY", "DAMAGE QTY", "FREE QTY", "PURCHASE PRICE", "SALE PRICE", "ECP PRICE","SPL PRICE", "RETURN PRICE", "MRP *"
+
+
+            string[] fields = { "ACTUAL QTY", "DAMAGE QTY", "FREE QTY", "PURCHASE PRICE", "SALE PRICE", "ECP PRICE",
+                "SPL PRICE", "RETURN PRICE", "MRP" };
+            foreach (var field in fields)
+            {
+                ValidateNumericField(row, field, false, ref RowError);
+            }
+            decimal qty = objBL.BL_dValidation(dtCheck.Rows[0]["ACTUAL QTY"].ToString());
+            decimal DAMAGEqty = objBL.BL_dValidation(dtCheck.Rows[0]["DAMAGE QTY"].ToString());
+            decimal FREEqty = objBL.BL_dValidation(dtCheck.Rows[0]["FREE QTY"].ToString());
+            if(qty == 0 && DAMAGEqty == 0 && FREEqty == 0)
+            {
+                RowError += "QTY : Qty should not be empty. Give value in anyone QTY\n";
+            }
+            ValidatePercentageNumericField(row, "PRODUCT DISCOUNT", false, ref RowError);
+
+            #endregion
+            #region REASON
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["REASON NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["REASON NAME"].ToString()))
+                {
+                    RowError += "REASON NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 23, 3, dtCheck.Rows[0]["REASON NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* REASON NAME(" + dtCheck.Rows[0]["REASON NAME"].ToString() + ") not found in Database\n";
+                        ReasonID = 0;
+                    }
+                    else
+                    {
+                        ReasonID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            #endregion
+            return RowError;
+        }
+
+        #endregion
+        #region Sales Return Header Validation
+        public string SaleReturnHeaderValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            #region Branch & Doc ID
+            ValidateAlphaNumericSplField(dtCheck.Rows[0], "DOC ID *", true, ref RowError);
+            
+            DataTable dtdocidcheck = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 22, 3, dtCheck.Rows[0]["DOC ID *"].ToString());
+            if (dtdocidcheck.Rows.Count > 0)
+            {
+                RowError += "* DOC ID(" + dtCheck.Rows[0]["DOC ID *"].ToString() + ") already exists/imported\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+            {
+                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+                {
+                    RowError += "DOC DATE * : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC DATE * : DOC DATE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+                {
+                    RowError += "BRANCH NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 7, 3, dtCheck.Rows[0]["BRANCH NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* BRANCH NAME(" + dtCheck.Rows[0]["BRANCH NAME *"].ToString() + ") not found in Database\n";
+                        BranchID = 0;
+                    }
+                    else
+                    {
+                        BranchID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "BRANCH NAME * : Branch Name should not be empty\n";
+            }
+            #endregion
+            #region Beat & Salesman
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BEAT NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BEAT NAME"].ToString()))
+                {
+                    RowError += "BEAT NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 9, 3, dtCheck.Rows[0]["BEAT NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "BEAT NAME(" + dtCheck.Rows[0]["BEAT NAME"].ToString() + ") not found in Database\n";
+                        BeatID = 0;
+                    }
+                    else
+                    {
+                        BeatID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                BeatID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["SALESMAN NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["SALESMAN NAME"].ToString()))
+                {
+                    RowError += "SALESMAN NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 10, 3, dtCheck.Rows[0]["SALESMAN NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "SALESMAN NAME(" + dtCheck.Rows[0]["SALESMAN NAME"].ToString() + ") not found in Database\n";
+                        SalesmanID = 0;
+                    }
+                    else
+                    {
+                        SalesmanID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                SalesmanID = 0;
+            }
+            #endregion
+            #region Party 
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+                {
+                    RowError += "PARTY NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 8, 3, dtCheck.Rows[0]["PARTY NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PARTY NAME(" + dtCheck.Rows[0]["PARTY NAME *"].ToString() + ") not found in Database\n";
+                        PartyID = 0;
+                        PriceTypeID = 0;
+                        TaxTypeID = 0;
+                    }
+                    else
+                    {
+                        PartyID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        PriceTypeID = Convert.ToInt32(dt.Rows[0]["PriceTypeID"].ToString());
+                        TaxTypeID = Convert.ToInt32(dt.Rows[0]["TaxTypeID"].ToString());
+                    }
+
+                }
+            }
+            else
+            {
+                RowError += "PARTY NAME * : PARTY NAME should not be empty\n";
+            }
+
+
+            #endregion
+            #region ADDITIONAL, TRADE Disc,FRIEGHT,WRITEOFF,Other Charge,DISTANCE & Net Amount
+            ValidatePercentageNumericField(dtCheck.Rows[0], "ADDITIONAL DISCOUNT %", false, ref RowError);
+            ValidatePercentageNumericField(dtCheck.Rows[0], "TRADE DISCOUNT %", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "FRIEGHT", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "WRITEOFF AMT", false, ref RowError);
+            ValidateNumericOnlyField(dtCheck.Rows[0], "DISTANCE", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "NET AMOUNT *", true, ref RowError);
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+            {
+                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+                {
+                    RowError += "OTHER CHARGE % : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    if (objBL.BL_dValidation(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()) > 100)
+                    {
+                        RowError += "OTHER CHARGE % : OTHER CHARGE % should be less than 100 only\n";
+                    }
+                }
+            }
+            #endregion
+            #region Status
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["STATUS *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["STATUS *"].ToString()))
+                {
+                    RowError += "STATUS * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 16, 3, dtCheck.Rows[0]["STATUS *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* STATUS(" + dtCheck.Rows[0]["STATUS *"].ToString() + ") not found in Database\n";
+                        StatusID = 0;
+                    }
+                    else
+                    {
+                        StatusID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "STATUS * : STATUS should not be empty\n";
+            }
+            #endregion
+            #region Tranacion Type & Return Type
+
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSACTION TYPE"].ToString()))
+            {
+                if (!objBL.BL_Numeric(dtCheck.Rows[0]["TRANSACTION TYPE"].ToString()))
+                {
+                    RowError += "TRANSACTION TYPE : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    var validtranstype = new[] { "2", "3" };
+                    if (!validtranstype.Contains(dtCheck.Rows[0]["TRANSACTION TYPE"].ToString()))
+                    {
+                        RowError += "TRANSACTION TYPE : Must be a Number (2 - Saleable Return,3 - Damage Return)";
+                    }
+                }
+            }
+
+
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["RETURN TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["RETURN TYPE"].ToString()))
+                {
+                    RowError += "RETURN TYPE : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 18, 3, dtCheck.Rows[0]["RETURN TYPE"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "RETURN TYPE(" + dtCheck.Rows[0]["RETURN TYPE"].ToString() + ") not found in Database\n";
+                        ReturnTypeID = 0;
+                    }
+                    else
+                    {
+                        ReturnTypeID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                ReturnTypeID = 0;
+            }
+
+            #endregion
+            #region VECHICLE, TRANSPORT MODE, TRANSPORT TYPE
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+                {
+                    RowError += "VECHICLE NUMBER : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 17, 3, dtCheck.Rows[0]["VECHICLE NUMBER"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "VECHICLE NUMBER(" + dtCheck.Rows[0]["VECHICLE NUMBER"].ToString() + ") not found in Database\n";
+                        VehicleID = 0;
+                    }
+                    else
+                    {
+                        VehicleID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                VehicleID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                {
+                    RowError += "TRANSPORT MODE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Road", "Rail", "Air", "Ship/Road cum ship" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                    {
+                        RowError += "TRANSPORT MODE : Transport Mode Must be Road, Rail, Air ,Ship/Road cum ship";
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                {
+                    RowError += "TRANSPORT TYPE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Regular", "ODC" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                    {
+                        RowError += "TRANSPORT TYPE : Transport Type Must be Regular, ODC";
+                    }
+                }
+            }
+
+            #endregion
+            #region  REMARKS, TRANSPORT ID, TRANSPORT NAME, IRN, ACKNOWLEDGE NO & E-WAY NOO
+            string[] fields = { "REMARKS", "TRANSPORT ID", "TRANSPORT NAME", "IRN", "ACKNOWLEDGE NO", "ACKNOWLEDGE STATUS" };
+
+            DataRow row = dtCheck.Rows[0];
+
+            foreach (var field in fields)
+            {
+                ValidateAlphaNumericSplField(row, field, false, ref RowError);
+            }
+
+            ValidateNumericOnlyField(dtCheck.Rows[0], "EWAY BILL NO", false, ref RowError);
+            #endregion
+            return RowError;
+        }
+        #endregion
+        #region Sales Return Detail Validation
+        public string SaleReturnDetailValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            DataRow row = dtCheck.Rows[0];
+            DataTable dtProdData = new DataTable();
+            #region Doc ID
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
+                {
+                    RowError += "DOC ID * : Invalid Characters\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC ID * : DOC ID should not be empty\n";
+            }
+            #endregion
+            #region Product Name
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+                {
+                    RowError += "PRODUCT NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
+                    {
+                        RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
+                        ProductID = 0;
+                    }
+                    else
+                    {
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PRODUCT NAME * : PRODUCT Name should not be empty\n";
+            }
+            #endregion
+            #region Tax ame
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+                {
+                    RowError += "TAX NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 6, 3, dtCheck.Rows[0]["TAX NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* TAX NAME(" + dtCheck.Rows[0]["TAX NAME *"].ToString() + ") not found in Database\n";
+                        TaxID = 0;
+                    }
+                    else
+                    {
+                        TaxID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "TAX NAME * : TAX Name should not be empty\n";
+            }
+            #endregion
+            #region Batch No , PKD & Expiry
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
+                }
+            }
+            #endregion
+            #region QTY,PRICE,MRP,PRODUCT DISCOUNT
+            string[] fields = { "QTY *", "PRICE *", "MRP *" };
+            foreach (var field in fields)
+            {
+                ValidateNumericField(row, field, false, ref RowError);
+            }
+            ValidatePercentageNumericField(row, "PRODUCT DISCOUNT", false, ref RowError);
+
+            #endregion
+            #region REASON
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["REASON NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["REASON NAME"].ToString()))
+                {
+                    RowError += "REASON NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 23, 3, dtCheck.Rows[0]["REASON NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* REASON NAME(" + dtCheck.Rows[0]["REASON NAME"].ToString() + ") not found in Database\n";
+                        ReasonID = 0;
+                    }
+                    else
+                    {
+                        ReasonID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            #endregion
+            return RowError;
+        }
+        #endregion        
+        #region Purchase Return Header Validation
+        public string PurchaseReturnHeaderValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            #region Branch & Doc ID
+            ValidateAlphaNumericSplField(dtCheck.Rows[0], "DOC ID *", true, ref RowError);
+            
+            DataTable dtdocidcheck = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 20, 3, dtCheck.Rows[0]["DOC ID *"].ToString());
+            if (dtdocidcheck.Rows.Count > 0)
+            {
+                RowError += "* DOC ID(" + dtCheck.Rows[0]["DOC ID *"].ToString() + ") already exists/imported\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+            {
+                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["DOC DATE *"].ToString()))
+                {
+                    RowError += "DOC DATE * : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC DATE * : DOC DATE should not be empty\n";
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["BRANCH NAME *"].ToString()))
+                {
+                    RowError += "BRANCH NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 7, 3, dtCheck.Rows[0]["BRANCH NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* BRANCH NAME(" + dtCheck.Rows[0]["BRANCH NAME *"].ToString() + ") not found in Database\n";
+                        BranchID = 0;
+                    }
+                    else
+                    {
+                        BranchID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "BRANCH NAME * : Branch Name should not be empty\n";
+            }
+            #endregion            
+            #region Party
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PARTY NAME *"].ToString()))
+                {
+                    RowError += "PARTY NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 4, 3, dtCheck.Rows[0]["PARTY NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* PARTY NAME(" + dtCheck.Rows[0]["PARTY NAME *"].ToString() + ") not found in Database\n";
+                        PartyID = 0;
+                        TaxTypeID = 0;
+                    }
+                    else
+                    {
+                        PartyID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                        TaxTypeID = Convert.ToInt32(dt.Rows[0]["TaxTypeID"].ToString());
+                    }
+
+                }
+            }
+            else
+            {
+                RowError += "PARTY NAME * : PARTY NAME should not be empty\n";
+            }
+            #endregion
+            #region ADDITIONAL, TRADE Disc,FRIEGHT,WRITEOFF,Other Charge,DISTANCE & Net Amount
+            ValidatePercentageNumericField(dtCheck.Rows[0], "ADDITIONAL DISCOUNT %", false, ref RowError);
+            ValidatePercentageNumericField(dtCheck.Rows[0], "TRADE DISCOUNT %", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "FRIEGHT", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "WRITEOFF AMT", false, ref RowError);
+            ValidateNumericOnlyField(dtCheck.Rows[0], "DISTANCE", false, ref RowError);
+            ValidateNumericField(dtCheck.Rows[0], "NET AMOUNT *", true, ref RowError);
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+            {
+                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()))
+                {
+                    RowError += "OTHER CHARGE % : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    if (objBL.BL_dValidation(dtCheck.Rows[0]["OTHER CHARGE %"].ToString()) > 100)
+                    {
+                        RowError += "OTHER CHARGE % : OTHER CHARGE % should be less than 100 only\n";
+                    }
+                }
+            }
+            #endregion
+            #region Status
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["STATUS *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["STATUS *"].ToString()))
+                {
+                    RowError += "STATUS * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 16, 3, dtCheck.Rows[0]["STATUS *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* STATUS(" + dtCheck.Rows[0]["STATUS *"].ToString() + ") not found in Database\n";
+                        StatusID = 0;
+                    }
+                    else
+                    {
+                        StatusID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "STATUS * : STATUS should not be empty\n";
+            }
+            #endregion
+            #region Return Type
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["RETURN TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["RETURN TYPE"].ToString()))
+                {
+                    RowError += "RETURN TYPE : Invalid character(Numeric Only)\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 18, 3, dtCheck.Rows[0]["RETURN TYPE"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "RETURN TYPE(" + dtCheck.Rows[0]["RETURN TYPE"].ToString() + ") not found in Database\n";
+                        ReturnTypeID = 0;
+                    }
+                    else
+                    {
+                        ReturnTypeID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                ReturnTypeID = 0;
+            }
+            #endregion
+            #region VECHICLE, TRANSPORT MODE, TRANSPORT TYPE
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["VECHICLE NUMBER"].ToString()))
+                {
+                    RowError += "VECHICLE NUMBER : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 17, 3, dtCheck.Rows[0]["VECHICLE NUMBER"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "VECHICLE NUMBER(" + dtCheck.Rows[0]["VECHICLE NUMBER"].ToString() + ") not found in Database\n";
+                        VehicleID = 0;
+                    }
+                    else
+                    {
+                        VehicleID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                VehicleID = 0;
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                {
+                    RowError += "TRANSPORT MODE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Road", "Rail", "Air", "Ship/Road cum ship" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT MODE"].ToString()))
+                    {
+                        RowError += "TRANSPORT MODE : Transport Mode Must be Road, Rail, Air ,Ship/Road cum ship";
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                {
+                    RowError += "TRANSPORT TYPE : Invalid character\n";
+                }
+                else
+                {
+                    var validtransportmode = new[] { "Regular", "ODC" };
+                    if (!validtransportmode.Contains(dtCheck.Rows[0]["TRANSPORT TYPE"].ToString()))
+                    {
+                        RowError += "TRANSPORT TYPE : Transport Type Must be Regular, ODC";
+                    }
+                }
+            }
+
+            #endregion
+            #region  REMARKS, TRANSPORT ID, TRANSPORT NAME, IRN, ACKNOWLEDGE NO & E-WAY NOO
+            string[] fields = { "REMARKS", "TRANSPORT ID", "TRANSPORT NAME", "IRN", "ACKNOWLEDGE NO", "ACKNOWLEDGE STATUS" };
+
+            DataRow row = dtCheck.Rows[0];
+
+            foreach (var field in fields)
+            {
+                ValidateAlphaNumericSplField(row, field, false, ref RowError);
+            }
+
+            ValidateNumericOnlyField(dtCheck.Rows[0], "EWAY BILL NO", false, ref RowError);
+            #endregion
+            return RowError;
+        }
+        #endregion        
+        #region Purchase Return Detail Validation
+        public string PurchaseReturnDetailValidation(DataTable dtCheck)
+        {
+            string RowError = "";
+            DataRow row = dtCheck.Rows[0];
+            DataTable dtProdData = new DataTable();
+            #region Doc ID
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
+                {
+                    RowError += "DOC ID * : Invalid Characters\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC ID * : DOC ID should not be empty\n";
+            }
+            #endregion
+            #region Product Name
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+                {
+                    RowError += "PRODUCT NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
+                    {
+                        RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
+                        ProductID = 0;
+                    }
+                    else
+                    {
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                RowError += "PRODUCT NAME * : PRODUCT Name should not be empty\n";
+            }
+            #endregion
+            #region Tax ame
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["TAX NAME *"].ToString()))
+                {
+                    RowError += "TAX NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 6, 3, dtCheck.Rows[0]["TAX NAME *"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* TAX NAME(" + dtCheck.Rows[0]["TAX NAME *"].ToString() + ") not found in Database\n";
+                        TaxID = 0;
+                    }
+                    else
+                    {
+                        TaxID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            else
+            {
+                RowError += "TAX NAME * : TAX Name should not be empty\n";
+            }
+            #endregion
+            #region Batch No , PKD & Expiry
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                {
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
+                }
+            }
+            #endregion
+            #region "ACTUAL QTY", "DAMAGE QTY", "FREE QTY", "PURCHASE PRICE" "MRP *"
+
+
+            string[] fields = { "ACTUAL QTY", "DAMAGE QTY", "FREE QTY", "PURCHASE PRICE",  "MRP" };
+            foreach (var field in fields)
+            {
+                ValidateNumericField(row, field, false, ref RowError);
+            }
+            decimal qty = objBL.BL_dValidation(dtCheck.Rows[0]["ACTUAL QTY"].ToString());
+            decimal DAMAGEqty = objBL.BL_dValidation(dtCheck.Rows[0]["DAMAGE QTY"].ToString());
+            decimal FREEqty = objBL.BL_dValidation(dtCheck.Rows[0]["FREE QTY"].ToString());
+            if (qty == 0 && DAMAGEqty == 0 && FREEqty == 0)
+            {
+                RowError += "QTY : Qty should not be empty. Give value in anyone QTY\n";
+            }
+            ValidatePercentageNumericField(row, "PRODUCT DISCOUNT", false, ref RowError);
+
+            #endregion
+            #region REASON
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["REASON NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["REASON NAME"].ToString()))
+                {
+                    RowError += "REASON NAME : Invalid Characters\n";
+                }
+                else
+                {
+                    DataTable dt = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 23, 3, dtCheck.Rows[0]["REASON NAME"].ToString());
+                    if (dt.Rows.Count == 0)
+                    {
+                        RowError += "* REASON NAME(" + dtCheck.Rows[0]["REASON NAME"].ToString() + ") not found in Database\n";
+                        ReasonID = 0;
+                    }
+                    else
+                    {
+                        ReasonID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+                }
+            }
+            #endregion
+            return RowError;
+        }
+
+        #endregion
+        public string SaleSRBillPRDetailValidation(DataTable dtCheck,string DocType)
+        {
+            string RowError = "";
+            DataRow row = dtCheck.Rows[0];
+            DataTable dtProdData = new DataTable();
+            #region Mandatory Field Validation
+            string strDocID = dtCheck.Rows[0]["DOC ID *"].ToString();
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["DOC ID *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["DOC ID *"].ToString()))
+                {
+                    RowError += "DOC ID * : Invalid Characters\n";
+                }
+            }
+            else
+            {
+                RowError += "DOC ID * : DOC ID should not be empty\n";
+            }
+            
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["PRODUCT NAME *"].ToString()))
+                {
+                    RowError += "PRODUCT NAME * : Invalid Characters\n";
+                }
+                else
+                {
+                    dtProdData = objBL.BL_ExecuteParamSP("uspgetsetImportExport", 5, 3, dtCheck.Rows[0]["PRODUCT NAME *"].ToString());
+                    if (dtProdData.Rows.Count == 0)
+                    {
+                        RowError += "* PRODUCT NAME(" + dtCheck.Rows[0]["PRODUCT NAME *"].ToString() + ") not found in Database\n";
+                        ProductID = 0;
+                    }
+                    else
+                    {
+                        ProductID = Convert.ToInt32(dtProdData.Rows[0][0].ToString());
+                        TrackPKDYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackPDK"].ToString()) ? 1 : 0;
+                        TrackBatchYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackBatch"].ToString()) ? 1 : 0;
+                        TrackInvYN = Convert.ToBoolean(dtProdData.Rows[0]["TrackInventory"].ToString()) ? 1 : 0;
                     }
                 }
             }
@@ -481,24 +2167,54 @@ namespace SampWebApi.Import_Utility
             {
                 RowError += "TAX NAME * : TAX Name should not be empty\n";
             }
+            if (DocType.ToLower() == "bill" || DocType.ToLower() == "pr")
+            {
+                if (TrackInvYN == 0)
+                {
+                    RowError += "* Track Inventory No Products should not be allowed\n";
+                }
+            }
             #endregion
             #region Non-Mandatory Field Validations
-            ValidateAlphaNumericSplField(row, "BATCH NUMBER", false, ref RowError);
-
-            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
+            
+            ValidateAlphaNumericSplField(row, "BATCH NUMBER", (ProductID > 0 && TrackBatchYN > 0), ref RowError);
+            if (ProductID > 0 && TrackPKDYN > 0)
             {
-                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
                 {
-                    RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["PKD DATE"].ToString()))
+                    {
+                        RowError += "PKD DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "PKD DATE * : PKD DATE should not be empty\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                    {
+                        RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    }
+                }
+                else
+                {
+                    RowError += "EXPIRY DATE * : EXPIRY DATE should not be empty\n";
                 }
             }
-            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+            else
             {
-                if (!objBL.BL_DateformatDMY(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["PKD DATE"].ToString()))
                 {
-                    RowError += "EXPIRY DATE : Invalid Date Format(Format : dd/MM/yyyy)\n";
+                    RowError += "PKD DATE : PKD No Product. Remove Date\n";
+                }
+                if (!string.IsNullOrEmpty(dtCheck.Rows[0]["EXPIRY DATE"].ToString()))
+                {
+                    RowError += "EXPIRY DATE : PKD No Product. Remove Date\n";
                 }
             }
+            
             string[] fields = {"ACTUAL QTY","DAMAGE QTY","FREE QTY","UOM PURCHASE PRICE",
                                 "UOM SALE PRICE","UOM ECP PRICE","UOM SPL PRICE","UOM MRP PRICE",
                                  "RETURN PRICE"};
@@ -533,14 +2249,14 @@ namespace SampWebApi.Import_Utility
             #endregion
             return RowError;
         }
-        public string SaleSRBillPRNetAmtValidation(DataTable dtHeaderrow, DataTable dtItemsData)
+        public string SaleSRBillPRNetAmtValidation(DataTable dtHeaderrow, DataTable dtItemsData,string strDocPrefix)
         {
             try
             {
                 string RowError = "";
                 var header = dtHeaderrow.Rows[0];
                 string strDocID = header["DOC ID *"].ToString();
-                string strDocPrefix = header["DOC PREFIX *"].ToString().ToLower();
+                //string strDocPrefix = header["DOC PREFIX *"].ToString().ToLower();
                 // Filter items
                 var items = dtItemsData.AsEnumerable()
                     .Where(r => r["DOC ID *"].ToString() == strDocID)
@@ -550,8 +2266,8 @@ namespace SampWebApi.Import_Utility
                     return $"No Item Details found for this Doc ID - {strDocID}";
 
                 // Header values
-                decimal tradeDiscPern = objBL.BL_dValidation(header["TRADE DISCOUNT"].ToString());
-                decimal addnlDiscPern = objBL.BL_dValidation(header["ADDITIONAL DISCOUNT"].ToString());
+                decimal tradeDiscPern = objBL.BL_dValidation(header["TRADE DISCOUNT %"].ToString());
+                decimal addnlDiscPern = objBL.BL_dValidation(header["ADDITIONAL DISCOUNT %"].ToString());
                 decimal headerNetAmt = objBL.BL_dValidation(header["NET AMOUNT *"].ToString());
 
                 decimal itemNetAmt = 0;
@@ -570,7 +2286,7 @@ namespace SampWebApi.Import_Utility
                         // Values
                         qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());
                         dmgQty = objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
-                        price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
+                        price = objBL.BL_dValidation(row["PURCHASE PRICE"].ToString());
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
 
                         // Calculations
@@ -696,7 +2412,7 @@ namespace SampWebApi.Import_Utility
             dtSaveResponse.Columns.Add("DocID", typeof(string));
             dtSaveResponse.Columns.Add("DocDate", typeof(string));
             dtSaveResponse.Columns.Add("Error", typeof(string));
-            string strDocID = "", strDocPrefix = "", strDocDate = "";
+            string strDocID = "", strDocPrefix = "Bill", strDocDate = "";
             try
             {
                 DataTable dtResult = new DataTable();
@@ -776,12 +2492,11 @@ namespace SampWebApi.Import_Utility
                 for (int i = 0; i < dtHeader.Rows.Count; i++)
                 {
                     var headerRow = dtHeader.Rows[i];
-                    strDocID = headerRow["DOC ID *"].ToString();
-                    strDocPrefix = headerRow["DOC PREFIX *"].ToString().ToLower();
+                    strDocID = headerRow["DOC ID *"].ToString();                    
                     strDocDate = headerRow["DOC Date *"].ToString();
-                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT"].ToString());
-                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT"].ToString());
-                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE"].ToString());
+                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT %"].ToString());
+                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT %"].ToString());
+                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
                     DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
@@ -803,17 +2518,20 @@ namespace SampWebApi.Import_Utility
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         uomcr = objBL.BL_dValidation(dtProductData.Rows[0]["BaseCR"]);
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
+                        var Proditems = items.AsEnumerable()
+                        .Where(r => r["PRODUCT NAME *"].ToString() == strDocID)
+                        .ToList();
                         BillTransAmount = dtItemTransPrices.Rows.Count > 0 ? objBL.BL_dValidation(dtItemTransPrices.Rows[0]["PurchaseBillPrice"]) : 0;
                         // Values
                         qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());
                         freeqty = objBL.BL_dValidation(row["FREE QTY"].ToString());
                         dmgQty = objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
-                        price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
+                        price = objBL.BL_dValidation(row["PURCHASE PRICE"].ToString());
 
-                        Saleprice = objBL.BL_dValidation(row["UOM SALE PRICE"].ToString());
-                        ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
-                        SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
-                        MRP = objBL.BL_dValidation(row["UOM MRP PRICE"].ToString());
+                        Saleprice = objBL.BL_dValidation(row["SALE PRICE"].ToString());
+                        ECPprice = objBL.BL_dValidation(row["ECP PRICE"].ToString());
+                        SPLprice = objBL.BL_dValidation(row["SPL PRICE"].ToString());
+                        MRP = objBL.BL_dValidation(row["MRP"].ToString());
                         Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
 
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
@@ -1003,7 +2721,7 @@ namespace SampWebApi.Import_Utility
             dtSaveResponse.Columns.Add("DocID", typeof(string));
             dtSaveResponse.Columns.Add("DocDate", typeof(string));
             dtSaveResponse.Columns.Add("Error", typeof(string));
-            string strDocID = "", strDocPrefix = "", strDocDate = "";
+            string strDocID = "", strDocPrefix = "PR", strDocDate = "";
             try
             {
                 DataTable dtResult = new DataTable();
@@ -1058,12 +2776,11 @@ namespace SampWebApi.Import_Utility
                 for (int i = 0; i < dtHeader.Rows.Count; i++)
                 {
                     var headerRow = dtHeader.Rows[i];
-                    strDocID = headerRow["DOC ID *"].ToString();
-                    strDocPrefix = headerRow["DOC PREFIX *"].ToString().ToLower();
+                    strDocID = headerRow["DOC ID *"].ToString();                    
                     strDocDate = headerRow["DOC Date *"].ToString();
-                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT"].ToString());
-                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT"].ToString());
-                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE"].ToString());
+                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT %"].ToString());
+                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT %"].ToString());
+                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
                     DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
@@ -1090,14 +2807,9 @@ namespace SampWebApi.Import_Utility
                         qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());
                         freeqty = objBL.BL_dValidation(row["FREE QTY"].ToString());
                         dmgQty = objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
-                        price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
+                        price = objBL.BL_dValidation(row["PURCHASE PRICE"].ToString());
 
-                        Saleprice = objBL.BL_dValidation(row["UOM SALE PRICE"].ToString());
-                        ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
-                        SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
-                        MRP = objBL.BL_dValidation(row["UOM MRP PRICE"].ToString());
-                        Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
-
+                        MRP = objBL.BL_dValidation(row["MRP"].ToString());
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
 
                         // Calculations
@@ -1315,7 +3027,7 @@ namespace SampWebApi.Import_Utility
             dtSaveResponse.Columns.Add("DocID", typeof(string));
             dtSaveResponse.Columns.Add("DocDate", typeof(string));
             dtSaveResponse.Columns.Add("Error", typeof(string));
-            string strDocID = "", strDocPrefix = "", strDocDate = "";
+            string strDocID = "", strDocPrefix = "SR", strDocDate = "";
             try
             {
                 #region Datatable Declaration
@@ -1403,12 +3115,12 @@ namespace SampWebApi.Import_Utility
                 {
                     var headerRow = dtHeader.Rows[i];
                     strDocID = headerRow["DOC ID *"].ToString();
-                    strDocPrefix = headerRow["DOC PREFIX *"].ToString().ToLower();
+                    //strDocPrefix = headerRow["DOC PREFIX *"].ToString().ToLower();
                     strDocDate = headerRow["DOC Date *"].ToString();
                     int TransType = objBL.BL_nValidation(headerRow["TRANSACTION TYPE"].ToString());
-                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT"].ToString());
-                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT"].ToString());
-                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE"].ToString());
+                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT %"].ToString());
+                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT %"].ToString());
+                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
                     DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
@@ -1436,16 +3148,17 @@ namespace SampWebApi.Import_Utility
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
                         BillTransAmount = dtItemTransPrices.Rows.Count > 0 ? objBL.BL_dValidation(dtItemTransPrices.Rows[0]["SalesReturnPrice"]) : 0;
                         // Values
-                        qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());
-                        freeqty = objBL.BL_dValidation(row["FREE QTY"].ToString());
-                        dmgQty = objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
-                        price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
+                        qty = objBL.BL_dValidation(row["QTY *"].ToString());
+                        freeqty = 0;// objBL.BL_dValidation(row["FREE QTY"].ToString());
+                        dmgQty = 0;//objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
+                        //price = objBL.BL_dValidation(row["PRICE *"].ToString());
 
-                        Saleprice = objBL.BL_dValidation(row["UOM SALE PRICE"].ToString());
-                        ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
-                        SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
-                        MRP = objBL.BL_dValidation(row["UOM MRP PRICE"].ToString());
-                        Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
+                        Saleprice = objBL.BL_dValidation(row["PRICE *"].ToString());
+                        //ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
+                        //SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
+                        MRP = objBL.BL_dValidation(row["MRP *"].ToString());
+                        decimal MRPExcl = Math.Round(MRP / (1 + (taxValue / 100)), 4);
+                        //Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
 
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
 
@@ -1478,7 +3191,7 @@ namespace SampWebApi.Import_Utility
                         dtRow["BatchYesNo"] = TrackBatchYN;
                         dtRow["PKDYesNo"] = TrackPKDYN;
                         dtRow["SerialYesNo"] = TrackSerialYN;
-                        dtRow["BaseUomPrice"] = Saleprice;
+                        dtRow["BaseUomPrice"] = MRPExcl;// Saleprice;
                         dtRow["UomId"] = BaseUOMID;
                         dtRow["UomQty"] = qty;
                         dtRow["UomPrice"] = Saleprice;
@@ -1503,7 +3216,7 @@ namespace SampWebApi.Import_Utility
                         string Exp = !string.IsNullOrEmpty(row["EXPIRY DATE"].ToString()) ? Convert.ToDateTime(row["EXPIRY DATE"].ToString()).ToString("dd/MM/yyyy") : null;
                         dtRow["PkgDate"] = PKD;
                         dtRow["ExpiryDate"] = Exp;
-                        dtRow["InventoryPrice"] = Saleprice;
+                        dtRow["InventoryPrice"] = MRPExcl;// Saleprice;
                         dtRow["MRP"] = MRP;
                         dtRow["UomCR"] = uomcr;
                         dtRow["InvQtyType"] = 1;
@@ -1650,7 +3363,7 @@ namespace SampWebApi.Import_Utility
             dtSaveResponse.Columns.Add("DocID", typeof(string));
             dtSaveResponse.Columns.Add("DocDate", typeof(string));
             dtSaveResponse.Columns.Add("Error", typeof(string));
-            string strDocID = "", strDocPrefix = "", strDocDate = "";
+            string strDocID = "", strDocPrefix = "Sales", strDocDate = "";
             try
             {
                 #region Datatable Declaration
@@ -1716,13 +3429,12 @@ namespace SampWebApi.Import_Utility
                 for (int i = 0; i < dtHeader.Rows.Count; i++)
                 {
                     var headerRow = dtHeader.Rows[i];
-                    strDocID = headerRow["DOC ID *"].ToString();
-                    strDocPrefix = headerRow["DOC PREFIX *"].ToString().ToLower();
+                    strDocID = headerRow["DOC ID *"].ToString();                    
                     strDocDate = headerRow["DOC Date *"].ToString();
-                    int TransType = objBL.BL_nValidation(headerRow["TRANSACTION TYPE"].ToString());
-                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT"].ToString());
-                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT"].ToString());
-                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE"].ToString());
+                    //int TransType = objBL.BL_nValidation(headerRow["TRANSACTION TYPE"].ToString());
+                    decimal tradeDiscPern = objBL.BL_dValidation(headerRow["TRADE DISCOUNT %"].ToString());
+                    decimal addnlDiscPern = objBL.BL_dValidation(headerRow["ADDITIONAL DISCOUNT %"].ToString());
+                    decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
                     DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
@@ -1750,17 +3462,24 @@ namespace SampWebApi.Import_Utility
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
                         BillTransAmount = dtItemTransPrices.Rows.Count > 0 ? objBL.BL_dValidation(dtItemTransPrices.Rows[0]["InvoicePrice"]) : 0;
                         // Values
-                        qty = objBL.BL_dValidation(row["ACTUAL QTY"].ToString());
-                        freeqty = objBL.BL_dValidation(row["FREE QTY"].ToString());
-                        dmgQty = objBL.BL_dValidation(row["DAMAGE QTY"].ToString());
-                        price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
+                        qty = objBL.BL_dValidation(row["QTY *"].ToString());                        
+                        //price = objBL.BL_dValidation(row["UOM PURCHASE PRICE"].ToString());
 
-                        Saleprice = objBL.BL_dValidation(row["UOM SALE PRICE"].ToString());
-                        ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
-                        SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
-                        MRP = objBL.BL_dValidation(row["UOM MRP PRICE"].ToString());
-                        decimal MRPExcl = MRP / (1 + (taxValue / 100));
-                        Returnprice = objBL.BL_dValidation(row["RETURN PRICE"].ToString());
+                        Saleprice = objBL.BL_dValidation(row["PRICE *"].ToString());
+                        //ECPprice = objBL.BL_dValidation(row["UOM ECP PRICE"].ToString());
+                        //SPLprice = objBL.BL_dValidation(row["UOM SPL PRICE"].ToString());
+
+                        MRP = objBL.BL_dValidation(row["MRP *"].ToString());
+                        if(MRP == 0)
+                        {
+                            DataTable dtBatch = objBL.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, 4, headerRow["DOC DATE *"], objBL.BL_nValidation(Convert.ToString(row["PRODUCT NAME *"])), 0);
+                            if(dtBatch.Rows.Count > 0)
+                            {
+                                MRP = objBL.BL_dValidation(dtBatch.Rows[0]["MRP"]);
+                            }
+                        }
+                        
+                        decimal MRPExcl = Math.Round(MRP / (1 + (taxValue / 100)),4);                        
 
                         prodDiscPern = objBL.BL_dValidation(row["PRODUCT DISCOUNT"].ToString());
 
@@ -1793,7 +3512,7 @@ namespace SampWebApi.Import_Utility
                         dtRow["BatchYesNo"] = TrackBatchYN;
                         dtRow["PKDYesNo"] = TrackPKDYN;
                         dtRow["SerialYesNo"] = TrackSerialYN;
-                        dtRow["BaseUomPrice"] = Saleprice;
+                        dtRow["BaseUomPrice"] = MRPExcl;// Saleprice;
                         dtRow["UomId"] = BaseUOMID;
                         dtRow["UomQty"] = qty;
                         dtRow["UomPrice"] = Saleprice;

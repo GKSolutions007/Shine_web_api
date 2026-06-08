@@ -63,6 +63,13 @@ namespace SampWebApi.Models
         public string TransportMode { get; set; }
         public string TransactionID { get; set; }
         public string TransactionName { get; set; }
+
+        public string IRN { get; set; }
+        public string AckNo { get; set; }
+        public string AckDate { get; set; }
+        public string SignedQRCode { get; set; }
+        public string EWBNo { get; set; }
+        public string AckStatus { get; set; }
         public string DiffValueGross { get; set; }
         public string DiffValueNet { get; set; }
         public List<CustomerVendorModel> lstPartyInfo { get; set; }

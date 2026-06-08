@@ -102,7 +102,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/maprole/gettreedata")]
-        public string GetTreeData(string RoleID, string UID)
+        public IHttpActionResult GetTreeData(string RoleID, string UID)
         {
             if (!string.IsNullOrEmpty(RoleID.Trim()))
             {
@@ -110,10 +110,12 @@ namespace SampWebApi.Controllers
                 //DataRow[] dr = dtCheckNameExists.Select("UserName = '" + strRoleName.Trim() + "'");
                 //if (dr.Count() > 0)
                 //{
-                DataTable dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID);
+                string WebPerm = "", MobilePerm = "";
+                DataTable dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 0);
+
                 if (dt.Rows.Count > 0)
                 {
-                    MapRoleModel root = new MapRoleModel { id = "MapRole", children = { }, state = new clsState() { selected = false }, text = "Map Role" };
+                    MapRoleModel root = new MapRoleModel { id = "MapRole", children = { }, state = new clsState() { selected = false }, text = "Web Permissions" };
                     DataView view = new DataView(dt);
                     view.RowFilter = "MenuParentId=0";
                     view.Sort = "MenuId";
@@ -124,12 +126,36 @@ namespace SampWebApi.Controllers
                         root.children.Add(node);
                         AddChildItems(dt, node, parentId);
                     }
-                    string finalmenus = (new JavaScriptSerializer().Serialize(root));
-                    return (finalmenus);
+                    WebPerm = (new JavaScriptSerializer().Serialize(root));
+                }
+                dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 1);
+
+                if (dt.Rows.Count > 0)
+                {
+                    MapRoleModel root = new MapRoleModel { id = "MobileMapRole", children = { }, state = new clsState() { selected = false }, text = "Mobile Permissions" };
+                    DataView view = new DataView(dt);
+                    view.RowFilter = "MenuParentId=0";
+                    view.Sort = "MenuId";
+                    foreach (DataRowView kvp in view)
+                    {
+                        string parentId = kvp["MenuId"].ToString();
+                        MapRoleModel node = new MapRoleModel { id = kvp["MenuId"].ToString(), state = new clsState() { selected = false }, text = kvp["MenuName"].ToString() };
+                        root.children.Add(node);
+                        AddChildItems(dt, node, parentId);
+                    }
+                    MobilePerm = (new JavaScriptSerializer().Serialize(root));
                 }
                 //}
+                var objPermissions = new List<object>();
+                objPermissions.Add(new
+                {
+                    WebPermissions = WebPerm,
+                    MobilePermissions = MobilePerm
+                });
+                return Ok(objPermissions);
+
             }
-            return (new JavaScriptSerializer().Serialize(null));
+            return Ok();// (new JavaScriptSerializer().Serialize(null));
         }
 
         private void AddChildItems(DataTable dt, MapRoleModel parentNode, string ParentId)

@@ -233,57 +233,57 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/gstreportexport/gstexport")]
-        public HttpResponseMessage GSTExportData(string FromDate,string ToDate,string EInvOnly)
+        public HttpResponseMessage GSTExportData(string FromDate,string ToDate,string EInvOnly,string Branch)
         {
             DataSet dtGSTData = new DataSet();
 
             DataTable DDT = new DataTable();
             DataSet DS = new DataSet();
-            DataTable dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "S", FromDate,ToDate);
+            DataTable dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "S", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[0].TableName = "Sales";
             
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "SR", FromDate,ToDate);
+            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "SR", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[1].TableName = "Sales Return";
             
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "P", FromDate,ToDate);
+            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "P", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[2].TableName = "Purchase";
             
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PR", FromDate,ToDate);
+            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PR", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[3].TableName = "Purchase Return";
             
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PV", FromDate,ToDate);
+            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PV", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[4].TableName = "Payable Voucher";
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "RV", FromDate,ToDate);
+            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "RV", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[5].TableName = "Recievable Vouncer";
            
 
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2b", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2b", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[6].TableName = "b2b";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cl", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cl", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[7].TableName = "b2cl";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cs", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cs", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[8].TableName = "b2cs";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnr", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnr", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[9].TableName = "cdnr";
            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnur", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnur", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[10].TableName = "cdnur";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSN", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSN", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[11].TableName = "HSN";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2B", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2B", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[12].TableName = "hsn(b2b)";
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[13].TableName = "hsn(b2c)";
             
             //dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
             //DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
             
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate,ToDate, EInvOnly);
+            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate,ToDate, EInvOnly, Branch);
             DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Documents";
             
            
@@ -444,11 +444,20 @@ namespace SampWebApi.Controllers
 
                     for (int i = 0; i < dtRanges.Rows.Count; i++)
                     {
-                        DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                        DocValue += FilterData.TransName.ToLower() == "delivery" ? (dtRanges.Rows[i][0].ToString() + ",") : ("'" + dtRanges.Rows[i][0].ToString() + "',");
                     }
                 }
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
-                    DocValue, FilterData.Party, FilterData.FilterType);
+                DataTable dtResult = new DataTable();
+                if (FilterData.TransName.ToLower() == "delivery")
+                {
+                    dtResult = bl.BL_ExecuteParamSP("uspLoadDeliveryDocumentData", FilterData.Branch, FilterData.FromDate, FilterData.ToDate,
+                        DocValue, FilterData.Party, FilterData.FilterType, FilterData.TransMode, FilterData.TransIdentID);
+                }
+                else
+                {
+                    dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
+                           DocValue, FilterData.Party, FilterData.FilterType);
+                }
                 string JSONCONV = JsonConvert.SerializeObject(dtResult);
                 return Ok(JSONCONV);
             }

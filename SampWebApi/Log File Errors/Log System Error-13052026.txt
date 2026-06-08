@@ -1,0 +1,336 @@
+13/05/2026 11:54:27 AM |Invoice filter | Start | 13-May-2026 11:54:27 5832
+13/05/2026 11:54:27 AM |Invoice filter | Data Timing | 
+Start : 13-May-2026 11:54:27 5832
+Data Get : 13-May-2026 11:54:27 7621
+Bind Complete : 13-May-2026 11:54:27 7631
+
+13/05/2026 11:54:37 AM |Invoice filter | Start | 13-May-2026 11:54:37 6275
+13/05/2026 11:54:37 AM |Invoice filter | Data Timing | 
+Start : 13-May-2026 11:54:37 6275
+Data Get : 13-May-2026 11:54:37 6757
+Bind Complete : 13-May-2026 11:54:37 6757
+
+13/05/2026 11:54:37 AM |Invoice filter | Start | 13-May-2026 11:54:37 6918
+13/05/2026 11:54:37 AM |Invoice filter | Data Timing | 
+Start : 13-May-2026 11:54:37 6918
+Data Get : 13-May-2026 11:54:37 7389
+Bind Complete : 13-May-2026 11:54:37 7389
+
+13/05/2026 11:55:28 AM |Invoice filter | Start | 13-May-2026 11:55:28 1629
+13/05/2026 11:55:28 AM |Invoice filter | Data Timing | 
+Start : 13-May-2026 11:55:28 1619
+Data Get : 13-May-2026 11:55:28 2291
+Bind Complete : 13-May-2026 11:55:28 2291
+
+13/05/2026 12:00:36 PM |Invoice filter | Start | 13-May-2026 12:00:36 6789
+13/05/2026 12:00:36 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:00:36 6789
+Data Get : 13-May-2026 12:00:36 7416
+Bind Complete : 13-May-2026 12:00:36 7416
+
+13/05/2026 12:01:14 PM |Invoice filter | Start | 13-May-2026 12:01:14 0252
+13/05/2026 12:01:14 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:01:14 0252
+Data Get : 13-May-2026 12:01:14 0717
+Bind Complete : 13-May-2026 12:01:14 0717
+
+13/05/2026 12:02:43 PM |Invoice filter | Start | 13-May-2026 12:02:43 3956
+13/05/2026 12:02:43 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:02:43 3956
+Data Get : 13-May-2026 12:02:43 4518
+Bind Complete : 13-May-2026 12:02:43 4518
+
+13/05/2026 12:02:58 PM |Invoice filter | Start | 13-May-2026 12:02:58 7152
+13/05/2026 12:02:58 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:02:58 7152
+Data Get : 13-May-2026 12:02:58 7692
+Bind Complete : 13-May-2026 12:02:58 7692
+
+13/05/2026 12:03:14 PM |Invoice filter | Start | 13-May-2026 12:03:14 1342
+13/05/2026 12:03:14 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:03:14 1342
+Data Get : 13-May-2026 12:03:14 1972
+Bind Complete : 13-May-2026 12:03:14 1972
+
+13/05/2026 12:06:28 PM |Invoice filter | Start | 13-May-2026 12:06:28 5947
+13/05/2026 12:06:28 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:06:28 5947
+Data Get : 13-May-2026 12:06:28 6530
+Bind Complete : 13-May-2026 12:06:28 6530
+
+13/05/2026 12:10:51 PM |Invoice filter | Start | 13-May-2026 12:10:51 2043
+13/05/2026 12:10:51 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:10:51 2043
+Data Get : 13-May-2026 12:10:51 2590
+Bind Complete : 13-May-2026 12:10:51 2590
+
+13/05/2026 12:12:46 PM |Invoice filter | Start | 13-May-2026 12:12:46 4749
+13/05/2026 12:12:46 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:12:46 4749
+Data Get : 13-May-2026 12:12:46 5484
+Bind Complete : 13-May-2026 12:12:46 5484
+
+13/05/2026 12:19:23 PM |Invoice filter | Start | 13-May-2026 12:19:23 1702
+13/05/2026 12:19:23 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:19:23 1702
+Data Get : 13-May-2026 12:19:23 2230
+Bind Complete : 13-May-2026 12:19:23 2230
+
+13/05/2026 12:20:07 PM |Invoice filter | Start | 13-May-2026 12:20:07 4011
+13/05/2026 12:20:07 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:20:07 4011
+Data Get : 13-May-2026 12:20:07 4604
+Bind Complete : 13-May-2026 12:20:07 4604
+
+13/05/2026 12:20:15 PM |Invoice filter | Start | 13-May-2026 12:20:15 6089
+13/05/2026 12:20:15 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:20:15 6089
+Data Get : 13-May-2026 12:20:15 6567
+Bind Complete : 13-May-2026 12:20:15 6567
+
+13/05/2026 12:21:39 PM |Invoice filter | Start | 13-May-2026 12:21:39 1208
+13/05/2026 12:21:39 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:21:39 1208
+Data Get : 13-May-2026 12:21:39 1737
+Bind Complete : 13-May-2026 12:21:39 1737
+
+13/05/2026 12:26:39 PM |Invoice filter | Start | 13-May-2026 12:26:39 3823
+13/05/2026 12:26:39 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:26:39 3823
+Data Get : 13-May-2026 12:26:39 4409
+Bind Complete : 13-May-2026 12:26:39 4409
+
+13/05/2026 12:27:06 PM |Invoice filter | Start | 13-May-2026 12:27:06 5155
+13/05/2026 12:27:06 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:27:06 5155
+Data Get : 13-May-2026 12:27:06 5759
+Bind Complete : 13-May-2026 12:27:06 5759
+
+13/05/2026 12:27:25 PM |Invoice filter | Start | 13-May-2026 12:27:25 8855
+13/05/2026 12:27:25 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:27:25 8855
+Data Get : 13-May-2026 12:27:25 9335
+Bind Complete : 13-May-2026 12:27:25 9335
+
+13/05/2026 12:28:13 PM |Invoice filter | Start | 13-May-2026 12:28:13 6670
+13/05/2026 12:28:13 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 12:28:13 6670
+Data Get : 13-May-2026 12:28:13 7333
+Bind Complete : 13-May-2026 12:28:13 7333
+
+13/05/2026 01:57:23 PM |Invoice filter | Start | 13-May-2026 01:57:23 6160
+13/05/2026 01:57:23 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 01:57:23 6160
+Data Get : 13-May-2026 01:57:23 6647
+Bind Complete : 13-May-2026 01:57:23 6666
+
+13/05/2026 01:58:22 PM |Invoice filter | Start | 13-May-2026 01:58:22 7893
+13/05/2026 01:58:22 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 01:58:22 7893
+Data Get : 13-May-2026 01:58:22 8398
+Bind Complete : 13-May-2026 01:58:22 8398
+
+13/05/2026 01:58:31 PM |Invoice filter | Start | 13-May-2026 01:58:31 2973
+13/05/2026 01:58:31 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 01:58:31 2973
+Data Get : 13-May-2026 01:58:31 3507
+Bind Complete : 13-May-2026 01:58:31 3507
+
+13/05/2026 01:58:31 PM |Invoice filter | Start | 13-May-2026 01:58:31 3742
+13/05/2026 01:58:31 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 01:58:31 3742
+Data Get : 13-May-2026 01:58:31 4223
+Bind Complete : 13-May-2026 01:58:31 4223
+
+13/05/2026 02:00:46 PM |Invoice filter | Start | 13-May-2026 02:00:46 6711
+13/05/2026 02:00:46 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:00:46 6711
+Data Get : 13-May-2026 02:00:46 7216
+Bind Complete : 13-May-2026 02:00:46 7227
+
+13/05/2026 02:01:58 PM |Invoice filter | Start | 13-May-2026 02:01:58 0966
+13/05/2026 02:01:58 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:01:58 0966
+Data Get : 13-May-2026 02:01:58 1457
+Bind Complete : 13-May-2026 02:01:58 1457
+
+13/05/2026 02:02:13 PM |Invoice filter | Start | 13-May-2026 02:02:13 9006
+13/05/2026 02:02:13 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:02:13 9006
+Data Get : 13-May-2026 02:02:13 9550
+Bind Complete : 13-May-2026 02:02:13 9550
+
+13/05/2026 02:02:13 PM |Invoice filter | Start | 13-May-2026 02:02:13 9710
+13/05/2026 02:02:14 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:02:13 9710
+Data Get : 13-May-2026 02:02:14 0149
+Bind Complete : 13-May-2026 02:02:14 0149
+
+13/05/2026 02:07:39 PM |Invoice filter | Start | 13-May-2026 02:07:39 3351
+13/05/2026 02:07:39 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:07:39 3351
+Data Get : 13-May-2026 02:07:39 3867
+Bind Complete : 13-May-2026 02:07:39 3867
+
+13/05/2026 02:09:19 PM |Invoice filter | Start | 13-May-2026 02:09:19 0547
+13/05/2026 02:09:19 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:09:19 0547
+Data Get : 13-May-2026 02:09:19 1140
+Bind Complete : 13-May-2026 02:09:19 1140
+
+13/05/2026 02:10:37 PM |Invoice filter | Start | 13-May-2026 02:10:37 5169
+13/05/2026 02:10:37 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:10:37 5169
+Data Get : 13-May-2026 02:10:37 5690
+Bind Complete : 13-May-2026 02:10:37 5690
+
+13/05/2026 02:11:29 PM |Invoice filter | Start | 13-May-2026 02:11:29 1687
+13/05/2026 02:11:29 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:11:29 1687
+Data Get : 13-May-2026 02:11:29 2284
+Bind Complete : 13-May-2026 02:11:29 2284
+
+13/05/2026 02:12:36 PM |Invoice filter | Start | 13-May-2026 02:12:36 2397
+13/05/2026 02:12:36 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:12:36 2397
+Data Get : 13-May-2026 02:12:36 3975
+Bind Complete : 13-May-2026 02:12:36 3975
+
+13/05/2026 02:18:23 PM |Invoice filter | Start | 13-May-2026 02:18:23 7901
+13/05/2026 02:18:23 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:18:23 7901
+Data Get : 13-May-2026 02:18:23 8373
+Bind Complete : 13-May-2026 02:18:23 8383
+
+13/05/2026 02:19:00 PM |Invoice filter | Start | 13-May-2026 02:19:00 3932
+13/05/2026 02:19:00 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:19:00 3932
+Data Get : 13-May-2026 02:19:00 4446
+Bind Complete : 13-May-2026 02:19:00 4446
+
+13/05/2026 02:19:00 PM |Invoice filter | Start | 13-May-2026 02:19:00 4795
+13/05/2026 02:19:00 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 02:19:00 4795
+Data Get : 13-May-2026 02:19:00 5258
+Bind Complete : 13-May-2026 02:19:00 5258
+
+13/05/2026 04:29:53 PM |Invoice filter | Start | 13-May-2026 04:29:53 6926
+13/05/2026 04:29:53 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:29:53 6916
+Data Get : 13-May-2026 04:29:53 7460
+Bind Complete : 13-May-2026 04:29:53 7471
+
+13/05/2026 04:38:25 PM |Invoice filter | Start | 13-May-2026 04:38:25 5317
+13/05/2026 04:38:25 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:38:25 5317
+Data Get : 13-May-2026 04:38:25 5796
+Bind Complete : 13-May-2026 04:38:25 5796
+
+13/05/2026 04:40:48 PM |Invoice filter | Start | 13-May-2026 04:40:48 9968
+13/05/2026 04:40:49 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:40:48 9968
+Data Get : 13-May-2026 04:40:49 0472
+Bind Complete : 13-May-2026 04:40:49 0472
+
+13/05/2026 04:41:54 PM |Invoice filter | Start | 13-May-2026 04:41:54 4084
+13/05/2026 04:41:54 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:41:54 4084
+Data Get : 13-May-2026 04:41:54 4610
+Bind Complete : 13-May-2026 04:41:54 4610
+
+13/05/2026 04:46:22 PM |Invoice filter | Start | 13-May-2026 04:46:22 3464
+13/05/2026 04:46:22 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:46:22 3464
+Data Get : 13-May-2026 04:46:22 4162
+Bind Complete : 13-May-2026 04:46:22 4162
+
+13/05/2026 04:52:03 PM |Invoice filter | Start | 13-May-2026 04:52:03 9387
+13/05/2026 04:52:03 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:52:03 9387
+Data Get : 13-May-2026 04:52:03 9886
+Bind Complete : 13-May-2026 04:52:03 9886
+
+13/05/2026 04:55:58 PM |Invoice filter | Start | 13-May-2026 04:55:58 1482
+13/05/2026 04:55:58 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:55:58 1482
+Data Get : 13-May-2026 04:55:58 1973
+Bind Complete : 13-May-2026 04:55:58 1973
+
+13/05/2026 04:57:41 PM |Invoice filter | Start | 13-May-2026 04:57:41 2039
+13/05/2026 04:57:41 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:57:41 2039
+Data Get : 13-May-2026 04:57:41 2500
+Bind Complete : 13-May-2026 04:57:41 2500
+
+13/05/2026 04:57:56 PM |Invoice filter | Start | 13-May-2026 04:57:56 2207
+13/05/2026 04:57:56 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:57:56 2207
+Data Get : 13-May-2026 04:57:56 2678
+Bind Complete : 13-May-2026 04:57:56 2678
+
+13/05/2026 04:58:53 PM |Invoice filter | Start | 13-May-2026 04:58:53 5631
+13/05/2026 04:58:53 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 04:58:53 5631
+Data Get : 13-May-2026 04:58:53 6204
+Bind Complete : 13-May-2026 04:58:53 6204
+
+13/05/2026 05:00:21 PM |Invoice filter | Start | 13-May-2026 05:00:21 7289
+13/05/2026 05:00:21 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 05:00:21 7289
+Data Get : 13-May-2026 05:00:21 7933
+Bind Complete : 13-May-2026 05:00:21 7933
+
+13/05/2026 05:01:14 PM |Invoice filter | Start | 13-May-2026 05:01:14 5246
+13/05/2026 05:01:14 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 05:01:14 5246
+Data Get : 13-May-2026 05:01:14 5768
+Bind Complete : 13-May-2026 05:01:14 5768
+
+13/05/2026 05:01:14 PM |Invoice filter | Start | 13-May-2026 05:01:14 5931
+13/05/2026 05:01:14 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 05:01:14 5931
+Data Get : 13-May-2026 05:01:14 6516
+Bind Complete : 13-May-2026 05:01:14 6516
+
+13/05/2026 07:18:28 PM |Invoice filter | Start | 13-May-2026 07:18:28 9760
+13/05/2026 07:18:29 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:18:28 9760
+Data Get : 13-May-2026 07:18:29 0322
+Bind Complete : 13-May-2026 07:18:29 0334
+
+13/05/2026 07:18:57 PM |Invoice filter | Start | 13-May-2026 07:18:57 6462
+13/05/2026 07:18:57 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:18:57 6462
+Data Get : 13-May-2026 07:18:57 7103
+Bind Complete : 13-May-2026 07:18:57 7103
+
+13/05/2026 07:18:57 PM |Invoice filter | Start | 13-May-2026 07:18:57 7233
+13/05/2026 07:18:57 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:18:57 7233
+Data Get : 13-May-2026 07:18:57 7688
+Bind Complete : 13-May-2026 07:18:57 7688
+
+13/05/2026 07:23:33 PM |Invoice filter | Start | 13-May-2026 07:23:33 6518
+13/05/2026 07:23:33 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:23:33 6518
+Data Get : 13-May-2026 07:23:33 7046
+Bind Complete : 13-May-2026 07:23:33 7046
+
+13/05/2026 07:27:26 PM |Invoice filter | Start | 13-May-2026 07:27:26 8051
+13/05/2026 07:27:26 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:27:26 8051
+Data Get : 13-May-2026 07:27:26 8584
+Bind Complete : 13-May-2026 07:27:26 8584
+
+13/05/2026 07:27:26 PM |Invoice filter | Start | 13-May-2026 07:27:26 8784
+13/05/2026 07:27:26 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:27:26 8784
+Data Get : 13-May-2026 07:27:26 9280
+Bind Complete : 13-May-2026 07:27:26 9280
+
+13/05/2026 07:27:39 PM |Invoice filter | Start | 13-May-2026 07:27:39 6048
+13/05/2026 07:27:39 PM |Invoice filter | Data Timing | 
+Start : 13-May-2026 07:27:39 6048
+Data Get : 13-May-2026 07:27:39 6535
+Bind Complete : 13-May-2026 07:27:39 6535
+

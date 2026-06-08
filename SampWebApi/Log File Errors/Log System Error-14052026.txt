@@ -1,0 +1,17 @@
+14/05/2026 12:04:15 PM |Stop Watch | Check Print Completion Time | 8.3920799 Secs
+14/05/2026 12:05:34 PM |Stop Watch | Check Print Completion Time | 1.227801 Secs
+14/05/2026 12:12:45 PM |Stop Watch | Check Print Completion Time | 1.5015271 Secs
+14/05/2026 02:10:05 PM |Stop Watch | Check Print Completion Time | 1.6736411 Secs
+14/05/2026 02:11:34 PM |Stop Watch | Check Print Completion Time | 14.3501794 Secs
+14/05/2026 02:22:07 PM |Invoice filter | Start | 14-May-2026 02:22:07 1549
+14/05/2026 02:22:07 PM |Invoice filter | Data Timing | 
+Start : 14-May-2026 02:22:07 1549
+Data Get : 14-May-2026 02:22:07 2870
+Bind Complete : 14-May-2026 02:22:07 3070
+
+14/05/2026 05:53:19 PM |Invoice filter | Start | 14-May-2026 05:53:19 9449
+14/05/2026 05:53:20 PM |Invoice filter | Data Timing | 
+Start : 14-May-2026 05:53:19 9449
+Data Get : 14-May-2026 05:53:20 0212
+Bind Complete : 14-May-2026 05:53:20 0247
+

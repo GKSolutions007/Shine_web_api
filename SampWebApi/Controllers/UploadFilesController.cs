@@ -44,7 +44,7 @@ namespace SampWebApi.Controllers
                     string path = dtBakPath.Rows[0]["BackupPath"].ToString();
                     string strFilePath = path + "\\myUploadFiles\\";
                     string UserID = HttpContext.Current.Request.Files.AllKeys[0].ToString();
-                    for (int i = 1; i < HttpContext.Current.Request.Files.Count; i++)
+                    for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                     {
                         string fileName = HttpContext.Current.Request.Files[i].FileName;
                         string fileContentType = HttpContext.Current.Request.Files[i].ContentType;
@@ -53,7 +53,7 @@ namespace SampWebApi.Controllers
                         {
                             Directory.CreateDirectory(strFilePath);
                         }
-                        HttpContext.Current.Request.Files[1].SaveAs(strFilePath + fileName);
+                        HttpContext.Current.Request.Files[i].SaveAs(strFilePath + fileName);
                     }
                     MTM.Add(new ImportResults()
                     {

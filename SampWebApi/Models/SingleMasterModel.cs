@@ -272,7 +272,7 @@ namespace SampWebApi.Models
         public string AutocompleteBG { get; set; }
         public string AutocompleteLine1 { get; set; }
         public string AutocompleteLine2 { get; set; }
-
+        public string ButtonTextColor { get; set; }
     }
     public class ApplicationConfig
     {
@@ -315,7 +315,12 @@ namespace SampWebApi.Models
         public string DraftAutoSaveTimeInterval { get; set; }        
         public string HomePeriod { get; set; }
         public string AutoRefresh { get; set; }
-        
+
+        public string CTPAmount { get; set; }
+        public string CTPPoint { get; set; }
+        public string CTPPerPointAmount { get; set; }
+        public string UpdateVendorinProduct { get; set; }
+        public string Radius { get; set; }
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         
@@ -374,13 +379,15 @@ namespace SampWebApi.Models
         public string PhoneNo { get; set; }
         public string Website { get; set; }
         public string Email { get; set; }
+        public string CCEmail { get; set; }
         public string FSSAI { get; set; }
         public string AadharNo { get; set; }
         public string PANNo { get; set; }
         public string GSTIN { get; set; }
         public string Dl_20 { get; set; }
         public string Dl_21 { get; set; }
-        
+        public string F_SD { get; set; }
+        public string F_ED { get; set; }
         public List<PaymodeAppconfig> lstState { get; set; }
     }
     public class DiscountScheme
@@ -394,6 +401,7 @@ namespace SampWebApi.Models
         public string ReplaceExists { get; set; }
         public string FromDate { get; set; }
         public string ToDate { get; set; }
+        public string MapByID { get; set; }
         public string lstCustomers { get; set; }
         public string lstProducts { get; set; }
         public string CustomerCount { get; set; }
@@ -588,7 +596,10 @@ namespace SampWebApi.Models
         public string DocRange { get; set; }
         public string Party { get; set; }
         public string FilterType { get; set; }
-
+        public string Branch { get; set; }
+        public string TransName { get; set; }
+        public string TransMode { get; set; }
+        public string TransIdentID { get; set; }
     }
     public class Tax
     {

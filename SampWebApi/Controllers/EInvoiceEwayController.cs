@@ -412,7 +412,8 @@ namespace SampWebApi.Controllers
                     string Doc = DocValue.Remove(DocValue.Length - 1);
                     bl.BL_ExecuteParamSP("uspUpdateEwayInTrans", 2, Doc, selectedData[0].VehicleNo, selectedData[0].Distance,
                                                     selectedData[0].TransportMode, selectedData[0].TransportType, selectedData[0].TransactionID,
-                                                     selectedData[0].TransactionName);
+                                                     selectedData[0].TransactionName, selectedData[0].Branch,
+                                                     selectedData[0].FromDate, selectedData[0].ToDate);
                 }
             }
             return Ok();

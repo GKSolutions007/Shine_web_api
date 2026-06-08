@@ -573,7 +573,7 @@ namespace SampWebApi.Controllers
             }
             if (Mode == "15")
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, null, CodeName);
+                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, ID, CodeName);
                 return Ok("0");
             }
             if (Mode == "20")
@@ -1263,7 +1263,8 @@ namespace SampWebApi.Controllers
                                      bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), TotDiscAmt,
                                      bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), dtProd, dtTempBachInfo, nTransType, bl.BL_nValidation(listTrans.ReturnType),
                                      null, bl.BL_nValidation(listTrans.AdjustInvoiceID), 0, bl.BL_dValidation(listTrans.TCSTaxAmt), 0,
-                                     listTrans.Remarks, listTrans.Narration, bl.BL_nValidation(listTrans.DraftID), bl.BL_dValidation(listTrans.DiffValueGross), bl.BL_dValidation(listTrans.DiffValueNet));
+                                     listTrans.Remarks, listTrans.Narration, bl.BL_nValidation(listTrans.DraftID), bl.BL_dValidation(listTrans.DiffValueGross), 
+                                     bl.BL_dValidation(listTrans.DiffValueNet), bl.BL_nValidation(listTrans.FilterTypeID));
                                 if (dtResult.Columns.Count > 1)
                                 {
                                     bl.bl_Transaction(3);
