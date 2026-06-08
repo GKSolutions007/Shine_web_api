@@ -23,61 +23,92 @@ namespace SampWebApi.Controllers
         [Route("api/printprofileconfig/get")]
         public IHttpActionResult GetProfile()
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManagePrintProfileconfig",1);
-            string val = JsonConvert.SerializeObject(DDT);
-            return Ok(val);
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 1);
+                string val = JsonConvert.SerializeObject(DDT);
+                return Ok(val);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "printprofileconfig/get", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/printprofileconfig/getprofile")]
         public IHttpActionResult GetProfilebyid(string TransID)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 3, TransID);
-            string val = JsonConvert.SerializeObject(DDT);
-            return Ok(val);
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 3, TransID);
+                string val = JsonConvert.SerializeObject(DDT);
+                return Ok(val);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "printprofileconfig/getprofile", ex.Message);
+            }
+            return Ok();
         }
         [HttpPost]
         [Route("api/printprofileconfig/save")]
         public IHttpActionResult saveupdateproductlocation(List<PrintProfileConfig> lstProfiles)
         {
-            List<SaveMessage> list = new List<SaveMessage>();
-            if (lstProfiles != null)
+            try
             {
-                foreach (PrintProfileConfig item in lstProfiles)
+                List<SaveMessage> list = new List<SaveMessage>();
+                if (lstProfiles != null)
                 {
-                    bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 2, item.TransID, item.ConfigID, item.DefaultConfig, item.AutoMail,
-                        item.UserID);
+                    foreach (PrintProfileConfig item in lstProfiles)
+                    {
+                        bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 2, item.TransID, item.ConfigID, item.DefaultConfig, item.AutoMail,
+                            item.UserID);
+                    }
+                    list.Add(new SaveMessage()
+                    {
+                        ID = 0.ToString(),
+                        MsgID = "0",
+                        Message = "Saved successfully"
+                    });
+                    return Ok(list);
                 }
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),
-                    MsgID = "0",
-                    Message = "Saved successfully"
+                    MsgID = "1",
+                    Message = "Data not saved. Try again"
                 });
                 return Ok(list);
             }
-            list.Add(new SaveMessage()
+            catch(Exception ex)
             {
-                ID = 0.ToString(),
-                MsgID = "1",
-                Message = "Data not saved. Try again"
-            });
-            return Ok(list);
+                bl.BL_WriteErrorMsginLog("Tools", "printprofileconfig/save", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/transactionvariant/gettrans")]
         public IHttpActionResult GetTrans(int Mode, int PartyType)
         {
-            if (Mode == 1)
+            try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageTransVariant", Mode);
-                string val = JsonConvert.SerializeObject(DDT);
-                return Ok(val);
+                if (Mode == 1)
+                {
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTransVariant", Mode);
+                    string val = JsonConvert.SerializeObject(DDT);
+                    return Ok(val);
+                }
+                else if (Mode == 2)
+                {
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTransVariant", Mode, PartyType);
+                    string val = JsonConvert.SerializeObject(DDT);
+                    return Ok(val);
+                }
             }
-            else if(Mode == 2)
+            catch(Exception ex)
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageTransVariant", Mode, PartyType);
-                string val = JsonConvert.SerializeObject(DDT);
-                return Ok(val);
+                bl.BL_WriteErrorMsginLog("Tools", "transactionvariant/gettrans", ex.Message);
             }
             return Ok();
         }
@@ -85,75 +116,90 @@ namespace SampWebApi.Controllers
         [Route("api/maprole/getroles")]
         public IHttpActionResult GetRoleNames(int RoleID)
         {
-            var RolesList = new List<object>();
-            DataTable dtComboBoxData = bl.BL_ExecuteParamSP("uspManageUsers", 7, RoleID);
-            if(dtComboBoxData.Rows.Count > 0)
+            try
             {
-                for (int i = 0; i < dtComboBoxData.Rows.Count; i++)
+                var RolesList = new List<object>();
+                DataTable dtComboBoxData = bl.BL_ExecuteParamSP("uspManageUsers", 7, RoleID);
+                if (dtComboBoxData.Rows.Count > 0)
                 {
-                    RolesList.Add(new
+                    for (int i = 0; i < dtComboBoxData.Rows.Count; i++)
                     {
-                        RoleID = dtComboBoxData.Rows[i][0].ToString(),
-                        RoleName = dtComboBoxData.Rows[i][1].ToString()
-                    });
+                        RolesList.Add(new
+                        {
+                            RoleID = dtComboBoxData.Rows[i][0].ToString(),
+                            RoleName = dtComboBoxData.Rows[i][1].ToString()
+                        });
+                    }
                 }
+                return Ok(RolesList);
             }
-            return Ok(RolesList);
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "maprole/getroles", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/maprole/gettreedata")]
         public IHttpActionResult GetTreeData(string RoleID, string UID)
         {
-            if (!string.IsNullOrEmpty(RoleID.Trim()))
+            try
             {
-                //DataTable dtCheckNameExists = (DataTable)Session["tempUserName"];
-                //DataRow[] dr = dtCheckNameExists.Select("UserName = '" + strRoleName.Trim() + "'");
-                //if (dr.Count() > 0)
-                //{
-                string WebPerm = "", MobilePerm = "";
-                DataTable dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 0);
-
-                if (dt.Rows.Count > 0)
+                if (!string.IsNullOrEmpty(RoleID.Trim()))
                 {
-                    MapRoleModel root = new MapRoleModel { id = "MapRole", children = { }, state = new clsState() { selected = false }, text = "Web Permissions" };
-                    DataView view = new DataView(dt);
-                    view.RowFilter = "MenuParentId=0";
-                    view.Sort = "MenuId";
-                    foreach (DataRowView kvp in view)
+                    //DataTable dtCheckNameExists = (DataTable)Session["tempUserName"];
+                    //DataRow[] dr = dtCheckNameExists.Select("UserName = '" + strRoleName.Trim() + "'");
+                    //if (dr.Count() > 0)
+                    //{
+                    string WebPerm = "", MobilePerm = "";
+                    DataTable dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 0);
+
+                    if (dt.Rows.Count > 0)
                     {
-                        string parentId = kvp["MenuId"].ToString();
-                        MapRoleModel node = new MapRoleModel { id = kvp["MenuId"].ToString(), state = new clsState() { selected = false }, text = kvp["MenuName"].ToString() };
-                        root.children.Add(node);
-                        AddChildItems(dt, node, parentId);
+                        MapRoleModel root = new MapRoleModel { id = "MapRole", children = { }, state = new clsState() { selected = false }, text = "Web Permissions" };
+                        DataView view = new DataView(dt);
+                        view.RowFilter = "MenuParentId=0";
+                        view.Sort = "MenuId";
+                        foreach (DataRowView kvp in view)
+                        {
+                            string parentId = kvp["MenuId"].ToString();
+                            MapRoleModel node = new MapRoleModel { id = kvp["MenuId"].ToString(), state = new clsState() { selected = false }, text = kvp["MenuName"].ToString() };
+                            root.children.Add(node);
+                            AddChildItems(dt, node, parentId);
+                        }
+                        WebPerm = (new JavaScriptSerializer().Serialize(root));
                     }
-                    WebPerm = (new JavaScriptSerializer().Serialize(root));
-                }
-                dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 1);
+                    dt = bl.BL_ExecuteParamSP("uspGetMapRoleMenus", RoleID.Trim(), UID, 1);
 
-                if (dt.Rows.Count > 0)
-                {
-                    MapRoleModel root = new MapRoleModel { id = "MobileMapRole", children = { }, state = new clsState() { selected = false }, text = "Mobile Permissions" };
-                    DataView view = new DataView(dt);
-                    view.RowFilter = "MenuParentId=0";
-                    view.Sort = "MenuId";
-                    foreach (DataRowView kvp in view)
+                    if (dt.Rows.Count > 0)
                     {
-                        string parentId = kvp["MenuId"].ToString();
-                        MapRoleModel node = new MapRoleModel { id = kvp["MenuId"].ToString(), state = new clsState() { selected = false }, text = kvp["MenuName"].ToString() };
-                        root.children.Add(node);
-                        AddChildItems(dt, node, parentId);
+                        MapRoleModel root = new MapRoleModel { id = "MobileMapRole", children = { }, state = new clsState() { selected = false }, text = "Mobile Permissions" };
+                        DataView view = new DataView(dt);
+                        view.RowFilter = "MenuParentId=0";
+                        view.Sort = "MenuId";
+                        foreach (DataRowView kvp in view)
+                        {
+                            string parentId = kvp["MenuId"].ToString();
+                            MapRoleModel node = new MapRoleModel { id = kvp["MenuId"].ToString(), state = new clsState() { selected = false }, text = kvp["MenuName"].ToString() };
+                            root.children.Add(node);
+                            AddChildItems(dt, node, parentId);
+                        }
+                        MobilePerm = (new JavaScriptSerializer().Serialize(root));
                     }
-                    MobilePerm = (new JavaScriptSerializer().Serialize(root));
-                }
-                //}
-                var objPermissions = new List<object>();
-                objPermissions.Add(new
-                {
-                    WebPermissions = WebPerm,
-                    MobilePermissions = MobilePerm
-                });
-                return Ok(objPermissions);
+                    //}
+                    var objPermissions = new List<object>();
+                    objPermissions.Add(new
+                    {
+                        WebPermissions = WebPerm,
+                        MobilePermissions = MobilePerm
+                    });
+                    return Ok(objPermissions);
 
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "maprole/gettreedata", ex.Message);
             }
             return Ok();// (new JavaScriptSerializer().Serialize(null));
         }
@@ -221,7 +267,7 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                bl.BL_WriteErrorMsginLog("Tools", "maprole/savemaprole", ex.Message);
             }
 
             return Ok(strMsg);
@@ -231,39 +277,55 @@ namespace SampWebApi.Controllers
         [Route("api/BranchMapping/get")]
         public IHttpActionResult GetBranchMapping(int RoleID)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManageBranchMapping", 1, RoleID);
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageBranchMapping", 1, RoleID);
 
 
-            return Ok(DDT);
+                return Ok(DDT);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "BranchMapping/get", ex.Message);
+            }
+            return Ok();
         }
 
         [HttpPost]
         [Route("api/BranchMapping/save")]
         public IHttpActionResult saveupdateBranch(List<BranchMapping> lstProfiles)
         {
-            List<SaveMessage> list = new List<SaveMessage>();
-            if (lstProfiles != null)
+            try
             {
-                foreach (BranchMapping item in lstProfiles)
+                List<SaveMessage> list = new List<SaveMessage>();
+                if (lstProfiles != null)
                 {
-                    bl.BL_ExecuteParamSP("uspManageBranchMapping", 2, item.RoleID, item.BranchID, item.Active, item.SetAsDefault,
-                        item.UserID);
+                    foreach (BranchMapping item in lstProfiles)
+                    {
+                        bl.BL_ExecuteParamSP("uspManageBranchMapping", 2, item.RoleID, item.BranchID, item.Active, item.SetAsDefault,
+                            item.UserID);
+                    }
+                    list.Add(new SaveMessage()
+                    {
+                        ID = 0.ToString(),
+                        MsgID = "0",
+                        Message = "Saved successfully"
+                    });
+                    return Ok(list);
                 }
                 list.Add(new SaveMessage()
                 {
                     ID = 0.ToString(),
-                    MsgID = "0",
-                    Message = "Saved successfully"
+                    MsgID = "1",
+                    Message = "Data not saved. Try again"
                 });
                 return Ok(list);
             }
-            list.Add(new SaveMessage()
+            catch(Exception ex)
             {
-                ID = 0.ToString(),
-                MsgID = "1",
-                Message = "Data not saved. Try again"
-            });
-            return Ok(list);
+                bl.BL_WriteErrorMsginLog("Tools", "BranchMapping/save", ex.Message);
+            }
+            return Ok();
         }
 
 
@@ -271,8 +333,16 @@ namespace SampWebApi.Controllers
         [Route("api/BranchMapping/getByRole")]
         public IHttpActionResult GetBranchesByRole(int RoleID)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetBranchByRoles", RoleID);
-            return Ok(DDT);
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetBranchByRoles", RoleID);
+                return Ok(DDT);
+            }
+            catch(Exception ex )
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "BranchMapping/getByRole", ex.Message);
+            }
+            return Ok();
         }
 
     }

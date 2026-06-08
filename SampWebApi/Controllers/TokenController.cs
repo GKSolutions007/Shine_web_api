@@ -12,40 +12,47 @@ namespace SampWebApi.Controllers
     [RoutePrefix("api/token")]
     public class TokenController : ApiController
     {
+        clsBusinessLayer bl = new clsBusinessLayer();
         private readonly RefreshTokenRepo _refreshTokenRepo = new RefreshTokenRepo();
 
         [HttpPost]
         [Route("refresh")]
         public IHttpActionResult RefreshToken()
         {
-            var refreshTokenCookie = HttpContext.Current.Request.Cookies["RefreshToken"];
-            if (refreshTokenCookie == null)
+            try
             {
-                return Unauthorized();
-            }
-            var cookie = HttpContext.Current.Request.Cookies["AuthToken"];
+                var refreshTokenCookie = HttpContext.Current.Request.Cookies["RefreshToken"];
+                if (refreshTokenCookie == null)
+                {
+                    return Unauthorized();
+                }
+                var cookie = HttpContext.Current.Request.Cookies["AuthToken"];
 
-            var token = cookie.Value;
-            var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
-            if (AuthTokenValidate.AuthToken == null)// || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || AuthTokenValidate.IsRevoked
-            {
-                return BadRequest("Invalid Auth token.");
-            }
-            var refreshToken = _refreshTokenRepo.GetRefreshToken(refreshTokenCookie.Value);
-            if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.Now)// || refreshToken.IsRevoked
-            {
-                return BadRequest("Invalid or expired refresh token.");
-            }
-            _refreshTokenRepo.RevokeRefreshToken(2, token);
-            // Validate and generate new access token
-            var newAccessToken = TokenHelper.GenerateToken(refreshToken.UserId);
-            var newRefreshToken= TokenHelper.GenerateRefreshToken(refreshToken.UserId, newAccessToken);
+                var token = cookie.Value;
+                var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
+                if (AuthTokenValidate.AuthToken == null)// || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || AuthTokenValidate.IsRevoked
+                {
+                    return BadRequest("Invalid Auth token.");
+                }
+                var refreshToken = _refreshTokenRepo.GetRefreshToken(refreshTokenCookie.Value);
+                if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.Now)// || refreshToken.IsRevoked
+                {
+                    return BadRequest("Invalid or expired refresh token.");
+                }
+                _refreshTokenRepo.RevokeRefreshToken(2, token);
+                // Validate and generate new access token
+                var newAccessToken = TokenHelper.GenerateToken(refreshToken.UserId);
+                var newRefreshToken = TokenHelper.GenerateRefreshToken(refreshToken.UserId, newAccessToken);
 
-            if (newAccessToken == null)
-            {
-                return Unauthorized();
+                if (newAccessToken == null)
+                {
+                    return Unauthorized();
+                }
             }
-
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Token", "refresh", ex.Message);
+            }
             return Ok();//new { access_token = newAccessToken }
         }
     }

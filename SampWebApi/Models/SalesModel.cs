@@ -173,11 +173,14 @@ namespace SampWebApi.Models
         public string ActQty { get; set; }
         public string TrackBatch { get; set; }
         public string TrackInventory { get; set; }
+        public string TrackInvoice { get; set; }
+        
     }
 
     public class InvoiceBatchInfo
     {
         public string InvID { get; set; }
+        public string TrackInvoice { get; set; }
         public string DocDate { get; set; }
         public string InventoryID { get; set; }
         public string QtyType { get; set; }

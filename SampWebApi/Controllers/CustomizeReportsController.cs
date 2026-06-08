@@ -29,67 +29,84 @@ namespace SampWebApi.Controllers
         [Route("api/initiatecustomizereport")]
         public IHttpActionResult GetPermissionsReports(string Mode, string ID, string ALName)
         {
-            DataTable dtPermissions = bl.BL_ExecuteParamSP("uspManageCustomizeReport", Mode, ID, ALName);
-            string dtjson = JsonConvert.SerializeObject(dtPermissions);
-            return Ok(dtjson);
+            try
+            {
+                DataTable dtPermissions = bl.BL_ExecuteParamSP("uspManageCustomizeReport", Mode, ID, ALName);
+                string dtjson = JsonConvert.SerializeObject(dtPermissions);
+                return Ok(dtjson);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomizeReports", "initiatecustomizereport", ex.Message);
+            }
+            return Ok();
         }
         [HttpPost]
         [Route("api/initiatecustomizereport/generate")]
         public IHttpActionResult GeerateData(ReportParameters listParams)
         {
-            DataTable DDT = new DataTable();
-            List<ImportResults> ReportResult = new List<ImportResults>();
-
-            if (listParams != null)
+            try
             {
-                string ReportID = listParams.ReportID;
-                DataTable dtReportInfo = bl.BL_ExecuteParamSP("uspManageCustomizeReport", 3, ReportID);
-                if (dtReportInfo.Rows.Count > 0)
+                DataTable DDT = new DataTable();
+                List<ImportResults> ReportResult = new List<ImportResults>();
+
+                if (listParams != null)
                 {
-                    string ProcedureName = dtReportInfo.Rows[0]["ProcedureNames"].ToString();
-                    string SheetNames = dtReportInfo.Rows[0]["SheetNames"].ToString();
-                    string ReportName = dtReportInfo.Rows[0]["ReportName"].ToString().Replace('&','_');
-                    string[] lstProcedures = ProcedureName.Split(',');
-                    string[] lstSheetNames = SheetNames.Split(',');
-                    object[] objParamValue = new object[listParams.lstvFilters.Count];
-                    for (int i = 0; i < objParamValue.Length; i++)
+                    string ReportID = listParams.ReportID;
+                    DataTable dtReportInfo = bl.BL_ExecuteParamSP("uspManageCustomizeReport", 3, ReportID);
+                    if (dtReportInfo.Rows.Count > 0)
                     {
-                        objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
-                    }
-                    DataSet dsReportData = new DataSet();
-                    for (int i = 0; i < lstProcedures.Length; i++)
-                    {
-                        ProcedureName = lstProcedures[i].ToString();
-                        SheetNames = lstSheetNames[i].ToString();
-                        DDT = bl.BL_ExecuteParamSP(ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
-                        dsReportData.Tables.Add(DDT);
-                        dsReportData.Tables[i].TableName = SheetNames;
-                    }
-                    if (dsReportData.Tables.Count > 0)
-                    {
-                        strFileName = ReportName+"_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                        //string JSONCONV = JsonConvert.SerializeObject(DDT);
-                        ExportToExcelbyDataSet(dsReportData);
-                        var sDocument = strFilePath + strFileName + strExtension;                        
-                        string fileName = strFileName + strExtension;
-
-                        ReportResult.Add(new ImportResults()
+                        string ProcedureName = dtReportInfo.Rows[0]["ProcedureNames"].ToString();
+                        string SheetNames = dtReportInfo.Rows[0]["SheetNames"].ToString();
+                        string ReportName = dtReportInfo.Rows[0]["ReportName"].ToString().Replace('&', '_');
+                        string[] lstProcedures = ProcedureName.Split(',');
+                        string[] lstSheetNames = SheetNames.Split(',');
+                        object[] objParamValue = new object[listParams.lstvFilters.Count];
+                        for (int i = 0; i < objParamValue.Length; i++)
                         {
-                            ID = "0",
-                            Msg = "Excel file created",
-                            FileName = strFileName + strExtension,
-                            FilePath = strFilePath + strFileName + strExtension,
-                        });
-                        return Ok(ReportResult);
-                    }                    
+                            objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
+                        }
+                        DataSet dsReportData = new DataSet();
+                        for (int i = 0; i < lstProcedures.Length; i++)
+                        {
+                            ProcedureName = lstProcedures[i].ToString();
+                            SheetNames = lstSheetNames[i].ToString();
+                            DDT = bl.BL_ExecuteParamSP(ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
+                            dsReportData.Tables.Add(DDT);
+                            dsReportData.Tables[i].TableName = SheetNames;
+                        }
+                        if (dsReportData.Tables.Count > 0)
+                        {
+                            strFileName = ReportName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                            //string JSONCONV = JsonConvert.SerializeObject(DDT);
+                            ExportToExcelbyDataSet(dsReportData);
+                            var sDocument = strFilePath + strFileName + strExtension;
+                            string fileName = strFileName + strExtension;
+
+                            ReportResult.Add(new ImportResults()
+                            {
+                                ID = "0",
+                                Msg = "Excel file created",
+                                FileName = strFileName + strExtension,
+                                FilePath = strFilePath + strFileName + strExtension,
+                            });
+                            return Ok(ReportResult);
+                        }
+                    }
                 }
+                ReportResult.Add(new ImportResults()
+                {
+                    ID = "1",
+                    Msg = "Invalid Inputs",
+                });
+
+                return Ok(ReportResult);
             }
-            ReportResult.Add(new ImportResults()
+            catch(Exception ex)
             {
-                ID = "1",
-                Msg = "Invalid Inputs",
-            });
-            return Ok(ReportResult);
+                bl.BL_WriteErrorMsginLog("CutomizeReports", "initiatecustomizereport/generate", ex.Message);
+            }
+            return Ok();
         }
         public void ExportToExcelbyDataSet(DataSet DtData)
         {
@@ -123,19 +140,27 @@ namespace SampWebApi.Controllers
         [Route("api/customizereport/download")]
         public HttpResponseMessage DownloadData(string FPath, string FName)
         {
-            string fileName = FName;            
-            if (!File.Exists(FPath))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(FPath, FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            try
             {
-                FileName = fileName
-            };
-            return result;            
+                string fileName = FName;
+                if (!File.Exists(FPath))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(FPath, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+                return result;
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CutomizeReports", "customizereport/download", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 }

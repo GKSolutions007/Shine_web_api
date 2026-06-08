@@ -71,63 +71,79 @@ namespace SampWebApi.Controllers
         [System.Web.Http.Route("api/transactionimport/template")]
         public HttpResponseMessage ExportTemplate(int TransID, string TransName, string FromDate = null, string ToDate = null)
         {
-            strFilePath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
-            strFileName = TransName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-            clsExportData objExport = new clsExportData();
-            objExport.strFileName = strFileName;
-            objExport.strFilePath = strFilePath;
-            if (TransID == 1 || TransID == 2 || TransID == 3|| TransID == 4)//Sales, BILL,SR, PR
+            try
             {
-                DataSet dtset = new DataSet("Help Data");
-                dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
-                dtset.Tables[0].TableName = "Sample - Header";
-                dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
-                dtset.Tables[1].TableName = "Sample - Details";
-                dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 3));
-                dtset.Tables[2].TableName = "Help";
-                objExport.OpenTransTemplate(
-                    TransID == 1 ? Import_Utility.clsExportData.AddSalesHeaderColumnForExport(false) :
-                    TransID == 2 ? Import_Utility.clsExportData.AddBillHeaderColumnForExport(false) :
-                    TransID == 3 ? Import_Utility.clsExportData.AddSalesReturnHeaderColumnForExport(false) :
-                    Import_Utility.clsExportData.AddPurchaseReturnHeaderColumnForExport(false),
-                    TransID == 1 ? Import_Utility.clsExportData.AddSalesDetailColumnForExport(false) :
-                    TransID == 2 ? Import_Utility.clsExportData.AddBillDetailColumnForExport(false) :
-                    TransID == 3 ? Import_Utility.clsExportData.AddSalesReturnDetailColumnForExport(false) :
-                    Import_Utility.clsExportData.AddPurchaseReturnDetailColumnForExport(false));
-                objExport.AddingHelptoExcel(objExport.strFilePath + objExport.strFileName + ".xlsx", 3, dtset);
+                strFilePath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
+                strFileName = TransName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                clsExportData objExport = new clsExportData();
+                objExport.strFileName = strFileName;
+                objExport.strFilePath = strFilePath;
+                if (TransID == 1 || TransID == 2 || TransID == 3 || TransID == 4)//Sales, BILL,SR, PR
+                {
+                    DataSet dtset = new DataSet("Help Data");
+                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 1));
+                    dtset.Tables[0].TableName = "Sample - Header";
+                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 2));
+                    dtset.Tables[1].TableName = "Sample - Details";
+                    dtset.Tables.Add(objBL.BL_ExecuteParamSP("uspSampleDataforImport", TransID, 3));
+                    dtset.Tables[2].TableName = "Help";
+                    objExport.OpenTransTemplate(
+                        TransID == 1 ? Import_Utility.clsExportData.AddSalesHeaderColumnForExport(false) :
+                        TransID == 2 ? Import_Utility.clsExportData.AddBillHeaderColumnForExport(false) :
+                        TransID == 3 ? Import_Utility.clsExportData.AddSalesReturnHeaderColumnForExport(false) :
+                        Import_Utility.clsExportData.AddPurchaseReturnHeaderColumnForExport(false),
+                        TransID == 1 ? Import_Utility.clsExportData.AddSalesDetailColumnForExport(false) :
+                        TransID == 2 ? Import_Utility.clsExportData.AddBillDetailColumnForExport(false) :
+                        TransID == 3 ? Import_Utility.clsExportData.AddSalesReturnDetailColumnForExport(false) :
+                        Import_Utility.clsExportData.AddPurchaseReturnDetailColumnForExport(false));
+                    objExport.AddingHelptoExcel(objExport.strFilePath + objExport.strFileName + ".xlsx", 3, dtset);
+                }
+
+
+                var sDocument = strFilePath + strFileName + strExtension;
+                string fileName = strFileName + strExtension;
+                if (!File.Exists(strFilePath + strFileName + strExtension))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(strFilePath + strFileName + strExtension, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+                return result;
             }
-
-
-            var sDocument = strFilePath + strFileName + strExtension;
-            string fileName = strFileName + strExtension;
-            if (!File.Exists(strFilePath + strFileName + strExtension))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(strFilePath + strFileName + strExtension, FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            catch(Exception ex)
             {
-                FileName = fileName
-            };
-            return result;
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/template", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }        
 
         [System.Web.Http.HttpPost]
         [System.Web.Http.Route("api/transactionimport/startexport")]
         public IHttpActionResult StartExport([FromBody] ExportRequest req)//int TransID, string TransName, string FromDate = null, string ToDate = null
         {
-            string jobId = Guid.NewGuid().ToString();
+            try
+            {
+                string jobId = Guid.NewGuid().ToString();
 
-            ExportJobManager.Jobs[jobId] = new ExportJobStatus();
-            int TransID = req.TransID;
-            string TransName = req.TransName;
-            string FromDate = req.FromDate;
-            string ToDate = req.ToDate;
-            Task.Run(() => GenerateExcel(jobId, TransID, TransName, FromDate, ToDate));
+                ExportJobManager.Jobs[jobId] = new ExportJobStatus();
+                int TransID = req.TransID;
+                string TransName = req.TransName;
+                string FromDate = req.FromDate;
+                string ToDate = req.ToDate;
+                Task.Run(() => GenerateExcel(jobId, TransID, TransName, FromDate, ToDate));
 
-            return Ok(jobId);
+                return Ok(jobId);
+            }
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/startexport", ex.Message);
+            }
+            return Ok();
         }
         private void GenerateExcel(string jobId, int TransID, string TransName, string FromDate, string ToDate)
         {
@@ -196,47 +212,63 @@ namespace SampWebApi.Controllers
         [System.Web.Http.Route("api/transactionimport/progress")]
         public IHttpActionResult GetProgress(string jobId)
         {
-            if (!ExportJobManager.Jobs.ContainsKey(jobId))
-                return NotFound();
-
-            var job = ExportJobManager.Jobs[jobId];
-
-            return Ok(new
+            try
             {
-                progress = job.Progress,
-                progressMessage = job.ProgressMessage,
-                completed = job.IsCompleted,
-                ErrorID = job.ErrorID,
-                ErrorMessage = job.ErrorMessage,
-            });
+                if (!ExportJobManager.Jobs.ContainsKey(jobId))
+                    return NotFound();
+
+                var job = ExportJobManager.Jobs[jobId];
+
+                return Ok(new
+                {
+                    progress = job.Progress,
+                    progressMessage = job.ProgressMessage,
+                    completed = job.IsCompleted,
+                    ErrorID = job.ErrorID,
+                    ErrorMessage = job.ErrorMessage,
+                });
+            }
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/progress", ex.Message);
+            }
+            return Ok();
         }
 
         [System.Web.Http.HttpGet]
         [System.Web.Http.Route("api/transactionimport/download")]
         public HttpResponseMessage Download(string jobId)
         {
-            if (!ExportJobManager.Jobs.ContainsKey(jobId))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            try
+            {
+                if (!ExportJobManager.Jobs.ContainsKey(jobId))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
 
-            var job = ExportJobManager.Jobs[jobId];
+                var job = ExportJobManager.Jobs[jobId];
 
-            if (!System.IO.File.Exists(job.FilePath))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                if (!System.IO.File.Exists(job.FilePath))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(job.FilePath, FileMode.Open, FileAccess.Read);
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(job.FilePath, FileMode.Open, FileAccess.Read);
 
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-            result.Content.Headers.ContentDisposition =
-                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = Path.GetFileName(job.FilePath)
-                };
+                result.Content.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = Path.GetFileName(job.FilePath)
+                    };
 
-            return result;
+                return result;
+            }
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/download", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
         public class FileData
         {
@@ -248,42 +280,51 @@ namespace SampWebApi.Controllers
         [System.Web.Http.Route("api/transactionimport/startimport")]
         public IHttpActionResult StartImport()//int TransID, string TransName, string FromDate = null, string ToDate = null
         {
-            string jobId = Guid.NewGuid().ToString();
-            //HttpFileCollection file = HttpContext.Current.Request.Files;
-            var files = new List<FileData>();
-            string TransID = HttpContext.Current.Request.Files.AllKeys[0].ToString();
-            string TransName = HttpContext.Current.Request.Files.AllKeys[1].ToString();
-            string fileName = HttpContext.Current.Request.Files[2].FileName;
-            string fileContentType = HttpContext.Current.Request.Files[2].ContentType;
-            string UserID = HttpContext.Current.Request.Files.AllKeys[2].ToString();
-
-            for (int i = 3; i < HttpContext.Current.Request.Files.Count; i++)
+            try
             {
-                var file = HttpContext.Current.Request.Files[i];
+                string jobId = Guid.NewGuid().ToString();
+                //HttpFileCollection file = HttpContext.Current.Request.Files;
+                var files = new List<FileData>();
+                string TransID = HttpContext.Current.Request.Files.AllKeys[0].ToString();
+                string TransName = HttpContext.Current.Request.Files.AllKeys[1].ToString();
+                string fileName = HttpContext.Current.Request.Files[2].FileName;
+                string fileContentType = HttpContext.Current.Request.Files[2].ContentType;
+                string UserID = HttpContext.Current.Request.Files.AllKeys[2].ToString();
 
-                if (file != null && file.ContentLength > 0)
+                for (int i = 3; i < HttpContext.Current.Request.Files.Count; i++)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        file.InputStream.CopyTo(ms);
+                    var file = HttpContext.Current.Request.Files[i];
 
-                        files.Add(new FileData
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        using (var ms = new MemoryStream())
                         {
-                            FileName = file.FileName,
-                            Content = ms.ToArray()
-                        });
+                            file.InputStream.CopyTo(ms);
+
+                            files.Add(new FileData
+                            {
+                                FileName = file.FileName,
+                                Content = ms.ToArray()
+                            });
+                        }
                     }
                 }
-            }
-            List<ImportResults> MTM = new List<ImportResults>();
-            ExportJobManager.Jobs[jobId] = new ExportJobStatus();            
-            Task.Run(() => {
-                MTM = RunTransactionImport(jobId, TransID, TransName, UserID, files);
-               
-                return Ok(MTM);
-            });
+                List<ImportResults> MTM = new List<ImportResults>();
+                ExportJobManager.Jobs[jobId] = new ExportJobStatus();
+                Task.Run(() =>
+                {
+                    MTM = RunTransactionImport(jobId, TransID, TransName, UserID, files);
 
-            return Ok(jobId);
+                    return Ok(MTM);
+                });
+
+                return Ok(jobId);
+            }
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/startimport", ex.Message);
+            }
+            return Ok();
         }
         public List<ImportResults> RunTransactionImport(string jobId, string TransID,string TransName, string UserID, List<FileData> httpFile)
         {

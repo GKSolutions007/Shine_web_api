@@ -29,314 +29,695 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetData(string Mode,string DocPrefix, string CodeName, string ID = null, 
             string BranchID = "0", string Date = "", string PriceID = "0", string ShowZerobatch = "0")
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "1")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "1")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Code = DDT.Rows[i][3].ToString(),
-                        Name = DDT.Rows[i][4].ToString(),
-                        Billadd1 = DDT.Rows[i][5].ToString(),
-                    });
-                }
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 111, DocPrefix, CodeName);
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new CustomerVendorModel
-                    {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Code = DDT.Rows[i][3].ToString(),
-                        Name = DDT.Rows[i][4].ToString(),
-                        Billadd1 = DDT.Rows[i][5].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "2")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode,DocPrefix, CodeName, null, null, null, Convert.ToDateTime(ID));
-                List<ProductModel> list = new List<ProductModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new ProductModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        EAN = DDT.Rows[i]["EAN"].ToString(),
-                        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
-                        PurchasePrice = DDT.Rows[i]["SalesPrice"].ToString(),
-                        ABSQty = DDT.Rows[i]["ABSQty"].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "33")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName, ID);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new CustomerVendorModel
-                    {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Code = DDT.Rows[i][3].ToString(),
-                        Name = DDT.Rows[i][4].ToString(),
-                        Billadd1 = DDT.Rows[i][5].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "3")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    string strBeatID = "0", strSalesmanID = "0";
-
-                    DataTable dtBSM = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 32, DDT.Rows[i]["ID"].ToString());
-                    if (dtBSM.Rows.Count > 0)
-                    {
-                        strBeatID = dtBSM.Rows[0]["BeatID"].ToString();
-                        strSalesmanID = dtBSM.Rows[0]["SalesmanID"].ToString();
-                    }
-                    List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
-                    DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34, DocPrefix, DDT.Rows[i]["ID"].ToString());
-                    if (dtRem.Rows.Count > 0)
-                    {
-                        for (int j = 0; j < dtRem.Rows.Count; j++)
+                        list.Add(new CustomerVendorModel
                         {
-                            listRemark.Add(new clsCustomerRemarks
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            Billadd1 = DDT.Rows[i][5].ToString(),
+                        });
+                    }
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 111, DocPrefix, CodeName);
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            Billadd1 = DDT.Rows[i][5].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "2")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName, null, null, null, Convert.ToDateTime(ID));
+                    List<ProductModel> list = new List<ProductModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new ProductModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            EAN = DDT.Rows[i]["EAN"].ToString(),
+                            HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+                            PurchasePrice = DDT.Rows[i]["SalesPrice"].ToString(),
+                            ABSQty = DDT.Rows[i]["ABSQty"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "33")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName, ID);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            Billadd1 = DDT.Rows[i][5].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "3")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        string strBeatID = "0", strSalesmanID = "0";
+
+                        DataTable dtBSM = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 32, DDT.Rows[i]["ID"].ToString());
+                        if (dtBSM.Rows.Count > 0)
+                        {
+                            strBeatID = dtBSM.Rows[0]["BeatID"].ToString();
+                            strSalesmanID = dtBSM.Rows[0]["SalesmanID"].ToString();
+                        }
+                        List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
+                        DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34, DocPrefix, DDT.Rows[i]["ID"].ToString());
+                        if (dtRem.Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dtRem.Rows.Count; j++)
                             {
-                                Remarks = dtRem.Rows[j][1].ToString()
+                                listRemark.Add(new clsCustomerRemarks
+                                {
+                                    Remarks = dtRem.Rows[j][1].ToString()
+                                });
+                            }
+                        }
+                        list.Add(new CustomerVendorModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
+                            Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
+                            Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
+                            Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
+                            Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                            Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
+                            Pincode = DDT.Rows[i]["Pincode"].ToString(),
+                            ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
+                            Ph1 = DDT.Rows[i]["Ph1"].ToString(),
+                            Ph2 = DDT.Rows[i]["Ph2"].ToString(),
+                            Mob1 = DDT.Rows[i]["Mob1"].ToString(),
+                            Mob2 = DDT.Rows[i]["Mob2"].ToString(),
+                            Email = DDT.Rows[i]["Email"].ToString(),
+                            PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
+                            AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
+                            DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
+                            DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
+                            FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
+                            StateID = DDT.Rows[i]["StateID"].ToString(),
+                            GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
+                            CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
+                            PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                            TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
+                            PriceTypeID = DDT.Rows[i]["PriceTypeID"].ToString(),
+                            FAID = DDT.Rows[i]["FAID"].ToString(),
+                            Active = DDT.Rows[i]["Active"].ToString(),
+                            Ratings = DDT.Rows[i]["Rating"].ToString(),
+                            BeatID = strBeatID,
+                            SalesmanID = strSalesmanID,
+                            lstCustRemark = listRemark
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "4")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                    List<InvoiceBatchInfo> list = new List<InvoiceBatchInfo>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT.Rows[i][0].ToString());
+                        List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
+                        for (int j = 0; j < dtUOM.Rows.Count; j++)
+                        {
+                            ulist.Add(new clsPurchaseUOM
+                            {
+                                ID = dtUOM.Rows[j][0].ToString(),
+                                Name = dtUOM.Rows[j][1].ToString(),
+                                ConvRate = dtUOM.Rows[j][2].ToString()
+                            });
+                        }
+                        List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
+                        DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
+                        DataRow[] drr = dtReason.Select("Type = 12");
+                        for (int r = 0; r < drr.Length; r++)
+                        {
+                            ulistreason.Add(new SingleMasterModel
+                            {
+                                ID = drr[r].ItemArray[2].ToString(),
+                                Name = drr[r].ItemArray[4].ToString(),
+                            });
+                        }
+                        int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
+                        List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, DDT.Rows[i][0].ToString(),
+                            Convert.ToDateTime(Date), 0, 0, ShowZerobatch);
+                        decimal dPrice = 0;
+                        for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        {
+                            dPrice = bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString());
+                            ulistBatch.Add(new InvoiceBatchPopup
+                            {
+                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                                ProdID = DDT.Rows[i]["ID"].ToString(),
+                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                            });
+                        }
+                        #region Discount Schemme
+                        decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
+                        decimal ApplyPrice = dPrice * dConvFact;
+
+                        DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
+                        decimal OrgDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
+                        decimal OrgTradeDiscPern = 0;
+                        decimal OldDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
+                        decimal DSProdDiscPern = 0, DSProdDiscAmt = 0, DSTradeDiscPern = 0, DSTradeDiscAmt = 0;
+                        if (dtDiscScheme.Rows.Count > 0)
+                        {
+                            DSProdDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][2]);
+                            DSProdDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][3]) * dConvFact;
+                            DSTradeDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][4]);
+                            DSTradeDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][5]) * dConvFact;
+                            int ReplaceExists = bl.BL_nValidation(dtDiscScheme.Rows[0][1]);
+
+                            decimal PDiscAmt = 0, dTradPernfromAmt = 0, dProdPernfromAmt = 0;
+                            if (ReplaceExists == 1)//Replay exists
+                            {
+                                PDiscAmt = (ApplyPrice * DSProdDiscPern) / 100;
+                            }
+                            else
+                            {
+                                PDiscAmt = (ApplyPrice * (DSProdDiscPern + OldDiscPern)) / 100;
+                            }
+                            if (DSTradeDiscAmt > 0)
+                            {
+                                if (ApplyPrice > 0)
+                                    dTradPernfromAmt = bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
+                                else
+                                    dTradPernfromAmt = 0;
+                            }
+                            if (DSProdDiscAmt > 0)
+                            {
+                                if (ApplyPrice > 0)
+                                    dProdPernfromAmt = bl.BL_dValidation((DSProdDiscAmt / ApplyPrice) * 100);
+                                else
+                                    dProdPernfromAmt = 0;
+                            }
+                            if (ReplaceExists == 1)//Replay exists
+                            {
+                                OrgDiscPern = DSProdDiscPern;
+                                OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                            }
+                            else
+                            {
+                                OrgDiscPern = dProdPernfromAmt + DSProdDiscPern + OldDiscPern;
+                                OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                            }
+                        }
+                        #endregion
+                        list.Add(new InvoiceBatchInfo
+                        {
+                            ProdID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+                            //ProductDiscPerc = DDT.Rows[i]["ProductDiscPerc"].ToString(),
+                            ProductDiscPerc = OrgDiscPern.ToString(),
+                            TradeDiscPerc = OrgTradeDiscPern.ToString(),
+                            BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
+                            BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
+                            PurchaseUomID = DDT.Rows[i]["PurchaseUomID"].ToString(),
+                            PurchaseCR = DDT.Rows[i]["PurchaseCR"].ToString(),
+                            SalesUomID = DDT.Rows[i]["SalesUomID"].ToString(),
+                            SalesCR = DDT.Rows[i]["SalesCR"].ToString(),
+                            SalesTaxID = DDT.Rows[i]["SalesTaxID"].ToString(),
+                            PurchasePrice = DDT.Rows[i]["PurchasePrice"].ToString(),
+                            SalesPrice = DDT.Rows[i]["SalesPrice"].ToString(),
+                            ECP = DDT.Rows[i]["ECP"].ToString(),
+                            SPLPrice = DDT.Rows[i]["SPLPrice"].ToString(),
+                            MRP = DDT.Rows[i]["MRP"].ToString(),
+                            ReturnPrice = DDT.Rows[i]["ReturnPrice"].ToString(),
+                            TaxName = DDT.Rows[i]["TaxName"].ToString(),
+                            GSTPern = DDT.Rows[i]["GST"].ToString(),
+                            IGSTPern = DDT.Rows[i]["IGST"].ToString(),
+                            TrackPKD = DDT.Rows[i]["TrackPDK"].ToString(),
+                            TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
+                            TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
+                            ItemTransactionPrice = DDT.Rows[i]["SalesReturnPrice"].ToString(),
+                            UOMList = ulist,
+                            lstInvPopup = ulistBatch,
+                            lstReason = ulistreason
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "6" || Mode == "10")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                    List<PurchaseModel> list = new List<PurchaseModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new PurchaseModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            DocID = DDT.Rows[i]["DocID"].ToString(),
+                            Date = DDT.Rows[i]["DocDate"].ToString(),
+                            RefNo = DDT.Rows[i]["RefNo"].ToString(),
+                            BranchID = DDT.Rows[i]["Branch"].ToString(),
+                            VendorID = DDT.Rows[i]["Party"].ToString(),
+                            GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                            TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
+                            NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
+                            Status = DDT.Rows[i]["Status"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+
+                if (Mode == "7" || Mode == "11" || Mode == "17")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, null, CodeName);
+                    List<SalesModel> list = new List<SalesModel>();
+                    if (DDT.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < DDT.Rows.Count; i++)
+                        {
+                            DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 31, DocPrefix, DDT.Rows[i][8].ToString());
+                            List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
+                            List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
+                            if (DDT1.Rows.Count > 0)
+                            {
+                                DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34, 16, DDT1.Rows[i]["ID"].ToString());
+                                if (dtRem.Rows.Count > 0)
+                                {
+                                    for (int j = 0; j < dtRem.Rows.Count; j++)
+                                    {
+                                        listRemark.Add(new clsCustomerRemarks
+                                        {
+                                            Remarks = dtRem.Rows[j][1].ToString()
+                                        });
+                                    }
+                                }
+                            }
+                            for (int j = 0; j < DDT1.Rows.Count; j++)
+                            {
+                                listParty.Add(new CustomerVendorModel
+                                {
+                                    ID = DDT1.Rows[j]["ID"].ToString(),
+                                    Code = DDT1.Rows[j]["Code"].ToString(),
+                                    Name = DDT1.Rows[j]["Name"].ToString(),
+                                    Billadd1 = DDT1.Rows[j]["Billadd1"].ToString(),
+                                    Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
+                                    Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
+                                    Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
+                                    Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                    Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
+                                    Pincode = DDT1.Rows[j]["Pincode"].ToString(),
+                                    ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
+                                    Ph1 = DDT1.Rows[j]["Ph1"].ToString(),
+                                    Ph2 = DDT1.Rows[j]["Ph2"].ToString(),
+                                    Mob1 = DDT1.Rows[j]["Mob1"].ToString(),
+                                    Mob2 = DDT1.Rows[j]["Mob2"].ToString(),
+                                    Email = DDT1.Rows[j]["Email"].ToString(),
+                                    PANNumber = DDT1.Rows[j]["PANNumber"].ToString(),
+                                    AadharNo = DDT1.Rows[j]["AadharNo"].ToString(),
+                                    DLNo20 = DDT1.Rows[j]["DLNo20"].ToString(),
+                                    DLNo21 = DDT1.Rows[j]["DLNo21"].ToString(),
+                                    FSSAINo = DDT1.Rows[j]["FSSAINo"].ToString(),
+                                    StateID = DDT1.Rows[j]["StateID"].ToString(),
+                                    GSTIN = DDT1.Rows[j]["GSTIN"].ToString(),
+                                    CreditTermID = DDT1.Rows[j]["CreditTermID"].ToString(),
+                                    PaymentModeID = DDT1.Rows[j]["PaymentModeID"].ToString(),
+                                    TaxTypeID = DDT1.Rows[j]["TaxTypeID"].ToString(),
+                                    FAID = DDT1.Rows[j]["FAID"].ToString(),
+                                    Active = DDT1.Rows[j]["Active"].ToString(),
+                                    Ratings = DDT1.Rows[j]["Rating"].ToString(),
+                                    lstCustRemark = listRemark
+                                });
+                            }
+
+                            List<SalesDetail> listProductGrid = new List<SalesDetail>();
+                            int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : 18;
+                            DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", TMode, DocPrefix, null, CodeName);
+                            for (int k = 0; k < DDT2.Rows.Count; k++)
+                            {
+                                DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT2.Rows[k]["ProdID"].ToString());
+                                List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
+                                for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                {
+                                    ulist.Add(new clsPurchaseUOM
+                                    {
+                                        ID = dtUOM.Rows[j][0].ToString(),
+                                        Name = dtUOM.Rows[j][1].ToString(),
+                                        ConvRate = dtUOM.Rows[j][2].ToString()
+                                    });
+                                }
+                                List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
+                                DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
+                                DataRow[] drr = dtReason.Select("Type = 12");
+                                for (int r = 0; r < drr.Length; r++)
+                                {
+                                    ulistreason.Add(new SingleMasterModel
+                                    {
+                                        ID = drr[r].ItemArray[2].ToString(),
+                                        Name = drr[r].ItemArray[4].ToString(),
+                                    });
+                                }
+                                List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
+                                DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                                    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
+                                for (int j = 0; j < dtBatch.Rows.Count; j++)
+                                {
+                                    ulistBatch.Add(new InvoiceBatchPopup
+                                    {
+                                        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                                        ProdID = DDT.Rows[i]["ID"].ToString(),
+                                        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                        MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                                    });
+                                }
+
+                                List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
+                                ulistTempBatch.Add(new SRTempBatch
+                                {
+                                    HiddenRowIndex = DDT2.Rows[k]["HiddenRowID"].ToString(),
+                                    BatchType = DDT2.Rows[k]["NewBatchCreated"].ToString(),
+                                    ProdId = DDT2.Rows[k]["ProdID"].ToString(),
+                                    Batch = DDT2.Rows[k]["BatchNo"].ToString(),
+                                    PKD = DDT2.Rows[k]["PKD"].ToString(),
+                                    Expiry = DDT2.Rows[k]["Expiry"].ToString(),
+                                    TaxId = DDT2.Rows[k]["TaxID"].ToString(),
+                                    TaxTypeId = "1",
+                                    InclusiveYesNo = "0",
+
+                                    PPrice = DDT2.Rows[k]["BtPPrice"].ToString(),
+                                    SPrice = DDT2.Rows[k]["BtSPrice"].ToString(),
+                                    ECP = DDT2.Rows[k]["BtECP"].ToString(),
+                                    MRP = DDT2.Rows[k]["BtMRP"].ToString(),
+                                    SPLPrice = DDT2.Rows[k]["BtSPLPrice"].ToString(),
+                                    Return = DDT2.Rows[k]["BtRtnPrice"].ToString(),
+                                });
+                                listProductGrid.Add(new SalesDetail
+                                {
+                                    ProdID = DDT2.Rows[k]["ProdID"].ToString(),
+                                    UomID = DDT2.Rows[k]["UomID"].ToString(),
+                                    Code = DDT2.Rows[k]["Code"].ToString(),
+                                    Name = DDT2.Rows[k]["Name"].ToString(),
+                                    TaxID = DDT2.Rows[k]["TaxID"].ToString(),
+                                    UomQty = DDT2.Rows[k]["Qty"].ToString(),
+                                    MRP = DDT2.Rows[k]["DetailMRP"].ToString(),
+                                    UomSalePrice = DDT2.Rows[k]["ExclPrice"].ToString(),
+                                    UomSalePriceIncl = DDT2.Rows[k]["InclPrice"].ToString(),
+                                    ProdDiscPern = DDT2.Rows[k]["ProdPern"].ToString(),
+                                    ProdDiscAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                    TradeDiscPern = DDT2.Rows[k]["TradePern"].ToString(),
+                                    TradeDiscAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
+                                    AddnlDiscPern = DDT2.Rows[k]["AddnlPern"].ToString(),
+                                    AddnlDiscAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
+                                    TaxPern = DDT2.Rows[k]["TaxPern"].ToString(),
+                                    GrossAmt = DDT2.Rows[k]["GrossAmt"].ToString(),
+                                    TaxAmt = DDT2.Rows[k]["TaxAmt"].ToString(),
+                                    TaxName = DDT2.Rows[k]["TaxName"].ToString(),
+                                    NetAmt = DDT2.Rows[k]["NetAmt"].ToString(),
+                                    GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
+                                    OrgPrice = DDT2.Rows[k]["BaseUomPrice"].ToString(),
+                                    BatchNo = DDT2.Rows[k]["BatchNo"].ToString(),
+                                    PKD = !string.IsNullOrEmpty(DDT2.Rows[k]["PKD"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["PKD"]).ToString("dd/MM/yyyy") : "",
+                                    Expiry = !string.IsNullOrEmpty(DDT2.Rows[k]["Expiry"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["Expiry"]).ToString("dd/MM/yyyy") : "",
+                                    ReasonId = DDT2.Rows[k]["ReasonId"].ToString(),
+                                    PKDYN = Convert.ToInt32(DDT2.Rows[k]["TrackPDK"]).ToString(),
+                                    BatchYN = Convert.ToInt32(DDT2.Rows[k]["TrackBatch"]).ToString(),
+                                    InvYN = Convert.ToInt32(DDT2.Rows[k]["TrackInventory"]).ToString(),
+                                    SerialYN = Convert.ToInt32(DDT2.Rows[k]["TrackSerial"]).ToString(),
+                                    ProductTransPrice = DDT2.Rows[k]["SalesReturnPrice"].ToString(),
+                                    DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
+
+                                    HiddenRowID = DDT2.Rows[k]["HiddenRowID"].ToString(),
+                                    NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
+                                    MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
+                                    CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                    UOMList = ulist,
+                                    lstInvPopup = ulistBatch,
+                                    lstReason = ulistreason,
+                                    lstTempBatch = ulistTempBatch
+                                });
+                            }
+                            list.Add(new SalesModel
+                            {
+                                //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
+                                ID = DDT.Rows[i]["ID"].ToString(),
+                                DocDate = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
+                                TransID = DDT.Rows[i]["TransID"].ToString(),
+                                DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
+                                BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                                DocId = DDT.Rows[i]["DocID"].ToString(),
+                                DocValue = DDT.Rows[i]["DocValue"].ToString(),
+                                BeatID = DDT.Rows[i]["BeatID"].ToString(),
+                                SalesmanID = DDT.Rows[i]["SalesmanID"].ToString(),
+                                CustomerID = DDT.Rows[i]["CustomerID"].ToString(),
+                                RefNo = DDT.Rows[i]["RefNo"].ToString(),
+                                TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
+                                PriceID = DDT.Rows[i]["PriceID"].ToString(),
+                                PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                                PaymentTermID = DDT.Rows[i]["CreditTermID"].ToString(),
+                                FrightAmt = DDT.Rows[i]["FrightAmt"].ToString(),
+                                OtherChargePern = DDT.Rows[i]["OtherChrgPern"].ToString(),
+                                OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                                TradeDiscPern = DDT.Rows[i]["TradePern"].ToString(),
+                                AddnlDiscPern = DDT.Rows[i]["AddnlPern"].ToString(),
+                                TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                                TradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                                AddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                                RoundOffAmt = DDT.Rows[i]["RoundOffAmt"].ToString(),
+                                GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                                TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
+                                NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
+                                Status = DDT.Rows[i]["Status"].ToString(),
+                                UDFId = DDT.Rows[i]["UDFId"].ToString(),
+                                UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
+                                UDFDocPrefix = DDT.Rows[i]["UDFDocPrefix"].ToString(),
+                                UDFDocValue = DDT.Rows[i]["UDFDocValue"].ToString(),
+                                Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                                Narration = DDT.Rows[i]["Narration"].ToString(),
+                                TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                                TDSAmount = DDT.Rows[i]["TDSAmount"].ToString(),
+                                WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
+                                DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
+                                DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
+                                ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
+                                Balance = DDT.Rows[i]["Balance"].ToString(),
+                                lstPartyInfo = listParty,
+                                lstProdInfo = listProductGrid,
                             });
                         }
                     }
-                    list.Add(new CustomerVendorModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
-                        Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
-                        Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
-                        Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
-                        Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
-                        Pincode = DDT.Rows[i]["Pincode"].ToString(),
-                        ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
-                        Ph1 = DDT.Rows[i]["Ph1"].ToString(),
-                        Ph2 = DDT.Rows[i]["Ph2"].ToString(),
-                        Mob1 = DDT.Rows[i]["Mob1"].ToString(),
-                        Mob2 = DDT.Rows[i]["Mob2"].ToString(),
-                        Email = DDT.Rows[i]["Email"].ToString(),
-                        PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
-                        AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
-                        DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
-                        DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
-                        FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
-                        StateID = DDT.Rows[i]["StateID"].ToString(),
-                        GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
-                        CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
-                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
-                        TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
-                        PriceTypeID = DDT.Rows[i]["PriceTypeID"].ToString(),
-                        FAID = DDT.Rows[i]["FAID"].ToString(),
-                        Active = DDT.Rows[i]["Active"].ToString(),
-                        Ratings = DDT.Rows[i]["Rating"].ToString(),
-                        BeatID = strBeatID,
-                        SalesmanID = strSalesmanID,
-                        lstCustRemark = listRemark
-                    });
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "4")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
-                List<InvoiceBatchInfo> list = new List<InvoiceBatchInfo>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "14")
                 {
-                    DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT.Rows[i][0].ToString());
-                    List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                    for (int j = 0; j < dtUOM.Rows.Count; j++)
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName, ID);
+                    List<PurchaseDetail> list = new List<PurchaseDetail>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ulist.Add(new clsPurchaseUOM
+                        list.Add(new PurchaseDetail
                         {
-                            ID = dtUOM.Rows[j][0].ToString(),
-                            Name = dtUOM.Rows[j][1].ToString(),
-                            ConvRate = dtUOM.Rows[j][2].ToString()
+                            HID = DDT.Rows[i][0].ToString(),
+                            Date = DDT.Rows[i][1].ToString(),
+                            MRP = DDT.Rows[i][2].ToString(),
+                            UomQty = DDT.Rows[i][3].ToString(),
+                            UomID = DDT.Rows[i][4].ToString(),
+                            PurchasePrice = DDT.Rows[i][5].ToString(),
+                            ProdDiscPern = DDT.Rows[i][6].ToString(),
+                            TradeDiscPern = DDT.Rows[i][7].ToString(),
+                            AddnlDiscPern = DDT.Rows[i][8].ToString(),
+                            BatchNo = DDT.Rows[i][9].ToString(),
+                            PKD = DDT.Rows[i][10].ToString(),
+                            Expiry = DDT.Rows[i][11].ToString(),
                         });
                     }
-                    List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
-                    DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
-                    DataRow[] drr = dtReason.Select("Type = 12");
-                    for (int r = 0; r < drr.Length; r++)
-                    {
-                        ulistreason.Add(new SingleMasterModel
-                        {
-                            ID = drr[r].ItemArray[2].ToString(),
-                            Name = drr[r].ItemArray[4].ToString(),
-                        });
-                    }
+                    return Ok(list);
+                }
+                if (Mode == "15")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, ID, CodeName);
+                    return Ok("0");
+                }
+                if (Mode == "20")
+                {
+                    List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
+                    string PKD = "False", BATCH = "False";
                     int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
-                        List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, DDT.Rows[i][0].ToString(),
-                        Convert.ToDateTime(Date), 0, 0, ShowZerobatch);
-                    decimal dPrice = 0;
+                    DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
+                    if (dtProdinfo.Rows.Count > 0)
+                    {
+                        PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
+                        BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
+                    }
+                    //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, 2, Convert.ToDateTime(Date), CodeName, ID);
+                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, CodeName, Convert.ToDateTime(Date), ID, 0, ShowZerobatch);
                     for (int j = 0; j < dtBatch.Rows.Count; j++)
                     {
-                        dPrice = bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString());
                         ulistBatch.Add(new InvoiceBatchPopup
                         {
                             QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
                             QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                            ProdID = DDT.Rows[i]["ID"].ToString(),
+                            ProdID = CodeName,
                             BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
                             PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
                             ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
                             ActQty = dtBatch.Rows[j]["Qty"].ToString(),
                             MRP = dtBatch.Rows[j]["MRP"].ToString(),
                             SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                            TrackBatch = BATCH,
+                            TrackPKD = PKD,
                         });
                     }
-                    #region Discount Schemme
-                    decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
-                    decimal ApplyPrice = dPrice * dConvFact;
-
-                    DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Date, ID, DDT.Rows[i][0].ToString());
-                    decimal OrgDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
-                    decimal OrgTradeDiscPern = 0;
-                    decimal OldDiscPern = bl.BL_dValidation(DDT.Rows[i]["ProductDiscPerc"].ToString());
-                    decimal DSProdDiscPern = 0, DSProdDiscAmt = 0, DSTradeDiscPern = 0, DSTradeDiscAmt = 0;
-                    if (dtDiscScheme.Rows.Count > 0)
+                    return Ok(ulistBatch);
+                }
+                if (Mode == "21")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                    List<PurchaseModel> list = new List<PurchaseModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        DSProdDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][2]);
-                        DSProdDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][3]) * dConvFact;
-                        DSTradeDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][4]);
-                        DSTradeDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][5]) * dConvFact;
-                        int ReplaceExists = bl.BL_nValidation(dtDiscScheme.Rows[0][1]);
+                        list.Add(new PurchaseModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            DocID = DDT.Rows[i]["DocID"].ToString(),
+                            Date = DDT.Rows[i]["DocDate"].ToString(),
+                            RefNo = DDT.Rows[i]["RefNo"].ToString(),
+                            BranchID = DDT.Rows[i]["Branch"].ToString(),
+                            GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                            TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
+                            NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "23")
+                {
+                    List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
+                    string PKD = "False", BATCH = "False", TrkInv = "True";
+                    //DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
+                    DataTable dtProdinfo = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, PriceID);
+                    if (dtProdinfo.Rows.Count > 0)
+                    {
+                        PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
+                        BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
+                        TrkInv = dtProdinfo.Rows[0]["TrackInventory"].ToString();
+                    }
 
-                        decimal PDiscAmt = 0, dTradPernfromAmt = 0, dProdPernfromAmt = 0;
-                        if (ReplaceExists == 1)//Replay exists
+                    if (TrkInv == "True")
+                    {
+                        //DataTable dtBatch1 = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
+                        int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, CodeName, Convert.ToDateTime(Date), ID);
+
+                        if (dtBatch.Rows.Count > 0)
                         {
-                            PDiscAmt = (ApplyPrice * DSProdDiscPern) / 100;
-                        }
-                        else
-                        {
-                            PDiscAmt = (ApplyPrice * (DSProdDiscPern + OldDiscPern)) / 100;
-                        }
-                        if (DSTradeDiscAmt > 0)
-                        {
-                            if (ApplyPrice > 0)
-                                dTradPernfromAmt = bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
-                            else
-                                dTradPernfromAmt = 0;
-                        }
-                        if (DSProdDiscAmt > 0)
-                        {
-                            if (ApplyPrice > 0)
-                                dProdPernfromAmt = bl.BL_dValidation((DSProdDiscAmt / ApplyPrice) * 100);
-                            else
-                                dProdPernfromAmt = 0;
-                        }
-                        if (ReplaceExists == 1)//Replay exists
-                        {
-                            OrgDiscPern = DSProdDiscPern;
-                            OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
-                        }
-                        else
-                        {
-                            OrgDiscPern = dProdPernfromAmt + DSProdDiscPern + OldDiscPern;
-                            OrgTradeDiscPern = DSTradeDiscPern + dTradPernfromAmt;
+                            //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                            {
+                                ulistBatch.Add(new InvoiceBatchPopup
+                                {
+                                    QtyType = dtBatch.Rows[0]["QtyType"].ToString(),
+                                    QtyTag = dtBatch.Rows[0]["Tag"].ToString(),
+                                    ProdID = CodeName,
+                                    BatchNo = dtBatch.Rows[0]["BatchNumber"].ToString(),
+                                    PKDDate = dtBatch.Rows[0]["PKDDate"].ToString(),
+                                    ExpiryDate = dtBatch.Rows[0]["ExpiryDate"].ToString(),
+                                    ActQty = dtBatch.Rows[0]["Qty"].ToString(),
+                                    MRP = dtBatch.Rows[0]["MRP"].ToString(),
+                                    SalesPrice = dtBatch.Rows[0]["Price"].ToString(),
+                                    TrackBatch = BATCH,
+                                    TrackPKD = PKD,
+                                    TrackInventory = TrkInv
+                                });
+                            }
                         }
                     }
-                    #endregion
-                    list.Add(new InvoiceBatchInfo
+                    else
                     {
-                        ProdID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
-                        //ProductDiscPerc = DDT.Rows[i]["ProductDiscPerc"].ToString(),
-                        ProductDiscPerc = OrgDiscPern.ToString(),
-                        TradeDiscPerc = OrgTradeDiscPern.ToString(),
-                        BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
-                        BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
-                        PurchaseUomID = DDT.Rows[i]["PurchaseUomID"].ToString(),
-                        PurchaseCR = DDT.Rows[i]["PurchaseCR"].ToString(),
-                        SalesUomID = DDT.Rows[i]["SalesUomID"].ToString(),
-                        SalesCR = DDT.Rows[i]["SalesCR"].ToString(),
-                        SalesTaxID = DDT.Rows[i]["SalesTaxID"].ToString(),
-                        PurchasePrice = DDT.Rows[i]["PurchasePrice"].ToString(),
-                        SalesPrice = DDT.Rows[i]["SalesPrice"].ToString(),
-                        ECP = DDT.Rows[i]["ECP"].ToString(),
-                        SPLPrice = DDT.Rows[i]["SPLPrice"].ToString(),
-                        MRP = DDT.Rows[i]["MRP"].ToString(),
-                        ReturnPrice = DDT.Rows[i]["ReturnPrice"].ToString(),
-                        TaxName = DDT.Rows[i]["TaxName"].ToString(),
-                        GSTPern = DDT.Rows[i]["GST"].ToString(),
-                        IGSTPern = DDT.Rows[i]["IGST"].ToString(),
-                        TrackPKD = DDT.Rows[i]["TrackPDK"].ToString(),
-                        TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
-                        TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
-                        ItemTransactionPrice = DDT.Rows[i]["SalesReturnPrice"].ToString(),
-                        UOMList = ulist,
-                        lstInvPopup = ulistBatch,
-                        lstReason = ulistreason
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "6" || Mode == "10")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
-                List<PurchaseModel> list = new List<PurchaseModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new PurchaseModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        DocID = DDT.Rows[i]["DocID"].ToString(),
-                        Date = DDT.Rows[i]["DocDate"].ToString(),
-                        RefNo = DDT.Rows[i]["RefNo"].ToString(),
-                        BranchID = DDT.Rows[i]["Branch"].ToString(),
-                        VendorID = DDT.Rows[i]["Party"].ToString(),
-                        GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
-                        TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
-                        NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
-                        Status = DDT.Rows[i]["Status"].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
+                        ulistBatch.Add(new InvoiceBatchPopup
+                        {
+                            QtyType = "SALE",
+                            QtyTag = "1",
+                            ProdID = CodeName,
+                            BatchNo = null,
+                            PKDDate = null,
+                            ExpiryDate = null,
+                            ActQty = "0",
+                            MRP = dtProdinfo.Rows[0]["MRP"].ToString(),
+                            SalesPrice = dtProdinfo.Rows[0]["Price"].ToString(),
+                            TrackBatch = BATCH,
+                            TrackPKD = PKD,
+                            TrackInventory = TrkInv
+                        });
+                    }
 
-            if (Mode == "7" || Mode == "11" || Mode == "17")
+                    return Ok(ulistBatch);
+                }
+            }
+            catch(Exception ex)
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, null, CodeName);
+                bl.BL_WriteErrorMsginLog("SalesReturn", "salesreturn/get", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/salesreturn/getvariantdata")]
+        public IHttpActionResult GetVariantQTNData(string VariantType, string DocID, string PartyID)
+        {
+            try
+            {
+                //DataTable DDT = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 1, DocID);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 1, DocID);
                 List<SalesModel> list = new List<SalesModel>();
                 if (DDT.Rows.Count > 0)
                 {
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 31, DocPrefix, DDT.Rows[i][8].ToString());
+                        DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 31, 16, PartyID);
                         List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
                         List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
                         if (DDT1.Rows.Count > 0)
                         {
-                            DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34,16, DDT1.Rows[i]["ID"].ToString());
+                            DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34, DDT1.Rows[i]["ID"].ToString());
                             if (dtRem.Rows.Count > 0)
                             {
                                 for (int j = 0; j < dtRem.Rows.Count; j++)
@@ -386,11 +767,10 @@ namespace SampWebApi.Controllers
                         }
 
                         List<SalesDetail> listProductGrid = new List<SalesDetail>();
-                        int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : 18;
-                        DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", TMode, DocPrefix, null, CodeName);
+                        DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
                         for (int k = 0; k < DDT2.Rows.Count; k++)
                         {
-                            DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT2.Rows[k]["ProdID"].ToString());
+                            DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, 16, "", DDT2.Rows[k]["ProdID"].ToString());
                             List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
                             for (int j = 0; j < dtUOM.Rows.Count; j++)
                             {
@@ -402,7 +782,7 @@ namespace SampWebApi.Controllers
                                 });
                             }
                             List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
-                            DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
+                            DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, 16);
                             DataRow[] drr = dtReason.Select("Type = 12");
                             for (int r = 0; r < drr.Length; r++)
                             {
@@ -430,8 +810,7 @@ namespace SampWebApi.Controllers
                                     SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                 });
                             }
-                            
-                                List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
+                            List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
                             ulistTempBatch.Add(new SRTempBatch
                             {
                                 HiddenRowIndex = DDT2.Rows[k]["HiddenRowID"].ToString(),
@@ -440,7 +819,7 @@ namespace SampWebApi.Controllers
                                 Batch = DDT2.Rows[k]["BatchNo"].ToString(),
                                 PKD = DDT2.Rows[k]["PKD"].ToString(),
                                 Expiry = DDT2.Rows[k]["Expiry"].ToString(),
-                                TaxId= DDT2.Rows[k]["TaxID"].ToString(),
+                                TaxId = DDT2.Rows[k]["TaxID"].ToString(),
                                 TaxTypeId = "1",
                                 InclusiveYesNo = "0",
 
@@ -476,8 +855,8 @@ namespace SampWebApi.Controllers
                                 GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
                                 OrgPrice = DDT2.Rows[k]["BaseUomPrice"].ToString(),
                                 BatchNo = DDT2.Rows[k]["BatchNo"].ToString(),
-                                PKD = !string.IsNullOrEmpty(DDT2.Rows[k]["PKD"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["PKD"]).ToString("dd/MM/yyyy") : "",
-                                Expiry = !string.IsNullOrEmpty(DDT2.Rows[k]["Expiry"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["Expiry"]).ToString("dd/MM/yyyy") : "",
+                                PKD = DDT2.Rows[k]["PKD"].ToString(),
+                                Expiry = DDT2.Rows[k]["Expiry"].ToString(),
                                 ReasonId = DDT2.Rows[k]["ReasonId"].ToString(),
                                 PKDYN = Convert.ToInt32(DDT2.Rows[k]["TrackPDK"]).ToString(),
                                 BatchYN = Convert.ToInt32(DDT2.Rows[k]["TrackBatch"]).ToString(),
@@ -485,30 +864,29 @@ namespace SampWebApi.Controllers
                                 SerialYN = Convert.ToInt32(DDT2.Rows[k]["TrackSerial"]).ToString(),
                                 ProductTransPrice = DDT2.Rows[k]["SalesReturnPrice"].ToString(),
                                 DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
-
                                 HiddenRowID = DDT2.Rows[k]["HiddenRowID"].ToString(),
                                 NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
                                 MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                 CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                lstTempBatch = ulistTempBatch,
                                 UOMList = ulist,
                                 lstInvPopup = ulistBatch,
-                                lstReason=ulistreason,
-                                lstTempBatch = ulistTempBatch
+                                lstReason = ulistreason
                             });
                         }
+
                         list.Add(new SalesModel
                         {
                             //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             ID = DDT.Rows[i]["ID"].ToString(),
                             DocDate = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                             TransID = DDT.Rows[i]["TransID"].ToString(),
-                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
                             BranchID = DDT.Rows[i]["BranchID"].ToString(),
                             DocId = DDT.Rows[i]["DocID"].ToString(),
                             DocValue = DDT.Rows[i]["DocValue"].ToString(),
                             BeatID = DDT.Rows[i]["BeatID"].ToString(),
                             SalesmanID = DDT.Rows[i]["SalesmanID"].ToString(),
-                            CustomerID = DDT.Rows[i]["CustomerID"].ToString(),
+                            CustomerID = PartyID,//DDT.Rows[i]["CustomerID"].ToString(),
                             RefNo = DDT.Rows[i]["RefNo"].ToString(),
                             TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
                             PriceID = DDT.Rows[i]["PriceID"].ToString(),
@@ -536,10 +914,6 @@ namespace SampWebApi.Controllers
                             TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
                             TDSAmount = DDT.Rows[i]["TDSAmount"].ToString(),
                             WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
-                            DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
-                            DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
-                            ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
-                            Balance = DDT.Rows[i]["Balance"].ToString(),
                             lstPartyInfo = listParty,
                             lstProdInfo = listProductGrid,
                         });
@@ -547,70 +921,59 @@ namespace SampWebApi.Controllers
                 }
                 return Ok(list);
             }
-            if (Mode == "14")
+            catch(Exception ex)
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName, ID);
-                List<PurchaseDetail> list = new List<PurchaseDetail>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new PurchaseDetail
-                    {
-                        HID = DDT.Rows[i][0].ToString(),
-                        Date = DDT.Rows[i][1].ToString(),
-                        MRP = DDT.Rows[i][2].ToString(),
-                        UomQty = DDT.Rows[i][3].ToString(),
-                        UomID = DDT.Rows[i][4].ToString(),
-                        PurchasePrice = DDT.Rows[i][5].ToString(),
-                        ProdDiscPern = DDT.Rows[i][6].ToString(),
-                        TradeDiscPern = DDT.Rows[i][7].ToString(),
-                        AddnlDiscPern = DDT.Rows[i][8].ToString(),
-                        BatchNo = DDT.Rows[i][9].ToString(),
-                        PKD = DDT.Rows[i][10].ToString(),
-                        Expiry = DDT.Rows[i][11].ToString(),
-                    });
-                }
-                return Ok(list);
+                bl.BL_WriteErrorMsginLog("SalesReturn", "salesreturn/getvariantdata", ex.Message);
             }
-            if (Mode == "15")
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/salesreturn/productnewbatch")]
+        public IHttpActionResult GetprodnbData(string ProdID)
+        {
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, ID, CodeName);
-                return Ok("0");
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", 4, ProdID);
+                string jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(jsondata);
             }
-            if (Mode == "20")
+            catch(Exception ex)
             {
-                List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                string PKD = "False", BATCH = "False";
-                int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
-                DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
-                if (dtProdinfo.Rows.Count > 0)
-                {
-                    PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
-                    BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
-                }
-                //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, 2, Convert.ToDateTime(Date), CodeName, ID);
-                DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, CodeName, Convert.ToDateTime(Date), ID, 0, ShowZerobatch);
-                for (int j = 0; j < dtBatch.Rows.Count; j++)
-                {
-                    ulistBatch.Add(new InvoiceBatchPopup
-                    {
-                        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                        ProdID = CodeName,
-                        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                        MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                        TrackBatch = BATCH,
-                        TrackPKD = PKD,
-                    });
-                }
-                return Ok(ulistBatch);
+                bl.BL_WriteErrorMsginLog("SalesReturn", "salesreturn/productnewbatch", ex.Message);
             }
-            if(Mode == "21")
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/salesreturn/getexistssrbatch")]
+        public IHttpActionResult Getexistssrbatch(SRExistsbatchget SREBatch)
+        {
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, CodeName);
+                if (SREBatch == null)
+                {
+                    return BadRequest("No parameters found");
+                }
+                DataTable DDT = bl.BL_ExecuteParamSP("uspgetSRExistsbatch", SREBatch.AppPriceId, SREBatch.BranchId, SREBatch.ProdId,
+                    (object)SREBatch.BatchNumber ?? DBNull.Value, (object)SREBatch.PkdDate ?? DBNull.Value, (object)SREBatch.ExpiryDate ?? DBNull.Value,
+                    SREBatch.Price, SREBatch.MRP);
+                string jsondata = JsonConvert.SerializeObject(DDT);
+                return Ok(jsondata);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("SalesReturn", "salesreturn/getexistssrbatch", ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/salesreturn/getfilterdata")]
+        public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
+        {
+            try
+            {
+                string Mode = FType == "1" ? "6" : FType == "2" ? "10" : "16";
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, TransID, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
                 List<PurchaseModel> list = new List<PurchaseModel>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -621,403 +984,78 @@ namespace SampWebApi.Controllers
                         Date = DDT.Rows[i]["DocDate"].ToString(),
                         RefNo = DDT.Rows[i]["RefNo"].ToString(),
                         BranchID = DDT.Rows[i]["Branch"].ToString(),
-                        GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
-                        TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
-                        NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "23")
-            {
-                List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                string PKD = "False", BATCH = "False", TrkInv = "True";
-                //DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
-                DataTable dtProdinfo = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, PriceID);
-                if (dtProdinfo.Rows.Count > 0)
-                {
-                    PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
-                    BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
-                    TrkInv = dtProdinfo.Rows[0]["TrackInventory"].ToString();
-                }
-
-                if (TrkInv == "True")
-                {
-                    //DataTable dtBatch1 = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
-                    int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
-                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, CodeName, Convert.ToDateTime(Date), ID);
-
-                    if (dtBatch.Rows.Count > 0)
-                    {
-                        //for (int j = 0; j < dtBatch.Rows.Count; j++)
-                        {
-                            ulistBatch.Add(new InvoiceBatchPopup
-                            {
-                                QtyType = dtBatch.Rows[0]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[0]["Tag"].ToString(),
-                                ProdID = CodeName,
-                                BatchNo = dtBatch.Rows[0]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[0]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[0]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[0]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[0]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[0]["Price"].ToString(),
-                                TrackBatch = BATCH,
-                                TrackPKD = PKD,
-                                TrackInventory = TrkInv
-                            });
-                        }                        
-                    }
-                }
-                else
-                {
-                    ulistBatch.Add(new InvoiceBatchPopup
-                    {
-                        QtyType = "SALE",
-                        QtyTag = "1",
-                        ProdID = CodeName,
-                        BatchNo = null,
-                        PKDDate = null,
-                        ExpiryDate = null,
-                        ActQty = "0",
-                        MRP = dtProdinfo.Rows[0]["MRP"].ToString(),
-                        SalesPrice = dtProdinfo.Rows[0]["Price"].ToString(),
-                        TrackBatch = BATCH,
-                        TrackPKD = PKD,
-                        TrackInventory = TrkInv
-                    });
-                }
-
-                return Ok(ulistBatch);
-            }
-            return Ok();
-        }
-        [HttpGet]
-        [Route("api/salesreturn/getvariantdata")]
-        public IHttpActionResult GetVariantQTNData(string VariantType, string DocID, string PartyID)
-        {
-            //DataTable DDT = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 1, DocID);
-            DataTable DDT = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 1, DocID);
-            List<SalesModel> list = new List<SalesModel>();
-            if (DDT.Rows.Count > 0)
-            {
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 31, 16, PartyID);
-                    List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
-                    List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
-                    if (DDT1.Rows.Count > 0)
-                    {
-                        DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 34, DDT1.Rows[i]["ID"].ToString());
-                        if (dtRem.Rows.Count > 0)
-                        {
-                            for (int j = 0; j < dtRem.Rows.Count; j++)
-                            {
-                                listRemark.Add(new clsCustomerRemarks
-                                {
-                                    Remarks = dtRem.Rows[j][1].ToString()
-                                });
-                            }
-                        }
-                    }
-                    for (int j = 0; j < DDT1.Rows.Count; j++)
-                    {
-                        listParty.Add(new CustomerVendorModel
-                        {
-                            ID = DDT1.Rows[j]["ID"].ToString(),
-                            Code = DDT1.Rows[j]["Code"].ToString(),
-                            Name = DDT1.Rows[j]["Name"].ToString(),
-                            Billadd1 = DDT1.Rows[j]["Billadd1"].ToString(),
-                            Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
-                            Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
-                            Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
-                            Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
-                            Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
-                            Pincode = DDT1.Rows[j]["Pincode"].ToString(),
-                            ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
-                            Ph1 = DDT1.Rows[j]["Ph1"].ToString(),
-                            Ph2 = DDT1.Rows[j]["Ph2"].ToString(),
-                            Mob1 = DDT1.Rows[j]["Mob1"].ToString(),
-                            Mob2 = DDT1.Rows[j]["Mob2"].ToString(),
-                            Email = DDT1.Rows[j]["Email"].ToString(),
-                            PANNumber = DDT1.Rows[j]["PANNumber"].ToString(),
-                            AadharNo = DDT1.Rows[j]["AadharNo"].ToString(),
-                            DLNo20 = DDT1.Rows[j]["DLNo20"].ToString(),
-                            DLNo21 = DDT1.Rows[j]["DLNo21"].ToString(),
-                            FSSAINo = DDT1.Rows[j]["FSSAINo"].ToString(),
-                            StateID = DDT1.Rows[j]["StateID"].ToString(),
-                            GSTIN = DDT1.Rows[j]["GSTIN"].ToString(),
-                            CreditTermID = DDT1.Rows[j]["CreditTermID"].ToString(),
-                            PaymentModeID = DDT1.Rows[j]["PaymentModeID"].ToString(),
-                            TaxTypeID = DDT1.Rows[j]["TaxTypeID"].ToString(),
-                            FAID = DDT1.Rows[j]["FAID"].ToString(),
-                            Active = DDT1.Rows[j]["Active"].ToString(),
-                            Ratings = DDT1.Rows[j]["Rating"].ToString(),
-                            lstCustRemark = listRemark
-                        });
-                    }
-
-                    List<SalesDetail> listProductGrid = new List<SalesDetail>();                    
-                    DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
-                    for (int k = 0; k < DDT2.Rows.Count; k++)
-                    {
-                        DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, 16, "", DDT2.Rows[k]["ProdID"].ToString());
-                        List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                        for (int j = 0; j < dtUOM.Rows.Count; j++)
-                        {
-                            ulist.Add(new clsPurchaseUOM
-                            {
-                                ID = dtUOM.Rows[j][0].ToString(),
-                                Name = dtUOM.Rows[j][1].ToString(),
-                                ConvRate = dtUOM.Rows[j][2].ToString()
-                            });
-                        }
-                        List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
-                        DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, 16);
-                        DataRow[] drr = dtReason.Select("Type = 12");
-                        for (int r = 0; r < drr.Length; r++)
-                        {
-                            ulistreason.Add(new SingleMasterModel
-                            {
-                                ID = drr[r].ItemArray[2].ToString(),
-                                Name = drr[r].ItemArray[4].ToString(),
-                            });
-                        }
-                        List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                            Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                        for (int j = 0; j < dtBatch.Rows.Count; j++)
-                        {
-                            ulistBatch.Add(new InvoiceBatchPopup
-                            {
-                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                ProdID = DDT.Rows[i]["ID"].ToString(),
-                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                            });
-                        }
-                        List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
-                        ulistTempBatch.Add(new SRTempBatch
-                        {
-                            HiddenRowIndex = DDT2.Rows[k]["HiddenRowID"].ToString(),
-                            BatchType = DDT2.Rows[k]["NewBatchCreated"].ToString(),
-                            ProdId = DDT2.Rows[k]["ProdID"].ToString(),
-                            Batch = DDT2.Rows[k]["BatchNo"].ToString(),
-                            PKD = DDT2.Rows[k]["PKD"].ToString(),
-                            Expiry = DDT2.Rows[k]["Expiry"].ToString(),
-                            TaxId = DDT2.Rows[k]["TaxID"].ToString(),
-                            TaxTypeId = "1",
-                            InclusiveYesNo = "0",
-
-                            PPrice = DDT2.Rows[k]["BtPPrice"].ToString(),
-                            SPrice = DDT2.Rows[k]["BtSPrice"].ToString(),
-                            ECP = DDT2.Rows[k]["BtECP"].ToString(),
-                            MRP = DDT2.Rows[k]["BtMRP"].ToString(),
-                            SPLPrice = DDT2.Rows[k]["BtSPLPrice"].ToString(),
-                            Return = DDT2.Rows[k]["BtRtnPrice"].ToString(),
-                        });
-                        listProductGrid.Add(new SalesDetail
-                        {
-                            ProdID = DDT2.Rows[k]["ProdID"].ToString(),
-                            UomID = DDT2.Rows[k]["UomID"].ToString(),
-                            Code = DDT2.Rows[k]["Code"].ToString(),
-                            Name = DDT2.Rows[k]["Name"].ToString(),
-                            TaxID = DDT2.Rows[k]["TaxID"].ToString(),
-                            UomQty = DDT2.Rows[k]["Qty"].ToString(),
-                            MRP = DDT2.Rows[k]["DetailMRP"].ToString(),
-                            UomSalePrice = DDT2.Rows[k]["ExclPrice"].ToString(),
-                            UomSalePriceIncl = DDT2.Rows[k]["InclPrice"].ToString(),
-                            ProdDiscPern = DDT2.Rows[k]["ProdPern"].ToString(),
-                            ProdDiscAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
-                            TradeDiscPern = DDT2.Rows[k]["TradePern"].ToString(),
-                            TradeDiscAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
-                            AddnlDiscPern = DDT2.Rows[k]["AddnlPern"].ToString(),
-                            AddnlDiscAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
-                            TaxPern = DDT2.Rows[k]["TaxPern"].ToString(),
-                            GrossAmt = DDT2.Rows[k]["GrossAmt"].ToString(),
-                            TaxAmt = DDT2.Rows[k]["TaxAmt"].ToString(),
-                            TaxName = DDT2.Rows[k]["TaxName"].ToString(),
-                            NetAmt = DDT2.Rows[k]["NetAmt"].ToString(),
-                            GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
-                            OrgPrice = DDT2.Rows[k]["BaseUomPrice"].ToString(),
-                            BatchNo = DDT2.Rows[k]["BatchNo"].ToString(),
-                            PKD = DDT2.Rows[k]["PKD"].ToString(),
-                            Expiry = DDT2.Rows[k]["Expiry"].ToString(),
-                            ReasonId = DDT2.Rows[k]["ReasonId"].ToString(),
-                            PKDYN = Convert.ToInt32(DDT2.Rows[k]["TrackPDK"]).ToString(),
-                            BatchYN = Convert.ToInt32(DDT2.Rows[k]["TrackBatch"]).ToString(),
-                            InvYN = Convert.ToInt32(DDT2.Rows[k]["TrackInventory"]).ToString(),
-                            SerialYN = Convert.ToInt32(DDT2.Rows[k]["TrackSerial"]).ToString(),
-                            ProductTransPrice = DDT2.Rows[k]["SalesReturnPrice"].ToString(),
-                            DiffAmt = DDT2.Rows[k]["DiffValue"].ToString(),
-                            HiddenRowID = DDT2.Rows[k]["HiddenRowID"].ToString(),
-                            NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
-                            MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
-                            CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
-                            lstTempBatch = ulistTempBatch,
-                            UOMList = ulist,
-                            lstInvPopup = ulistBatch,
-                            lstReason = ulistreason
-                        });
-                    }
-
-                    list.Add(new SalesModel
-                    {
-                        //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        DocDate = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
-                        TransID = DDT.Rows[i]["TransID"].ToString(),
-                        BranchID = DDT.Rows[i]["BranchID"].ToString(),
-                        DocId = DDT.Rows[i]["DocID"].ToString(),
-                        DocValue = DDT.Rows[i]["DocValue"].ToString(),
-                        BeatID = DDT.Rows[i]["BeatID"].ToString(),
-                        SalesmanID = DDT.Rows[i]["SalesmanID"].ToString(),
-                        CustomerID = PartyID,//DDT.Rows[i]["CustomerID"].ToString(),
-                        RefNo = DDT.Rows[i]["RefNo"].ToString(),
-                        TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
-                        PriceID = DDT.Rows[i]["PriceID"].ToString(),
-                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
-                        PaymentTermID = DDT.Rows[i]["CreditTermID"].ToString(),
-                        FrightAmt = DDT.Rows[i]["FrightAmt"].ToString(),
-                        OtherChargePern = DDT.Rows[i]["OtherChrgPern"].ToString(),
-                        OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
-                        TradeDiscPern = DDT.Rows[i]["TradePern"].ToString(),
-                        AddnlDiscPern = DDT.Rows[i]["AddnlPern"].ToString(),
-                        TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
-                        TradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
-                        AddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
-                        RoundOffAmt = DDT.Rows[i]["RoundOffAmt"].ToString(),
+                        VendorID = DDT.Rows[i]["Party"].ToString(),
                         GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
                         TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
                         NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
                         Status = DDT.Rows[i]["Status"].ToString(),
-                        UDFId = DDT.Rows[i]["UDFId"].ToString(),
-                        UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
-                        UDFDocPrefix = DDT.Rows[i]["UDFDocPrefix"].ToString(),
-                        UDFDocValue = DDT.Rows[i]["UDFDocValue"].ToString(),
+                        Balance = DDT.Rows[i]["Balance"].ToString(),
+                        CBy = DDT.Rows[i]["UserName"].ToString(),
+                        CDate = DDT.Rows[i]["LastActionTime"].ToString(),
+                        CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
+                        PriceID = DDT.Rows[i]["PriceType"].ToString(),
+                        ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
                         Remarks = DDT.Rows[i]["Remarks"].ToString(),
                         Narration = DDT.Rows[i]["Narration"].ToString(),
+                        TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                        TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
+                        AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
+                        TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
+                        TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
+                        TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
+                        OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
+                        OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                        Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
                         TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
-                        TDSAmount = DDT.Rows[i]["TDSAmount"].ToString(),
-                        WriteOffAmt = DDT.Rows[i]["Writeoff"].ToString(),
-                        lstPartyInfo = listParty,
-                        lstProdInfo = listProductGrid,
+                        DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                        DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString()
+
                     });
                 }
+                //return Ok(list);            
+                var data = from users in list
+                           select
+                               new
+                               {
+                                   ID = users.ID,
+                                   DocID = users.DocID,
+                                   Date = users.Date,
+                                   RefNo = users.RefNo,
+                                   BranchID = users.BranchID,
+                                   VendorID = users.VendorID,
+                                   GrossAmt = users.GrossAmt,
+                                   TaxAmt = users.TaxAmt,
+                                   NetAmt = users.NetAmt,
+                                   Status = users.Status,
+                                   Balance = users.Balance,
+                                   CBy = users.CBy,
+                                   CDate = users.CDate,
+                                   CurrentStatus = users.CurrentStatus,
+                                   PriceID = users.PriceID,
+                                   ReturnType = users.ReturnType,
+                                   Remarks = users.Remarks,
+                                   Narration = users.Narration,
+                                   TotalProdDiscAmt = users.TotalProdDiscAmt,
+                                   TotalDiscAmt = users.TotalDiscAmt,
+                                   AddnlDiscPern = users.AddnlDiscPern,
+                                   TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
+                                   TradeDiscPern = users.TradeDiscPern,
+                                   TotalTradeDiscAmt = users.TotalTradeDiscAmt,
+                                   OtherChargePern = users.OtherChargePern,
+                                   OtherChargeAmt = users.OtherChargeAmt,
+                                   Frieght = users.Frieght,
+                                   TCSTaxAmt = users.TCSTaxAmt,
+                                   DiffValueGross = users.DiffValueGross,
+                                   DiffValueNet = users.DiffValueNet
+
+                               };
+                return Ok(data);
             }
-            return Ok(list);
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("SalesReturn", "salesreturn/getfilterdata", ex.Message);
+            }
             return Ok();
-        }
-        [HttpGet]
-        [Route("api/salesreturn/productnewbatch")]
-        public IHttpActionResult GetprodnbData(string ProdID)
-        {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", 4,  ProdID);
-            string jsondata = JsonConvert.SerializeObject(DDT);
-            return Ok(jsondata);
-        }
-        [HttpPost]
-        [Route("api/salesreturn/getexistssrbatch")]
-        public IHttpActionResult Getexistssrbatch(SRExistsbatchget SREBatch)
-        {            
-            if (SREBatch == null)
-            {
-                return BadRequest("No parameters found");
-            }
-            DataTable DDT = bl.BL_ExecuteParamSP("uspgetSRExistsbatch", SREBatch.AppPriceId, SREBatch.BranchId, SREBatch.ProdId,
-                (object)SREBatch.BatchNumber ?? DBNull.Value, (object)SREBatch.PkdDate ?? DBNull.Value, (object)SREBatch.ExpiryDate ?? DBNull.Value,
-                SREBatch.Price, SREBatch.MRP);
-            string jsondata = JsonConvert.SerializeObject(DDT);
-            return Ok(jsondata);
-        }
-
-        [HttpGet]
-        [Route("api/salesreturn/getfilterdata")]
-        public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
-        {
-            string Mode = FType == "1" ? "6" : FType == "2" ? "10" : "16";
-                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, TransID, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
-            List<PurchaseModel> list = new List<PurchaseModel>();
-            for (int i = 0; i < DDT.Rows.Count; i++)
-            {
-                list.Add(new PurchaseModel
-                {
-                    ID = DDT.Rows[i]["ID"].ToString(),
-                    DocID = DDT.Rows[i]["DocID"].ToString(),
-                    Date = DDT.Rows[i]["DocDate"].ToString(),
-                    RefNo = DDT.Rows[i]["RefNo"].ToString(),
-                    BranchID = DDT.Rows[i]["Branch"].ToString(),
-                    VendorID = DDT.Rows[i]["Party"].ToString(),
-                    GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
-                    TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
-                    NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
-                    Status = DDT.Rows[i]["Status"].ToString(),
-                    Balance = DDT.Rows[i]["Balance"].ToString(),
-                    CBy = DDT.Rows[i]["UserName"].ToString(),
-                    CDate = DDT.Rows[i]["LastActionTime"].ToString(),
-                    CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
-                    PriceID = DDT.Rows[i]["PriceType"].ToString(),
-                    ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
-                    Remarks = DDT.Rows[i]["Remarks"].ToString(),
-                    Narration = DDT.Rows[i]["Narration"].ToString(),
-                    TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
-                    TotalDiscAmt = DDT.Rows[i]["TotalDiscAmt"].ToString(),
-                    AddnlDiscPern = DDT.Rows[i]["AddnlDiscPern"].ToString(),
-                    TotalAddnlDiscAmt = DDT.Rows[i]["AddnlDiscAmt"].ToString(),
-                    TradeDiscPern = DDT.Rows[i]["TradeDiscPern"].ToString(),
-                    TotalTradeDiscAmt = DDT.Rows[i]["TradeDiscAmt"].ToString(),
-                    OtherChargePern = DDT.Rows[i]["OtherChargePern"].ToString(),
-                    OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
-                    Frieght = DDT.Rows[i]["FrightAmt"].ToString(),
-                    TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
-                    DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
-                    DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString()
-
-                });
-            }
-            //return Ok(list);            
-            var data = from users in list
-                       select
-                           new
-                           {
-                               ID = users.ID,
-                               DocID = users.DocID,
-                               Date = users.Date,
-                               RefNo = users.RefNo,
-                               BranchID = users.BranchID,
-                               VendorID = users.VendorID,
-                               GrossAmt = users.GrossAmt,
-                               TaxAmt = users.TaxAmt,
-                               NetAmt = users.NetAmt,
-                               Status = users.Status,
-                               Balance = users.Balance,
-                               CBy = users.CBy,
-                               CDate = users.CDate,
-                               CurrentStatus = users.CurrentStatus,
-                               PriceID = users.PriceID,
-                               ReturnType = users.ReturnType,
-                               Remarks = users.Remarks,
-                               Narration = users.Narration,
-                               TotalProdDiscAmt = users.TotalProdDiscAmt,
-                               TotalDiscAmt = users.TotalDiscAmt,
-                               AddnlDiscPern = users.AddnlDiscPern,
-                               TotalAddnlDiscAmt = users.TotalAddnlDiscAmt,
-                               TradeDiscPern = users.TradeDiscPern,
-                               TotalTradeDiscAmt = users.TotalTradeDiscAmt,
-                               OtherChargePern = users.OtherChargePern,
-                               OtherChargeAmt = users.OtherChargeAmt,
-                               Frieght = users.Frieght,
-                               TCSTaxAmt = users.TCSTaxAmt,
-                               DiffValueGross = users.DiffValueGross,
-                               DiffValueNet = users.DiffValueNet
-
-                           };
-            return Ok(data);
         }
         [HttpPost]
         [Route("api/salesreturn/save")]

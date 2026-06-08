@@ -20,60 +20,67 @@ namespace SampWebApi.Controllers
         [Route("api/modifyhistory/get")]
         public IHttpActionResult GetData(string Mode, string UserID, string FormID = null, string FromDate = null, string ToDate = null, string HID = null)
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "1")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, 0);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "1")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, 0);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Code = DDT.Rows[i][3].ToString(),
-                        Name = DDT.Rows[i][4].ToString(),
-                    });
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "2" || Mode == "3")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate));
-                List<SingleMasterModel> list = new List<SingleMasterModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "2" || Mode == "3")
                 {
-                    list.Add(new SingleMasterModel
+                    DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate));
+                    List<SingleMasterModel> list = new List<SingleMasterModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Name = DDT.Rows[i][1].ToString(),
-                    });
-                }
-                return Ok(list);
+                        list.Add(new SingleMasterModel
+                        {
+                            ID = DDT.Rows[i][0].ToString(),
+                            Name = DDT.Rows[i][1].ToString(),
+                        });
+                    }
+                    return Ok(list);
 
+                }
+                if (Mode == "4")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate));
+                    string data = JsonConvert.SerializeObject(DDT, Formatting.Indented);
+                    //List<SingleMasterModel> list = new List<SingleMasterModel>();
+                    //for (int i = 0; i < DDT.Rows.Count; i++)
+                    //{
+                    //    list.Add(new SingleMasterModel
+                    //    {
+                    //        ID = DDT.Rows[i][0].ToString(),
+                    //        Name = DDT.Rows[i][1].ToString(),
+                    //         Value = DDT.Rows[i][2].ToString(),
+                    //    });
+                    //}
+                    return Ok(data);
+                }
+                if (Mode == "5")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate), HID);
+                    string data = JsonConvert.SerializeObject(DDT, Formatting.Indented);
+                    return Ok(data);
+                }
             }
-            if (Mode == "4")
+            catch(Exception ex)
             {
-                DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate));
-                string data = JsonConvert.SerializeObject(DDT, Formatting.Indented);
-                //List<SingleMasterModel> list = new List<SingleMasterModel>();
-                //for (int i = 0; i < DDT.Rows.Count; i++)
-                //{
-                //    list.Add(new SingleMasterModel
-                //    {
-                //        ID = DDT.Rows[i][0].ToString(),
-                //        Name = DDT.Rows[i][1].ToString(),
-                //         Value = DDT.Rows[i][2].ToString(),
-                //    });
-                //}
-                return Ok(data);
-            }
-            if (Mode == "5")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspGetModifyHistoryData", Mode, FormID, UserID, Convert.ToDateTime(FromDate), Convert.ToDateTime(ToDate),HID);
-                string data = JsonConvert.SerializeObject(DDT, Formatting.Indented);
-                return Ok(data);
+                bl.BL_WriteErrorMsginLog("ModifyHistory", "modifyhistory/get", ex.Message);
             }
             return Ok();
         }

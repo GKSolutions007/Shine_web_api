@@ -277,47 +277,54 @@ namespace SampWebApi.Controllers
         [Route("api/printcustomize/transactioncontrols")]
         public IHttpActionResult GettransactionControls(int TransID)
         {
-            var Controls = new List<object>();
-            var HeaderControls = new List<object>();
-            var BodyControls = new List<object>();
-            var FooterControls = new List<object>();
-            DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 2, TransID, 0);
-            if (dtTrans.Rows.Count > 0)
+            try
             {
-                string HeaderProc = dtTrans.Rows[0]["Header"].ToString();
-                string BodyProc = dtTrans.Rows[0]["Body"].ToString();
-                string FooterProc = dtTrans.Rows[0]["SpecialField"].ToString();
-                DataTable dtHeader = bl.BL_ExecuteParamSP(HeaderProc);
-                for (int i = 0; i < dtHeader.Columns.Count; i++)
+                var Controls = new List<object>();
+                var HeaderControls = new List<object>();
+                var BodyControls = new List<object>();
+                var FooterControls = new List<object>();
+                DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 2, TransID, 0);
+                if (dtTrans.Rows.Count > 0)
                 {
-                    HeaderControls.Add(new
+                    string HeaderProc = dtTrans.Rows[0]["Header"].ToString();
+                    string BodyProc = dtTrans.Rows[0]["Body"].ToString();
+                    string FooterProc = dtTrans.Rows[0]["SpecialField"].ToString();
+                    DataTable dtHeader = bl.BL_ExecuteParamSP(HeaderProc);
+                    for (int i = 0; i < dtHeader.Columns.Count; i++)
                     {
-                        ControlName = dtHeader.Columns[i].ColumnName,
-                    });
-                }
-                DataTable dtBody = bl.BL_ExecuteParamSP(BodyProc);
-                for (int i = 0; i < dtBody.Columns.Count; i++)
-                {
-                    BodyControls.Add(new
+                        HeaderControls.Add(new
+                        {
+                            ControlName = dtHeader.Columns[i].ColumnName,
+                        });
+                    }
+                    DataTable dtBody = bl.BL_ExecuteParamSP(BodyProc);
+                    for (int i = 0; i < dtBody.Columns.Count; i++)
                     {
-                        ControlName = dtBody.Columns[i].ColumnName,
-                    });
-                }
-                DataTable dtFooter = bl.BL_ExecuteParamSP(FooterProc);
-                for (int i = 0; i < dtFooter.Columns.Count; i++)
-                {
-                    FooterControls.Add(new
+                        BodyControls.Add(new
+                        {
+                            ControlName = dtBody.Columns[i].ColumnName,
+                        });
+                    }
+                    DataTable dtFooter = bl.BL_ExecuteParamSP(FooterProc);
+                    for (int i = 0; i < dtFooter.Columns.Count; i++)
                     {
-                        ControlName = dtFooter.Columns[i].ColumnName,
+                        FooterControls.Add(new
+                        {
+                            ControlName = dtFooter.Columns[i].ColumnName,
+                        });
+                    }
+                    Controls.Add(new
+                    {
+                        Header = HeaderControls,
+                        Body = BodyControls,
+                        Footer = FooterControls,
                     });
+                    return Ok(Controls);
                 }
-                Controls.Add(new
-                {
-                    Header = HeaderControls,
-                    Body = BodyControls,
-                    Footer = FooterControls,
-                });
-                return Ok(Controls);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PrintCustomize", "printcustomize/transactioncontrols", ex.Message);
             }
             return Ok();
         }
@@ -326,49 +333,51 @@ namespace SampWebApi.Controllers
         [Route("api/printcustomize/initialDatas")]
         public IHttpActionResult GetinitialDatas()
         {
-            var InitialData = new List<object>();
-            var objPrintPaper = new List<object>();
-            var objTransNames = new List<object>();
-            var objConfigNames = new List<object>();
-            var objFontNames = new List<object>();
-            DataSet dtTrans = bl.BL_ExecuteParamSPDataset("uspGetSetPrintConfig", 3);
-            if (dtTrans.Tables.Count > 0)
+            try
             {
-                DataTable dtPrintPaper = dtTrans.Tables[0];
-                DataTable dtTransNames = dtTrans.Tables[1];
-                DataTable dtConfigNames = dtTrans.Tables[2];
-
-                for (int i = 0; i < dtPrintPaper.Rows.Count; i++)
+                var InitialData = new List<object>();
+                var objPrintPaper = new List<object>();
+                var objTransNames = new List<object>();
+                var objConfigNames = new List<object>();
+                var objFontNames = new List<object>();
+                DataSet dtTrans = bl.BL_ExecuteParamSPDataset("uspGetSetPrintConfig", 3);
+                if (dtTrans.Tables.Count > 0)
                 {
-                    objPrintPaper.Add(new
-                    {
-                        ID = dtPrintPaper.Rows[i]["Id"].ToString(),
-                        PaperSize = dtPrintPaper.Rows[i]["PaperSize"].ToString(),
-                        Width = dtPrintPaper.Rows[i]["Width"].ToString(),
-                        Height = dtPrintPaper.Rows[i]["Height"].ToString(),
-                    });
-                }
+                    DataTable dtPrintPaper = dtTrans.Tables[0];
+                    DataTable dtTransNames = dtTrans.Tables[1];
+                    DataTable dtConfigNames = dtTrans.Tables[2];
 
-                for (int i = 0; i < dtTransNames.Rows.Count; i++)
-                {
-                    objTransNames.Add(new
+                    for (int i = 0; i < dtPrintPaper.Rows.Count; i++)
                     {
-                        ID = dtTransNames.Rows[i]["Id"].ToString(),
-                        TransName = dtTransNames.Rows[i]["TransName"].ToString(),
-                    });
-                }
-                for (int i = 0; i < dtConfigNames.Rows.Count; i++)
-                {
-                    objConfigNames.Add(new
-                    {
-                        PrintID = dtConfigNames.Rows[i]["PrintID"].ToString(),
-                        ConfigName = dtConfigNames.Rows[i]["ConfigName"].ToString(),
-                        TransactionID = dtConfigNames.Rows[i]["TransactionID"].ToString(),
-                    });
-                }
+                        objPrintPaper.Add(new
+                        {
+                            ID = dtPrintPaper.Rows[i]["Id"].ToString(),
+                            PaperSize = dtPrintPaper.Rows[i]["PaperSize"].ToString(),
+                            Width = dtPrintPaper.Rows[i]["Width"].ToString(),
+                            Height = dtPrintPaper.Rows[i]["Height"].ToString(),
+                        });
+                    }
 
-                int FID = 1;
-                var allowedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    for (int i = 0; i < dtTransNames.Rows.Count; i++)
+                    {
+                        objTransNames.Add(new
+                        {
+                            ID = dtTransNames.Rows[i]["Id"].ToString(),
+                            TransName = dtTransNames.Rows[i]["TransName"].ToString(),
+                        });
+                    }
+                    for (int i = 0; i < dtConfigNames.Rows.Count; i++)
+                    {
+                        objConfigNames.Add(new
+                        {
+                            PrintID = dtConfigNames.Rows[i]["PrintID"].ToString(),
+                            ConfigName = dtConfigNames.Rows[i]["ConfigName"].ToString(),
+                            TransactionID = dtConfigNames.Rows[i]["TransactionID"].ToString(),
+                        });
+                    }
+
+                    int FID = 1;
+                    var allowedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
     "Arial",
     "Arial Black",
@@ -401,25 +410,30 @@ namespace SampWebApi.Controllers
     "Book Antiqua",
     "Baskerville Old Face"
 };
-                foreach (FontFamily font in System.Drawing.FontFamily.Families)
-                {
-                    if (allowedFonts.Contains(font.Name) && font.IsStyleAvailable(FontStyle.Regular))
+                    foreach (FontFamily font in System.Drawing.FontFamily.Families)
                     {
-                        objFontNames.Add(new
+                        if (allowedFonts.Contains(font.Name) && font.IsStyleAvailable(FontStyle.Regular))
                         {
-                            ID = FID++,
-                            FontName = font.Name
-                        });
+                            objFontNames.Add(new
+                            {
+                                ID = FID++,
+                                FontName = font.Name
+                            });
+                        }
                     }
+                    InitialData.Add(new
+                    {
+                        PrintPaper = objPrintPaper,
+                        TransNames = objTransNames,
+                        ConfigNames = objConfigNames,
+                        FontNames = objFontNames,
+                    });
+                    return Ok(InitialData);
                 }
-                InitialData.Add(new
-                {
-                    PrintPaper = objPrintPaper,
-                    TransNames = objTransNames,
-                    ConfigNames = objConfigNames,
-                    FontNames = objFontNames,
-                });
-                return Ok(InitialData);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PrintCustomize", "printcustomize/initialDatas", ex.Message);
             }
             return Ok();
         }
@@ -427,10 +441,17 @@ namespace SampWebApi.Controllers
         [Route("api/printcustomize/renameprofile")]
         public IHttpActionResult RenameProfile(string TransID, string ConfigID,string NewProfileName)
         {
-            DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 4, TransID, ConfigID, NewProfileName);
-            if(dtTrans.Rows.Count > 0)
+            try
             {
-                return Ok(dtTrans.Rows[0][0]);
+                DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 4, TransID, ConfigID, NewProfileName);
+                if (dtTrans.Rows.Count > 0)
+                {
+                    return Ok(dtTrans.Rows[0][0]);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PrintCustomize", "printcustomize/renameprofile", ex.Message);
             }
             return Ok();
         }
@@ -438,48 +459,64 @@ namespace SampWebApi.Controllers
         [Route("api/printcustomize/deleteprofile")]
         public IHttpActionResult DeleteProfile(string ConfigID)
         {
-            DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 5, 0, ConfigID);
-            return Ok(dtTrans.Rows[0][0]);
+            try
+            {
+                DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetPrintConfig", 5, 0, ConfigID);
+                return Ok(dtTrans.Rows[0][0]);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PrintCustomize", "printcustomize/deleteprofile", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/printcustomize/profilescript")]
         public HttpResponseMessage GetreportscriptData(string ConfigID, string ConfigName)
         {
-            string strAppStartPath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Print_Script_Data\\";
-            if (!Directory.Exists(strAppStartPath))
+            try
             {
-                Directory.CreateDirectory(strAppStartPath);
-            }
-            string strFileName = ConfigName + "_" + DateTime.Now.ToString("yyyymmddhhmmss") + ".txt";
-            using (StreamWriter sw = System.IO.File.CreateText(System.IO.Path.Combine(strAppStartPath, strFileName)))
-            {
-                DataTable dt = new DataTable();
-                dt = bl.BL_ExecuteParamSP("uspGetScriptPrintConfig", ConfigID);
-                if (dt.Rows.Count > 0)
+                string strAppStartPath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Print_Script_Data\\";
+                if (!Directory.Exists(strAppStartPath))
                 {
-                    for (int iRow = 0; iRow < dt.Rows.Count; iRow++)
-                    {
-                        sw.WriteLine(Convert.ToString(dt.Rows[iRow][0]).Trim());
-                    }
-                    sw.WriteLine("");
+                    Directory.CreateDirectory(strAppStartPath);
                 }
-            }
-            Type officeType = Type.GetTypeFromProgID("Excel.Application");
-            var sDocument = System.IO.Path.Combine(strAppStartPath, strFileName);
-            byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
-            //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-            if (!System.IO.File.Exists(System.IO.Path.Combine(strAppStartPath, strFileName)))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                string strFileName = ConfigName + "_" + DateTime.Now.ToString("yyyymmddhhmmss") + ".txt";
+                using (StreamWriter sw = System.IO.File.CreateText(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                {
+                    DataTable dt = new DataTable();
+                    dt = bl.BL_ExecuteParamSP("uspGetScriptPrintConfig", ConfigID);
+                    if (dt.Rows.Count > 0)
+                    {
+                        for (int iRow = 0; iRow < dt.Rows.Count; iRow++)
+                        {
+                            sw.WriteLine(Convert.ToString(dt.Rows[iRow][0]).Trim());
+                        }
+                        sw.WriteLine("");
+                    }
+                }
+                Type officeType = Type.GetTypeFromProgID("Excel.Application");
+                var sDocument = System.IO.Path.Combine(strAppStartPath, strFileName);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                if (!System.IO.File.Exists(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(System.IO.Path.Combine(strAppStartPath, strFileName), FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(System.IO.Path.Combine(strAppStartPath, strFileName), FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = strFileName
+                };
+                return result;
+            }
+            catch(Exception ex)
             {
-                FileName = strFileName
-            };
-            return result;
+                bl.BL_WriteErrorMsginLog("PrintCustomize", "printcustomize/profilescript", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 }
