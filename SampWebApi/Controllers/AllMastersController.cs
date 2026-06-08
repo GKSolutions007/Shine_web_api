@@ -37,6 +37,7 @@ namespace SampWebApi.Controllers
         public IHttpActionResult GetData(string Mode, string Trans)
         {
             DataTable DDT = new DataTable();
+            bl.BL_WriteErrorMsginLog("AllMaster", "homescreendraft/get", Trans);
             if (Mode == "1")
             {
                 DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
