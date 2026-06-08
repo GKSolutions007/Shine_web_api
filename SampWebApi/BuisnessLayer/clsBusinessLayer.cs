@@ -14,6 +14,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Configuration;
+using Newtonsoft.Json;
 namespace SampWebApi.BuisnessLayer
 {
     public class clsBusinessLayer
@@ -28,9 +29,15 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ExecuteSqlQuery(strquery);
         }
+
         public DataSet BL_ExecuteParamSPDataset(string strProcedure, params object[] objParams)
         {
             return ObjDL.dl_ExecuteParamSPDataset(strProcedure, objParams);
+        }
+        public string BL_DBName()
+        {
+            DataTable dtdb = BL_ExecuteSqlQuery("SELECT DB_NAME()");
+            return dtdb.Rows[0][0].ToString();
         }
         public string BL_AppConfigValuebyID(int AppID)
         {
@@ -290,13 +297,13 @@ namespace SampWebApi.BuisnessLayer
             //put a breakpoint here and check datatable
             return dataTable;
         }
-        public void BL_WriteErrorMsginLog(string strfrmName, string strmsg, string errors)
+        public void BL_WriteErrorMsginLog(string strfrmName, string strmsg, string errors,string LogType = "Error")
         {
-            int Error = System.Runtime.InteropServices.Marshal.GetExceptionCode();
-            BL_LogFileWrite(DateTime.Now + " |" + strfrmName + " | " + strmsg + " | " + errors);
+            //int Error = System.Runtime.InteropServices.Marshal.GetExceptionCode();            
+            BL_LogFileWrite(LogType + " |" + strfrmName + " | " + strmsg + " | " + errors);
         }
         //LOG SYSTEM ERROR MESSAGE
-        public static void BL_LogFileWrite(string message)
+        public void BL_LogFileWrite(string message)
         {
             FileStream fileStream = null;
             StreamWriter streamWriter = null;
@@ -307,7 +314,20 @@ namespace SampWebApi.BuisnessLayer
                 var myParentDir = parentDir.Parent.FullName;
                 string strFol = myParentDir + "\\Log File Errors\\";
                 strFol = AppDomain.CurrentDomain.BaseDirectory + "\\Log File Errors\\";
-                strFol = strFol + "Log System Error" + "-" + DateTime.Today.ToString("ddMMyyyy") + "." + "txt";
+                strFol = strFol + "Log System Error" + "-" + DateTime.Today.ToString("ddMMyyyy") + "." + "json";
+                string DB = BL_DBName();
+                string[] Msgs = message.Split(new char[] { '|' });
+                var obj = new List<object>();
+                obj.Add(new
+                {
+                    Date = DateTime.Now.ToShortDateString(),
+                    LogType = Msgs[0],
+                    DataBase = DB,
+                    FormName = Msgs[1],
+                    FunctionName = Msgs[2],
+                    Error = Msgs[3],
+                    Timestamp = DateTime.Now
+                });
                 if (strFol.Equals("")) return;
                 #region Create the Log file directory if it does not exists
                 DirectoryInfo logDirInfo = null;
@@ -324,7 +344,8 @@ namespace SampWebApi.BuisnessLayer
                     fileStream = new FileStream(strFol, FileMode.Append);
                 }
                 streamWriter = new StreamWriter(fileStream);
-                streamWriter.WriteLine(message);
+                message = JsonConvert.SerializeObject(obj[0]);
+                streamWriter.WriteLine(message + ",");//
             }
             finally
             {
