@@ -39,38 +39,24 @@ namespace SampWebApi.Controllers
         [Route("api/einvoiceeway/get")]
         public IHttpActionResult GetData(string TypeID, string Range, string FromDate, string ToDate)
         {
-            string DocValue = "";
-            if (!string.IsNullOrEmpty(Range))
+            try
             {
-                DataTable dtRanges = bl.BL_StringSplitCommaHyphen(Range);
+                string DocValue = "";
+                if (!string.IsNullOrEmpty(Range))
+                {
+                    DataTable dtRanges = bl.BL_StringSplitCommaHyphen(Range);
 
-                for (int i = 0; i < dtRanges.Rows.Count; i++)
-                {
-                    DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                    for (int i = 0; i < dtRanges.Rows.Count; i++)
+                    {
+                        DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                    }
                 }
-            }
-            DataTable DDT = new DataTable();
-            if (TypeID == "2")// E-Invoice
-            {
-                DDT = bl.BL_ExecuteParamSP("uspExportIRNData", 1, FromDate, ToDate, DocValue);
-                string jsonparty = JsonConvert.SerializeObject(DDT);
-                DDT = bl.BL_ExecuteParamSP("uspExportIRNData", 2, FromDate, ToDate, DocValue);
-                string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
-                var EInvWayData = new
+                DataTable DDT = new DataTable();
+                if (TypeID == "2")// E-Invoice
                 {
-                    Documents = jsonparty,
-                    ProductInfo = jsonpartyinfo,
-                };
-                return Ok(EInvWayData);
-            }
-            else
-            {
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 2, 0, FromDate, ToDate, DocValue);
-                if (dtResult.Rows.Count > 0)
-                {
-                    DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 5, 0, FromDate, ToDate, DocValue);
+                    DDT = bl.BL_ExecuteParamSP("uspExportIRNData", 1, FromDate, ToDate, DocValue);
                     string jsonparty = JsonConvert.SerializeObject(DDT);
-                    DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 6, 0, FromDate, ToDate, DocValue);
+                    DDT = bl.BL_ExecuteParamSP("uspExportIRNData", 2, FromDate, ToDate, DocValue);
                     string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
                     var EInvWayData = new
                     {
@@ -79,6 +65,27 @@ namespace SampWebApi.Controllers
                     };
                     return Ok(EInvWayData);
                 }
+                else
+                {
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 2, 0, FromDate, ToDate, DocValue);
+                    if (dtResult.Rows.Count > 0)
+                    {
+                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 5, 0, FromDate, ToDate, DocValue);
+                        string jsonparty = JsonConvert.SerializeObject(DDT);
+                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 6, 0, FromDate, ToDate, DocValue);
+                        string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
+                        var EInvWayData = new
+                        {
+                            Documents = jsonparty,
+                            ProductInfo = jsonpartyinfo,
+                        };
+                        return Ok(EInvWayData);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/get", ex.Message);
             }
             return Ok();
         }
@@ -86,51 +93,62 @@ namespace SampWebApi.Controllers
         [Route("api/einvoiceeway/getjson")]
         public IHttpActionResult GetJSONData(List<EInvoiceEwayModel> selectedData)
         {
-            if(selectedData != null)
+            try
             {
-                string txt = "";
-                string TypeID = selectedData[0].TypeID;
-                if(TypeID == "2")//E-Invoice
+                if (selectedData != null)
                 {
-                    txt = "[";
-                    foreach (EInvoiceEwayModel items in selectedData)
+                    string txt = "";
+                    string TypeID = selectedData[0].TypeID;
+                    if (TypeID == "2")//E-Invoice
                     {
-                        string jsondata = "{" + '"' + "Version" + '"' + ":" + '"' + "1.1" + '"' + ',';
-                        DataSet dtforJSON = new DataSet();
-                        DataTable dt1 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 1, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt1.TableName = "TranDtls";
-                        dtforJSON.Tables.Add(dt1);
-                        DataTable dt2 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 2, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt2.TableName = "DocDtls";
-                        dtforJSON.Tables.Add(dt2);
-                        DataTable dt3 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 3, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt3.TableName = "SellerDtls";
-                        dtforJSON.Tables.Add(dt3);
-                        DataTable dt4 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 4, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt4.TableName = "BuyerDtls";
-                        dtforJSON.Tables.Add(dt4);
-                        DataTable dt5 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 5, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt5.TableName = "ValDtls";
-                        dtforJSON.Tables.Add(dt5);
-                        DataTable dt7 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 7, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt7.TableName = "EwbDtls";
-                        dtforJSON.Tables.Add(dt7);
-                        DataTable dt8 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 8, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt8.TableName = "ExpDtls";
-                        dtforJSON.Tables.Add(dt8);
-                        DataTable dt6 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 6, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
-                        dt6.TableName = "ItemList";
-                        dtforJSON.Tables.Add(dt6);
-                        jsondata += '"' + "DispDtls" + '"' + ": null,";
-                        jsondata += '"' + "ShipDtls" + '"' + ": null,";
-                        //"Version": "1.1",
-                        for (int i = 0; i < dtforJSON.Tables.Count; i++)
+                        txt = "[";
+                        foreach (EInvoiceEwayModel items in selectedData)
                         {
-                            if (i == 5) // eway detail
+                            string jsondata = "{" + '"' + "Version" + '"' + ":" + '"' + "1.1" + '"' + ',';
+                            DataSet dtforJSON = new DataSet();
+                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 1, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt1.TableName = "TranDtls";
+                            dtforJSON.Tables.Add(dt1);
+                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 2, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt2.TableName = "DocDtls";
+                            dtforJSON.Tables.Add(dt2);
+                            DataTable dt3 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 3, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt3.TableName = "SellerDtls";
+                            dtforJSON.Tables.Add(dt3);
+                            DataTable dt4 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 4, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt4.TableName = "BuyerDtls";
+                            dtforJSON.Tables.Add(dt4);
+                            DataTable dt5 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 5, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt5.TableName = "ValDtls";
+                            dtforJSON.Tables.Add(dt5);
+                            DataTable dt7 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 7, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt7.TableName = "EwbDtls";
+                            dtforJSON.Tables.Add(dt7);
+                            DataTable dt8 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 8, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt8.TableName = "ExpDtls";
+                            dtforJSON.Tables.Add(dt8);
+                            DataTable dt6 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 6, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            dt6.TableName = "ItemList";
+                            dtforJSON.Tables.Add(dt6);
+                            jsondata += '"' + "DispDtls" + '"' + ": null,";
+                            jsondata += '"' + "ShipDtls" + '"' + ": null,";
+                            //"Version": "1.1",
+                            for (int i = 0; i < dtforJSON.Tables.Count; i++)
                             {
-                                if (string.IsNullOrEmpty(dtforJSON.Tables[i].Rows[0][2].ToString()))
+                                if (i == 5) // eway detail
                                 {
-                                    jsondata += '"' + "EwbDtls" + '"' + ": null,";
+                                    if (string.IsNullOrEmpty(dtforJSON.Tables[i].Rows[0][2].ToString()))
+                                    {
+                                        jsondata += '"' + "EwbDtls" + '"' + ": null,";
+                                    }
+                                    else
+                                    {
+                                        string objdata = DataTableToJSONWithJSONNet(dtforJSON.Tables[i]);
+                                        //jsondata += objdata;
+                                        string d = '"' + dtforJSON.Tables[i].TableName + '"' + ":" + (dtforJSON.Tables[i].Rows.Count > 1 || i == 7 ? objdata : objdata.Remove(0, 1));
+                                        d = (dtforJSON.Tables[i].Rows.Count > 1 || i == 7 ? d : d.Remove(d.Length - 1, 1) + ",");
+                                        jsondata += d;
+                                    }
                                 }
                                 else
                                 {
@@ -141,69 +159,65 @@ namespace SampWebApi.Controllers
                                     jsondata += d;
                                 }
                             }
-                            else
-                            {
-                                string objdata = DataTableToJSONWithJSONNet(dtforJSON.Tables[i]);
-                                //jsondata += objdata;
-                                string d = '"' + dtforJSON.Tables[i].TableName + '"' + ":" + (dtforJSON.Tables[i].Rows.Count > 1 || i == 7 ? objdata : objdata.Remove(0, 1));
-                                d = (dtforJSON.Tables[i].Rows.Count > 1 || i == 7 ? d : d.Remove(d.Length - 1, 1) + ",");
-                                jsondata += d;
-                            }
+                            txt += jsondata + "},";
                         }
-                        txt += jsondata + "},";
                     }
-                }
-                else//E-Way
-                {
-                    DataTable dtverinfo = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 1, 0);
-                    txt = "{" + '"' + dtverinfo.Rows[0][0].ToString() + '"' + ":" + '"' + dtverinfo.Rows[0][1].ToString() + '"' + ',' + '"' + "billLists" + '"' + ':' + '[';
-                    foreach (EInvoiceEwayModel items in selectedData)
+                    else//E-Way
                     {
-                        string jsondata = "";
-                        DataSet dtforJSON = new DataSet();
-                        DataTable dt1 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 3, items.DocID.ToString());
-                        dt1.TableName = "billLists";
-                        dtforJSON.Tables.Add(dt1);
-                        DataTable dt2 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 4, items.DocID.ToString());
-                        dt2.TableName = "itemList";
-                        //dt2.Columns.Remove("docNo");
-                        dtforJSON.Tables.Add(dt2);
-                        for (int j = 0; j < dtforJSON.Tables.Count; j++)
+                        DataTable dtverinfo = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 1, 0);
+                        txt = "{" + '"' + dtverinfo.Rows[0][0].ToString() + '"' + ":" + '"' + dtverinfo.Rows[0][1].ToString() + '"' + ',' + '"' + "billLists" + '"' + ':' + '[';
+                        foreach (EInvoiceEwayModel items in selectedData)
                         {
-                            string objdata = DataTableToJSONWithJSONNet(dtforJSON.Tables[j]);
-                            //jsondata += objdata;
-                            string d = j == 1 ? '"' + dtforJSON.Tables[j].TableName + '"' + ":" + (dtforJSON.Tables[j].Rows.Count > 1 || j == 1 ? objdata : objdata.Remove(0, 1)) : objdata.Remove(0, 1);
-                            d = (dtforJSON.Tables[j].Rows.Count > 1 || j == 1 ? d : d.Remove(d.Length - 8) + ",");
-                            jsondata += d;
-                            if (objdata != null)
+                            string jsondata = "";
+                            DataSet dtforJSON = new DataSet();
+                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 3, items.DocID.ToString());
+                            dt1.TableName = "billLists";
+                            dtforJSON.Tables.Add(dt1);
+                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 4, items.DocID.ToString());
+                            dt2.TableName = "itemList";
+                            //dt2.Columns.Remove("docNo");
+                            dtforJSON.Tables.Add(dt2);
+                            for (int j = 0; j < dtforJSON.Tables.Count; j++)
                             {
-                                //MessageBox.Show("data getting");
+                                string objdata = DataTableToJSONWithJSONNet(dtforJSON.Tables[j]);
+                                //jsondata += objdata;
+                                string d = j == 1 ? '"' + dtforJSON.Tables[j].TableName + '"' + ":" + (dtforJSON.Tables[j].Rows.Count > 1 || j == 1 ? objdata : objdata.Remove(0, 1)) : objdata.Remove(0, 1);
+                                d = (dtforJSON.Tables[j].Rows.Count > 1 || j == 1 ? d : d.Remove(d.Length - 8) + ",");
+                                jsondata += d;
+                                if (objdata != null)
+                                {
+                                    //MessageBox.Show("data getting");
+                                }
                             }
+                            txt += jsondata + "},";
                         }
-                        txt += jsondata + "},";
                     }
+                    string fintxt = txt.Remove(txt.Length - 1, 1) + (TypeID == "2" ? "]" : "]}");
+                    txt = fintxt;// txt.Remove(txt.Length - 1, 1)+ "]";
+                    string FPt = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
+                    string JsonDirectory = FPt + (TypeID == "2" ? "\\json\\eInvoice\\" : "\\json\\eWay\\");
+                    if (!Directory.Exists(JsonDirectory))
+                    {
+                        Directory.CreateDirectory(JsonDirectory);
+                    }
+                    string fileName = (TypeID == "2" ? "eInvoice_Json_" : "eWay_JSON_") + DateTime.Now.ToString("yyyMMddhhmmss") + ".json";
+                    string path = JsonDirectory + fileName;
+                    File.WriteAllText(path, txt);
+                    List<ImportResults> MTM = new List<ImportResults>();
+                    var sDocument = path;
+                    MTM.Add(new ImportResults()
+                    {
+                        ID = "0",
+                        Msg = "Json File Generated.",
+                        FileName = fileName,
+                        FilePath = path,
+                    });
+                    return Ok(MTM);
                 }
-                string fintxt = txt.Remove(txt.Length - 1, 1) + (TypeID == "2" ? "]" : "]}") ;
-                txt = fintxt;// txt.Remove(txt.Length - 1, 1)+ "]";
-                string FPt = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
-                string JsonDirectory = FPt + (TypeID == "2" ? "\\json\\eInvoice\\" : "\\json\\eWay\\");
-                if (!Directory.Exists(JsonDirectory))
-                {
-                    Directory.CreateDirectory(JsonDirectory);
-                }
-                string fileName = (TypeID == "2" ? "eInvoice_Json_" : "eWay_JSON_") + DateTime.Now.ToString("yyyMMddhhmmss") + ".json";
-                string path = JsonDirectory + fileName;
-                File.WriteAllText(path, txt);
-                List<ImportResults> MTM = new List<ImportResults>();
-                var sDocument = path;
-                MTM.Add(new ImportResults()
-                {
-                    ID = "0",
-                    Msg = "Json File Generated.",
-                    FileName = fileName,
-                    FilePath = path,
-                });                
-                return Ok(MTM);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/getjson", ex.Message);
             }
             return Ok();            
         }
@@ -387,10 +401,10 @@ namespace SampWebApi.Controllers
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
-            }           
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/uploadjsonfile", ex.Message);
+            }         
             return Ok(Msg);
         }
 
@@ -398,23 +412,30 @@ namespace SampWebApi.Controllers
         [Route("api/einvoiceeway/updateewayinfo")]
         public IHttpActionResult UpdateEwayData(List<EInvoiceEwayModel> selectedData)
         {
-            if(selectedData != null)
+            try
             {
-                string DocValue = "";
-                if (!string.IsNullOrEmpty(selectedData[0].DocRange))
+                if (selectedData != null)
                 {
-                    DataTable dtRanges = bl.BL_StringSplitCommaHyphen(selectedData[0].DocRange);
-
-                    for (int i = 0; i < dtRanges.Rows.Count; i++)
+                    string DocValue = "";
+                    if (!string.IsNullOrEmpty(selectedData[0].DocRange))
                     {
-                        DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                        DataTable dtRanges = bl.BL_StringSplitCommaHyphen(selectedData[0].DocRange);
+
+                        for (int i = 0; i < dtRanges.Rows.Count; i++)
+                        {
+                            DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
+                        }
+                        string Doc = DocValue.Remove(DocValue.Length - 1);
+                        bl.BL_ExecuteParamSP("uspUpdateEwayInTrans", 2, Doc, selectedData[0].VehicleNo, selectedData[0].Distance,
+                                                        selectedData[0].TransportMode, selectedData[0].TransportType, selectedData[0].TransactionID,
+                                                         selectedData[0].TransactionName, selectedData[0].Branch,
+                                                         selectedData[0].FromDate, selectedData[0].ToDate);
                     }
-                    string Doc = DocValue.Remove(DocValue.Length - 1);
-                    bl.BL_ExecuteParamSP("uspUpdateEwayInTrans", 2, Doc, selectedData[0].VehicleNo, selectedData[0].Distance,
-                                                    selectedData[0].TransportMode, selectedData[0].TransportType, selectedData[0].TransactionID,
-                                                     selectedData[0].TransactionName, selectedData[0].Branch,
-                                                     selectedData[0].FromDate, selectedData[0].ToDate);
                 }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/updateewayinfo", ex.Message);
             }
             return Ok();
         }    

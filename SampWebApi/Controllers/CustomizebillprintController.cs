@@ -505,39 +505,47 @@ namespace SampWebApi.Controllers
         [System.Web.Http.Route("api/customizebilltemplate")]
         public HttpResponseMessage OpenTemplate()
         {
-            List<string> strHeaders = CustomBillPrintHeaderTemp();
-            List<string> strItems = CustomBillPrintItemsTemp();
-            DataTable dtHeaders = new DataTable();
-            DataTable dtItems = new DataTable();            
-            string FPt = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
-            //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Export Data\\";
-            strFilePath = FPt + "\\Export Data\\";
-            strFileName = "CustomizeBillTemplate_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-            foreach (string strHeaderName in strHeaders)
+            try
             {
-                dtHeaders.Columns.Add(strHeaderName, typeof(string));
-            }
-            foreach (string strItemsName in strItems)
-            {
-                dtItems.Columns.Add(strItemsName, typeof(string));
-            }
-            ExportToExcelTwoSheet(dtHeaders, "Header", dtItems, "Items");
-            var sDocument = strFilePath + strFileName + strExtension;
-            byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
-            string fileName = strFileName + strExtension;
-            //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-            if (!File.Exists(strFilePath + strFileName + strExtension))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                List<string> strHeaders = CustomBillPrintHeaderTemp();
+                List<string> strItems = CustomBillPrintItemsTemp();
+                DataTable dtHeaders = new DataTable();
+                DataTable dtItems = new DataTable();
+                string FPt = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
+                //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Export Data\\";
+                strFilePath = FPt + "\\Export Data\\";
+                strFileName = "CustomizeBillTemplate_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                foreach (string strHeaderName in strHeaders)
+                {
+                    dtHeaders.Columns.Add(strHeaderName, typeof(string));
+                }
+                foreach (string strItemsName in strItems)
+                {
+                    dtItems.Columns.Add(strItemsName, typeof(string));
+                }
+                ExportToExcelTwoSheet(dtHeaders, "Header", dtItems, "Items");
+                var sDocument = strFilePath + strFileName + strExtension;
+                byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                string fileName = strFileName + strExtension;
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                if (!File.Exists(strFilePath + strFileName + strExtension))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(strFilePath + strFileName + strExtension, FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(strFilePath + strFileName + strExtension, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+                return result;
+            }
+            catch(Exception ex)
             {
-                FileName = fileName
-            };
-            return result;
+                objBL.BL_WriteErrorMsginLog("CustomizeBillPrint", "customizebilltemplate", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
         public void ExportToExcelTwoSheet(DataTable DtDataSheet1, string Sheet1Name, DataTable DtDataSheet2, string Sheet2Name)
         {

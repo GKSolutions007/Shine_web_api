@@ -44,17 +44,25 @@ namespace SampWebApi.Controllers
         [Route("api/Reportpermissions")]
         public IHttpActionResult GetPermissionsReports(string UID)
         {
-            DataSet ds = new DataSet();
-            DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 4, UID);            
-            string RID = dtRes.Rows[0]["RoleID"].ToString();
-            DataTable dtReportParent = bl.BL_ExecuteParamSP("uspReportPermission", 1, RID);
-            dtReportParent.TableName = "ParentRepMenu";
-            ds.Tables.Add(dtReportParent);
-            DataTable dtReportPermission = bl.BL_ExecuteParamSP("uspReportPermission", 2, RID, UID);
-            dtReportPermission.TableName = "UserRepMenus";
-            ds.Tables.Add(dtReportPermission);
-            string dtjson = JsonConvert.SerializeObject(ds);
-            return Ok(dtjson);
+            try
+            {
+                DataSet ds = new DataSet();
+                DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 4, UID);
+                string RID = dtRes.Rows[0]["RoleID"].ToString();
+                DataTable dtReportParent = bl.BL_ExecuteParamSP("uspReportPermission", 1, RID);
+                dtReportParent.TableName = "ParentRepMenu";
+                ds.Tables.Add(dtReportParent);
+                DataTable dtReportPermission = bl.BL_ExecuteParamSP("uspReportPermission", 2, RID, UID);
+                dtReportPermission.TableName = "UserRepMenus";
+                ds.Tables.Add(dtReportPermission);
+                string dtjson = JsonConvert.SerializeObject(ds);
+                return Ok(dtjson);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "Reportpermissions", ex.Message);
+            }
+            return Ok();
         }
 
 
@@ -62,45 +70,52 @@ namespace SampWebApi.Controllers
         [Route("api/reportparameters/get")]
         public IHttpActionResult GetData(string Mode, string ReportID, string ALName = null)
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "0")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID);
-                string JSONCONV = JsonConvert.SerializeObject(DDT);
-                return Ok(JSONCONV);
-            }
-            if (Mode == "1")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID);
-                List<ReportParameters> list = new List<ReportParameters>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "0")
                 {
-                    list.Add(new ReportParameters
-                    {
-                        ParameterID = DDT.Rows[i]["ParameterID"].ToString(),
-                        ReportID = DDT.Rows[i]["ReportID"].ToString(),
-                        ParameterName = DDT.Rows[i]["ParameterName"].ToString(),
-                        ParameterType = DDT.Rows[i]["ParameterType"].ToString(),
-                        IsMandatory = DDT.Rows[i]["IsMandatory"].ToString(),
-                        ParamOrder = DDT.Rows[i]["ParamOrder"].ToString(),
-                        AutolistName = DDT.Rows[i]["AutolistName"].ToString()
-                    });
+                    DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID);
+                    string JSONCONV = JsonConvert.SerializeObject(DDT);
+                    return Ok(JSONCONV);
                 }
-                return Ok(list);
-            }
-            else if (Mode == "2")
-            {
-                List<SingleMasterModel> list = new List<SingleMasterModel>();
-                DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID, ALName);
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "1")
                 {
-                    list.Add(new SingleMasterModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID);
+                    List<ReportParameters> list = new List<ReportParameters>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                    });
+                        list.Add(new ReportParameters
+                        {
+                            ParameterID = DDT.Rows[i]["ParameterID"].ToString(),
+                            ReportID = DDT.Rows[i]["ReportID"].ToString(),
+                            ParameterName = DDT.Rows[i]["ParameterName"].ToString(),
+                            ParameterType = DDT.Rows[i]["ParameterType"].ToString(),
+                            IsMandatory = DDT.Rows[i]["IsMandatory"].ToString(),
+                            ParamOrder = DDT.Rows[i]["ParamOrder"].ToString(),
+                            AutolistName = DDT.Rows[i]["AutolistName"].ToString()
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
+                else if (Mode == "2")
+                {
+                    List<SingleMasterModel> list = new List<SingleMasterModel>();
+                    DDT = bl.BL_ExecuteParamSP("uspManageReports", Mode, ReportID, ALName);
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new SingleMasterModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "reportparameters/get", ex.Message);
             }
             return Ok();
         }
@@ -108,29 +123,38 @@ namespace SampWebApi.Controllers
         [Route("api/reportgenerate/get")]
         public IHttpActionResult GeerateData(ReportParameters listParams)
         {
-            DataTable DDT = new DataTable();
-            if (listParams != null)
+            try
             {
-                object[] objParamValue = new object[listParams.lstvFilters.Count];
-                for (int i = 0; i < objParamValue.Length; i++)
+                DataTable DDT = new DataTable();
+                if (listParams != null)
                 {
-                    objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
+                    object[] objParamValue = new object[listParams.lstvFilters.Count];
+                    for (int i = 0; i < objParamValue.Length; i++)
+                    {
+                        objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
+                    }
+                    DDT = bl.BL_ExecuteParamSP(listParams.ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
+                    if (DDT.Rows.Count > 0)
+                    {
+                        string JSONCONV = JsonConvert.SerializeObject(DDT);
+                        return Ok(JSONCONV);
+                    }
+                    else
+                    {
+                        return Ok();
+                    }
                 }
-                DDT = bl.BL_ExecuteParamSP(listParams.ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
-                if (DDT.Rows.Count > 0)
-                {
-                    string JSONCONV = JsonConvert.SerializeObject(DDT);
-                    return Ok(JSONCONV);
-                }
+
                 else
                 {
                     return Ok();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return Ok();
+                bl.BL_WriteErrorMsginLog("Report", "reportgenerate/get", ex.Message);
             }
+            return Ok();
         }
 
             public void ExportToExcel(DataTable DtData)
@@ -195,98 +219,108 @@ namespace SampWebApi.Controllers
         [Route("api/reportexport/export")]
         public IHttpActionResult ExportData(ReportParameters listParams)
         {
-            DataTable DDT = new DataTable();
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK)
+            try
             {
-                //Content = new ByteArrayContent(fileBytes)
-            };
-            if (listParams != null)
-            {
-                object[] objParamValue = new object[listParams.lstvFilters.Count];
-                for (int i = 0; i < objParamValue.Length; i++)
+                DataTable DDT = new DataTable();
+                HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
-                }
-                DDT = bl.BL_ExecuteParamSP(listParams.ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
-                if (DDT.Rows.Count > 0)
+                    //Content = new ByteArrayContent(fileBytes)
+                };
+                if (listParams != null)
                 {
-                    strSheetName = "Data";
-                    strFileName = "Report_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                    //string JSONCONV = JsonConvert.SerializeObject(DDT);
-                    ExportToExcel(DDT);
-                    var sDocument = strFilePath + strFileName + strExtension;
-                    byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
-                    string fileName = strFileName + strExtension;
-                    
-                    return Ok(fileName);
+                    object[] objParamValue = new object[listParams.lstvFilters.Count];
+                    for (int i = 0; i < objParamValue.Length; i++)
+                    {
+                        objParamValue[i] = !string.IsNullOrEmpty(listParams.lstvFilters[i].Param1) ? listParams.lstvFilters[i].Param1 : null;
+                    }
+                    DDT = bl.BL_ExecuteParamSP(listParams.ProcedureName, objParamValue);//, listParams.Param2, listParams.Param3, listParams.Param4
+                    if (DDT.Rows.Count > 0)
+                    {
+                        strSheetName = "Data";
+                        strFileName = "Report_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                        //string JSONCONV = JsonConvert.SerializeObject(DDT);
+                        ExportToExcel(DDT);
+                        var sDocument = strFilePath + strFileName + strExtension;
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                        string fileName = strFileName + strExtension;
+
+                        return Ok(fileName);
+                    }
+                    else
+                    {
+                        return Ok();
+                    }
                 }
                 else
                 {
                     return Ok();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return Ok();
+                bl.BL_WriteErrorMsginLog("Report", "reportexport/export", ex.Message);
             }
+            return Ok();
         }
 
         [HttpGet]
         [Route("api/gstreportexport/gstexport")]
         public HttpResponseMessage GSTExportData(string FromDate,string ToDate,string EInvOnly,string Branch)
         {
-            DataSet dtGSTData = new DataSet();
+            try
+            {
+                DataSet dtGSTData = new DataSet();
 
-            DataTable DDT = new DataTable();
-            DataSet DS = new DataSet();
-            DataTable dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "S", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[0].TableName = "Sales";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "SR", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[1].TableName = "Sales Return";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "P", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[2].TableName = "Purchase";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PR", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[3].TableName = "Purchase Return";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PV", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[4].TableName = "Payable Voucher";
-            dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "RV", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[5].TableName = "Recievable Vouncer";
-           
+                DataTable DDT = new DataTable();
+                DataSet DS = new DataSet();
+                DataTable dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "S", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[0].TableName = "Sales";
 
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2b", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[6].TableName = "b2b";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cl", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[7].TableName = "b2cl";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cs", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[8].TableName = "b2cs";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnr", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[9].TableName = "cdnr";
-           
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnur", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[10].TableName = "cdnur";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSN", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[11].TableName = "HSN";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2B", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[12].TableName = "hsn(b2b)";
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[13].TableName = "hsn(b2c)";
-            
-            //dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
-            //DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
-            
-            dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate,ToDate, EInvOnly, Branch);
-            DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Documents";
-            
-           
+                dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "SR", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[1].TableName = "Sales Return";
+
+                dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "P", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[2].TableName = "Purchase";
+
+                dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PR", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[3].TableName = "Purchase Return";
+
+                dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "PV", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[4].TableName = "Payable Voucher";
+                dtdata = bl.BL_ExecuteParamSP("uspGetFullGSTInfoReport", "RV", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[5].TableName = "Recievable Vouncer";
+
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2b", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[6].TableName = "b2b";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cl", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[7].TableName = "b2cl";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "b2cs", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[8].TableName = "b2cs";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnr", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[9].TableName = "cdnr";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "cdnur", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[10].TableName = "cdnur";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSN", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[11].TableName = "HSN";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2B", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[12].TableName = "hsn(b2b)";
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "HSNB2C", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[13].TableName = "hsn(b2c)";
+
+                //dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Extempted", FromDate,ToDate, EInvOnly);
+                //DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Extempted";
+
+                dtdata = bl.BL_ExecuteParamSP("uspLatestGSTReportInfo", "Documents", FromDate, ToDate, EInvOnly, Branch);
+                DS.Tables.Add(dtdata); DS.Tables[14].TableName = "Documents";
+
+
                 strSheetName = "Data";
                 strFileName = "GST_Report_" + DateTime.Now.ToString("yyyyMMddHHmmss");
                 //string JSONCONV = JsonConvert.SerializeObject(DDT);
@@ -307,101 +341,122 @@ namespace SampWebApi.Controllers
                     FileName = fileName
                 };
                 return result;
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "gstreportexport/gstexport", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
                         
         }
         [HttpGet]
         [Route("api/reportscript/get")]
         public HttpResponseMessage GetreportscriptData(string ReportID, string ReportName)
         {
-            string strAppStartPath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Report_Script_Data\\";
-            if (!Directory.Exists(strAppStartPath))
+            try
             {
-                Directory.CreateDirectory(strAppStartPath);
-            }
-            string strFileName = ReportName + "_" + DateTime.Now.ToString("yyyymmddhhmmss") + ".txt";
-            using (StreamWriter sw = System.IO.File.CreateText(System.IO.Path.Combine(strAppStartPath, strFileName)))
-            {
-                DataTable dt = new DataTable();
-                for (int nCount = 1; nCount <= 10; nCount++)
+                string strAppStartPath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Report_Script_Data\\";
+                if (!Directory.Exists(strAppStartPath))
                 {
-                    dt = bl.BL_ExecuteParamSP("uspReportScript", nCount, ReportID);
-                    if (dt.Rows.Count > 0)
-                    {
-                        for (int iRow = 0; iRow < dt.Rows.Count; iRow++)
-                        {
-                            if (nCount == 8)
-                            {
-                                string strQuery = dt.Rows[iRow][0].ToString(), strColumnQuery = "";
-                                for (int iCol = 1; iCol < dt.Columns.Count; iCol++)
-                                {
-                                    strColumnQuery = strColumnQuery + (string.IsNullOrEmpty(Convert.ToString(dt.Rows[iRow][iCol])) ? (iCol == dt.Columns.Count - 1 ? "NULL" : "NULL,")
-                                        : "'" + Convert.ToString(dt.Rows[iRow][iCol]) + (iCol == dt.Columns.Count - 1 ? "'" : "',"));
-                                }
-                                strQuery = strQuery + strColumnQuery + ")";
-                                sw.WriteLine(strQuery);
-                                if (iRow == (dt.Rows.Count - 1))
-                                {
-                                    sw.WriteLine("GO");
-                                }
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(Convert.ToString(dt.Rows[iRow][0]).Trim()))
-                                    sw.WriteLine(Convert.ToString(dt.Rows[iRow][0]).Trim());
-                            }
-                        }
-                        sw.WriteLine("");
-                    }
-
+                    Directory.CreateDirectory(strAppStartPath);
                 }
-            }
-            Type officeType = Type.GetTypeFromProgID("Excel.Application");
-            var sDocument = System.IO.Path.Combine(strAppStartPath, strFileName);
-            byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
-            //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-            if (!System.IO.File.Exists(System.IO.Path.Combine(strAppStartPath, strFileName)))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                string strFileName = ReportName + "_" + DateTime.Now.ToString("yyyymmddhhmmss") + ".txt";
+                using (StreamWriter sw = System.IO.File.CreateText(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                {
+                    DataTable dt = new DataTable();
+                    for (int nCount = 1; nCount <= 10; nCount++)
+                    {
+                        dt = bl.BL_ExecuteParamSP("uspReportScript", nCount, ReportID);
+                        if (dt.Rows.Count > 0)
+                        {
+                            for (int iRow = 0; iRow < dt.Rows.Count; iRow++)
+                            {
+                                if (nCount == 8)
+                                {
+                                    string strQuery = dt.Rows[iRow][0].ToString(), strColumnQuery = "";
+                                    for (int iCol = 1; iCol < dt.Columns.Count; iCol++)
+                                    {
+                                        strColumnQuery = strColumnQuery + (string.IsNullOrEmpty(Convert.ToString(dt.Rows[iRow][iCol])) ? (iCol == dt.Columns.Count - 1 ? "NULL" : "NULL,")
+                                            : "'" + Convert.ToString(dt.Rows[iRow][iCol]) + (iCol == dt.Columns.Count - 1 ? "'" : "',"));
+                                    }
+                                    strQuery = strQuery + strColumnQuery + ")";
+                                    sw.WriteLine(strQuery);
+                                    if (iRow == (dt.Rows.Count - 1))
+                                    {
+                                        sw.WriteLine("GO");
+                                    }
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(Convert.ToString(dt.Rows[iRow][0]).Trim()))
+                                        sw.WriteLine(Convert.ToString(dt.Rows[iRow][0]).Trim());
+                                }
+                            }
+                            sw.WriteLine("");
+                        }
 
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(System.IO.Path.Combine(strAppStartPath, strFileName), FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    }
+                }
+                Type officeType = Type.GetTypeFromProgID("Excel.Application");
+                var sDocument = System.IO.Path.Combine(strAppStartPath, strFileName);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                if (!System.IO.File.Exists(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(System.IO.Path.Combine(strAppStartPath, strFileName), FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = strFileName
+                };
+                return result;
+            }
+            catch(Exception ex)
             {
-                FileName = strFileName
-            };
-            return result;
+                bl.BL_WriteErrorMsginLog("Report", "reportscript/get", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
         [HttpGet]
         [Route("api/reportcolumnsettings/getRepColumnSettings")]
         public IHttpActionResult GetColumnData(string Mode,string ReportID,string TableID)
         {
-            if(Mode == "1")
+            try
             {
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetSetReportColumnSettings", Mode, ReportID, TableID);
-                string JSONCONV = JsonConvert.SerializeObject(dtResult);
-                return Ok(JSONCONV);
-            }
-            if (Mode == "2")
-            {
-                List<ReportColumnDataModel> list = new List<ReportColumnDataModel>();
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetSetReportColumnSettings", Mode, ReportID, TableID);
-                for (int i = 0; i < dtResult.Rows.Count; i++)
+                if (Mode == "1")
                 {
-                    //ReportID	TableID	ColumnID	ColumnName	DisplayColumnName	Width	Visible	Alignment	DisplayIndex	IsHiddenColumn                    
-                    list.Add(new ReportColumnDataModel()
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetSetReportColumnSettings", Mode, ReportID, TableID);
+                    string JSONCONV = JsonConvert.SerializeObject(dtResult);
+                    return Ok(JSONCONV);
+                }
+                if (Mode == "2")
+                {
+                    List<ReportColumnDataModel> list = new List<ReportColumnDataModel>();
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetSetReportColumnSettings", Mode, ReportID, TableID);
+                    for (int i = 0; i < dtResult.Rows.Count; i++)
                     {
-                        field = dtResult.Rows[i]["ColumnName"].ToString(),
-                        headerText = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                        visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
-                        width = dtResult.Rows[i]["Width"].ToString(),
-                        showInColumnChooser = dtResult.Rows[i]["IsHiddenColumn"].ToString() == "1" ? false : true,
-                        textAlign = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" :  "center",
-                        Total = dtResult.Rows[i]["Total"].ToString(),
-                        TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
-                    });
-                }                
-                return Ok(list);
+                        //ReportID	TableID	ColumnID	ColumnName	DisplayColumnName	Width	Visible	Alignment	DisplayIndex	IsHiddenColumn                    
+                        list.Add(new ReportColumnDataModel()
+                        {
+                            field = dtResult.Rows[i]["ColumnName"].ToString(),
+                            headerText = dtResult.Rows[i]["DisplayColumnName"].ToString(),
+                            visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
+                            width = dtResult.Rows[i]["Width"].ToString(),
+                            showInColumnChooser = dtResult.Rows[i]["IsHiddenColumn"].ToString() == "1" ? false : true,
+                            textAlign = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
+                            Total = dtResult.Rows[i]["Total"].ToString(),
+                            TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "reportcolumnsettings/getRepColumnSettings", ex.Message);
             }
             return Ok();
         }
@@ -409,20 +464,27 @@ namespace SampWebApi.Controllers
         [Route("api/reportcolumnsettings/SaveRepColumnSettings")]
         public IHttpActionResult GetColumnData(List<ReportModel> ColumnSettingData)
         {
-            if (ColumnSettingData != null)
+            try
             {
-                List<SaveMessage> list = new List<SaveMessage>();
-                foreach (ReportModel item in ColumnSettingData)
+                if (ColumnSettingData != null)
                 {
-                    bl.BL_ExecuteParamSP("uspSaveReportColumnSettings", item.ReportID, item.TableID, item.ColumnID, item.ColumnName,
-                      item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex,item.TotalYN);
+                    List<SaveMessage> list = new List<SaveMessage>();
+                    foreach (ReportModel item in ColumnSettingData)
+                    {
+                        bl.BL_ExecuteParamSP("uspSaveReportColumnSettings", item.ReportID, item.TableID, item.ColumnID, item.ColumnName,
+                          item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN);
+                    }
+                    list.Add(new SaveMessage()
+                    {
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                    return Ok(list);
                 }
-                list.Add(new SaveMessage()
-                {
-                    MsgID = "0",
-                    Message = "Saved Successfully"
-                });
-                return Ok(list);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "reportcolumnsettings/SaveRepColumnSettings", ex.Message);
             }
             return Ok();
         }
@@ -430,36 +492,43 @@ namespace SampWebApi.Controllers
         [Route("api/commonfilter/commonfilterdata")]
         public IHttpActionResult commonfilterdata([FromBody] CommonDocsFilter FilterData)
         {
-            DataTable DDT = new DataTable();
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK)
+            try
             {
-                //Content = new ByteArrayContent(fileBytes)
-            };
-            if (FilterData != null)
-            {
-                string DocValue = "";
-                if (!string.IsNullOrEmpty(FilterData.DocRange))
+                DataTable DDT = new DataTable();
+                HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    DataTable dtRanges = bl.BL_StringSplitCommaHyphen(FilterData.DocRange);
-
-                    for (int i = 0; i < dtRanges.Rows.Count; i++)
+                    //Content = new ByteArrayContent(fileBytes)
+                };
+                if (FilterData != null)
+                {
+                    string DocValue = "";
+                    if (!string.IsNullOrEmpty(FilterData.DocRange))
                     {
-                        DocValue += FilterData.TransName.ToLower() == "delivery" ? (dtRanges.Rows[i][0].ToString() + ",") : ("'" + dtRanges.Rows[i][0].ToString() + "',");
+                        DataTable dtRanges = bl.BL_StringSplitCommaHyphen(FilterData.DocRange);
+
+                        for (int i = 0; i < dtRanges.Rows.Count; i++)
+                        {
+                            DocValue += FilterData.TransName.ToLower() == "delivery" ? (dtRanges.Rows[i][0].ToString() + ",") : ("'" + dtRanges.Rows[i][0].ToString() + "',");
+                        }
                     }
+                    DataTable dtResult = new DataTable();
+                    if (FilterData.TransName.ToLower() == "delivery")
+                    {
+                        dtResult = bl.BL_ExecuteParamSP("uspLoadDeliveryDocumentData", FilterData.Branch, FilterData.FromDate, FilterData.ToDate,
+                            DocValue, FilterData.Party, FilterData.FilterType, FilterData.TransMode, FilterData.TransIdentID);
+                    }
+                    else
+                    {
+                        dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
+                               DocValue, FilterData.Party, FilterData.FilterType);
+                    }
+                    string JSONCONV = JsonConvert.SerializeObject(dtResult);
+                    return Ok(JSONCONV);
                 }
-                DataTable dtResult = new DataTable();
-                if (FilterData.TransName.ToLower() == "delivery")
-                {
-                    dtResult = bl.BL_ExecuteParamSP("uspLoadDeliveryDocumentData", FilterData.Branch, FilterData.FromDate, FilterData.ToDate,
-                        DocValue, FilterData.Party, FilterData.FilterType, FilterData.TransMode, FilterData.TransIdentID);
-                }
-                else
-                {
-                    dtResult = bl.BL_ExecuteParamSP("uspCommonDocumentFilter", FilterData.Branch, FilterData.TransID, FilterData.FromDate, FilterData.ToDate,
-                           DocValue, FilterData.Party, FilterData.FilterType);
-                }
-                string JSONCONV = JsonConvert.SerializeObject(dtResult);
-                return Ok(JSONCONV);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "commonfilter/commonfilterdata", ex.Message);
             }
             return Ok();
         }
@@ -468,43 +537,50 @@ namespace SampWebApi.Controllers
         [Route("api/columnsettings/getcolumnsettings")]
         public IHttpActionResult GetGendralColumnData(string Mode, string FormID, string TableID,string FormorReport)
         {
-            if (Mode == "1")
+            try
             {
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
-                string JSONCONV = JsonConvert.SerializeObject(dtResult);
-                return Ok(JSONCONV);
-            }
-            if (Mode == "2")
-            {
-                List<ColumnSettingsDataModel> list = new List<ColumnSettingsDataModel>();
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
-                for (int i = 0; i < dtResult.Rows.Count; i++)
+                if (Mode == "1")
                 {
-                    //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
-                    list.Add(new ColumnSettingsDataModel()
-                    {
-                        field = dtResult.Rows[i]["ColumnName"].ToString(),
-                        header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                        type = "label",
-                        width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
-                        align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
-                        visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
-                        EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
-                        ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,                        
-                        Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
-                        TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
-                        EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
-                        EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
-                        EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
-                        EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
-                        ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
-                        precision = dtResult.Rows[i]["precision"].ToString(),
-                        PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
-                        Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
-                        PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
-                    });
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
+                    string JSONCONV = JsonConvert.SerializeObject(dtResult);
+                    return Ok(JSONCONV);
                 }
-                return Ok(list);
+                if (Mode == "2")
+                {
+                    List<ColumnSettingsDataModel> list = new List<ColumnSettingsDataModel>();
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
+                    for (int i = 0; i < dtResult.Rows.Count; i++)
+                    {
+                        //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
+                        list.Add(new ColumnSettingsDataModel()
+                        {
+                            field = dtResult.Rows[i]["ColumnName"].ToString(),
+                            header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
+                            type = "label",
+                            width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
+                            align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
+                            visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
+                            EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
+                            ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,
+                            Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
+                            TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
+                            EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
+                            EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                            EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
+                            EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
+                            ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
+                            precision = dtResult.Rows[i]["precision"].ToString(),
+                            PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
+                            Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
+                            PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "columnsettings/getcolumnsettings", ex.Message);
             }
             return Ok();
         }
@@ -512,51 +588,58 @@ namespace SampWebApi.Controllers
         [Route("api/columnsettings/Savecolumnsettings")]
         public IHttpActionResult saveGenColumnData(List<ColumnSettingsModel> ColumnSettingData)
         {
-            if (ColumnSettingData != null)
+            try
             {
-                var list = new List<object>(); 
-                foreach (ColumnSettingsModel item in ColumnSettingData)
+                if (ColumnSettingData != null)
                 {
-                    bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
-                      item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
-                      item.EnableAvg,item.EnableCount,item.EnableUnique, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
-                      !string.IsNullOrEmpty(item.Printwidth.ToString()) ? item.Printwidth : 0);
-                }
-                List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
-                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", 2, ColumnSettingData[0].FormID, ColumnSettingData[0].TableID, ColumnSettingData[0].FormorReport);
-                for (int i = 0; i < dtResult.Rows.Count; i++)
-                {
-                    //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
-                    Columnlist.Add(new ColumnSettingsDataModel()
+                    var list = new List<object>();
+                    foreach (ColumnSettingsModel item in ColumnSettingData)
                     {
-                        field = dtResult.Rows[i]["ColumnName"].ToString(),
-                        header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                        type = "label",
-                        width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
-                        align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
-                        visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
-                        EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
-                        ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,
-                        Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
-                        TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
-                        EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
-                        EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
-                        EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
-                        EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
-                        ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
-                        precision = dtResult.Rows[i]["precision"].ToString(),
-                        PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
-                        Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
-                        PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
+                        bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
+                          item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
+                          item.EnableAvg, item.EnableCount, item.EnableUnique, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
+                          !string.IsNullOrEmpty(item.Printwidth.ToString()) ? item.Printwidth : 0);
+                    }
+                    List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", 2, ColumnSettingData[0].FormID, ColumnSettingData[0].TableID, ColumnSettingData[0].FormorReport);
+                    for (int i = 0; i < dtResult.Rows.Count; i++)
+                    {
+                        //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
+                        Columnlist.Add(new ColumnSettingsDataModel()
+                        {
+                            field = dtResult.Rows[i]["ColumnName"].ToString(),
+                            header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
+                            type = "label",
+                            width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
+                            align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
+                            visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
+                            EnableColumnMenu = dtResult.Rows[i]["EnableColumnMenu"].ToString() == "1" ? true : false,
+                            ShowinColumnOption = dtResult.Rows[i]["ShowinColumnOption"].ToString() == "0" ? false : true,
+                            Total = dtResult.Rows[i]["Total"].ToString() == "0" ? true : false,
+                            TotalYN = dtResult.Rows[i]["TotalYN"].ToString(),
+                            EnableSum = dtResult.Rows[i]["EnableSum"].ToString() == "1" ? true : false,
+                            EnableAvg = dtResult.Rows[i]["EnableAvg"].ToString() == "1" ? true : false,
+                            EnableCount = dtResult.Rows[i]["EnableCount"].ToString() == "1" ? true : false,
+                            EnableUnique = dtResult.Rows[i]["EnableUnique"].ToString() == "1" ? true : false,
+                            ClickPopup = dtResult.Rows[i]["ClickPopup"].ToString() == "1" ? true : false,
+                            precision = dtResult.Rows[i]["precision"].ToString(),
+                            PrintYN = dtResult.Rows[i]["PrintYN"].ToString() == "1" ? true : false,
+                            Printwidth = Convert.ToInt32(dtResult.Rows[i]["PrintWidth"].ToString()),
+                            PrintColumnName = dtResult.Rows[i]["PrintColumnName"].ToString(),
+                        });
+                    }
+                    list.Add(new
+                    {
+                        MsgID = "0",
+                        Message = "Saved Successfully",
+                        ColumnData = Columnlist
                     });
+                    return Ok(list);
                 }
-                list.Add(new 
-                {
-                    MsgID = "0",
-                    Message = "Saved Successfully",
-                    ColumnData = Columnlist
-                });
-                return Ok(list);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "columnsettings/Savecolumnsettings", ex.Message);
             }
             return Ok();
         }
@@ -564,8 +647,15 @@ namespace SampWebApi.Controllers
         [Route("api/columnsettings/updatecolumnwidth")]
         public IHttpActionResult updateGendralColumnwdith(string FormID, string TableID, string FormorReport, string ColumnID,string ColumnName,string Width)
         {
-            bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 2, FormID, TableID, ColumnID, FormorReport,
-                ColumnName, Width);
+            try
+            {
+                bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 2, FormID, TableID, ColumnID, FormorReport,
+                    ColumnName, Width);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "columnsettings/updatecolumnwidth", ex.Message);
+            }
             return Ok();
         }
     }

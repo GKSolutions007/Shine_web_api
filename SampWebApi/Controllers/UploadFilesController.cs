@@ -150,24 +150,32 @@ namespace SampWebApi.Controllers
         [Route("api/downloadbakfile")]
         public HttpResponseMessage DownloadFile(string FPath, string FName)
         {
-            DataTable dt = new DataTable();
-            var sDocument = FPath;
-            byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
-            string fileName = FName;
-            //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-            if (!File.Exists(FPath))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-            var stream = new FileStream(FPath, FileMode.Open, FileAccess.Read);
-            result.Content = new StreamContent(stream);
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            try
             {
-                FileName = fileName
-            };
-            return result;
-            //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                DataTable dt = new DataTable();
+                var sDocument = FPath;
+                byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                string fileName = FName;
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                if (!File.Exists(FPath))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(FPath, FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+                return result;
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("UploadFiles", "downloadbakfile", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
         [HttpGet]
         [Route("api/deletemyuploadfile")]
@@ -206,45 +214,53 @@ namespace SampWebApi.Controllers
         [Route("api/listbackupfiles")]
         public IHttpActionResult listFiles(string FileType)
         {
-            DataTable dtBakPath = bl.BL_ExecuteSqlQuery("select BackupPath from tblCompanyRegistration");
-            string path = dtBakPath.Rows[0]["BackupPath"].ToString();
-            var fileList = new List<object>();
-            string StoreLocation = "";
-            if(FileType == "1")
-                StoreLocation = path + "\\BACKUPFILES\\";
-            else if(FileType == "2")
-                StoreLocation = path + "\\myUploadFiles\\";
-            if (Directory.Exists(StoreLocation))
+            try
             {
-                var files = new DirectoryInfo(StoreLocation)
-                               .GetFiles()
-                               .OrderByDescending(f => f.CreationTime);  // sort by created date (newest first)
-
-                foreach (FileInfo fi in files)
+                DataTable dtBakPath = bl.BL_ExecuteSqlQuery("select BackupPath from tblCompanyRegistration");
+                string path = dtBakPath.Rows[0]["BackupPath"].ToString();
+                var fileList = new List<object>();
+                string StoreLocation = "";
+                if (FileType == "1")
+                    StoreLocation = path + "\\BACKUPFILES\\";
+                else if (FileType == "2")
+                    StoreLocation = path + "\\myUploadFiles\\";
+                if (Directory.Exists(StoreLocation))
                 {
-                    string fullPath = fi.FullName;          // Full path
-                    string fileName = fi.Name;              // File name with extension
-                    string extension = fi.Extension;        // Extension (.txt, .xls etc.)
-                    string CreateTime = fi.CreationTime.ToString("dd/MMM/yyyy hh:mm:ss tt");
-                    long sizeInBytes = fi.Length;
+                    var files = new DirectoryInfo(StoreLocation)
+                                   .GetFiles()
+                                   .OrderByDescending(f => f.CreationTime);  // sort by created date (newest first)
 
-                    string fileSize;
-                    if (sizeInBytes < 1024 * 1024) // less than 1 MB
-                        fileSize = $"{(sizeInBytes / 1024.0):N2} KB";
-                    else
-                        fileSize = $"{(sizeInBytes / 1024.0 / 1024.0):N2} MB";
-
-                    fileList.Add(new
+                    foreach (FileInfo fi in files)
                     {
-                        fullPath = fullPath,
-                        fileName = fileName,
-                        extension = extension,
-                        fileSize = fileSize,
-                        CreateTime = CreateTime
-                    });
+                        string fullPath = fi.FullName;          // Full path
+                        string fileName = fi.Name;              // File name with extension
+                        string extension = fi.Extension;        // Extension (.txt, .xls etc.)
+                        string CreateTime = fi.CreationTime.ToString("dd/MMM/yyyy hh:mm:ss tt");
+                        long sizeInBytes = fi.Length;
+
+                        string fileSize;
+                        if (sizeInBytes < 1024 * 1024) // less than 1 MB
+                            fileSize = $"{(sizeInBytes / 1024.0):N2} KB";
+                        else
+                            fileSize = $"{(sizeInBytes / 1024.0 / 1024.0):N2} MB";
+
+                        fileList.Add(new
+                        {
+                            fullPath = fullPath,
+                            fileName = fileName,
+                            extension = extension,
+                            fileSize = fileSize,
+                            CreateTime = CreateTime
+                        });
+                    }
                 }
+                return Ok(fileList);
             }
-            return Ok(fileList);
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("UploadFiles", "listbackupfiles", ex.Message);
+            }
+            return Ok();
         }
 
         /*

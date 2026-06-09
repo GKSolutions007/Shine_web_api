@@ -23,69 +23,85 @@ namespace SampWebApi.Controllers
         [Route("api/MobileDeviceApproval/get")]
         public IHttpActionResult LoadMobileDevDetails(int Mode)
         {
-            List<SystemApprovalModel> sList = new List<SystemApprovalModel>();
-            if (Mode == 1)// Web Approval Load
+            try
             {
-                DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", 4);
-                if (dtResult.Rows.Count > 0)
+                List<SystemApprovalModel> sList = new List<SystemApprovalModel>();
+                if (Mode == 1)// Web Approval Load
                 {
-                    for (int i = 0; i < dtResult.Rows.Count; i++)
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", 4);
+                    if (dtResult.Rows.Count > 0)
                     {
-                        sList.Add(new SystemApprovalModel
+                        for (int i = 0; i < dtResult.Rows.Count; i++)
                         {
-                            UserName = dtResult.Rows[i][4].ToString(),
-                            DeviceName = dtResult.Rows[i][0].ToString(),
-                            UserID = dtResult.Rows[i][2].ToString(),
-                            DeviceID = dtResult.Rows[i][5].ToString(),
-                            Activate = dtResult.Rows[i][3].ToString(),
-                            MobileNo = dtResult.Rows[i][6].ToString()
-                        });
+                            sList.Add(new SystemApprovalModel
+                            {
+                                UserName = dtResult.Rows[i][4].ToString(),
+                                DeviceName = dtResult.Rows[i][0].ToString(),
+                                UserID = dtResult.Rows[i][2].ToString(),
+                                DeviceID = dtResult.Rows[i][5].ToString(),
+                                Activate = dtResult.Rows[i][3].ToString(),
+                                MobileNo = dtResult.Rows[i][6].ToString()
+                            });
+                        }
                     }
                 }
-            }
-            if (Mode == 10)
-            {
-                DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", Mode);
-                if (dtResult.Rows.Count > 0)
+                if (Mode == 10)
                 {
-                    for (int i = 0; i < dtResult.Rows.Count; i++)
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", Mode);
+                    if (dtResult.Rows.Count > 0)
                     {
-                        sList.Add(new SystemApprovalModel
+                        for (int i = 0; i < dtResult.Rows.Count; i++)
                         {
-                            UserID = dtResult.Rows[i][0].ToString(),
-                            UserName = dtResult.Rows[i][1].ToString(),
-                        });
+                            sList.Add(new SystemApprovalModel
+                            {
+                                UserID = dtResult.Rows[i][0].ToString(),
+                                UserName = dtResult.Rows[i][1].ToString(),
+                            });
+                        }
                     }
                 }
+                return Ok(sList);
             }
-            return Ok(sList);
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("SystemApproval", "MobileDeviceApproval/get", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/MobileDeviceApproval/save")]
         public IHttpActionResult ActiveDeactiveMobDev(string nMode, string nDeviceID, string nUserID)
         {
-            if (nMode != "7" && nMode != "8")
+            try
             {
-                //string Cons = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connection"].ConnectionString);
-                //string Cons = APIGlobalConn.Decrypt(HttpUtility.UrlDecode(WebCon));
-                //SqlConnection con = new SqlConnection(Cons);
-                //con.Open();
-                //SqlCommand cmd = new SqlCommand("uspLoginInfoRecieve", con);
-                //cmd.CommandType = CommandType.StoredProcedure;
-                //cmd.Parameters.AddWithValue("@Mode", nMode);
-                //cmd.Parameters.AddWithValue("@TokenValue", nDBs);
-                //cmd.Parameters.AddWithValue("@UserID", nUserID);
-                //cmd.Parameters.AddWithValue("@DeviceIdent", nDeviceID);
-                //SqlDataAdapter sda = new SqlDataAdapter(cmd);                
-                //sda.Fill(dtResult);
-                //con.Close();
-                DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                if (nMode != "7" && nMode != "8")
+                {
+                    //string Cons = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connection"].ConnectionString);
+                    //string Cons = APIGlobalConn.Decrypt(HttpUtility.UrlDecode(WebCon));
+                    //SqlConnection con = new SqlConnection(Cons);
+                    //con.Open();
+                    //SqlCommand cmd = new SqlCommand("uspLoginInfoRecieve", con);
+                    //cmd.CommandType = CommandType.StoredProcedure;
+                    //cmd.Parameters.AddWithValue("@Mode", nMode);
+                    //cmd.Parameters.AddWithValue("@TokenValue", nDBs);
+                    //cmd.Parameters.AddWithValue("@UserID", nUserID);
+                    //cmd.Parameters.AddWithValue("@DeviceIdent", nDeviceID);
+                    //SqlDataAdapter sda = new SqlDataAdapter(cmd);                
+                    //sda.Fill(dtResult);
+                    //con.Close();
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                }
+                else if (nMode == "8")
+                {
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                }
+                return Ok(1);
             }
-            else if (nMode == "8")
+            catch(Exception ex)
             {
-                DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                objBL.BL_WriteErrorMsginLog("SystemApproval", "MobileDeviceApproval/save", ex.Message);
             }
-            return Ok(1);
+            return Ok();
         }
 
         [HttpGet]
@@ -104,8 +120,16 @@ namespace SampWebApi.Controllers
         [Route("api/DeviceApproval/save")]
         public IHttpActionResult ActiveDeactiveDevice(string nMode, string nID)
         {
-            DataTable dtResult = objBL.BL_ExecuteParamSP("uspManageDeviceApproval", nMode, nID);
-            return Ok(1);
+            try
+            {
+                DataTable dtResult = objBL.BL_ExecuteParamSP("uspManageDeviceApproval", nMode, nID);
+                return Ok(1);
+            }
+            catch(Exception ex)
+            {
+                objBL.BL_WriteErrorMsginLog("SystemApproval", "DeviceApproval/save", ex.Message);
+            }
+            return Ok();
         }
     }
 }

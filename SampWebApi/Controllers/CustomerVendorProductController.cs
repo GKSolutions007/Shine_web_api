@@ -29,127 +29,134 @@ namespace SampWebApi.Controllers
         [Route("api/customermaster/get")]
         public IHttpActionResult GetData(string Mode, string Name)
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "4")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, 0);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "4")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, 0);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Code = DDT.Rows[i][1].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        CustomerType = DDT.Rows[i][3].ToString(),
-                        Mob1 = DDT.Rows[i][4].ToString(),
-                        GSTIN = DDT.Rows[i][5].ToString(),
-                        Ratings = DDT.Rows[i][6].ToString(),
-                        Active = DDT.Rows[i][7].ToString(),
-                    });
+                        list.Add(new CustomerVendorModel
+                        {
+                            ID = DDT.Rows[i][0].ToString(),
+                            Code = DDT.Rows[i][1].ToString(),
+                            Name = DDT.Rows[i][2].ToString(),
+                            CustomerType = DDT.Rows[i][3].ToString(),
+                            Mob1 = DDT.Rows[i][4].ToString(),
+                            GSTIN = DDT.Rows[i][5].ToString(),
+                            Ratings = DDT.Rows[i][6].ToString(),
+                            Active = DDT.Rows[i][7].ToString(),
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "444")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 4, 0);
-                return Ok(DDT);                
-            }
-            if (Mode == "5")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "444")
                 {
-                    List<MapBeatSalesman> listBSM = new List<MapBeatSalesman>();
-                    DataTable dtBSM = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 7, DDT.Rows[i]["ID"].ToString());
-                    for (int j = 0; j < dtBSM.Rows.Count; j++)
+                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 4, 0);
+                    return Ok(DDT);
+                }
+                if (Mode == "5")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        listBSM.Add(new MapBeatSalesman
+                        List<MapBeatSalesman> listBSM = new List<MapBeatSalesman>();
+                        DataTable dtBSM = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 7, DDT.Rows[i]["ID"].ToString());
+                        for (int j = 0; j < dtBSM.Rows.Count; j++)
                         {
-                            BeatName = dtBSM.Rows[j][1].ToString(),
-                            SalesmanName = dtBSM.Rows[j][2].ToString()
-                        });
-                    }
-                    List<clsCustomerRemarks> listREM = new List<clsCustomerRemarks>();
-                    DataTable dtREM = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 9, DDT.Rows[i]["ID"].ToString());
-                    for (int j = 0; j < dtREM.Rows.Count; j++)
-                    {
-                        listREM.Add(new clsCustomerRemarks
+                            listBSM.Add(new MapBeatSalesman
+                            {
+                                BeatName = dtBSM.Rows[j][1].ToString(),
+                                SalesmanName = dtBSM.Rows[j][2].ToString()
+                            });
+                        }
+                        List<clsCustomerRemarks> listREM = new List<clsCustomerRemarks>();
+                        DataTable dtREM = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 9, DDT.Rows[i]["ID"].ToString());
+                        for (int j = 0; j < dtREM.Rows.Count; j++)
                         {
-                            Remarks = dtREM.Rows[j][1].ToString()
-                        });
-                    }
-                    list.Add(new CustomerVendorModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
-                        Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
-                        Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
-                        Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
-                        Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
-                        Pincode = DDT.Rows[i]["Pincode"].ToString(),
-                        ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
-                        Ph1 = DDT.Rows[i]["Ph1"].ToString(),
-                        Ph2 = DDT.Rows[i]["Ph2"].ToString(),
-                        Mob1 = DDT.Rows[i]["Mob1"].ToString(),
-                        Mob2 = DDT.Rows[i]["Mob2"].ToString(),
-                        Email = DDT.Rows[i]["Email"].ToString(),
-                        PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
-                        AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
-                        DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
-                        DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
-                        FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
-                        StateID = DDT.Rows[i]["StateID"].ToString(),
-                        GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
-                        CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
-                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
-                        TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
+                            listREM.Add(new clsCustomerRemarks
+                            {
+                                Remarks = dtREM.Rows[j][1].ToString()
+                            });
+                        }
+                        list.Add(new CustomerVendorModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
+                            Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
+                            Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
+                            Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
+                            Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                            Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
+                            Pincode = DDT.Rows[i]["Pincode"].ToString(),
+                            ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
+                            Ph1 = DDT.Rows[i]["Ph1"].ToString(),
+                            Ph2 = DDT.Rows[i]["Ph2"].ToString(),
+                            Mob1 = DDT.Rows[i]["Mob1"].ToString(),
+                            Mob2 = DDT.Rows[i]["Mob2"].ToString(),
+                            Email = DDT.Rows[i]["Email"].ToString(),
+                            PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
+                            AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
+                            DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
+                            DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
+                            FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
+                            StateID = DDT.Rows[i]["StateID"].ToString(),
+                            GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
+                            CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
+                            PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                            TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
 
-                        FAID = DDT.Rows[i]["FAID"].ToString(),
-                        OSValue = DDT.Rows[i]["OSVAL"].ToString(),
-                        OverDueValue = DDT.Rows[i]["OSCOUNT"].ToString(),//
-                        OverDueInvCount = DDT.Rows[i]["OverDueInvCount"].ToString(),//
-                        CreditLimitValue = DDT.Rows[i]["CreditLimitValue"].ToString(),
-                        CreditLimitCount = DDT.Rows[i]["CreditLimitCount"].ToString(),
-                        CreditlimitOS = DDT.Rows[i]["CreditlimitOS"].ToString(),
-                        PriceTypeID = DDT.Rows[i]["PriceTypeID"].ToString(),
-                        OwnerName = DDT.Rows[i]["OwnerName"].ToString(),
-                        DiscountPern = DDT.Rows[i]["DiscountPern"].ToString(),
-                        TrackPoint = DDT.Rows[i]["TrackPoint"].ToString(),
-                        ClosingTrackPoint = DDT.Rows[i]["ClosingTrackPoint"].ToString(),
-                        TCSTax = DDT.Rows[i]["TCSTax"].ToString(),
-                        Latitude = DDT.Rows[i]["Latitude"].ToString(),
-                        Longtitude = DDT.Rows[i]["Longtitude"].ToString(),
-                        Distance = DDT.Rows[i]["Distance"].ToString(),
-                        Remark = DDT.Rows[i]["Remark"].ToString(),
-                        Active = DDT.Rows[i]["Active"].ToString(),
-                        CustomerType = DDT.Rows[i]["CustomerType"].ToString(),
-                        Ratings = DDT.Rows[i]["Rating"].ToString(),
-                        BSM = listBSM,
-                        lstCustRemark = listREM
-                    });
+                            FAID = DDT.Rows[i]["FAID"].ToString(),
+                            OSValue = DDT.Rows[i]["OSVAL"].ToString(),
+                            OverDueValue = DDT.Rows[i]["OSCOUNT"].ToString(),//
+                            OverDueInvCount = DDT.Rows[i]["OverDueInvCount"].ToString(),//
+                            CreditLimitValue = DDT.Rows[i]["CreditLimitValue"].ToString(),
+                            CreditLimitCount = DDT.Rows[i]["CreditLimitCount"].ToString(),
+                            CreditlimitOS = DDT.Rows[i]["CreditlimitOS"].ToString(),
+                            PriceTypeID = DDT.Rows[i]["PriceTypeID"].ToString(),
+                            OwnerName = DDT.Rows[i]["OwnerName"].ToString(),
+                            DiscountPern = DDT.Rows[i]["DiscountPern"].ToString(),
+                            TrackPoint = DDT.Rows[i]["TrackPoint"].ToString(),
+                            ClosingTrackPoint = DDT.Rows[i]["ClosingTrackPoint"].ToString(),
+                            TCSTax = DDT.Rows[i]["TCSTax"].ToString(),
+                            Latitude = DDT.Rows[i]["Latitude"].ToString(),
+                            Longtitude = DDT.Rows[i]["Longtitude"].ToString(),
+                            Distance = DDT.Rows[i]["Distance"].ToString(),
+                            Remark = DDT.Rows[i]["Remark"].ToString(),
+                            Active = DDT.Rows[i]["Active"].ToString(),
+                            CustomerType = DDT.Rows[i]["CustomerType"].ToString(),
+                            Ratings = DDT.Rows[i]["Rating"].ToString(),
+                            BSM = listBSM,
+                            lstCustRemark = listREM
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "6")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "6")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Name = DDT.Rows[i][3].ToString(),
-                    });
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Name = DDT.Rows[i][3].ToString(),
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "customermaster/get", ex.Message);
             }
             return Ok();
         }
@@ -224,108 +231,115 @@ namespace SampWebApi.Controllers
         [Route("api/vendormaster/get")]
         public IHttpActionResult GetVendorData(string Mode, string Name)
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "3")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "3")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
-                        Mob1 = DDT.Rows[i]["Mob1"].ToString(),
-                        Mob2 = DDT.Rows[i]["Mob2"].ToString(),
-                        Ph1 = DDT.Rows[i]["Ph1"].ToString(),
-                        Ph2 = DDT.Rows[i]["Ph2"].ToString(),
-                        GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
-                        Ratings = DDT.Rows[i]["Ratings"].ToString(),
-                        Active = DDT.Rows[i]["Active"].ToString(),
-                        Email = DDT.Rows[i]["Email"].ToString(),
-                        Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
-                        Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
-                        Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),  
-                        Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        Shipadd2 = DDT.Rows[i]["Shipadd2"].ToString(),
-                        Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
-                        Pincode = DDT.Rows[i]["Pincode"].ToString(),
-                        PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
-                        AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
-                        DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
-                        DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
-                        FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
-                        StateName = DDT.Rows[i]["StateName"].ToString(),
-                        TaxTypeName = DDT.Rows[i]["TaxTypeName"].ToString(),
-                        PaymentMode = DDT.Rows[i]["PaymentMode"].ToString(),
-                        WeekCycle = DDT.Rows[i]["WeekCycle"].ToString(),
-                        CreditTerm = DDT.Rows[i]["CreditTerm"].ToString(),
+                        list.Add(new CustomerVendorModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
+                            Mob1 = DDT.Rows[i]["Mob1"].ToString(),
+                            Mob2 = DDT.Rows[i]["Mob2"].ToString(),
+                            Ph1 = DDT.Rows[i]["Ph1"].ToString(),
+                            Ph2 = DDT.Rows[i]["Ph2"].ToString(),
+                            GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
+                            Ratings = DDT.Rows[i]["Ratings"].ToString(),
+                            Active = DDT.Rows[i]["Active"].ToString(),
+                            Email = DDT.Rows[i]["Email"].ToString(),
+                            Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
+                            Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
+                            Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
+                            Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
+                            Shipadd2 = DDT.Rows[i]["Shipadd2"].ToString(),
+                            Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
+                            Pincode = DDT.Rows[i]["Pincode"].ToString(),
+                            PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
+                            AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
+                            DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
+                            DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
+                            FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
+                            StateName = DDT.Rows[i]["StateName"].ToString(),
+                            TaxTypeName = DDT.Rows[i]["TaxTypeName"].ToString(),
+                            PaymentMode = DDT.Rows[i]["PaymentMode"].ToString(),
+                            WeekCycle = DDT.Rows[i]["WeekCycle"].ToString(),
+                            CreditTerm = DDT.Rows[i]["CreditTerm"].ToString(),
 
-                    });
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "4")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, Name);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "4")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, Name);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
-                        Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
-                        Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
-                        Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
-                        Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
-                        Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
-                        Pincode = DDT.Rows[i]["Pincode"].ToString(),
-                        ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
-                        Ph1 = DDT.Rows[i]["Ph1"].ToString(),
-                        Ph2 = DDT.Rows[i]["Ph2"].ToString(),
-                        Mob1 = DDT.Rows[i]["Mob1"].ToString(),
-                        Mob2 = DDT.Rows[i]["Mob2"].ToString(),
-                        Email = DDT.Rows[i]["Email"].ToString(),
-                        PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
-                        AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
-                        DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
-                        DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
-                        FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
-                        StateID = DDT.Rows[i]["StateID"].ToString(),
-                        GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
-                        CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
-                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
-                        TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
-                        FAID = DDT.Rows[i]["FAID"].ToString(),
-                        WeekCycle = DDT.Rows[i]["WeekCycle"].ToString(),
-                        Active = DDT.Rows[i]["Active"].ToString(),
-                        Ratings = DDT.Rows[i]["Rating"].ToString(),
-                        OSValue = DDT.Rows[i]["OSVAL"].ToString(),
-                        OverDueValue = DDT.Rows[i]["OSCOUNT"].ToString()
-                    });
+                        list.Add(new CustomerVendorModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
+                            Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
+                            Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
+                            Shipadd1 = DDT.Rows[i]["Shipadd1"].ToString(),
+                            Shipadd2 = DDT.Rows[i]["shipadd2"].ToString(),
+                            Shipadd3 = DDT.Rows[i]["Shipadd3"].ToString(),
+                            Pincode = DDT.Rows[i]["Pincode"].ToString(),
+                            ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
+                            Ph1 = DDT.Rows[i]["Ph1"].ToString(),
+                            Ph2 = DDT.Rows[i]["Ph2"].ToString(),
+                            Mob1 = DDT.Rows[i]["Mob1"].ToString(),
+                            Mob2 = DDT.Rows[i]["Mob2"].ToString(),
+                            Email = DDT.Rows[i]["Email"].ToString(),
+                            PANNumber = DDT.Rows[i]["PANNumber"].ToString(),
+                            AadharNo = DDT.Rows[i]["AadharNo"].ToString(),
+                            DLNo20 = DDT.Rows[i]["DLNo20"].ToString(),
+                            DLNo21 = DDT.Rows[i]["DLNo21"].ToString(),
+                            FSSAINo = DDT.Rows[i]["FSSAINo"].ToString(),
+                            StateID = DDT.Rows[i]["StateID"].ToString(),
+                            GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
+                            CreditTermID = DDT.Rows[i]["CreditTermID"].ToString(),
+                            PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                            TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
+                            FAID = DDT.Rows[i]["FAID"].ToString(),
+                            WeekCycle = DDT.Rows[i]["WeekCycle"].ToString(),
+                            Active = DDT.Rows[i]["Active"].ToString(),
+                            Ratings = DDT.Rows[i]["Rating"].ToString(),
+                            OSValue = DDT.Rows[i]["OSVAL"].ToString(),
+                            OverDueValue = DDT.Rows[i]["OSCOUNT"].ToString()
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "5")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "5")
                 {
-                    list.Add(new CustomerVendorModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Name = DDT.Rows[i][3].ToString(),
-                    });
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Name = DDT.Rows[i][3].ToString(),
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "vendormaster/get", ex.Message);
             }
             return Ok();
         }
@@ -333,8 +347,16 @@ namespace SampWebApi.Controllers
         [Route("api/vendormaster/getalldata")]
         public IHttpActionResult GetAllVendorData(string Mode, string Name)
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
-            return Ok(DDT);           
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageVendorMaster", Mode, 0);
+                return Ok(DDT);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "vendormaster/getalldata", ex.Message);
+            }
+            return Ok();
         }
         [HttpPost]
         [Route("api/vendormaster/save")]
@@ -392,154 +414,170 @@ namespace SampWebApi.Controllers
         [Route("api/productmaster/get")]
         public IHttpActionResult GetProductData(string Mode, string Name)
         {
-            DataTable DDT = new DataTable();
-            if (Mode == "3")
+            try
             {
-                DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
-                List<ProductModel> list = new List<ProductModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                DataTable DDT = new DataTable();
+                if (Mode == "3")
                 {
-                    list.Add(new ProductModel
+                    DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
+                    List<ProductModel> list = new List<ProductModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Code = DDT.Rows[i][1].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        EAN = DDT.Rows[i][3].ToString(),
-                        MfrID = DDT.Rows[i][4].ToString(),
-                        BrandID = DDT.Rows[i][5].ToString(),
-                        CategoryID = DDT.Rows[i][6].ToString(),
-                        Active = DDT.Rows[i][7].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "4")
-            {
-                DataSet dtProdData = bl.BL_ExecuteParamSPDataset("uspManageProductMaster", Mode, Name);
-                DDT = dtProdData.Tables[0];
-                DataTable dtProductLocation= dtProdData.Tables[1];
-                DataTable dtProductStock = dtProdData.Tables[2];
-
-                //bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
-                List<ProductModel> list = new List<ProductModel>();
-                List<clsProdLocMapping> listProcLocMap = new List<clsProdLocMapping>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    string PBPrice = "0", PRPrice = "0", InvPrice = "0", SRPrice = "0";
-                    DataTable dtPrices = bl.BL_ExecuteParamSP("uspGetProductTransactionPrice", 1, DDT.Rows[i]["ID"].ToString());
-                    if (dtPrices.Rows.Count > 0)
-                    {
-                        PBPrice = dtPrices.Rows[0][1].ToString();
-                        PRPrice = dtPrices.Rows[0][2].ToString();
-                        InvPrice = dtPrices.Rows[0][3].ToString();
-                        SRPrice = dtPrices.Rows[0][4].ToString();
-                    }                    
-                    if (dtProductLocation.Rows.Count > 0)
-                    {
-                        for (int k = 0; k < dtProductLocation.Rows.Count; k++)
+                        list.Add(new ProductModel
                         {
-                            listProcLocMap.Add(new clsProdLocMapping
-                            {
-                                ProductID = dtProductLocation.Rows[k][0].ToString(),
-                                BranchID = dtProductLocation.Rows[k][1].ToString(),
-                                LocationID = dtProductLocation.Rows[k][2].ToString(),
-                            });
-                        }
+                            ID = DDT.Rows[i][0].ToString(),
+                            Code = DDT.Rows[i][1].ToString(),
+                            Name = DDT.Rows[i][2].ToString(),
+                            EAN = DDT.Rows[i][3].ToString(),
+                            MfrID = DDT.Rows[i][4].ToString(),
+                            BrandID = DDT.Rows[i][5].ToString(),
+                            CategoryID = DDT.Rows[i][6].ToString(),
+                            Active = DDT.Rows[i][7].ToString(),
+                        });
                     }
-                    string ItemStock = "0.00";
-                    if (dtProductStock.Rows.Count > 0)
-                    {
-                        ItemStock = dtProductStock.Rows[0][1].ToString();
-                    }
-                    list.Add(new ProductModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        EAN = DDT.Rows[i]["EAN"].ToString(),
-                        MfrID = DDT.Rows[i]["MfrName"].ToString(),
-                        BrandID = DDT.Rows[i]["BrandName"].ToString(),
-                        CategoryID = DDT.Rows[i]["CategoryName"].ToString(),
-                        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
-                        ProductDiscPerc = DDT.Rows[i]["ProductDiscPerc"].ToString(),
-                        BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
-                        BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
-                        PurchaseUomID = DDT.Rows[i]["PurchaseUomID"].ToString(),
-                        PurchaseCR = DDT.Rows[i]["PurchaseCR"].ToString(),
-                        SalesUomID = DDT.Rows[i]["SalesUomID"].ToString(),
-                        SalesCR = DDT.Rows[i]["SalesCR"].ToString(),
-                        ReportingUomID = DDT.Rows[i]["ReportingUomID"].ToString(),
-                        ReportingCR = DDT.Rows[i]["ReportingCR"].ToString(),
-                        ReportingQty = DDT.Rows[i]["ReportingQty"].ToString(),
-                        PurchaseTaxID = DDT.Rows[i]["PurchaseTaxID"].ToString(),
-                        SalesTaxID = DDT.Rows[i]["SalesTaxID"].ToString(),
-                        PurchasePrice = DDT.Rows[i]["PurchasePrice"].ToString(),
-                        SalesPrice = DDT.Rows[i]["SalesPrice"].ToString(),
-                        ECP = DDT.Rows[i]["ECP"].ToString(),
-                        SPLPrice = DDT.Rows[i]["SPLPrice"].ToString(),
-                        MRP = DDT.Rows[i]["MRP"].ToString(),
-                        ReturnPrice = DDT.Rows[i]["ReturnPrice"].ToString(),
-
-                        SaleonMRP = DDT.Rows[i]["SaleonMRP"].ToString(),
-                        SaleonpPern = DDT.Rows[i]["SaleonpPern"].ToString(),
-                        ECPonMRP = DDT.Rows[i]["ECPonMRP"].ToString(),
-                        ECPonpPern = DDT.Rows[i]["ECPonpPern"].ToString(),
-                        SPLonMRP = DDT.Rows[i]["SPLonMRP"].ToString(),
-                        SPLonpPern = DDT.Rows[i]["SPLonpPern"].ToString(),
-
-                        TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
-                        TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
-                        TrackSerial = DDT.Rows[i]["TrackSerial"].ToString(),
-                        TrackPDK = DDT.Rows[i]["TrackPDK"].ToString(),
-                        DateFormat = DDT.Rows[i]["DateFormat"].ToString(),
-                        BarcodeUomID = DDT.Rows[i]["BarcodeUomID"].ToString(),
-                        BarcodePriceID = DDT.Rows[i]["BarcodePriceID"].ToString(),
-                        VendorID = DDT.Rows[i]["VendorName"].ToString(),
-                        LocationID = DDT.Rows[i]["Location"].ToString(),
-                        MOH = DDT.Rows[i]["MOH"].ToString(),
-                        MOQ = DDT.Rows[i]["MOQ"].ToString(),
-                        Remarks = DDT.Rows[i]["Remarks"].ToString(),
-                        Active = DDT.Rows[i]["Active"].ToString(),
-                        Weborder = DDT.Rows[i]["Weborder"].ToString(),
-                        BarcodePrint = DDT.Rows[i]["BarcodeEnable"].ToString(),
-                        ProdInvCount = DDT.Rows[i]["ProdInvCount"].ToString(),
-                        ProdBatCount = DDT.Rows[i]["ProdBatCount"].ToString(),
-                        ProdPkdCount = DDT.Rows[i]["ProdPkdCount"].ToString(),
-                        ProdLifeTime = DDT.Rows[i]["LifeTime"].ToString(),
-                        PurchaseBillPrice = PBPrice,
-                        PurchaseReturnPrice = PRPrice,
-                        InvoicePrice = InvPrice,
-                        SalesReturnPrice = SRPrice,
-                        lstProdLocMapping= listProcLocMap,ABSQty = ItemStock
-                    });
+                    return Ok(list);
                 }
-                return Ok(list);
-            }
-            if (Mode == "5")
-            {
-                DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "4")
                 {
-                    list.Add(new CustomerVendorModel
+                    DataSet dtProdData = bl.BL_ExecuteParamSPDataset("uspManageProductMaster", Mode, Name);
+                    DDT = dtProdData.Tables[0];
+                    DataTable dtProductLocation = dtProdData.Tables[1];
+                    DataTable dtProductStock = dtProdData.Tables[2];
+
+                    //bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, Name);
+                    List<ProductModel> list = new List<ProductModel>();
+                    List<clsProdLocMapping> listProcLocMap = new List<clsProdLocMapping>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Name = DDT.Rows[i][3].ToString(),
-                        TaxTypeID = DDT.Rows[i][4].ToString(),
-                    });
+                        string PBPrice = "0", PRPrice = "0", InvPrice = "0", SRPrice = "0";
+                        DataTable dtPrices = bl.BL_ExecuteParamSP("uspGetProductTransactionPrice", 1, DDT.Rows[i]["ID"].ToString());
+                        if (dtPrices.Rows.Count > 0)
+                        {
+                            PBPrice = dtPrices.Rows[0][1].ToString();
+                            PRPrice = dtPrices.Rows[0][2].ToString();
+                            InvPrice = dtPrices.Rows[0][3].ToString();
+                            SRPrice = dtPrices.Rows[0][4].ToString();
+                        }
+                        if (dtProductLocation.Rows.Count > 0)
+                        {
+                            for (int k = 0; k < dtProductLocation.Rows.Count; k++)
+                            {
+                                listProcLocMap.Add(new clsProdLocMapping
+                                {
+                                    ProductID = dtProductLocation.Rows[k][0].ToString(),
+                                    BranchID = dtProductLocation.Rows[k][1].ToString(),
+                                    LocationID = dtProductLocation.Rows[k][2].ToString(),
+                                });
+                            }
+                        }
+                        string ItemStock = "0.00";
+                        if (dtProductStock.Rows.Count > 0)
+                        {
+                            ItemStock = dtProductStock.Rows[0][1].ToString();
+                        }
+                        list.Add(new ProductModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            EAN = DDT.Rows[i]["EAN"].ToString(),
+                            MfrID = DDT.Rows[i]["MfrName"].ToString(),
+                            BrandID = DDT.Rows[i]["BrandName"].ToString(),
+                            CategoryID = DDT.Rows[i]["CategoryName"].ToString(),
+                            HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+                            ProductDiscPerc = DDT.Rows[i]["ProductDiscPerc"].ToString(),
+                            BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
+                            BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
+                            PurchaseUomID = DDT.Rows[i]["PurchaseUomID"].ToString(),
+                            PurchaseCR = DDT.Rows[i]["PurchaseCR"].ToString(),
+                            SalesUomID = DDT.Rows[i]["SalesUomID"].ToString(),
+                            SalesCR = DDT.Rows[i]["SalesCR"].ToString(),
+                            ReportingUomID = DDT.Rows[i]["ReportingUomID"].ToString(),
+                            ReportingCR = DDT.Rows[i]["ReportingCR"].ToString(),
+                            ReportingQty = DDT.Rows[i]["ReportingQty"].ToString(),
+                            PurchaseTaxID = DDT.Rows[i]["PurchaseTaxID"].ToString(),
+                            SalesTaxID = DDT.Rows[i]["SalesTaxID"].ToString(),
+                            PurchasePrice = DDT.Rows[i]["PurchasePrice"].ToString(),
+                            SalesPrice = DDT.Rows[i]["SalesPrice"].ToString(),
+                            ECP = DDT.Rows[i]["ECP"].ToString(),
+                            SPLPrice = DDT.Rows[i]["SPLPrice"].ToString(),
+                            MRP = DDT.Rows[i]["MRP"].ToString(),
+                            ReturnPrice = DDT.Rows[i]["ReturnPrice"].ToString(),
+
+                            SaleonMRP = DDT.Rows[i]["SaleonMRP"].ToString(),
+                            SaleonpPern = DDT.Rows[i]["SaleonpPern"].ToString(),
+                            ECPonMRP = DDT.Rows[i]["ECPonMRP"].ToString(),
+                            ECPonpPern = DDT.Rows[i]["ECPonpPern"].ToString(),
+                            SPLonMRP = DDT.Rows[i]["SPLonMRP"].ToString(),
+                            SPLonpPern = DDT.Rows[i]["SPLonpPern"].ToString(),
+
+                            TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
+                            TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
+                            TrackSerial = DDT.Rows[i]["TrackSerial"].ToString(),
+                            TrackPDK = DDT.Rows[i]["TrackPDK"].ToString(),
+                            DateFormat = DDT.Rows[i]["DateFormat"].ToString(),
+                            BarcodeUomID = DDT.Rows[i]["BarcodeUomID"].ToString(),
+                            BarcodePriceID = DDT.Rows[i]["BarcodePriceID"].ToString(),
+                            VendorID = DDT.Rows[i]["VendorName"].ToString(),
+                            LocationID = DDT.Rows[i]["Location"].ToString(),
+                            MOH = DDT.Rows[i]["MOH"].ToString(),
+                            MOQ = DDT.Rows[i]["MOQ"].ToString(),
+                            Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                            Active = DDT.Rows[i]["Active"].ToString(),
+                            Weborder = DDT.Rows[i]["Weborder"].ToString(),
+                            BarcodePrint = DDT.Rows[i]["BarcodeEnable"].ToString(),
+                            ProdInvCount = DDT.Rows[i]["ProdInvCount"].ToString(),
+                            ProdBatCount = DDT.Rows[i]["ProdBatCount"].ToString(),
+                            ProdPkdCount = DDT.Rows[i]["ProdPkdCount"].ToString(),
+                            ProdLifeTime = DDT.Rows[i]["LifeTime"].ToString(),
+                            PurchaseBillPrice = PBPrice,
+                            PurchaseReturnPrice = PRPrice,
+                            InvoicePrice = InvPrice,
+                            SalesReturnPrice = SRPrice,
+                            lstProdLocMapping = listProcLocMap,
+                            ABSQty = ItemStock
+                        });
+                    }
+                    return Ok(list);
                 }
-                return Ok(list);
+                if (Mode == "5")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Name = DDT.Rows[i][3].ToString(),
+                            TaxTypeID = DDT.Rows[i][4].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "productmaster/get", ex.Message);
             }
             return Ok();
         }
         [HttpGet]
         [Route("api/productmaster/getalldata")]
         public IHttpActionResult GetAllProductData(string Mode, string Name)
-        {            
-            DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
-            return Ok(DDT);            
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductMaster", Mode, 0);
+                return Ok(DDT);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "productmaster/getalldata", ex.Message);
+            }
+            return Ok();
         }
         [HttpPost]
         [Route("api/productmaster/save")]
@@ -612,98 +650,105 @@ namespace SampWebApi.Controllers
         [Route("api/productpricechange/get")]
         public IHttpActionResult GetProductPRICEData(string Mode, string BranchID, string ProdID)
         {
-            if (Mode == "1")
+            try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode);
-                List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
+                if (Mode == "1")
                 {
-                    list.Add(new CustomerVendorModel
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode);
+                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        FType = DDT.Rows[i][0].ToString(),
-                        Form = DDT.Rows[i][1].ToString(),
-                        ID = DDT.Rows[i][2].ToString(),
-                        Code = DDT.Rows[i][4].ToString(),
-                        Name = DDT.Rows[i][3].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "2")
-            {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode, BranchID);
-                List<SingleMasterModel> list = new List<SingleMasterModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new SingleMasterModel
-                    {
-                        ID = DDT.Rows[i][0].ToString(),
-                        Name = DDT.Rows[i][2].ToString(),
-                        Value = DDT.Rows[i][1].ToString(),
-                    });
-                }
-                return Ok(list);
-            }
-            if (Mode == "3")
-            {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode, BranchID, ProdID);
-                List<ProductModel> list = new List<ProductModel>();
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    List<ProdPricechangedata> listProdPrice = new List<ProdPricechangedata>();
-                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", 4, BranchID, ProdID);
-                    for (int j = 0; j < dtBatch.Rows.Count; j++)
-                    {
-                        string pkd = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : null;
-                        string exp = !string.IsNullOrEmpty(dtBatch.Rows[j]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : null;
-                        listProdPrice.Add(new ProdPricechangedata
+                        list.Add(new CustomerVendorModel
                         {
-                            InventoryID = dtBatch.Rows[j]["InventoryId"].ToString(),
-                            TransDate = dtBatch.Rows[j]["PVDate"].ToString(),
-                            ECP = dtBatch.Rows[j]["ECP"].ToString(),
-                            MRP = dtBatch.Rows[j]["MRPONPrice"].ToString(),
-                            MRPExcl = dtBatch.Rows[j]["MRP"].ToString(),
-                            PKD = pkd,
-                            Expiry = exp,
-                            BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                            PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),
-                            ReturnPrice = dtBatch.Rows[j]["ReturnPrice"].ToString(),
-                            SPLPrice = dtBatch.Rows[j]["SPLPrice"].ToString(),
-                            SalePrice = dtBatch.Rows[j]["SalesPrice"].ToString(),
-                            ActualQty = dtBatch.Rows[j]["ActualQty"].ToString(),
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][4].ToString(),
+                            Name = DDT.Rows[i][3].ToString(),
                         });
                     }
-                    string SalePerc = Convert.ToBoolean(DDT.Rows[i]["SaleonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SaleonpPern"].ToString()) * -1) :
-                        Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SaleonpPern"].ToString()));
-                    string ECPPerc = Convert.ToBoolean(DDT.Rows[i]["ECPonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["ECPonpPern"].ToString()) * -1) :
-                        Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["ECPonpPern"].ToString()));
-                    string SPLPerc = Convert.ToBoolean(DDT.Rows[i]["SPLonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SPLonpPern"].ToString()) * -1) :
-                        Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SPLonpPern"].ToString()));
-                    list.Add(new ProductModel
-                    {
-                        ID = DDT.Rows[i]["ID"].ToString(),
-                        Code = DDT.Rows[i]["Code"].ToString(),
-                        Name = DDT.Rows[i]["Name"].ToString(),
-                        BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
-                        BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
-                        BaseUOMName = DDT.Rows[i]["BaseUOMName"].ToString(),
-                        SalesTaxID = DDT.Rows[i]["TaxID"].ToString(),
-                        PurchaseTaxID = DDT.Rows[i]["PurchaseTaxID"].ToString(),
-                        GSTPern = DDT.Rows[i]["GST"].ToString(),
-                        TaxName = DDT.Rows[i]["TaxName"].ToString(),
-                        TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
-                        TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
-                        TrackSerial = DDT.Rows[i]["TrackSerial"].ToString(),
-                        TrackPDK = DDT.Rows[i]["TrackPDK"].ToString(),
-                        DateFormat = DDT.Rows[i]["DateFormat"].ToString(),
-                        LocationID = DDT.Rows[i]["LocationName"].ToString(),
-                        SaleonpPern = SalePerc,
-                        ECPonpPern = ECPPerc,
-                        SPLonpPern = SPLPerc,
-                        lstProdPrice = listProdPrice
-                    });
+                    return Ok(list);
                 }
-                return Ok(list);
+                if (Mode == "2")
+                {
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode, BranchID);
+                    List<SingleMasterModel> list = new List<SingleMasterModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new SingleMasterModel
+                        {
+                            ID = DDT.Rows[i][0].ToString(),
+                            Name = DDT.Rows[i][2].ToString(),
+                            Value = DDT.Rows[i][1].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "3")
+                {
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", Mode, BranchID, ProdID);
+                    List<ProductModel> list = new List<ProductModel>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        List<ProdPricechangedata> listProdPrice = new List<ProdPricechangedata>();
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", 4, BranchID, ProdID);
+                        for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        {
+                            string pkd = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : null;
+                            string exp = !string.IsNullOrEmpty(dtBatch.Rows[j]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : null;
+                            listProdPrice.Add(new ProdPricechangedata
+                            {
+                                InventoryID = dtBatch.Rows[j]["InventoryId"].ToString(),
+                                TransDate = dtBatch.Rows[j]["PVDate"].ToString(),
+                                ECP = dtBatch.Rows[j]["ECP"].ToString(),
+                                MRP = dtBatch.Rows[j]["MRPONPrice"].ToString(),
+                                MRPExcl = dtBatch.Rows[j]["MRP"].ToString(),
+                                PKD = pkd,
+                                Expiry = exp,
+                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),
+                                ReturnPrice = dtBatch.Rows[j]["ReturnPrice"].ToString(),
+                                SPLPrice = dtBatch.Rows[j]["SPLPrice"].ToString(),
+                                SalePrice = dtBatch.Rows[j]["SalesPrice"].ToString(),
+                                ActualQty = dtBatch.Rows[j]["ActualQty"].ToString(),
+                            });
+                        }
+                        string SalePerc = Convert.ToBoolean(DDT.Rows[i]["SaleonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SaleonpPern"].ToString()) * -1) :
+                            Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SaleonpPern"].ToString()));
+                        string ECPPerc = Convert.ToBoolean(DDT.Rows[i]["ECPonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["ECPonpPern"].ToString()) * -1) :
+                            Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["ECPonpPern"].ToString()));
+                        string SPLPerc = Convert.ToBoolean(DDT.Rows[i]["SPLonMRP"].ToString()) ? Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SPLonpPern"].ToString()) * -1) :
+                            Convert.ToString(bl.BL_dValidation(DDT.Rows[i]["SPLonpPern"].ToString()));
+                        list.Add(new ProductModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            Code = DDT.Rows[i]["Code"].ToString(),
+                            Name = DDT.Rows[i]["Name"].ToString(),
+                            BaseUomID = DDT.Rows[i]["BaseUomID"].ToString(),
+                            BaseCR = DDT.Rows[i]["BaseCR"].ToString(),
+                            BaseUOMName = DDT.Rows[i]["BaseUOMName"].ToString(),
+                            SalesTaxID = DDT.Rows[i]["TaxID"].ToString(),
+                            PurchaseTaxID = DDT.Rows[i]["PurchaseTaxID"].ToString(),
+                            GSTPern = DDT.Rows[i]["GST"].ToString(),
+                            TaxName = DDT.Rows[i]["TaxName"].ToString(),
+                            TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
+                            TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
+                            TrackSerial = DDT.Rows[i]["TrackSerial"].ToString(),
+                            TrackPDK = DDT.Rows[i]["TrackPDK"].ToString(),
+                            DateFormat = DDT.Rows[i]["DateFormat"].ToString(),
+                            LocationID = DDT.Rows[i]["LocationName"].ToString(),
+                            SaleonpPern = SalePerc,
+                            ECPonpPern = ECPPerc,
+                            SPLonpPern = SPLPerc,
+                            lstProdPrice = listProdPrice
+                        });
+                    }
+                    return Ok(list);
+                }
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "productpricechange/get", ex.Message);
             }
             return Ok();
         }
@@ -766,9 +811,17 @@ namespace SampWebApi.Controllers
         [Route("api/customermaster/validatestatutory")]
         public IHttpActionResult validatestatutory(string FormName, string FieldName, string Value,string ID = "0")
         {
-            DataTable DDT = bl.BL_ExecuteParamSP("uspVerifyStatutory", FormName, FieldName, Value, ID);
-            string jsonparty = JsonConvert.SerializeObject(DDT);
-            return Ok(jsonparty);
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspVerifyStatutory", FormName, FieldName, Value, ID);
+                string jsonparty = JsonConvert.SerializeObject(DDT);
+                return Ok(jsonparty);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "customermaster/validatestatutory", ex.Message);
+            }
+            return Ok();
         }
     }
 }

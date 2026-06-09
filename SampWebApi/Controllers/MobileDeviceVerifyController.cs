@@ -18,17 +18,33 @@ namespace SampWebApi.Controllers
         [Route("api/mobiledeviceverify/verify")]
         public IHttpActionResult GetData(string Mode, string DeviceName, string DeviceID, string UID, string DBName, string Active, string Ident)
         {
-            DataTable dt = bl.BL_ExecuteParamSP("uspVerifyMobileDeviceInfo", Mode, DeviceName, DeviceID, UID, DBName, Active, DateTime.Now, Ident);
-            string JSONCONV = JsonConvert.SerializeObject(dt);
-            return Ok(JSONCONV);
+            try
+            {
+                DataTable dt = bl.BL_ExecuteParamSP("uspVerifyMobileDeviceInfo", Mode, DeviceName, DeviceID, UID, DBName, Active, DateTime.Now, Ident);
+                string JSONCONV = JsonConvert.SerializeObject(dt);
+                return Ok(JSONCONV);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("MobileDeviceVerify", "mobiledeviceverify/verify", ex.Message);
+            }
+            return Ok();
         }
         [HttpGet]
         [Route("api/mobiledevicelogin/loginverify")]
         public IHttpActionResult Getloginverify(string Mode, string TokenValue, string UID, string DivIDent)
         {
-            DataTable dt = bl.BL_ExecuteParamSP("uspLoginInfoRecieve", Mode, TokenValue, UID, DivIDent);
-            string JSONCONV = JsonConvert.SerializeObject(dt);
-            return Ok(JSONCONV);
+            try
+            {
+                DataTable dt = bl.BL_ExecuteParamSP("uspLoginInfoRecieve", Mode, TokenValue, UID, DivIDent);
+                string JSONCONV = JsonConvert.SerializeObject(dt);
+                return Ok(JSONCONV);
+            }
+            catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("MobileDeviceVerify", "mobiledevicelogin/loginverify", ex.Message);
+            }
+            return Ok();
         }
     }
 }
