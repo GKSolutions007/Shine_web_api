@@ -34,10 +34,10 @@ namespace SampWebApi.Controllers
                 if (Mode == "1" || Mode == "5")
                 {
                     DDT = bl.BL_ExecuteParamSP("uspGetSetCollPayData", Mode, ID, CodeName, DocPrefix);
-                    List<CustomerVendorModel> list = new List<CustomerVendorModel>();
+                    var list = new List<object>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        list.Add(new CustomerVendorModel
+                        list.Add(new //CustomerVendorModel
                         {
                             FType = DDT.Rows[i][0].ToString(),
                             Form = DDT.Rows[i][1].ToString(),
@@ -680,15 +680,11 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspFilterCollectionPayment", Mode, TransID, Party, FromDate, ToDate, Showall);
-                foreach (DataColumn col in DDT.Columns)
-                {
-                    Console.WriteLine("Column: " + col.ColumnName);
-                }
-                List<CollectionPaymentModel> list = new List<CollectionPaymentModel>();
+                DataTable DDT = bl.BL_ExecuteParamSP("uspFilterCollectionPayment", Mode, TransID, Party, FromDate, ToDate, Showall);                
+                var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
-                    list.Add(new CollectionPaymentModel
+                    list.Add(new //CollectionPaymentModel
                     {
                         ID = DDT.Rows[i]["ID"].ToString(),
                         DocId = DDT.Rows[i]["DocID"].ToString(),
@@ -709,7 +705,6 @@ namespace SampWebApi.Controllers
                         Status = DDT.Rows[i]["Status"].ToString(),
                         StatusID = DDT.Rows[i]["StatusID"].ToString(),
                         PaymentModeID = DDT.Rows[i]["PaymentMode"].ToString(),
-                        UDFDocId = DDT.Rows[i]["UDN"].ToString(),
                         CBy = DDT.Rows[i]["UserName"].ToString(),
                         CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         Remarks = DDT.Rows[i]["Remarks"].ToString(),

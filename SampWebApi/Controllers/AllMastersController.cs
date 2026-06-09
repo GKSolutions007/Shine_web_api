@@ -40,7 +40,6 @@ namespace SampWebApi.Controllers
             try
             {
                 DataTable DDT = new DataTable();
-                bl.BL_WriteErrorMsginLog("AllMaster", "homescreendraft/get", Trans);
                 if (Mode == "1")
                 {
                     DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
@@ -1797,7 +1796,7 @@ namespace SampWebApi.Controllers
                             Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
                             DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
                             Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
-                            DefaultBranch = DDT.Rows[i]["DefaultBranch"].ToString(),
+                            ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
                             EnableReturnPrice = DDT.Rows[i]["EnableReturnPrice"].ToString(),
                             VisaPern = DDT.Rows[i]["VisaPern"].ToString(),
                             DefaultCustID = DDT.Rows[i]["DefaultCustID"].ToString(),
@@ -1851,56 +1850,56 @@ namespace SampWebApi.Controllers
                     return Ok(list);
                 }
                 //lstConfigPasswords
-                for (int i = 0; i < DDT.Rows.Count; i++)
-                {
-                    list.Add(new ApplicationConfig
-                    {
-                        CaseType = DDT.Rows[i]["CaseType"].ToString(),
-                        Confirmpopup = DDT.Rows[i]["Confirmpopup"].ToString(),
-                        Roundoff = DDT.Rows[i]["Roundoff"].ToString(),
-                        RoundoffValue = DDT.Rows[i]["RoundoffValue"].ToString(),
-                        SMTPHost = DDT.Rows[i]["SMTPHost"].ToString(),
-                        EMail = DDT.Rows[i]["EMail"].ToString(),
-                        Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
-                        DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
-                        Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
-                        ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
-                        EnableReturnPrice = DDT.Rows[i]["EnableReturnPrice"].ToString(),
-                        VisaPern = DDT.Rows[i]["VisaPern"].ToString(),
-                        DefaultCustID = DDT.Rows[i]["DefaultCustID"].ToString(),
-                        UPIID = DDT.Rows[i]["UPIID"].ToString(),
-                        UPIName = DDT.Rows[i]["UPIName"].ToString(),
-                        WriteoffAmt = DDT.Rows[i]["WriteoffAmt"].ToString(),
-                        AllSalesmanInvoice = DDT.Rows[i]["AllSalesmanInvoice"].ToString(),
-                        AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
-                        ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
-                        SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
-                        ClearConfirmpopup = DDT.Rows[i]["ClearConfirmpopup"].ToString(),
-                        CloseConfirmpopup = DDT.Rows[i]["CloseConfirmpopup"].ToString(),
-                        BackupPath = DDT.Rows[i]["BackupPath"].ToString(),
-                        InvoiceStockOnlyProduct = DDT.Rows[i]["InvoiceStockOnlyProduct"].ToString(),
-                        PurchaseOneView = DDT.Rows[i]["PurchaseOneView"].ToString(),
-                        SalesOneView = DDT.Rows[i]["SalesOneView"].ToString(),
-                        FilterDate = DDT.Rows[i]["FilterDate"].ToString(),
-                        ItemsperPage = DDT.Rows[i]["ItemsperPage"].ToString(),
-                        Invoiceallowduplicateitem = DDT.Rows[i]["Invoiceallowduplicateitem"].ToString(),
-                        CommonAgeingCreditDays = DDT.Rows[i]["CommonAgeingCreditDays"].ToString(),
-                        RestrictBlocklistinInvoice = DDT.Rows[i]["RestrictBlocklistinInvoice"].ToString(),
-                        RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
-                        BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
-                        DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
-                        HomePeriod = DDT.Rows[i]["HomePeriod"].ToString(),
-                        AutoRefresh = DDT.Rows[i]["AutoRefresh"].ToString(),
-                        CTPAmount = DDT.Rows[i]["CTPAmount"].ToString(),
-                        CTPPoint = DDT.Rows[i]["CTPPoint"].ToString(),
-                        CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
-                        UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
-                        Radius = DDT.Rows[i]["Radius"].ToString(),
-                        lstPaymode = pmlist,
-                        lstConfigPasswords = lstpwd
-                    });
-                }
-                return Ok(list);
+                //for (int i = 0; i < DDT.Rows.Count; i++)
+                //{
+                //    list.Add(new ApplicationConfig
+                //    {
+                //        CaseType = DDT.Rows[i]["CaseType"].ToString(),
+                //        Confirmpopup = DDT.Rows[i]["Confirmpopup"].ToString(),
+                //        Roundoff = DDT.Rows[i]["Roundoff"].ToString(),
+                //        RoundoffValue = DDT.Rows[i]["RoundoffValue"].ToString(),
+                //        SMTPHost = DDT.Rows[i]["SMTPHost"].ToString(),
+                //        EMail = DDT.Rows[i]["EMail"].ToString(),
+                //        Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
+                //        DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
+                //        Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
+                //        ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
+                //        EnableReturnPrice = DDT.Rows[i]["EnableReturnPrice"].ToString(),
+                //        VisaPern = DDT.Rows[i]["VisaPern"].ToString(),
+                //        DefaultCustID = DDT.Rows[i]["DefaultCustID"].ToString(),
+                //        UPIID = DDT.Rows[i]["UPIID"].ToString(),
+                //        UPIName = DDT.Rows[i]["UPIName"].ToString(),
+                //        WriteoffAmt = DDT.Rows[i]["WriteoffAmt"].ToString(),
+                //        AllSalesmanInvoice = DDT.Rows[i]["AllSalesmanInvoice"].ToString(),
+                //        AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
+                //        ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
+                //        SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
+                //        ClearConfirmpopup = DDT.Rows[i]["ClearConfirmpopup"].ToString(),
+                //        CloseConfirmpopup = DDT.Rows[i]["CloseConfirmpopup"].ToString(),
+                //        BackupPath = DDT.Rows[i]["BackupPath"].ToString(),
+                //        InvoiceStockOnlyProduct = DDT.Rows[i]["InvoiceStockOnlyProduct"].ToString(),
+                //        PurchaseOneView = DDT.Rows[i]["PurchaseOneView"].ToString(),
+                //        SalesOneView = DDT.Rows[i]["SalesOneView"].ToString(),
+                //        FilterDate = DDT.Rows[i]["FilterDate"].ToString(),
+                //        ItemsperPage = DDT.Rows[i]["ItemsperPage"].ToString(),
+                //        Invoiceallowduplicateitem = DDT.Rows[i]["Invoiceallowduplicateitem"].ToString(),
+                //        CommonAgeingCreditDays = DDT.Rows[i]["CommonAgeingCreditDays"].ToString(),
+                //        RestrictBlocklistinInvoice = DDT.Rows[i]["RestrictBlocklistinInvoice"].ToString(),
+                //        RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
+                //        BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
+                //        DraftAutoSaveTimeInterval = DDT.Rows[i]["DraftAutoSaveTimeInterval"].ToString(),
+                //        HomePeriod = DDT.Rows[i]["HomePeriod"].ToString(),
+                //        AutoRefresh = DDT.Rows[i]["AutoRefresh"].ToString(),
+                //        CTPAmount = DDT.Rows[i]["CTPAmount"].ToString(),
+                //        CTPPoint = DDT.Rows[i]["CTPPoint"].ToString(),
+                //        CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
+                //        UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
+                //        Radius = DDT.Rows[i]["Radius"].ToString(),
+                //        lstPaymode = pmlist,
+                //        lstConfigPasswords = lstpwd
+                //    });
+                //}
+                //return Ok(list);
             }
             catch(Exception ex)
             {
@@ -1917,7 +1916,7 @@ namespace SampWebApi.Controllers
                     DataTable DDT = new DataTable();
                     DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
                                 lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
-                                lstMaster.DefaultBranch, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                                lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                                 lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                                 lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
                                 lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,

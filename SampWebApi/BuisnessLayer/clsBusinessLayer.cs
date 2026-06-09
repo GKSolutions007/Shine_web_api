@@ -300,7 +300,7 @@ namespace SampWebApi.BuisnessLayer
         public void BL_WriteErrorMsginLog(string strfrmName, string strmsg, string errors,string LogType = "Error")
         {
             //int Error = System.Runtime.InteropServices.Marshal.GetExceptionCode();            
-            BL_LogFileWrite(LogType + " |" + strfrmName + " | " + strmsg + " | " + errors);
+            BL_LogFileWrite(LogType + "|" + strfrmName + "|" + strmsg + "|" + errors);
         }
         //LOG SYSTEM ERROR MESSAGE
         public void BL_LogFileWrite(string message)

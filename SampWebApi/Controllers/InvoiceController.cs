@@ -229,7 +229,7 @@ namespace SampWebApi.Controllers
                             });
                         }
                         List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInvoice", 1, BranchID, PriceID, Convert.ToDateTime(Date), DDT.Rows[i][0].ToString(), 0);
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), DDT.Rows[i][0].ToString(), 0);
                         for (int j = 0; j < dtBatch.Rows.Count; j++)
                         {
                             ulistBatch.Add(new InvoiceBatchPopup
@@ -325,7 +325,7 @@ namespace SampWebApi.Controllers
                             IGSTPern = DDT.Rows[i]["IGST"].ToString(),
                             TrackPKD = DDT.Rows[i]["TrackPDK"].ToString(),
                             TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
-                            TrackInvoice = DDT.Rows[i]["TrackInvoice"].ToString(),
+                            TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
                             ItemTransactionPrice = DDT.Rows[i]["InvoicePrice"].ToString(),
                             UOMList = ulist,
                             lstInvPopup = ulistBatch
@@ -451,7 +451,7 @@ namespace SampWebApi.Controllers
                                     });
                                 }
                                 List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                                //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInvoice", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                                //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
                                 //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
                                 //for (int j = 0; j < dtBatch.Rows.Count; j++)
                                 //{
@@ -557,7 +557,7 @@ namespace SampWebApi.Controllers
                                     BatchNo = DDT2.Rows[k]["BatchNo"].ToString(),
                                     PKD = !string.IsNullOrEmpty(DDT2.Rows[k]["PKD"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["PKD"]).ToString("dd/MM/yyyy") : "",
                                     Expiry = !string.IsNullOrEmpty(DDT2.Rows[k]["Expiry"].ToString()) ? Convert.ToDateTime(DDT2.Rows[k]["Expiry"]).ToString("dd/MM/yyyy") : "",
-                                    InvYN = DDT2.Rows[k]["TrackInvoice"].ToString() == "True" ? "1" : "0",
+                                    InvYN = DDT2.Rows[k]["TrackInventory"].ToString() == "True" ? "1" : "0",
                                     BatchYN = DDT2.Rows[k]["TrackBatch"].ToString() == "True" ? "1" : "0",
                                     PKDYN = DDT2.Rows[k]["TrackPDK"].ToString() == "True" ? "1" : "0",
                                     SerialYN = DDT2.Rows[k]["TrackSerial"].ToString() == "True" ? "1" : "0",
@@ -666,14 +666,14 @@ namespace SampWebApi.Controllers
                 {
                     List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
                     string PKD = "False", BATCH = "False", TrkInv = "True";
-                    DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInvoice from tblMasterProduct WHERE ID = " + CodeName);
+                    DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
                     if (dtProdinfo.Rows.Count > 0)
                     {
                         PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
                         BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
-                        TrkInv = dtProdinfo.Rows[0]["TrackInvoice"].ToString();
+                        TrkInv = dtProdinfo.Rows[0]["TrackInventory"].ToString();
                     }
-                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInvoice", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
+                    DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
                     if (dtBatch.Rows.Count > 0)
                     {
                         for (int j = 0; j < dtBatch.Rows.Count; j++)
@@ -691,7 +691,7 @@ namespace SampWebApi.Controllers
                                 SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                 TrackBatch = BATCH,
                                 TrackPKD = PKD,
-                                TrackInvoice = TrkInv
+                                TrackInventory = TrkInv
                             });
                         }
                     }
@@ -701,18 +701,18 @@ namespace SampWebApi.Controllers
                 {
                     List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
                     string PKD = "False", BATCH = "False", TrkInv = "True";
-                    //DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInvoice from tblMasterProduct WHERE ID = " + CodeName);
+                    //DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
                     DataTable dtProdinfo = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, PriceID);
                     if (dtProdinfo.Rows.Count > 0)
                     {
                         PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
                         BATCH = dtProdinfo.Rows[0]["TrackBatch"].ToString();
-                        TrkInv = dtProdinfo.Rows[0]["TrackInvoice"].ToString();
+                        TrkInv = dtProdinfo.Rows[0]["TrackInventory"].ToString();
                     }
 
                     if (TrkInv == "True")
                     {
-                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInvoice", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), CodeName, ID);
                         if (dtBatch.Rows.Count > 0)
                         {
                             for (int j = 0; j < dtBatch.Rows.Count; j++)
@@ -730,7 +730,7 @@ namespace SampWebApi.Controllers
                                     SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
                                     TrackBatch = BATCH,
                                     TrackPKD = PKD,
-                                    TrackInvoice = TrkInv
+                                    TrackInventory = TrkInv
                                 });
                             }
                         }
@@ -750,7 +750,7 @@ namespace SampWebApi.Controllers
                             SalesPrice = dtProdinfo.Rows[0]["Price"].ToString(),
                             TrackBatch = BATCH,
                             TrackPKD = PKD,
-                            TrackInvoice = TrkInv
+                            TrackInventory = TrkInv
                         });
                     }
 
