@@ -288,7 +288,7 @@ namespace SampWebApi.Models
         public string Password { get; set; }
         public string UserID { get; set; }
         public string BackupPath { get; set; }
-        
+        public string DefaultBranch { get; set; }
         public string DecimalValues { get; set; }
         public string Showallstatus { get; set; }
         public string ItemOrderby { get; set; }
