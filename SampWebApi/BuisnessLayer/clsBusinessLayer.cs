@@ -320,13 +320,13 @@ namespace SampWebApi.BuisnessLayer
                 var obj = new List<object>();
                 obj.Add(new
                 {
-                    Date = DateTime.Now.ToShortDateString(),
+                    Date = DateTime.Now.ToString("dd-MMM-yyyy"),
                     LogType = Msgs[0],
                     DataBase = DB,
                     FormName = Msgs[1],
                     FunctionName = Msgs[2],
                     Error = Msgs[3],
-                    Timestamp = DateTime.Now
+                    Timestamp = DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt")
                 });
                 if (strFol.Equals("")) return;
                 #region Create the Log file directory if it does not exists

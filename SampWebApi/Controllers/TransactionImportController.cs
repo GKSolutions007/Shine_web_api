@@ -96,10 +96,10 @@ namespace SampWebApi.Controllers
                         TransID == 2 ? Import_Utility.clsExportData.AddBillDetailColumnForExport(false) :
                         TransID == 3 ? Import_Utility.clsExportData.AddSalesReturnDetailColumnForExport(false) :
                         Import_Utility.clsExportData.AddPurchaseReturnDetailColumnForExport(false));
+                    objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/template", "Template created. Help page add initiated","Info");
                     objExport.AddingHelptoExcel(objExport.strFilePath + objExport.strFileName + ".xlsx", 3, dtset);
+                    objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/template", "Template created. Help page add completed", "Info");
                 }
-
-
                 var sDocument = strFilePath + strFileName + strExtension;
                 string fileName = strFileName + strExtension;
                 if (!File.Exists(strFilePath + strFileName + strExtension))
@@ -118,8 +118,8 @@ namespace SampWebApi.Controllers
             catch(Exception ex)
             {
                 objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/template", ex.Message);
+                return null;
             }
-            return new HttpResponseMessage(HttpStatusCode.OK);
         }        
 
         [System.Web.Http.HttpPost]
@@ -202,9 +202,10 @@ namespace SampWebApi.Controllers
                 job.FilePath = fullPath;
                 job.IsCompleted = true;
             }
-            catch
+            catch(Exception ex)
             {
                 ExportJobManager.Jobs[jobId].Progress = -1;
+                objBL.BL_WriteErrorMsginLog("TransactionImport", "GenerateExcel", ex.Message);
             }
         }
 
@@ -231,8 +232,8 @@ namespace SampWebApi.Controllers
             catch(Exception ex)
             {
                 objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/progress", ex.Message);
+                return Ok();
             }
-            return Ok();
         }
 
         [System.Web.Http.HttpGet]
@@ -267,8 +268,9 @@ namespace SampWebApi.Controllers
             catch(Exception ex)
             {
                 objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/download", ex.Message);
+                return null;
             }
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            
         }
         public class FileData
         {
@@ -323,8 +325,8 @@ namespace SampWebApi.Controllers
             catch(Exception ex)
             {
                 objBL.BL_WriteErrorMsginLog("TransactionImport", "transactionimport/startimport", ex.Message);
-            }
-            return Ok();
+                return Ok();
+            }            
         }
         public List<ImportResults> RunTransactionImport(string jobId, string TransID,string TransName, string UserID, List<FileData> httpFile)
         {
@@ -1744,6 +1746,7 @@ namespace SampWebApi.Controllers
                 job.ErrorID = 24;
                 job.ErrorMessage = ex.Message;
                 job.IsCompleted = true;
+                objBL.BL_WriteErrorMsginLog("Transaction Import", "RunTransactionImport", ex.Message);
                 MTM.Add(new ImportResults()
                 {
                     ID = "2",
