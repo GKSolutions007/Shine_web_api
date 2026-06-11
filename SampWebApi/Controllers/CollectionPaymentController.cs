@@ -946,33 +946,37 @@ namespace SampWebApi.Controllers
                                 {
                                     ErrMsg = "Payment mode status changed";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "ACC")
+                                else if (strErrorList[0].Trim().ToUpper() == "ACC")
                                 {
                                     ErrMsg = "Account name already deactivated";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "CASH")
+                                else if (strErrorList[0].Trim().ToUpper() == "CASH")
                                 {
                                     ErrMsg = "You don't have enough amount in account";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "BANKACC")
+                                else if (strErrorList[0].Trim().ToUpper() == "BANKACC")
                                 {
                                     ErrMsg = "Bank Account already deactivated";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "BALANCE")
+                                else if (strErrorList[0].Trim().ToUpper() == "BALANCE")
                                 {
                                     ErrMsg = "You don't have enough amount in account";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "CHEQUE")
+                                else if (strErrorList[0].Trim().ToUpper() == "CHEQUE")
                                 {
                                     ErrMsg = "Cheque book permission changed";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "CHEQUESTATUS")
+                                else if (strErrorList[0].Trim().ToUpper() == "CHEQUESTATUS")
                                 {
                                     ErrMsg = "Cheque book status already changed";
                                 }
-                                if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                                else if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
                                 {
                                     ErrMsg = "This document already processed";
+                                }
+                                else
+                                {
+                                    ErrMsg = strErrorList[0].Trim();
                                 }
                             }
                             else
@@ -992,8 +996,7 @@ namespace SampWebApi.Controllers
                                     if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
                                     {
                                         ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                    }
-
+                                    }                                    
                                 }
                                 if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
                                 {
@@ -1027,33 +1030,37 @@ namespace SampWebApi.Controllers
                             {
                                 ErrMsg = "Account name already deactivated";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "CANCELLED")
+                            else if (strErrorList[0].Trim().ToUpper() == "CANCELLED")
                             {
                                 ErrMsg = "Document already cancelled";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "TYPE")
+                            else if (strErrorList[0].Trim().ToUpper() == "TYPE")
                             {
                                 ErrMsg = "Collection Type Status Already Changed";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "PAYMENT")
+                            else if (strErrorList[0].Trim().ToUpper() == "PAYMENT")
                             {
                                 ErrMsg = "This document already processed";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "SETTLED")
+                            else if (strErrorList[0].Trim().ToUpper() == "SETTLED")
                             {
                                 ErrMsg = "Coupon Status Already Changed";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "PROCESSED")
+                            else if (strErrorList[0].Trim().ToUpper() == "PROCESSED")
                             {
                                 ErrMsg = "This document already processed";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "BAL")
+                            else if (strErrorList[0].Trim().ToUpper() == "BAL")
                             {
                                 ErrMsg = "You don't have amount to cancel document";
                             }
-                            if (strErrorList[0].Trim().ToUpper() == "PROC")
+                            else if (strErrorList[0].Trim().ToUpper() == "PROC")
                             {
                                 ErrMsg = "This document already processed";
+                            }
+                            else
+                            {
+                                ErrMsg = strErrorList[0].Trim();
                             }
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()

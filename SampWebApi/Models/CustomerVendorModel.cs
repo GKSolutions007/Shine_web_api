@@ -261,6 +261,7 @@ namespace SampWebApi.Models
         public string DefaultConfig { get; set; }
         public string AutoMail { get; set; }
         public string UserID { get; set; }
+        public string NoPages { get; set; }
     }
 
     public class BranchMapping

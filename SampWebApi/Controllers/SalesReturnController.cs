@@ -1325,6 +1325,10 @@ namespace SampWebApi.Controllers
                                         msg = "Qty Mismatched";
                                         RowID = dtResult.Columns.Count == 4 ? dtResult.Rows[0][3].ToString() : "0";
                                     }
+                                    else
+                                    {
+                                        msg = dtResult.Rows[0][0].ToString();
+                                    }
                                     list.Add(new SaveMessage()
                                     {
                                         ID = 0.ToString(),

@@ -62,7 +62,8 @@ namespace SampWebApi.Controllers
                 {
                     foreach (PrintProfileConfig item in lstProfiles)
                     {
-                        bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 2, item.TransID, item.ConfigID, item.DefaultConfig, item.AutoMail,
+                        bl.BL_ExecuteParamSP("uspManagePrintProfileconfig", 2, item.TransID, item.ConfigID, 
+                            item.DefaultConfig, item.AutoMail, item.NoPages,
                             item.UserID);
                     }
                     list.Add(new SaveMessage()
