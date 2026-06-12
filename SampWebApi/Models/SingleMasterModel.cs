@@ -256,6 +256,11 @@ namespace SampWebApi.Models
         public string SaveButton { get; set; }
         public string ClearButton { get; set; }
         public string CloseButton { get; set; }
+
+        public string EditButton { get; set; }
+        public string CancelButton { get; set; }
+        public string VariantButton { get; set; }
+
         public string PDFButton { get; set; }
         public string PreviewButton { get; set; }
         public string PopupHeader { get; set; }

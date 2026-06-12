@@ -122,11 +122,11 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/validatedocument")]
-        public IHttpActionResult ValidateDocument(int TransID, int ID,int Status)
+        public IHttpActionResult ValidateDocument(int ActionType,int TransID, int ID,int Status)
         {
             try
             {
-                DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspValidateEditCanceldocument", TransID, ID, Status);
+                DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspValidateEditCanceldocument", ActionType, TransID, ID, Status);
                 var fileList = new List<object>();
                 if (dtMTdetail.Rows.Count > 0)
                 {
