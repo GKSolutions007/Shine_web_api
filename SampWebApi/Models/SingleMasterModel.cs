@@ -393,6 +393,8 @@ namespace SampWebApi.Models
         public string Dl_21 { get; set; }
         public string F_SD { get; set; }
         public string F_ED { get; set; }
+        public string ExpiryDate { get; set; }
+        public string ExpiryDays { get; set; }
         public List<PaymodeAppconfig> lstState { get; set; }
     }
     public class DiscountScheme

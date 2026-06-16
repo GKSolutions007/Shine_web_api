@@ -996,7 +996,11 @@ namespace SampWebApi.Controllers
                                     if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
                                     {
                                         ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                    }                                    
+                                    }
+                                    else
+                                    {
+                                        ErrMsg = strErrorList[0];
+                                    }
                                 }
                                 if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
                                 {

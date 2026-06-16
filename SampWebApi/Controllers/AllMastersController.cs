@@ -2176,6 +2176,14 @@ namespace SampWebApi.Controllers
                                 Name = STATE.Rows[J]["StateName"].ToString(),
                             });
                         }
+                        
+                        string ValidExpDate = " -- ",ValidExpDays = "0";
+                        if (!string.IsNullOrEmpty(DDT.Rows[i]["ExpiryDate"].ToString()))
+                        {
+                           DateTime ExpDate = Convert.ToDateTime(clsEncryptDecrypt.Decrypt(DDT.Rows[i]["ExpiryDate"].ToString()));
+                            ValidExpDate = ExpDate.ToString("dd/MMM/yyyy");
+                            ValidExpDays = (ExpDate - DateTime.Now).Days.ToString();
+                        }
                         list.Add(new CompanyDeatils
                         {
                             CompanyId = DDT.Rows[i]["CompanyId"].ToString(),
@@ -2199,6 +2207,8 @@ namespace SampWebApi.Controllers
                             GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
                             Dl_20 = DDT.Rows[i]["Dl_20"].ToString(),
                             Dl_21 = DDT.Rows[i]["Dl_21"].ToString(),
+                            ExpiryDate = ValidExpDate,
+                            ExpiryDays = ValidExpDays,
                             F_SD = Convert.ToDateTime(DDT.Rows[i]["F_SD"].ToString()).ToString("yyyy-MM-dd"),
                             F_ED = Convert.ToDateTime(DDT.Rows[i]["F_ED"].ToString()).ToString("yyyy-MM-dd"),
                             lstState = lststa
