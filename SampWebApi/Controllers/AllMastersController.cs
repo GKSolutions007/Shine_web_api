@@ -1673,6 +1673,11 @@ namespace SampWebApi.Controllers
                             ClearButton = DDT.Rows[i]["ClearButton"].ToString(),
                             CloseButton = DDT.Rows[i]["CloseButton"].ToString(),
                             PDFButton = DDT.Rows[i]["PDFButton"].ToString(),
+
+                            EditButton = DDT.Rows[i]["EditButton"].ToString(),
+                            CancelButton = DDT.Rows[i]["CancelButton"].ToString(),
+                            VariantButton = DDT.Rows[i]["VariantButton"].ToString(),
+
                             PreviewButton = DDT.Rows[i]["PreviewButton"].ToString(),
                             PopupHeader = DDT.Rows[i]["PopupHeader"].ToString(),
                             PopupFooter = DDT.Rows[i]["PopupFooter"].ToString(),
@@ -1714,7 +1719,8 @@ namespace SampWebApi.Controllers
                                 lstMaster.CloseButton, lstMaster.PDFButton, lstMaster.PreviewButton, lstMaster.PopupHeader, lstMaster.PopupFooter,
                                 lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                                 lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
-                                lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2, lstMaster.ButtonTextColor);
+                                lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2, lstMaster.ButtonTextColor,
+                                lstMaster.EditButton, lstMaster.CancelButton, lstMaster.VariantButton);
                     List<SaveMessage> list = new List<SaveMessage>();
                     if (DDT.Columns.Count == 1)
                     {
@@ -2170,6 +2176,14 @@ namespace SampWebApi.Controllers
                                 Name = STATE.Rows[J]["StateName"].ToString(),
                             });
                         }
+                        
+                        string ValidExpDate = " -- ",ValidExpDays = "0";
+                        if (!string.IsNullOrEmpty(DDT.Rows[i]["ExpiryDate"].ToString()))
+                        {
+                           DateTime ExpDate = Convert.ToDateTime(clsEncryptDecrypt.Decrypt(DDT.Rows[i]["ExpiryDate"].ToString()));
+                            ValidExpDate = ExpDate.ToString("dd/MMM/yyyy");
+                            ValidExpDays = (ExpDate - DateTime.Now).Days.ToString();
+                        }
                         list.Add(new CompanyDeatils
                         {
                             CompanyId = DDT.Rows[i]["CompanyId"].ToString(),
@@ -2193,6 +2207,8 @@ namespace SampWebApi.Controllers
                             GSTIN = DDT.Rows[i]["GSTIN"].ToString(),
                             Dl_20 = DDT.Rows[i]["Dl_20"].ToString(),
                             Dl_21 = DDT.Rows[i]["Dl_21"].ToString(),
+                            ExpiryDate = ValidExpDate,
+                            ExpiryDays = ValidExpDays,
                             F_SD = Convert.ToDateTime(DDT.Rows[i]["F_SD"].ToString()).ToString("yyyy-MM-dd"),
                             F_ED = Convert.ToDateTime(DDT.Rows[i]["F_ED"].ToString()).ToString("yyyy-MM-dd"),
                             lstState = lststa

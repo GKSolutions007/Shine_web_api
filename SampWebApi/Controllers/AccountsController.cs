@@ -1542,6 +1542,10 @@ namespace SampWebApi.Controllers
                             {
                                 strmsg = "Deposit Account Already deactivated";
                             }
+                            else
+                            {
+                                strmsg = dtResult.Rows[0][0].ToString();
+                            }
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),

@@ -336,7 +336,7 @@ namespace SampWebApi.Controllers
                             {
                                 ID = 0.ToString(),
                                 MsgID = "1",
-                                Message = ""//dtResult.Rows[0][0].ToString()
+                                Message = dtResult.Rows[0][0].ToString()
                             });
                             return Ok(list);
                         }
@@ -614,7 +614,7 @@ namespace SampWebApi.Controllers
                             {
                                 ID = 0.ToString(),
                                 MsgID = "1",
-                                Message = ""//dtResult.Rows[0][0].ToString()
+                                Message = dtResult.Rows[0][0].ToString()
                             });
                             return Ok(list);
                         }

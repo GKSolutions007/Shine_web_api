@@ -256,6 +256,11 @@ namespace SampWebApi.Models
         public string SaveButton { get; set; }
         public string ClearButton { get; set; }
         public string CloseButton { get; set; }
+
+        public string EditButton { get; set; }
+        public string CancelButton { get; set; }
+        public string VariantButton { get; set; }
+
         public string PDFButton { get; set; }
         public string PreviewButton { get; set; }
         public string PopupHeader { get; set; }
@@ -388,6 +393,8 @@ namespace SampWebApi.Models
         public string Dl_21 { get; set; }
         public string F_SD { get; set; }
         public string F_ED { get; set; }
+        public string ExpiryDate { get; set; }
+        public string ExpiryDays { get; set; }
         public List<PaymodeAppconfig> lstState { get; set; }
     }
     public class DiscountScheme

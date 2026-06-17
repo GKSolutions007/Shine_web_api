@@ -121,6 +121,38 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/validatedocument")]
+        public IHttpActionResult ValidateDocument(int ActionType,int TransID, int ID,int Status)
+        {
+            try
+            {
+                DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspValidateEditCanceldocument", ActionType, TransID, ID, Status);
+                var fileList = new List<object>();
+                if (dtMTdetail.Rows.Count > 0)
+                {
+                    fileList.Add(new
+                    {                        
+                        MsgID = 1,
+                        Message = dtMTdetail.Rows[0][0].ToString(),                        
+                    });
+                }
+                else
+                {
+                    fileList.Add(new
+                    {
+                        MsgID = 0,
+                        Message = "Valid document",
+                    });
+                }
+                return Ok(fileList);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "Edit/Cancel Validate Document", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
         [Route("api/logfiles")]
         public IHttpActionResult logfiles()
         {
