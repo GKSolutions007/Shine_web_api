@@ -294,6 +294,7 @@ namespace SampWebApi.Controllers
                                     MRP = DDT3.Rows[l]["MRP"].ToString(),
                                     OrgRTNPrice = DDT3.Rows[l]["PurchasePrice"].ToString(),
                                     ReturnPrice = DDT3.Rows[l]["ReturnPrice"].ToString(),
+                                    UOMPrice = DDT3.Rows[l]["UOMPrice"].ToString(),
                                     Qty = DDT3.Rows[l]["PRQty"].ToString(),
                                     FreeQty = DDT3.Rows[l]["PRFree"].ToString(),
                                     DmgQty = DDT3.Rows[l]["PRDmg"].ToString(),
@@ -898,7 +899,8 @@ namespace SampWebApi.Controllers
                                                     bl.BL_dValidation(iRow["TaxPern"].ToString()), dGrs, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"])), dGrs, dTax,
                                                     dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, 0, (i + 1), bl.BL_nValidation(iRow["TaxID"].ToString()), 1, (i + 1),
                                                     bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"])),
-                                                    bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"])), 1, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])));
+                                                    bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"])), 1,
+                                                    bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])), bl.BL_dValidation(iRow["ConversionRate"].ToString()));
                                                 if (dtResultDetail.Rows.Count > 0)
                                                 {
                                                     bl.bl_Transaction(3);

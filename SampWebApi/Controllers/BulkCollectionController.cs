@@ -30,5 +30,20 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/bulkcollection/documentdata")]
+        public IHttpActionResult documentdata(string Branch,string Beat,string Salesman,string Party,string AsonDate)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspBulkCollectionData", Branch, Beat, Salesman, Party, AsonDate);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("BulkCollection", "documentdata", ex.Message);
+            }
+            return Ok();
+        }
     }
 }

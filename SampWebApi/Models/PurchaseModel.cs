@@ -166,6 +166,7 @@ namespace SampWebApi.Models
         public string PurchasePrice { get; set; }
         public string Qty { get; set; }
         public string ReturnPrice { get; set; }
+        public string UOMPrice { get; set; }
         public string SPLPrice { get; set; }
         public string SalesPrice { get; set; }
         public string TrackBatch { get; set; }
