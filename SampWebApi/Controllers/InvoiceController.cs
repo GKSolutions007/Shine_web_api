@@ -764,6 +764,21 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/invoice/cancelotdraft")]
+        public IHttpActionResult cancelotdraft(string ID, string OTDraft, string UserID)
+        {
+            try
+            {
+                bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 15, OTDraft, ID, UserID);
+                return Ok("0");
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Invoice", "invoice/cancelotdraft", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
         [Route("api/invoice/getproductlist")]
         public IHttpActionResult GetgetproductlistData(string TransID, string Branch, string PriceType, string Date)
         {
@@ -1871,7 +1886,6 @@ namespace SampWebApi.Controllers
                                 Outputfile = Print.GroupPDFoutputPath;
                         }
                         STPWT.Start();
-                        bl.BL_WriteErrorMsginLog("Stop Watch", "Check Print Completion Time", STPWT.Elapsed.TotalSeconds.ToString() + " Secs");
                         string pathwithFileName = Outputfile;
                         //byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
                         string exts = Path.GetExtension(pathwithFileName);

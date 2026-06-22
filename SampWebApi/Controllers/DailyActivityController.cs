@@ -393,7 +393,7 @@ namespace SampWebApi.Controllers
                         CustRow["CoLLPYType"] = 0;
                         CustRow["AccID"] = dtColHeader.Rows[0]["FAID"];
                         CustRow["ColAmt"] = dAmt;
-                        CustRow["Balance"] = bl.BL_dValidation(0);
+                        CustRow["Balance"] = bl.BL_dValidation(dtColHeader.Rows[0]["AdvCollAmt"]);
                         CustRow["DocRefNo"] = "Web Collection";
                         CustRow["ColMode"] = nPaymentMode;
                         CustRow["Status"] = 1;

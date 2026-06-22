@@ -1057,6 +1057,22 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/salesreturn/cancelsrdraft")]
+        public IHttpActionResult cancelotdraft(string ID, string WSRDraft,string DocPrefix, string UserID)
+        {
+            try
+            {
+                //DDT = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", Mode, DocPrefix, ID, CodeName);
+                bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 15, DocPrefix, WSRDraft, ID,  UserID);
+                return Ok("0");
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Invoice", "invoice/cancelotdraft", ex.Message);
+            }
+            return Ok();
+        }
         [HttpPost]
         [Route("api/salesreturn/save")]
         public IHttpActionResult Save(SalesModel listTrans)
