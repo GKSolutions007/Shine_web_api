@@ -57,21 +57,20 @@ namespace SampWebApi.Controllers
         public IHttpActionResult Save(BulkCollectionModel bulkcollectiondata)
         {
             var list = new List<object>();
+            DataTable dtResponse = new DataTable();
+            dtResponse.Columns.Add("ResponseType", typeof(string));//Error,Success
+            dtResponse.Columns.Add("ResponseApplyby", typeof(int));//1 - Docwise,2 - FAID wise(Partywise),3 - Common
+            dtResponse.Columns.Add("TransID", typeof(int));
+            dtResponse.Columns.Add("ID", typeof(int));
+            dtResponse.Columns.Add("FAID", typeof(int));
+            dtResponse.Columns.Add("ResponseMessage", typeof(string));
             try
-            {
-                
+            {                
                 if (bulkcollectiondata != null)
                 {
                     if (bulkcollectiondata.AdjDocs.Count > 0)
                     {
-                        DataTable dtResponse = new DataTable();
-                        dtResponse.Columns.Add("ResponseType", typeof(string));//Error,Success
-                        dtResponse.Columns.Add("ResponseApplyby", typeof(int));//1 - Docwise,2 - FAID wise(Partywise)
-                        dtResponse.Columns.Add("TransID", typeof(int));
-                        dtResponse.Columns.Add("ID", typeof(int));
-                        dtResponse.Columns.Add("FAID", typeof(int));
-                        dtResponse.Columns.Add("ResponseMessage", typeof(string));
-
+                        
                         #region Validate Document current state
                         DataTable dtDocs = new DataTable();
                         DataColumn column = new DataColumn("Ident");
@@ -147,9 +146,11 @@ namespace SampWebApi.Controllers
                                     #region Cash Collection Save
                                     if (cashdocs.Count > 0)
                                     {
+                                        dtHeader.Rows.Clear(); dtMopDetails.Rows.Clear(); dtDetail.Rows.Clear();
                                         decimal negadjsum= matchedDocs.Where(x => x.CashAmt < 0).Sum(x => x.CashAmt);
                                         decimal posadjsum = matchedDocs.Where(x => x.CashAmt >= 0).Sum(x => x.CashAmt);
-                                        decimal HeaderCollAmt = posadjsum - Math.Abs(negadjsum);
+                                        decimal negothersum = matchedDocs.Sum(x => x.OtherAmt);
+                                        decimal HeaderCollAmt = (posadjsum - Math.Abs(negadjsum)) + Math.Abs(negothersum);
                                         if(HeaderCollAmt < 0)
                                         {
                                             DataRow dtRow = dtResponse.NewRow();
@@ -158,7 +159,7 @@ namespace SampWebApi.Controllers
                                             dtRow["TransID"] = "0";
                                             dtRow["ID"] = "0";
                                             dtRow["FAID"] = FAID;
-                                            dtRow["ResponseMessage"] = "Sum of Adjustment amount should be Greater than 0 (Credit Adj :" + posadjsum + ",Debit Adj :" + negadjsum + ", Diff : -" + HeaderCollAmt + ")";
+                                            dtRow["ResponseMessage"] = "Sum of Adjustment amount should be Greater than 0 (Credit(+) Adj :" + posadjsum + ",Debit(-) Adj :" + negadjsum + ", Diff : -" + HeaderCollAmt + ")";
                                             dtResponse.Rows.Add(dtRow);
                                             continue;
                                         }
@@ -224,7 +225,7 @@ namespace SampWebApi.Controllers
                                                 }
                                             }
                                             InvRow["FullyAdj"] = nFullyAdj;
-                                            InvRow["FullyAdjAmt"] = Math.Abs(bl.BL_dValidation(cashdocs[k].OtherAmt)) + dWriteOffAmount;
+                                            InvRow["FullyAdjAmt"] = (bl.BL_dValidation(cashdocs[k].OtherAmt)) + dWriteOffAmount;
                                             InvRow["TotalAmtAdj"] = Math.Abs(bl.BL_dValidation(cashdocs[k].TotalAdjusted))
                                                                     + dBalanceAmt + dWriteOffAmount;
                                             InvRow["TranType"] = 1;
@@ -244,12 +245,20 @@ namespace SampWebApi.Controllers
                                         {
                                             int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
                                             bl.bl_Transaction(2);
-                                            list.Add(new SaveMessage()
-                                            {
-                                                ID = nScopeInvID.ToString(),
-                                                MsgID = "0",
-                                                Message = "Saved Successfully"
-                                            });
+                                            DataRow dtRow = dtResponse.NewRow();
+                                            dtRow["ResponseType"] = "Success";
+                                            dtRow["ResponseApplyby"] = "2";
+                                            dtRow["TransID"] = "0";
+                                            dtRow["ID"] = "0";
+                                            dtRow["FAID"] = FAID;
+                                            dtRow["ResponseMessage"] = "Saved Successfully";
+                                            dtResponse.Rows.Add(dtRow);
+                                            //list.Add(new SaveMessage()
+                                            //{
+                                            //    ID = nScopeInvID.ToString(),
+                                            //    MsgID = "0",
+                                            //    Message = "Saved Successfully"
+                                            //});
                                             //return Ok(list);
                                         }
                                         else
@@ -295,6 +304,14 @@ namespace SampWebApi.Controllers
                                                 {
                                                     ErrMsg = strErrorList[0].Trim();
                                                 }
+                                                DataRow dtRow = dtResponse.NewRow();
+                                                dtRow["ResponseType"] = "Error";
+                                                dtRow["ResponseApplyby"] = "2";
+                                                dtRow["TransID"] = "0";
+                                                dtRow["ID"] = "0";
+                                                dtRow["FAID"] = FAID;
+                                                dtRow["ResponseMessage"] = ErrMsg;
+                                                dtResponse.Rows.Add(dtRow);
                                             }
                                             else
                                             {
@@ -303,21 +320,30 @@ namespace SampWebApi.Controllers
                                                 DataRow[] drr = dtDocs.Select("ID = '" + nDocIdent + "'", null);
                                                 if (drr.Length > 0)
                                                 {
-                                                    string DocID = drr[0]["DocID"].ToString();
-                                                    string DocDate = drr[0]["Tran_Date"].ToString();
-                                                    string TransName = drr[0]["TransName"].ToString();
-                                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
-                                                    {
-                                                        ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                                    }
-                                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
-                                                    {
-                                                        ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                                    }
-                                                    else
-                                                    {
-                                                        ErrMsg = strErrorList[0];
-                                                    }
+                                                    //string DocID = drr[0]["DocID"].ToString();
+                                                    //string DocDate = drr[0]["Tran_Date"].ToString();
+                                                    //string TransName = drr[0]["TransName"].ToString();
+                                                    //if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
+                                                    //{
+                                                    //    ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                                    //}
+                                                    //if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                                                    //{
+                                                    //    ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                                    //}
+                                                    //else
+                                                    //{
+                                                        
+                                                    //}
+                                                    ErrMsg = strErrorList[0];
+                                                    DataRow dtRow = dtResponse.NewRow();
+                                                    dtRow["ResponseType"] = "Error";
+                                                    dtRow["ResponseApplyby"] = "1";
+                                                    dtRow["TransID"] = nDocPrefix;
+                                                    dtRow["ID"] = nDocIdent;
+                                                    dtRow["FAID"] = FAID;
+                                                    dtRow["ResponseMessage"] = ErrMsg;
+                                                    dtResponse.Rows.Add(dtRow);
                                                 }
                                                 if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
                                                 {
@@ -326,23 +352,25 @@ namespace SampWebApi.Controllers
                                                 {
                                                 }
                                             }
-                                            list.Add(new SaveMessage()
-                                            {
-                                                ID = 0.ToString(),
-                                                MsgID = "1",
-                                                Message = ErrMsg
-                                            });
-                                            return Ok(list);
+                                            //list.Add(new SaveMessage()
+                                            //{
+                                            //    ID = 0.ToString(),
+                                            //    MsgID = "1",
+                                            //    Message = ErrMsg
+                                            //});
+                                            //return Ok(list);
                                         }
                                     }
                                     #endregion
                                     #region Cheque/Bank Transfer Collection Save
                                     if (chqbtdocs.Count > 0)
                                     {
+                                        dtHeader.Rows.Clear(); dtMopDetails.Rows.Clear(); dtDetail.Rows.Clear();
                                         int nPaymentMode = 2;
-                                        decimal negadjsum = matchedDocs.Where(x => x.CashAmt < 0).Sum(x => x.ChqBTAmt);
-                                        decimal posadjsum = matchedDocs.Where(x => x.CashAmt >= 0).Sum(x => x.ChqBTAmt);
-                                        decimal HeaderCollAmt = posadjsum - Math.Abs(negadjsum);
+                                        decimal negadjsum = matchedDocs.Where(x => x.ChqBTAmt < 0).Sum(x => x.ChqBTAmt);
+                                        decimal posadjsum = matchedDocs.Where(x => x.ChqBTAmt >= 0).Sum(x => x.ChqBTAmt);
+                                        decimal negothersum = matchedDocs.Sum(x => x.OtherAmt);
+                                        decimal HeaderCollAmt = (posadjsum - Math.Abs(negadjsum)) + Math.Abs(negothersum);
                                         if (HeaderCollAmt < 0)
                                         {
                                             DataRow dtRow = dtResponse.NewRow();
@@ -409,7 +437,6 @@ namespace SampWebApi.Controllers
                                         MopRow["SerialNo"] = 1;
                                         MopRow["RecdAmt"] = bl.BL_dValidation(totalchqbtadjamts);
                                         dtMopDetails.Rows.Add(MopRow);
-
                                         for (int k = 0; k < chqbtdocs.Count; k++)
                                         {
                                             decimal bal = Math.Abs(bl.BL_dValidation(chqbtdocs[k].Balance));
@@ -443,7 +470,7 @@ namespace SampWebApi.Controllers
                                                 }
                                             }
                                             InvRow["FullyAdj"] = nFullyAdj;
-                                            InvRow["FullyAdjAmt"] = Math.Abs(bl.BL_dValidation(chqbtdocs[k].OtherAmt)) + dWriteOffAmount;
+                                            InvRow["FullyAdjAmt"] = (bl.BL_dValidation(chqbtdocs[k].OtherAmt)) + dWriteOffAmount;
                                             InvRow["TotalAmtAdj"] = Math.Abs(bl.BL_dValidation(chqbtdocs[k].TotalAdjusted))
                                                                     + dBalanceAmt + dWriteOffAmount;
                                             InvRow["TranType"] = 1;
@@ -451,6 +478,7 @@ namespace SampWebApi.Controllers
                                             InvRow["ReasonID"] = 0;
                                             dtDetail.Rows.Add(InvRow);
                                         }
+                                        
                                         //Cheque/Bank Transfer collection save
                                         bl.bl_Transaction(1);
                                         DataTable dtResult = bl.bl_ManageTrans("uspManageFullColl",
@@ -462,13 +490,14 @@ namespace SampWebApi.Controllers
                                         {
                                             int nScopeInvID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
                                             bl.bl_Transaction(2);
-                                            list.Add(new SaveMessage()
-                                            {
-                                                ID = nScopeInvID.ToString(),
-                                                MsgID = "0",
-                                                Message = "Saved Successfully"
-                                            });
-                                            //return Ok(list);
+                                            DataRow dtRow = dtResponse.NewRow();
+                                            dtRow["ResponseType"] = "Success";
+                                            dtRow["ResponseApplyby"] = "2";
+                                            dtRow["TransID"] = "0";
+                                            dtRow["ID"] = "0";
+                                            dtRow["FAID"] = FAID;
+                                            dtRow["ResponseMessage"] = "Saved Successfully";
+                                            dtResponse.Rows.Add(dtRow);
                                         }
                                         else
                                         {
@@ -513,6 +542,14 @@ namespace SampWebApi.Controllers
                                                 {
                                                     ErrMsg = strErrorList[0].Trim();
                                                 }
+                                                DataRow dtRow = dtResponse.NewRow();
+                                                dtRow["ResponseType"] = "Error";
+                                                dtRow["ResponseApplyby"] = "2";
+                                                dtRow["TransID"] = "0";
+                                                dtRow["ID"] = "0";
+                                                dtRow["FAID"] = FAID;
+                                                dtRow["ResponseMessage"] = ErrMsg;
+                                                dtResponse.Rows.Add(dtRow);
                                             }
                                             else
                                             {
@@ -521,36 +558,33 @@ namespace SampWebApi.Controllers
                                                 DataRow[] drr = dtDocs.Select("ID = '" + nDocIdent + "'", null);
                                                 if (drr.Length > 0)
                                                 {
-                                                    string DocID = drr[0]["DocID"].ToString();
-                                                    string DocDate = drr[0]["Tran_Date"].ToString();
-                                                    string TransName = drr[0]["TransName"].ToString();
-                                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
-                                                    {
-                                                        ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                                    }
-                                                    if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
-                                                    {
-                                                        ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
-                                                    }
-                                                    else
-                                                    {
-                                                        ErrMsg = strErrorList[0];
-                                                    }
+                                                    //string DocID = drr[0]["DocID"].ToString();
+                                                    //string DocDate = drr[0]["Tran_Date"].ToString();
+                                                    //string TransName = drr[0]["TransName"].ToString();
+                                                    //if (strErrorList[0].Trim().ToUpper() == "DOCUMENTAMOUNT")
+                                                    //{
+                                                    //    ErrMsg = "Document amount was changed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                                    //}
+                                                    //if (strErrorList[0].Trim().ToUpper() == "DOCUMENTSTATUS")
+                                                    //{
+                                                    //    ErrMsg = "This document already processed (" + DocID + " ," + DocDate + ", " + TransName + ")";
+                                                    //}
+                                                    //else
+                                                    //{
+                                                        
+                                                    //}
+                                                    ErrMsg = strErrorList[0];
+                                                    DataRow dtRow = dtResponse.NewRow();
+                                                    dtRow["ResponseType"] = "Error";
+                                                    dtRow["ResponseApplyby"] = "1";
+                                                    dtRow["TransID"] = nDocPrefix;
+                                                    dtRow["ID"] = nDocIdent;
+                                                    dtRow["FAID"] = FAID;
+                                                    dtRow["ResponseMessage"] = ErrMsg;
+                                                    dtResponse.Rows.Add(dtRow);
                                                 }
-                                                if (nDocPrefix == 15 || nDocPrefix == 1 || nDocPrefix == 7)
-                                                {
-                                                }
-                                                else
-                                                {
-                                                }
-                                            }
-                                            list.Add(new SaveMessage()
-                                            {
-                                                ID = 0.ToString(),
-                                                MsgID = "1",
-                                                Message = ErrMsg
-                                            });
-                                            return Ok(list);
+                                                
+                                            }                                            
                                         }
                                     }
                                     #endregion
@@ -558,39 +592,49 @@ namespace SampWebApi.Controllers
                             }
                         }                        
                         #endregion
-                        return Ok();
+                        //return Ok();
                     }
                     else
                     {
-                        list.Add(new
-                        {
-                            ID = 0.ToString(),
-                            MsgID = "1",
-                            Message = "Adjust atleast one document"
-                        });
+                        DataRow dtRow = dtResponse.NewRow();
+                        dtRow["ResponseType"] = "Error";
+                        dtRow["ResponseApplyby"] = "3";
+                        dtRow["TransID"] = "0";
+                        dtRow["ID"] = "0";
+                        dtRow["FAID"] = "0";
+                        dtRow["ResponseMessage"] = "Adjust atleast one document";
+                        dtResponse.Rows.Add(dtRow);
                     }
                 }
                 else
                 {
-                    list.Add(new
-                    {
-                        ID = 0.ToString(),
-                        MsgID = "1",
-                        Message = "Payload not found"
-                    });
+                    DataRow dtRow = dtResponse.NewRow();
+                    dtRow["ResponseType"] = "Error";
+                    dtRow["ResponseApplyby"] = "3";
+                    dtRow["TransID"] = "0";
+                    dtRow["ID"] = "0";
+                    dtRow["FAID"] = "0";
+                    dtRow["ResponseMessage"] = "Payload not found";
+                    dtResponse.Rows.Add(dtRow);                    
                 }
             }
             catch (Exception ex)
             {
-                list.Add(new
-                {
-                    ID = 1.ToString(),
-                    MsgID = "1",
-                    Message = ex.Message
-                });
+                DataRow dtRow = dtResponse.NewRow();
+                dtRow["ResponseType"] = "Error";
+                dtRow["ResponseApplyby"] = "3";
+                dtRow["TransID"] = "0";
+                dtRow["ID"] = "0";
+                dtRow["FAID"] = "0";
+                dtRow["ResponseMessage"] = ex.Message;
+                dtResponse.Rows.Add(dtRow);
                 bl.BL_WriteErrorMsginLog("Bulk Collection", "save", ex.Message);
             }
-            return Ok(list);
+            bool Allsuccess = dtResponse.Select("ResponseType = 'Error'", null).Length == 0;
+            return Ok(new {
+                Success = Allsuccess,
+                Response = dtResponse
+            });
         }
     }
     public class BulkCollectionModel
