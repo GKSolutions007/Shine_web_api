@@ -22,7 +22,7 @@ namespace SampWebApi.Import_Utility
         public string strSheetName { get; set; }
         private readonly string strExtension = ".xlsx";
         public const string strFolderName = "\\Export Data\\";
-        public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSet dtHelpData)
+        public void AddingHelptoExcel_old(string strFileLocation, int HelpSheetIndex, DataSet dtHelpData)
         {
             Excel.Application excel;
             Excel.Workbook worKbooK;
@@ -123,11 +123,98 @@ namespace SampWebApi.Import_Utility
                 worKbooK = null;
             }
         }
-        private static void ColorExcel(Microsoft.Office.Interop.Excel.Worksheet worKsheeT, int nExcelRow, int nExcelColumn, System.Drawing.Color ColorName, System.Drawing.Color FontColor)
+
+public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSet dtHelpData)
+    {
+        using (var workbook = new XLWorkbook(strFileLocation))
+        {
+            // Remove existing Help sheet if present
+            var existingHelp = workbook.Worksheets.FirstOrDefault(x => x.Name == "Help");
+            if (existingHelp != null)
+                existingHelp.Delete();
+
+            // Remove "Dup Help" sheet if present
+            var dupHelp = workbook.Worksheets.FirstOrDefault(x => x.Name == "Dup Help");
+            if (dupHelp != null)
+                dupHelp.Delete();
+
+            // Add Help sheet
+            var helpSheet = workbook.Worksheets.Add("Help");
+
+            // Move to required position (1-based index)
+            if (HelpSheetIndex >= 1 && HelpSheetIndex <= workbook.Worksheets.Count)
+                helpSheet.Position = HelpSheetIndex;
+
+            int row = 1;
+
+            for (int t = 0; t < dtHelpData.Tables.Count; t++)
+            {
+                DataTable table = dtHelpData.Tables[t];
+
+                // Write Table Name (except last table - same as your code)
+                if (t != dtHelpData.Tables.Count - 1)
+                {
+                    var titleRange = helpSheet.Range(row, 1, row, table.Columns.Count);
+                    titleRange.Merge();
+
+                    var titleCell = helpSheet.Cell(row, 1);
+                    titleCell.Value = table.TableName;
+
+                    titleRange.Style.Fill.BackgroundColor = XLColor.Yellow;
+                    titleRange.Style.Font.Bold = true;
+                    titleRange.Style.Font.FontSize = 13;
+                    titleRange.Style.Font.FontColor = XLColor.Black;
+                    titleRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    titleRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    row++;
+                }
+
+                // Column Headers
+                for (int c = 0; c < table.Columns.Count; c++)
+                {
+                    var cell = helpSheet.Cell(row, c + 1);
+
+                    cell.Value = table.Columns[c].ColumnName;
+                    cell.Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                    cell.Style.Font.FontColor = XLColor.White;
+                    cell.Style.Font.Bold = true;
+                    cell.Style.Font.FontSize = 13;
+                    cell.Style.NumberFormat.Format = "@";
+                }
+
+                row++;
+
+                // Data
+                foreach (DataRow dr in table.Rows)
+                {
+                    for (int c = 0; c < table.Columns.Count; c++)
+                    {
+                        var cell = helpSheet.Cell(row, c + 1);
+
+                        cell.Value = dr[c]?.ToString();
+                        cell.Style.NumberFormat.Format = "@";
+                        cell.Style.Font.FontSize = 12;
+                    }
+
+                    row++;
+                }
+
+                // Blank rows between tables
+                row += 2;
+            }
+
+            // Auto-fit columns
+            helpSheet.Columns().AdjustToContents();
+
+            workbook.Save();
+        }
+    }
+    private static void ColorExcel(Microsoft.Office.Interop.Excel.Worksheet worKsheeT, int nExcelRow, int nExcelColumn, System.Drawing.Color ColorName, System.Drawing.Color FontColor)
         {
             worKsheeT.Cells[nExcelRow, nExcelColumn].Interior.Color = System.Drawing.ColorTranslator.ToOle(ColorName);
             worKsheeT.Cells[nExcelRow, nExcelColumn].Font.Bold = true;
-            worKsheeT.Cells[nExcelRow, nExcelColumn].Font.Size = 11;
+            worKsheeT.Cells[nExcelRow, nExcelColumn].Font.Size = 11 ;
             worKsheeT.Cells[nExcelRow, nExcelColumn].Font.Color = FontColor;
         }
 

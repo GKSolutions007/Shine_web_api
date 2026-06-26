@@ -21,6 +21,7 @@ using System.IO;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Users = SampWebApi.Models.Users;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace SampWebApi.Controllers
 {
@@ -325,6 +326,10 @@ namespace SampWebApi.Controllers
                                     string ThemeJson = JsonConvert.SerializeObject(DTTHEME);
                                     DataTable DDTFilterData = bl.BL_ExecuteParamSP("uspGetFilterDates");
                                     string FilterData = JsonConvert.SerializeObject(DDTFilterData);
+                                    DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, DDT.Rows[0]["RoleID"].ToString(), DDT.Rows[0]["ID"].ToString());
+                                    dtPermission.TableName = "UserMenus";
+                                    string MenusData = JsonConvert.SerializeObject(dtPermission);
+
                                     list.Add(new Users
                                     {
                                         Mode = "1",
@@ -341,6 +346,7 @@ namespace SampWebApi.Controllers
                                         UserID = DDT.Rows[0]["CBy"].ToString(),
                                         ThemeData = ThemeJson,
                                         FilterDatelist = FilterData,
+                                        Menuslist = MenusData,
                                         ResponseMessage = "Login Successful"
                                     });
                                     var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString());
