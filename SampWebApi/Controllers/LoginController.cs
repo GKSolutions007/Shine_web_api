@@ -698,12 +698,18 @@ namespace SampWebApi.Controllers
                     string ThemeJson = JsonConvert.SerializeObject(DTTHEME);
                     DataTable DDTFilterData = bl.BL_ExecuteParamSP("uspGetFilterDates");
                     string FilterData = JsonConvert.SerializeObject(DDTFilterData);
+                    DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 4, UserID);                    
+                    string RID = dtRes.Rows[0]["RoleID"].ToString();
+                    DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, RID, UserID);
+                    dtPermission.TableName = "UserMenus";
+                    string MenusData = JsonConvert.SerializeObject(dtPermission);
                     list.Add(new
                     {
                         MsgID = "0",
                         ID = UserID.ToString(),
                         Message = "OTP Verified Successfully",
                         ThemeData = ThemeJson,
+                        Menuslist = MenusData,
                         FilterDatelist = FilterData,
                     });
                 }
