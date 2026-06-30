@@ -126,10 +126,12 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspValidateEditCanceldocument", ActionType, TransID, ID, Status);
+                bl.bl_Transaction(1);
+                DataTable dtMTdetail = bl.bl_ManageTrans("uspValidateEditCanceldocument", ActionType, TransID, ID, Status);
                 var fileList = new List<object>();
                 if (dtMTdetail.Rows.Count > 0)
                 {
+                    bl.bl_Transaction(2);
                     fileList.Add(new
                     {                        
                         MsgID = 1,
@@ -138,6 +140,7 @@ namespace SampWebApi.Controllers
                 }
                 else
                 {
+                    bl.bl_Transaction(3);
                     fileList.Add(new
                     {
                         MsgID = 0,
@@ -149,6 +152,41 @@ namespace SampWebApi.Controllers
             catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("CommonController", "Edit/Cancel Validate Document", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/validatedraftdocument")]
+        public IHttpActionResult ValidateDraftDocument(int ActionType, int TransID, int ID, int Status)
+        {
+            try
+            {
+                bl.bl_Transaction(1);
+                DataTable dtMTdetail = bl.bl_ManageTrans("uspValidateDraftData", ActionType, TransID, ID, Status);
+                var fileList = new List<object>();
+                if (dtMTdetail.Rows.Count == 0)
+                {
+                    bl.bl_Transaction(2);
+                    fileList.Add(new
+                    {
+                        MsgID = ActionType == 1 ? "1" : "0",
+                        Message = ActionType == 1 ? "Valid document" : "Cancelled Successfully",
+                    });
+                }
+                else
+                {
+                    bl.bl_Transaction(3);
+                    fileList.Add(new
+                    {                        
+                        MsgID = 2,
+                        Message = dtMTdetail.Rows[0][0].ToString(),
+                    });
+                }
+                return Ok(fileList);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "Validate Draft Document", ex.Message);
             }
             return Ok();
         }

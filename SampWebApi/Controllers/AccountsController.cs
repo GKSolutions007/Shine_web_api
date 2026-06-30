@@ -1433,20 +1433,20 @@ namespace SampWebApi.Controllers
                 if (dtResult.Columns.Count > 1)
                 {
                     bl.bl_Transaction(3);
-                    string strmsg = "";
-                    int nCheck = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
-                    if (nCheck == 1)
-                    {
-                        strmsg = "Deposit Account Already deactivated";
-                    }
-                    else if (nCheck == 2)
-                    {
-                        strmsg = "This document already processed";
-                    }
-                    else if (nCheck == 3)
-                    {
-                        strmsg = "Deposit Account Already deactivated";
-                    }
+                    string strmsg = dtResult.Rows[0][0].ToString();
+                    //int strmsg = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
+                    //if (nCheck == 1)
+                    //{
+                    //    strmsg = "Deposit Account Already deactivated";
+                    //}
+                    //else if (nCheck == 2)
+                    //{
+                    //    strmsg = "This document already processed";
+                    //}
+                    //else if (nCheck == 3)
+                    //{
+                    //    strmsg = "Deposit Account Already deactivated";
+                    //}
                     list.Add(new SaveMessage()
                     {
                         ID = 0.ToString(),
