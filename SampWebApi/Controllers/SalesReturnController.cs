@@ -1293,6 +1293,14 @@ namespace SampWebApi.Controllers
                                         {
                                             ErrorMsg = "This Document Already Used in Sales Return";
                                         }
+                                        if (nCheck == 1)
+                                        {
+                                            ErrorMsg = "Document Status Already Changed";
+                                        }
+                                        else
+                                        {
+                                            ErrorMsg = dtCheck.Rows[0][0].ToString();
+                                        }
                                         bl.bl_Transaction(3);
                                         list.Add(new SaveMessage()
                                         {
@@ -1318,7 +1326,7 @@ namespace SampWebApi.Controllers
                                      bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), dtProd, dtTempBachInfo, nTransType, bl.BL_nValidation(listTrans.ReturnType),
                                      null, bl.BL_nValidation(listTrans.AdjustInvoiceID), 0, bl.BL_dValidation(listTrans.TCSTaxAmt), 0,
                                      listTrans.Remarks, listTrans.Narration, bl.BL_nValidation(listTrans.DraftID), bl.BL_dValidation(listTrans.DiffValueGross), 
-                                     bl.BL_dValidation(listTrans.DiffValueNet), bl.BL_nValidation(listTrans.FilterTypeID));
+                                     bl.BL_dValidation(listTrans.DiffValueNet), bl.BL_nValidation(listTrans.FilterTypeID), bl.BL_nValidation(listTrans.CurrentStatus));
                                 if (dtResult.Columns.Count > 1)
                                 {
                                     bl.bl_Transaction(3);
@@ -1516,6 +1524,14 @@ namespace SampWebApi.Controllers
                             if (nCheck == 21)
                             {
                                 ErrorMsg = "This Document Already Used in Sales Return";
+                            }
+                            if (nCheck == 1)
+                            {
+                                ErrorMsg = "Document Status Already Changed";
+                            }
+                            else
+                            {
+                                ErrorMsg = dtResult.Rows[0][0].ToString();
                             }
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()

@@ -870,6 +870,8 @@ namespace SampWebApi.Controllers
             try
             {
                 DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", 5, UID);
+                string dtjson = JsonConvert.SerializeObject(dtRes);
+                return Ok(dtjson);
             }
             catch(Exception ex)
             {

@@ -192,7 +192,7 @@ namespace SampWebApi.Controllers
                             {
                                 string strDocPrefix = dtFFooter.Rows[i]["DocPrefix"].ToString();
                                 string TypeID = strDocPrefix == "16" || strDocPrefix == "19" || strDocPrefix == "18" || strDocPrefix == "12" ||
-                                    (strDocPrefix == "18" && strDocPrefix == "5") || (strDocPrefix == "19" && strDocPrefix == "4") ? "1" : "2";
+                                    (DocPrefix == "18" && strDocPrefix == "5") || (DocPrefix == "19" && strDocPrefix == "4") ? "1" : "2";
 
                                 listCollPayDetails.Add(new CollPayDetails
                                 {

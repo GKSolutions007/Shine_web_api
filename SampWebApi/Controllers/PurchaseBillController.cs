@@ -820,7 +820,7 @@ namespace SampWebApi.Controllers
                                     bl.BL_dValidation(listTrans.RoundOffAmt), dtProd,
                                     dtPMDetail, listTrans.UDFId, 1, 0, 0, null, bl.BL_dValidation(listTrans.TCSTaxPern), bl.BL_dValidation(listTrans.TCSTaxAmt), bl.BL_dValidation(listTrans.TDSAmount), 0,
                                     listTrans.Remarks, listTrans.Narration, listTrans.DraftID, dtDenominationPMDetail, bl.BL_dValidation(listTrans.DiffValueGross), bl.BL_dValidation(listTrans.DiffValueNet)
-                                    , bl.BL_nValidation(listTrans.UpdateVendor));
+                                    , bl.BL_nValidation(listTrans.UpdateVendor), bl.BL_nValidation(listTrans.FilterTypeID));
                                 if (dtResult.Columns.Count > 1)
                                 {
                                     bl.bl_Transaction(3);

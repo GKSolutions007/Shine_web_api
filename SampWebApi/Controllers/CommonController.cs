@@ -157,12 +157,12 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/validatedraftdocument")]
-        public IHttpActionResult ValidateDraftDocument(int ActionType, int TransID, int ID, int Status)
+        public IHttpActionResult ValidateDraftDocument(int ActionType, int TransID, int ID, int Status,int UserID = 0)
         {
             try
             {
                 bl.bl_Transaction(1);
-                DataTable dtMTdetail = bl.bl_ManageTrans("uspValidateDraftData", ActionType, TransID, ID, Status);
+                DataTable dtMTdetail = bl.bl_ManageTrans("uspValidateDraftData", ActionType, TransID, ID, Status, UserID);
                 var fileList = new List<object>();
                 if (dtMTdetail.Rows.Count == 0)
                 {

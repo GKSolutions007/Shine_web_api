@@ -1295,6 +1295,10 @@ namespace SampWebApi.Controllers
                                         {
                                             ErrorMsg = "This Document Already Used in Sales Return";
                                         }
+                                        else
+                                        {
+                                            ErrorMsg = dtCheck.Rows[0][0].ToString();
+                                        }
                                         bl.bl_Transaction(3);
                                         list.Add(new SaveMessage()
                                         {
@@ -1589,6 +1593,14 @@ namespace SampWebApi.Controllers
                             if (nCheck == 21)
                             {
                                 ErrorMsg = "This Document Already Used in Sales Return";
+                            }
+                            if (nCheck == 1)
+                            {
+                                ErrorMsg = "Document Status Already Changed";
+                            }
+                            else
+                            {
+                                ErrorMsg = dtResult.Rows[0][0].ToString();
                             }
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()
