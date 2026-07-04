@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Http;
 
@@ -23,6 +24,16 @@ namespace SampWebApi.Utility
                 if (AuthTokenValidate == null || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || !AuthTokenValidate.IsRevoked)
                 {
                     return false;
+                }
+                var TrustDevice = HttpContext.Current.Request.Cookies["DeviceID"];
+                if (TrustDevice != null)
+                {
+                    var devid = TrustDevice.Value;
+                    bool isValid = _refreshTokenRepo.ValidateTrustDevice(devid);
+                    if (!isValid)
+                    {
+                        return false;
+                    }
                 }
                 var Issuer = JwtSettings.Issuer;
                 var Audience = JwtSettings.Audience;

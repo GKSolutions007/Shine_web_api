@@ -414,5 +414,15 @@ namespace SampWebApi.Models
         public string Price { get; set; } 
         public string MRP { get; set; }
     }
-
+    public class ValidateIdModel
+    {
+        public int UserID { get; set; }
+        public int Mode { get; set; }
+        public List<IdModel> Items { get; set; }
+    }
+    public class IdModel
+    {
+        public int ID { get; set; }
+        public int Status { get; set; }
+    }
 }

@@ -15,7 +15,7 @@ namespace SampWebApi.Models
         public string IsDraft { get; set; }
         public string DraftID { get; set; }
         public string WebCollID { get; set; }
-        
+        public string WebCollStatusID { get; set; }
         public string DocDate { get; set; }
         public string DocId { get; set; }
         public string DocPrefix { get; set; }

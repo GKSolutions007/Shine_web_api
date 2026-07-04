@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -333,9 +334,48 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpPost]
+        [Route("api/webcollection/cancel")]
+        public IHttpActionResult webcollectioncancel([FromBody] ValidateIdModel request)
+        {
+            try
+            {
+                if (request?.Items == null)
+                    return BadRequest();
+                var Response =new List<object>();
+                foreach (var item in request.Items)
+                {
+                    DataTable dt = bl.BL_ExecuteParamSP("uspValidateWebCollection",request.Mode,item.ID,item.Status,request.UserID);
+                    if(dt.Rows.Count > 0)
+                    {
+                        Response.Add(new
+                        {
+                            Type = "Error",
+                            ID= item.ID,
+                            Message = dt.Rows[0][0].ToString()
+                        });
+                    }
+                    else
+                    {
+                        Response.Add(new
+                        {
+                            Type = "Success",
+                            ID = item.ID,
+                            Message = "Cancelled Successfully"
+                        });
+                    }
+                }
+                return Ok(Response);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("DailyActivity", "mobilecollection/cancel", ex.Message);
+            }
+            return Ok();
+        }
         [HttpGet]
         [Route("api/webcollection/getdata")]
-        public IHttpActionResult GetWEBCOLLECTIONData(string Mode,string ID,string UserID = "")
+        public IHttpActionResult GetWEBCOLLECTIONData(string Mode,string ID,string UserID = "",string Status="")
         {
             try
             {
@@ -378,10 +418,12 @@ namespace SampWebApi.Controllers
                     dtDenominationPMDetail.Columns.Add("ColDetailAmount", typeof(decimal));
                     bl.BL_AddCollectionData(dtHeader, dtDetail, dtMopDetails);
                     DataTable dtAdjRefId = new DataTable(), dtTVPTable = new DataTable();
+                    List<int> CollectionStatusIDs = Status.Split(',').Select(int.Parse).ToList();
                     List<int> CollectionIDs = ID.Split(',').Select(int.Parse).OrderBy(n => n).ToList();
                     for (int i = 0; i < CollectionIDs.Count; i++)
                     {
                         int CollectionID = Convert.ToInt32(CollectionIDs[i]);
+                        int CurrentStatus = Convert.ToInt32(CollectionStatusIDs[i]);
                         DataTable dtColHeader = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", 5, CollectionID);
 
                         //DDT = bl.BL_ExecuteParamSP("uspGetSetWebCollectionData", Mode, CollectionIDs[i]);
@@ -469,7 +511,15 @@ namespace SampWebApi.Controllers
                         int nBeatID = bl.BL_nValidation(dtColHeader.Rows[0]["BeatID"]);
                         int nSMID = bl.BL_nValidation(dtColHeader.Rows[0]["SalesmanID"]);
                         bl.bl_Transaction(1);
+                        DataTable dt = bl.bl_ManageTrans("uspValidateWebCollection", 1, CollectionID, CurrentStatus, UserID);
+                        if(dt.Rows.Count > 0)
+                        {
+                            ErrorIDs += CollectionID + ",";
+                            ErrorMsgs += dt.Rows[0][0].ToString() + ",";
+                            continue;
+                        }
                         DataTable dtResult = new DataTable();
+
                         dtResult = bl.bl_ManageTrans("uspManageFullColl",
                             19, bl.BL_nValidation(0), dtHeader, dtDetail, dtMopDetails,
                             0,
@@ -552,6 +602,11 @@ namespace SampWebApi.Controllers
                                 {
                                     ErrMsg = "This document already processed";
                                 }
+                                else
+                                {
+                                    ErrMsg = strErrorList[0].Trim();
+                                }
+
                             }
                             ErrorIDs += CollectionID + ",";
                             ErrorMsgs += ErrMsg + ",";

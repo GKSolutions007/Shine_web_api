@@ -87,6 +87,7 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
                             Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                             Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
@@ -179,7 +180,7 @@ namespace SampWebApi.Controllers
                         bl.CheckString(lstMaster.CreditlimitOS), lstMaster.PriceTypeID,
                         lstMaster.OwnerName, bl.CheckString(lstMaster.DiscountPern), bl.CheckString(lstMaster.TrackPoint), bl.CheckString(lstMaster.ClosingTrackPoint), lstMaster.TCSTax, lstMaster.Latitude, lstMaster.Longtitude,
                         bl.CheckString(lstMaster.Distance),
-                        lstMaster.Remark, lstMaster.Active, lstMaster.UserID, lstMaster.CustomerType, lstMaster.Ratings);
+                        lstMaster.Remark, lstMaster.Active, lstMaster.UserID, lstMaster.CustomerType, lstMaster.Ratings, lstMaster.Shinecode);
                     if (DDT.Columns.Count == 1)
                     {
                         int IsoldDelete = 0, IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());
@@ -245,6 +246,7 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             ContactPerson = DDT.Rows[i]["ContactPerson"].ToString(),
                             Mob1 = DDT.Rows[i]["Mob1"].ToString(),
                             Mob2 = DDT.Rows[i]["Mob2"].ToString(),
@@ -287,6 +289,7 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
                             Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                             Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
@@ -372,7 +375,7 @@ namespace SampWebApi.Controllers
                         lstMaster.Billadd2, lstMaster.Billadd3, lstMaster.Shipadd1, lstMaster.Shipadd2, lstMaster.Shipadd3, bl.CheckString(lstMaster.Pincode), lstMaster.ContactPerson,
                         lstMaster.Ph1, lstMaster.Ph2, lstMaster.Mob1, lstMaster.Mob2, lstMaster.Email, lstMaster.PANNumber, lstMaster.AadharNo, lstMaster.DLNo20, lstMaster.DLNo21,
                         lstMaster.FSSAINo, lstMaster.StateID, lstMaster.GSTIN.ToUpper(), lstMaster.CreditTermID, lstMaster.PaymentModeID, lstMaster.TaxTypeID,
-                        lstMaster.FAID, lstMaster.WeekCycle, lstMaster.Active, lstMaster.UserID, lstMaster.Ratings);
+                        lstMaster.FAID, lstMaster.WeekCycle, lstMaster.Active, lstMaster.UserID, lstMaster.Ratings, lstMaster.Shinecode);
                     if (DDT.Columns.Count == 1)
                     {
                         int IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());
@@ -481,6 +484,7 @@ namespace SampWebApi.Controllers
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
                             EAN = DDT.Rows[i]["EAN"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             MfrID = DDT.Rows[i]["MfrName"].ToString(),
                             BrandID = DDT.Rows[i]["BrandName"].ToString(),
                             CategoryID = DDT.Rows[i]["CategoryName"].ToString(),
@@ -597,7 +601,8 @@ namespace SampWebApi.Controllers
                             bl.CheckString(lstMaster.SPLPrice), bl.CheckString(lstMaster.MRP), bl.CheckString(lstMaster.ReturnPrice), lstMaster.TrackInventory, lstMaster.TrackBatch,
                             lstMaster.TrackSerial, lstMaster.TrackPDK, lstMaster.DateFormat, lstMaster.BarcodeUomID, lstMaster.BarcodePriceID, lstMaster.VendorID,
                             bl.CheckString(lstMaster.MOH), bl.CheckString(lstMaster.MOQ), lstMaster.Remarks, lstMaster.Active, lstMaster.CBy, lstMaster.LocationID
-                            , lstMaster.BarcodePrint, lstMaster.Weborder, lstMaster.SaleonMRP, lstMaster.SaleonpPern, lstMaster.ECPonMRP, lstMaster.ECPonpPern, lstMaster.SPLonMRP, lstMaster.SPLonpPern, lstMaster.ProdLifeTime);
+                            , lstMaster.BarcodePrint, lstMaster.Weborder, lstMaster.SaleonMRP, lstMaster.SaleonpPern, lstMaster.ECPonMRP, lstMaster.ECPonpPern,
+                            lstMaster.SPLonMRP, lstMaster.SPLonpPern, lstMaster.ProdLifeTime, lstMaster.Shinecode);
                     if (DDT.Columns.Count == 1)
                     {
                         int IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());

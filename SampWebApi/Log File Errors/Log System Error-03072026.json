@@ -1,0 +1,3 @@
+{"Date":"03-Jul-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"DailyActivity","FunctionName":"webcollection/getdata","Error":"Object reference not set to an instance of an object.","Timestamp":"03-Jul-2026 12:02:58 PM"},
+{"Date":"03-Jul-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"collectionpayment","FunctionName":"SaveCP","Error":"Failed to convert parameter value from a String to a Int32.","Timestamp":"03-Jul-2026 04:15:55 PM"},
+{"Date":"03-Jul-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"collectionpayment","FunctionName":"SaveCP","Error":"Failed to convert parameter value from a String to a Int32.","Timestamp":"03-Jul-2026 04:16:00 PM"},
