@@ -401,6 +401,30 @@ public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSe
                 throw;
             }
         }
+        public void TransImport_ExportToExcel(DataTable dtHeader, bool AddHelp = false)
+        {
+            try
+            {
+                //Exporting to Excel
+                if (!Directory.Exists(strFilePath))
+                {
+                    Directory.CreateDirectory(strFilePath);
+                }                
+                using (XLWorkbook wb = new XLWorkbook())
+                {
+                    wb.Worksheets.Add(dtHeader, "Header");                    
+                    wb.SaveAs(strFilePath + strFileName + strExtension);
+                }
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("File Already Opened Using Another Process", "Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public DataTable TransactionColumnValidation(List<string> lst, string sSheetName, ref bool blResult)
         {
             DataTable dtSheetdata = new DataTable();
@@ -1137,6 +1161,56 @@ public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSe
             };
             }
         }
-        
+        public static List<string> AddSC_Customers(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
+            };
+            }
+            else
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *","ERROR"
+            };
+            }
+        }
+        public static List<string> AddSC_Vendor(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
+            };
+            }
+            else
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *","ERROR"
+            };
+            }
+        }
+        public static List<string> AddSC_Product(bool WithError)
+        {
+            if (!WithError)
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *"
+            };
+            }
+            else
+            {
+                return new List<string>()
+            {
+                "CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *","ERROR"
+            };
+            }
+        }
     }
 }

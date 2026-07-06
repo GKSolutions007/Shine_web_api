@@ -808,7 +808,14 @@ Open Location </a>"
         [Route("api/resetlogin")]
         public IHttpActionResult resetlogin(string token)
         {
-            bl.BL_ExecuteParamSP("uspUpdateRefreshToken", 2, token);
+            try
+            {
+                bl.BL_ExecuteParamSP("uspUpdateRefreshToken", 2, token);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Login", "resetlogin", ex.Message);
+            }
             return Ok();
         }
         [HttpGet]

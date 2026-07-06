@@ -50,7 +50,7 @@ namespace SampWebApi.Controllers
                 }
                 else if (!AuthTokenValidate.IsRevoked)
                 {
-                    return BadRequest("Unauthorized request from closed session.");
+                    //return BadRequest("Unauthorized request from closed session.");
                 }
                 var refreshToken = _refreshTokenRepo.GetRefreshToken(refreshTokenCookie.Value);
                 if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.Now)// || refreshToken.IsRevoked
