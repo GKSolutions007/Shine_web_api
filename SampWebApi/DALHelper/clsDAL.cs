@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
 using System.Web;
+using System.Configuration;
 
 namespace SampWebApi.DALHelper
 {
@@ -11,6 +12,8 @@ namespace SampWebApi.DALHelper
     {
         SqlConnection aSqlconnection = new SqlConnection();
         SqlTransaction aSqlTransaction;
+        SqlConnection aSqlconnectionShinecode = new SqlConnection();
+        SqlTransaction aSqlTransactionShinecode;
         public string Connectionstr()
         {
             string COns = Connection.GetConnectionString();
@@ -90,6 +93,60 @@ namespace SampWebApi.DALHelper
                 DataTable dt_returnvalue = new DataTable();
 
                 SqlCommand cmd = new SqlCommand(strStoredProc, aSqlconnection, aSqlTransaction);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommandBuilder.DeriveParameters(cmd);
+                for (int i = 0; i < obj.Length; i++)
+                {
+                    if (cmd.Parameters[i + 1].SqlDbType != SqlDbType.Structured)
+                    {
+                        cmd.Parameters[i + 1].Value = obj[i];
+                    }
+                    else
+                    {
+                        string strTypeName = cmd.Parameters[i + 1].TypeName;
+                        int nIndex = strTypeName.IndexOf(".");
+                        cmd.Parameters[i + 1].TypeName = strTypeName.Substring(nIndex + 1);
+                        cmd.Parameters[i + 1].Value = obj[i];
+                    }
+                }
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt_returnvalue);
+                return dt_returnvalue;
+            }
+            catch (Exception ex)
+            {
+                aSqlTransaction.Rollback();
+                throw ex;
+            }
+        }
+        public void dl_Transaction_SC(int Action)
+        {
+            if (Action == 1)
+            {
+                string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+                aSqlconnectionShinecode = new SqlConnection(connectionString);
+                aSqlconnectionShinecode.Open();
+                aSqlTransactionShinecode = aSqlconnectionShinecode.BeginTransaction();
+            }
+            else if (Action == 2)
+            {
+                aSqlTransactionShinecode.Commit();
+                aSqlconnectionShinecode.Close();
+            }
+            else if (Action == 3)
+            {
+                aSqlTransactionShinecode.Rollback();
+                aSqlconnectionShinecode.Close();
+            }
+        }
+        public DataTable dl_ManageTrans_SC(string strStoredProc, params object[] obj)
+        {
+            try
+            {
+                DataTable dt_returnvalue = new DataTable();
+
+                SqlCommand cmd = new SqlCommand(strStoredProc, aSqlconnectionShinecode, aSqlTransactionShinecode);
                 cmd.CommandTimeout = 0;
                 cmd.CommandType = CommandType.StoredProcedure;
                 SqlCommandBuilder.DeriveParameters(cmd);

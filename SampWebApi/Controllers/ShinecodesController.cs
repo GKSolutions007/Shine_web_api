@@ -875,7 +875,7 @@ namespace SampWebApi.Controllers
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        SqlParameter tvp = cmd.Parameters.Add("@Customers", SqlDbType.Structured);
+                        SqlParameter tvp = cmd.Parameters.Add("@Customers", SqlDbType.Structured);                        
                         tvp.TypeName = "dbo.tvpSCPartyMaster";
                         tvp.Value = dtTVP;
 

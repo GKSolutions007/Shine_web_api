@@ -168,7 +168,7 @@ namespace SampWebApi.Controllers
             try
             {
                 SiteLink = HttpUtility.UrlDecode(clsEncryptDecrypt.Decrypt(SiteLink));
-                string ALink = SiteLink + "Login/AACM?AAlk=" + HttpUtility.UrlEncode(clsEncryptDecrypt.Encrypt(ID));
+                string ALink = SiteLink + "Login/AACM?AAlk=" + HttpUtility.UrlEncode(ID);//clsEncryptDecrypt.Encrypt(ID)
 
                 string subject = "Activate Your Account";
                 string body = BuildActivationEmailBody(ALink, ID);
