@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Office.CustomUI;
+using DocumentFormat.OpenXml.Spreadsheet;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -465,15 +466,376 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/purchasebill/invoicedata")]
+        public IHttpActionResult GetFilterData(string ID, string StatusID,string RoleID)
+        {
+            try {
+                var InvoiceResponse = new List<object>();
+                DataSet dtInvoicedata = bl.ExecuteParamSPDataSet_SC("uspgetBilldatafromInvoice", 2, ID);
+                if (dtInvoicedata.Tables[0].Rows.Count > 0)
+                {
+                    DataTable dtHeader = dtInvoicedata.Tables[0];
+                    DataTable dtDetail = dtInvoicedata.Tables[1];
+                    DataTable dtGridData = dtInvoicedata.Tables[2];
+                    int nBranchID = 0;
+                    DataTable DDTBranches = bl.BL_ExecuteParamSP("uspGetBranchByRoles", RoleID);
+                    if(DDTBranches.Rows.Count > 0)
+                    {
+                        DataRow row = DDTBranches.AsEnumerable().FirstOrDefault(r => r.Field<bool>("SetAsDefault") == true);
+                        if (row != null)
+                        {
+                            nBranchID = bl.BL_nValidation(row[0]); // Value of the first column
+                        }
+                    }
+                    int HeaderStatus = bl.BL_nValidation(dtHeader.Rows[0]["Status"].ToString());
+                    if(HeaderStatus == Convert.ToInt32(StatusID))
+                    {
+                        string Sender = dtHeader.Rows[0]["Sender"].ToString();//Vendor's shinecode
+                        DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", 32, Sender);
+                        if (DDT1.Rows.Count > 0)
+                        {
+                            List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
+                            List<PurchaseGridData> listProductGrid = new List<PurchaseGridData>();
+                            for (int j = 0; j < DDT1.Rows.Count; j++)
+                            {
+                                listParty.Add(new CustomerVendorModel
+                                {
+                                    ID = DDT1.Rows[j]["ID"].ToString(),
+                                    Code = DDT1.Rows[j]["Code"].ToString(),
+                                    Name = DDT1.Rows[j]["Name"].ToString(),
+                                    Billadd1 = DDT1.Rows[j]["Billadd1"].ToString(),
+                                    Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
+                                    Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
+                                    Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
+                                    Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                    Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
+                                    Pincode = DDT1.Rows[j]["Pincode"].ToString(),
+                                    ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
+                                    Ph1 = DDT1.Rows[j]["Ph1"].ToString(),
+                                    Ph2 = DDT1.Rows[j]["Ph2"].ToString(),
+                                    Mob1 = DDT1.Rows[j]["Mob1"].ToString(),
+                                    Mob2 = DDT1.Rows[j]["Mob2"].ToString(),
+                                    Email = DDT1.Rows[j]["Email"].ToString(),
+                                    PANNumber = DDT1.Rows[j]["PANNumber"].ToString(),
+                                    AadharNo = DDT1.Rows[j]["AadharNo"].ToString(),
+                                    DLNo20 = DDT1.Rows[j]["DLNo20"].ToString(),
+                                    DLNo21 = DDT1.Rows[j]["DLNo21"].ToString(),
+                                    FSSAINo = DDT1.Rows[j]["FSSAINo"].ToString(),
+                                    StateID = DDT1.Rows[j]["StateID"].ToString(),
+                                    GSTIN = DDT1.Rows[j]["GSTIN"].ToString(),
+                                    CreditTermID = DDT1.Rows[j]["CreditTermID"].ToString(),
+                                    PaymentModeID = DDT1.Rows[j]["PaymentModeID"].ToString(),
+                                    TaxTypeID = DDT1.Rows[j]["TaxTypeID"].ToString(),
+                                    FAID = DDT1.Rows[j]["FAID"].ToString(),
+                                    WeekCycle = DDT1.Rows[j]["WeekCycle"].ToString(),
+                                    Active = DDT1.Rows[j]["Active"].ToString(),
+                                    Ratings = DDT1.Rows[j]["Rating"].ToString(),
+                                });
+                            }
+
+                            DataTable dtMyItemTable = new DataTable();
+                            bool MyItemTableColumncreated = false;
+                            var notexistsitems = new List<object>();
+                            for (int k = 0; k < dtGridData.Rows.Count; k++)
+                            {
+                                string ItemShinecode = dtGridData.Rows[k]["ItemShinecode"].ToString();
+                                DataTable dtShinecodeitem = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", 33, ItemShinecode);
+                                if (dtShinecodeitem.Rows.Count > 0)
+                                {
+                                    if (!MyItemTableColumncreated)
+                                    {
+                                        dtMyItemTable = dtShinecodeitem.Clone();
+                                    }
+                                    MyItemTableColumncreated = true;
+
+                                    DataTable mrptax = MRPonTaxAmt(0,
+                                        0, 1,//Convert.ToInt32(dtShinecodeitem.Rows[k]["PurchaseTaxID"])
+                                        0,//Convert.ToInt32(dtGridData.Rows[k]["Price"])
+                                        0);//Convert.ToInt32(dtGridData.Rows[k]["MRP"])
+                                    decimal MRPonTax = 0, dCumMRPonTax = 0;
+                                    if (mrptax.Rows.Count > 0)
+                                    {
+                                        MRPonTax = Convert.ToDecimal(mrptax.Rows[0][1]);
+                                        dCumMRPonTax = Convert.ToDecimal(mrptax.Rows[0][2]);
+                                    }
+                                    listProductGrid.Add(new PurchaseGridData
+                                    {
+                                        ProdID = dtShinecodeitem.Rows[0]["ID"].ToString(),
+                                        UomID = dtShinecodeitem.Rows[0]["PurchaseUomID"].ToString(),
+                                        Code = dtShinecodeitem.Rows[0]["Code"].ToString(),
+                                        Name = dtShinecodeitem.Rows[0]["Name"].ToString(),
+                                        HSNCode = dtShinecodeitem.Rows[0]["HSNCode"].ToString(),
+                                        UOM = dtShinecodeitem.Rows[0]["PurchaseUOM"].ToString(),
+                                        Qty = dtGridData.Rows[k]["Qty"].ToString(),
+                                        FreeQty = "0.00",
+                                        DmgQty = "0.00",
+                                        ProdPern = dtGridData.Rows[k]["ProdPern"].ToString(),
+                                        TradePern = dtGridData.Rows[k]["TradePern"].ToString(),
+                                        AddnlPern = dtGridData.Rows[k]["AddnlPern"].ToString(),
+                                        TaxPern = dtShinecodeitem.Rows[0]["GST"].ToString(),
+                                        GrossAmt = dtGridData.Rows[k]["GrossAmt"].ToString(),
+                                        TaxAmt = dtGridData.Rows[k]["TaxAmt"].ToString(),
+                                        TaxName = dtShinecodeitem.Rows[0]["TaxName"].ToString(),
+                                        NetAmt = dtGridData.Rows[k]["NetAmt"].ToString(),
+                                        GoodsAmt = dtGridData.Rows[k]["GoodsAmt"].ToString(),
+                                        ReasonID = dtGridData.Rows[k]["ReasonId"].ToString(),
+                                        LocationID = "0",
+                                        TransactionPrice = dtShinecodeitem.Rows[0]["PurchaseBillPrice"].ToString(),
+                                        DiffAmt = "0.00",                                        
+                                        MRPonTax = MRPonTax.ToString(),
+                                        CumMRPonTax = dCumMRPonTax.ToString(),
+                                    });
+                                    DataRow drmit = dtShinecodeitem.Rows[0];
+                                    dtMyItemTable.Rows.Add(drmit.ItemArray);
+                                }
+                                else
+                                {
+                                    notexistsitems.Add(new
+                                    {
+                                        Shinecode = ItemShinecode
+                                    });  
+                                }
+                            }
+                            if(notexistsitems.Count > 0)
+                            {
+                                InvoiceResponse.Add(new
+                                {
+                                    MsgID = "2",
+                                    Message = "These "+ notexistsitems.Count + " out of "+dtGridData.Rows.Count +" Shinecode(s) not exists in your Database",
+                                    NoItemShinecodes = notexistsitems
+                                });
+                                return Ok(InvoiceResponse);
+                            }
+
+                            List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
+                            for (int l = 0; l < dtDetail.Rows.Count; l++)
+                            {
+                                DataRow[] drTempItem = dtMyItemTable.Select("Shinecode = '" + dtDetail.Rows[l]["ItemShinecode"].ToString() + "'", null);
+                                DataTable dtShinecodeitem = drTempItem.CopyToDataTable();
+
+                                string PKD = !string.IsNullOrEmpty(dtDetail.Rows[l]["PKD"].ToString()) ? Convert.ToDateTime(dtDetail.Rows[l]["PKD"].ToString()).ToString("yyyy-MM-dd") : null;
+                                string Exp = !string.IsNullOrEmpty(dtDetail.Rows[l]["Expiry"].ToString()) ? Convert.ToDateTime(dtDetail.Rows[l]["Expiry"].ToString()).ToString("yyyy-MM-dd") : null;
+                                listBatch.Add(new PurchaseBatchInfo
+                                {
+                                    BillID = dtDetail.Rows[l]["ID"].ToString(),
+                                    InventoryID = "0",
+                                    DmgQty = "0.00",
+                                    ECP = dtShinecodeitem.Rows[0]["ECP"].ToString(),
+                                    FreeQty = "0.00",
+                                    MRP = dtDetail.Rows[l]["MRP"].ToString(),
+                                    OrgECP = dtShinecodeitem.Rows[0]["ECP"].ToString(),
+                                    OrgMRP = dtDetail.Rows[l]["MRP"].ToString(),
+
+                                    OrgPPrice = dtDetail.Rows[l]["Price"].ToString(),
+                                    OrgRTNPrice = dtShinecodeitem.Rows[0]["ReturnPrice"].ToString(),
+                                    OrgSPL = dtShinecodeitem.Rows[0]["SPLPrice"].ToString(),
+                                    OrgSPrice = dtShinecodeitem.Rows[0]["SalesPrice"].ToString(),
+                                    PKDDate = PKD,// dtDetail.Rows[l]["PKD"].ToString(),
+
+                                    ExpiryDate = Exp,// dtDetail.Rows[l]["Expiry"].ToString(),
+                                    BatchNo = dtDetail.Rows[l]["BatchNo"].ToString(),
+                                    ProdID = dtShinecodeitem.Rows[0]["ID"].ToString(),
+                                    PurchasePrice = dtDetail.Rows[l]["Price"].ToString(),
+                                    Qty = dtDetail.Rows[l]["Qty"].ToString(),
+                                    ReturnPrice = dtShinecodeitem.Rows[0]["ReturnPrice"].ToString(),
+                                    SPLPrice = dtShinecodeitem.Rows[0]["SPLPrice"].ToString(),
+                                    SalesPrice = dtShinecodeitem.Rows[0]["SalesPrice"].ToString(),
+                                    TrackBatch = dtShinecodeitem.Rows[0]["TrackBatch"].ToString(),
+                                    TrackInventory = dtShinecodeitem.Rows[0]["TrackInventory"].ToString(),
+                                    UomID = dtShinecodeitem.Rows[0]["PurchaseUomID"].ToString(),
+                                    TrackPKD = dtShinecodeitem.Rows[0]["TrackPDK"].ToString(),
+                                    TaxID = dtShinecodeitem.Rows[0]["PurchaseTaxID"].ToString(),
+                                    TaxTypeID = DDT1.Rows[0]["TaxTypeID"].ToString(),//
+                                    TaxPern = dtShinecodeitem.Rows[0]["GST"].ToString(),
+                                    UOMName = dtShinecodeitem.Rows[0]["PurchaseUOM"].ToString(),
+                                    HSN = dtShinecodeitem.Rows[0]["HSNCode"].ToString(),
+                                    ConversionRate = dtShinecodeitem.Rows[0]["PurchaseCR"].ToString(),
+                                });
+                            }
+
+                            List<PurchaseModel> list = new List<PurchaseModel>();
+                            string strPrefix = "";
+                            DataTable dtPrefix = bl.BL_ExecuteSqlQuery("select dbo.fnTransactionPrefix('" + Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd") + "'," + nBranchID + ",1)");
+                            if(dtPrefix.Rows.Count > 0)
+                            {
+                                strPrefix = dtPrefix.Rows[0][0].ToString();
+                            }
+                            list.Add(new PurchaseModel
+                            {
+                                ID = dtHeader.Rows[0]["IdentID"].ToString(),
+                                
+                                DocPrefix = strPrefix,
+                                Date = Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"),
+                                RefNo = dtHeader.Rows[0]["DocID"].ToString(),
+                                BranchID = nBranchID.ToString(),
+                                VendorID = DDT1.Rows[0]["ID"].ToString(),
+                                
+                                //IdentID	Sender	ID	TransID	DocDate	DocID	Shinecode	TradePern	TradeAmt	
+                                //AddnlPern	AddnlAmt	OtherPern	OtherAmt	Freight	GrossAmt	Roundoff	
+                                //TaxAmt	NetAmt	Status	Remarks	Narration	CBy	CDate	ProdAmt	TotalDiscAmt
+                                
+                                GrossAmt = dtHeader.Rows[0]["GrossAmt"].ToString(),
+                                TaxAmt = dtHeader.Rows[0]["TaxAmt"].ToString(),
+                                NetAmt = dtHeader.Rows[0]["NetAmt"].ToString(),
+                                Status = dtHeader.Rows[0]["Status"].ToString(),
+                                ProdGroupID = "0",
+                                TaxTypeID = DDT1.Rows[0]["TaxTypeID"].ToString(),
+                                PaymentModeID = DDT1.Rows[0]["PaymentModeID"].ToString(),
+                                PaymentTermID = DDT1.Rows[0]["CreditTermID"].ToString(),
+                                PaymentDate = null,
+                                VehicleNo = "0",
+                                Frieght = dtHeader.Rows[0]["Freight"].ToString(),
+                                OtherChargePern = dtHeader.Rows[0]["OtherPern"].ToString(),
+                                OtherChargeAmt = dtHeader.Rows[0]["OtherAmt"].ToString(),
+                                ProdDiscPern ="0",// dtHeader.Rows[0]["ProdPern"].ToString(),
+                                TradeDiscPern = dtHeader.Rows[0]["TradePern"].ToString(),
+                                AddnlDiscPern = dtHeader.Rows[0]["AddnlPern"].ToString(),
+                                TotalProdDiscAmt = dtHeader.Rows[0]["ProdAmt"].ToString(),
+                                TotalTradeDiscAmt = dtHeader.Rows[0]["TradeAmt"].ToString(),
+                                TotalAddnlDiscAmt = dtHeader.Rows[0]["AddnlAmt"].ToString(),
+                                WriteOffAmt = "0",
+                                RoundOffAmt = dtHeader.Rows[0]["Roundoff"].ToString(),
+
+                                Balance = "0",
+                                PymtID = "0",
+                                OrgId = "0",                                
+                                ReturnType = "0",                                
+                                TCSTaxPern = "0",
+                                TCSTaxAmt = "0",
+                                TDSAmount = "0",
+                                IRN = null,
+                                AckNo = null,
+                                AckDate = null,
+                                AckStatus = null,
+                                SignedQRCode = null,
+                                EWBNo = null,
+                                Distance = "0",
+                                TransMode = null,
+                                VehicleType = null,
+                                TransportID = null,
+                                TransportName = null,
+                                Remarks = dtHeader.Rows[0]["Remarks"].ToString(),
+                                Narration = dtHeader.Rows[0]["Narration"].ToString(),
+                                DiffValueGross ="0",// dtHeader.Rows[0]["DiffValueGross"].ToString(),
+                                DiffValueNet = "0",//dtHeader.Rows[0]["DiffValueNet"].ToString(),
+                                lstPartyInfo = listParty,
+                                lstProdGrid = listProductGrid,
+                                lstBatchInfo = listBatch
+                            });
+                            InvoiceResponse.Add(new
+                            {
+                                MsgID = "0",
+                                Message = "Data fetchec",
+                                ResponseData = list
+                            });
+                        }
+                        else
+                        {
+                            InvoiceResponse.Add(new
+                            {
+                                MsgID = "1",
+                                Message = "Vendor not found for this code(" + Sender + ")"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        InvoiceResponse.Add(new
+                        {
+                            MsgID = "1",
+                            Message = "This document status changed"
+                        });
+                    }
+                }
+                else
+                {
+                    InvoiceResponse.Add(new
+                    {
+                        MsgID = "1",
+                        Message = "No data found for this document"
+                    });
+                }
+                return Ok(InvoiceResponse);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PurchaseBill", "purchasebill/invoicedata", ex.Message);
+            }
+            return Ok();
+        }
+        public DataTable MRPonTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP)
+        {
+            try
+            {
+                DataTable dtResult = new DataTable();
+                dtResult.Columns.Add("MRP", typeof(decimal));
+                dtResult.Columns.Add("MRPTaxPern", typeof(decimal));
+                dtResult.Columns.Add("MRPTaxAmt", typeof(decimal));
+                dtResult.Columns.Add("TaxonGross", typeof(decimal));
+
+                decimal dTaxAmt = 0;
+                DataTable dtMTdetail = bl.BL_ExecuteParamSP("uspGetTaxCumulative", TaxID, TaxTypeID, 1);
+                if (dtMTdetail.Rows.Count == 0) return dtResult;
+                decimal dApponMRPCum = dtMTdetail.Select("AppOn = -1")
+              .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+              .DefaultIfEmpty(0)
+              .Sum();
+                decimal dApponPriceCum = dtMTdetail.Select("AppOn <> -1")
+                  .Select(r => Convert.ToDecimal(r["CumulativeTax"]))
+                  .DefaultIfEmpty(0)
+                  .Sum();
+                decimal dGrossAmt = 0;
+                if (GrossorTax == 1)
+                {
+                    dGrossAmt = dApponMRPCum > 0 ? (MRP / (1 + (dApponMRPCum / 100))) : (Price / (1 + (dApponMRPCum / 100)));
+                }
+                for (int i = 0; i < dtMTdetail.Rows.Count; i++)
+                {
+                    int nAppon = bl.BL_nValidation(dtMTdetail.Rows[i]["AppOn"].ToString());
+                    decimal dCumTax = bl.BL_dValidation(dtMTdetail.Rows[i]["CumulativeTax"].ToString());
+                    if (nAppon == -1)
+                    {
+                        decimal dPrice = (MRP / (1 + (dApponMRPCum / 100)));
+                        dTaxAmt += (dPrice * dCumTax) / 100;
+                    }
+                    else
+                    {
+                        //decimal dPrice = (Price / (1 + (dApponPriceCum / 100)));
+                        dTaxAmt += (Price * dCumTax) / 100;
+                    }
+                }
+                DataRow drR = dtResult.NewRow();
+                drR[0] = MRP;
+                drR[1] = dApponMRPCum;
+                drR[2] = dTaxAmt;
+                drR[3] = dGrossAmt;
+                dtResult.Rows.Add(drR);
+
+                return dtResult;
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "mrpontax", ex.Message);
+            }
+            return null;
+        }
+        [HttpGet]
         [Route("api/purchasebill/getfilterdata")]
         public IHttpActionResult GetFilterData(string TransID, string FType, string Branch, string Party, string FromDate, string ToDate, string Showall)
         {
             try
             {
-
-                string Mode = FType == "1" ? "6" : FType == "2" ? "10" : "16";
-                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", Mode, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
                 List<PurchaseModel> list = new List<PurchaseModel>();
+                DataTable DDT = new DataTable();
+                if (FType != "4")
+                {
+                    string Mode = FType == "1" ? "6" : FType == "2" ? "10" : "16";
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", Mode, FType, Branch, TransID, Party, FromDate, ToDate, Showall);
+                }
+                else
+                {
+                    DDT = bl.ExecuteParamSP_SC("uspgetBilldatafromInvoice", 1, 0, Branch, FromDate, ToDate);
+                }
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
                     list.Add(new PurchaseModel
@@ -509,6 +871,8 @@ namespace SampWebApi.Controllers
                         WriteOffAmt = DDT.Rows[i]["WriteOff"].ToString()
                     });
                 }
+
+
                 //return Ok(list);
 
                 var data = from users in list
@@ -547,7 +911,7 @@ namespace SampWebApi.Controllers
                                };
                 return Ok(data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("PurchaseBill", "purchasebill/getfilterdata", ex.Message);
             }
@@ -805,6 +1169,33 @@ namespace SampWebApi.Controllers
                         }
                         if (listTrans.IsDraft == "0")
                         {
+                            string Shinecode = "";
+                            int nFilterTypeID = bl.BL_nValidation(listTrans.FilterTypeID);
+                            if (nFilterTypeID == 4)
+                            {
+                                Shinecode = bl.BL_ShineCode(3, bl.BL_nValidation(listTrans.VendorID));
+                                if (!string.IsNullOrEmpty(Shinecode))
+                                {
+                                    bl.bl_Transaction_SC(1);
+                                    DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 4, 15, bl.BL_nValidation(listTrans.DraftID), Shinecode,
+                                        bl.BL_nValidation(listTrans.CurrentStatus));
+                                    if (dtSCcheck.Rows.Count == 0)
+                                    {
+                                        bl.bl_Transaction_SC(2);
+                                    }
+                                    else
+                                    {
+                                        bl.bl_Transaction_SC(3);
+                                        list.Add(new SaveMessage()
+                                        {
+                                            ID = 1.ToString(),
+                                            MsgID = "1",
+                                            Message = "Invoice transfer document status changed"
+                                        });
+                                        return Ok(list);
+                                    }
+                                }
+                            }
                             bl.bl_Transaction(1);
                             try
                             {
@@ -922,6 +1313,30 @@ namespace SampWebApi.Controllers
                                     });
                                     bl.bl_Transaction(2);
                                     bl.BL_UpdateclosingDateforPosting(bl.BL_nValidation(listTrans.TransID), nBillScopeID, Convert.ToDateTime(listTrans.Date));
+                                    if (nFilterTypeID == 4)
+                                    {
+                                        if (!string.IsNullOrEmpty(Shinecode))
+                                        {
+                                            bl.bl_Transaction_SC(1);
+                                            DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 6, 15, bl.BL_nValidation(listTrans.DraftID), Shinecode,
+                                                bl.BL_nValidation(listTrans.CurrentStatus));
+                                            if (dtSCcheck.Rows.Count == 0)
+                                            {
+                                                bl.bl_Transaction_SC(2);
+                                            }
+                                            else
+                                            {
+                                                bl.bl_Transaction_SC(3);
+                                                list.Add(new SaveMessage()
+                                                {
+                                                    ID = 1.ToString(),
+                                                    MsgID = "1",
+                                                    Message = "Invoice transfer document status changed"
+                                                });
+                                                return Ok(list);
+                                            }
+                                        }
+                                    }
                                     return Ok(list);
                                 }
                             }

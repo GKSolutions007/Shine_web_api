@@ -191,6 +191,42 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/validateinvoicetransferdocument")]
+        public IHttpActionResult validateinvoicetransferdocument(int TransID,int ID,  string Shinecode, int Status)
+        {
+            try
+            {
+                bl.bl_Transaction_SC(1);
+                DataTable dtMTdetail = bl.bl_ManageTrans_SC("uspgetMasterdata", 4, TransID, ID, Shinecode, Status);
+                var fileList = new List<object>();
+                if (dtMTdetail.Rows.Count == 0)
+                {
+                    DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 5, TransID, ID, Shinecode);
+                    bl.bl_Transaction_SC(2);
+                    fileList.Add(new
+                    {
+                        MsgID = "0",
+                        Message = "Cancelled Successfully",
+                    });
+                }
+                else
+                {
+                    bl.bl_Transaction_SC(3);
+                    fileList.Add(new
+                    {
+                        MsgID = 2,
+                        Message = dtMTdetail.Rows[0][0].ToString(),
+                    });
+                }
+                return Ok(fileList);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "validate invoicetransfer", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
         [Route("api/logfiles")]
         public IHttpActionResult logfiles()
         {

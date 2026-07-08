@@ -23,6 +23,7 @@ using Users = SampWebApi.Models.Users;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Policy;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace SampWebApi.Controllers
 {
@@ -414,7 +415,7 @@ namespace SampWebApi.Controllers
                                         list.Add(new Users
                                         {
                                             Mode = "5",
-                                            ResponseMessage = "User already logged another location",
+                                            ResponseMessage = "User already logged in another location",
                                             ID = DDT.Rows[0]["ID"].ToString()
                                         });
                                         return Ok(list);
@@ -758,6 +759,7 @@ namespace SampWebApi.Controllers
                 string CompCode = dtCompData.Rows[0]["CompanyCode"].ToString();
                 string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                 string LoginUserName = dtRes.Rows[0]["UserName"].ToString();
+                string LoginUserEmail = dtRes.Rows[0]["EMailID"].ToString();
                 Random random = new Random();
                 int OTP = random.Next(100000, 999999);
                 
@@ -769,7 +771,7 @@ Open Location </a>"
 
                 string MailBody = GetDeviceVerificationMailBody("User", LoginUserName, OTP.ToString(), CompCode, CompName, locationHtml);
                 bool Issend = bl.SendEmail("User Verification OTP", MailBody,
-                    ToEmail, CCMail);
+                    ToEmail, CCMail, LoginUserEmail);
                 if (Issend)
                 {
                     int OTPID = 0;
@@ -778,13 +780,13 @@ Open Location </a>"
                     {
                         OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
                     }
-                    list.Add(new 
+                    list.Add(new
                     {
                         Mode = "2",
                         ID = OTPID.ToString(),// DDT.Rows[0]["ID"].ToString(),
                         UserID = ID,
                         EMailID = ToEmail,
-                        ResponseMessage = "OTP Send to this Email ID (" + ToEmail + ")"
+                        ResponseMessage = "OTP Send to this Email ID (" + ToEmail + (!string.IsNullOrEmpty(LoginUserEmail) ? ", " + LoginUserEmail : "") + ")"
                     });
                     return Ok(list);
                 }
