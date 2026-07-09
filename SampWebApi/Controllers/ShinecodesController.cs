@@ -15,6 +15,7 @@ using SampWebApi.Models;
 using System.IO;
 using System.Web;
 using System.Net.Http.Headers;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace SampWebApi.Controllers
 {
@@ -430,53 +431,62 @@ namespace SampWebApi.Controllers
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
                                 bool NoErrorsinHeader = true, NoErrorsinItems = true;
+
+                                #region Get Shine Code Duplicatevalues
+                                List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
+                                        .GroupBy(r => r.Field<string>("Shine Code *"))
+                                        .Where(g => !string.IsNullOrWhiteSpace(g.Key) && g.Count() > 1)
+                                        .Select(g => g.Key)
+                                        .ToList();
+                                #endregion
                                 #region Header data validation
                                 foreach (DataRow item in dtHeaderData.Rows)
-                                {
-                                    DataTable dtValidate = dtHeaderData.Clone();
-                                    dtValidate.TableName = "Validation";
-                                    dtValidate.Rows.Add(item.ItemArray);
-                                    string RowError = importValidations.SC_CustomerValidation(dtValidate);
-                                    //"CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
-                                    //"CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *"
-                                    if (string.IsNullOrEmpty(RowError))
                                     {
-                                        DataRow drW = dtHeaderWrongValues.NewRow();
-                                        drW["CODE *"] = dtValidate.Rows[0]["CODE *"].ToString();
-                                        drW["NAME *"] = dtValidate.Rows[0]["NAME *"].ToString();
-                                        drW["SHINE CODE *"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
-                                        drW["ADDRESS"] = dtValidate.Rows[0]["ADDRESS"].ToString();
-                                        drW["GST NUMBER"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
-                                        drW["ACTIVE *"] = dtValidate.Rows[0]["ACTIVE *"].ToString();
-                                        drW["ERROR"] = RowError;
-                                        dtHeaderWrongValues.Rows.Add(drW);
-                                        //Correct values only
-                                        DataRow drC = dtCustomer.NewRow();
-                                        drC["Code"] = dtValidate.Rows[0]["CODE *"].ToString();
-                                        drC["Name"] = dtValidate.Rows[0]["NAME *"].ToString();
-                                        drC["Shinecode"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
-                                        drC["Address"] = dtValidate.Rows[0]["ADDRESS"].ToString();
-                                        drC["GSTNo"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
-                                        drC["Active"] = dtValidate.Rows[0]["ACTIVE *"].ToString();                                        
-                                        drC["Serial"] = nIndex;
-                                        dtCustomer.Rows.Add(drC);
-                                        nIndex++;
+                                        DataTable dtValidate = dtHeaderData.Clone();
+                                        dtValidate.TableName = "Validation";
+                                        dtValidate.Rows.Add(item.ItemArray);
+                                        string RowError = importValidations.SC_CustomerValidation(dtValidate, duplicateShinecodes);
+                                        //"CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
+                                        //"CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *"
+                                        if (string.IsNullOrEmpty(RowError))
+                                        {
+                                            DataRow drW = dtHeaderWrongValues.NewRow();
+                                            drW["CODE *"] = dtValidate.Rows[0]["CODE *"].ToString();
+                                            drW["NAME *"] = dtValidate.Rows[0]["NAME *"].ToString();
+                                            drW["SHINE CODE *"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
+                                            drW["ADDRESS"] = dtValidate.Rows[0]["ADDRESS"].ToString();
+                                            drW["GST NUMBER"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
+                                            drW["ACTIVE *"] = dtValidate.Rows[0]["ACTIVE *"].ToString();
+                                            drW["ERROR"] = RowError;
+                                            dtHeaderWrongValues.Rows.Add(drW);
+                                            //Correct values only
+                                            DataRow drC = dtCustomer.NewRow();
+                                            drC["Code"] = dtValidate.Rows[0]["CODE *"].ToString();
+                                            drC["Name"] = dtValidate.Rows[0]["NAME *"].ToString();
+                                            drC["Shinecode"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
+                                            drC["Address"] = dtValidate.Rows[0]["ADDRESS"].ToString();
+                                            drC["GSTNo"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
+                                            drC["Active"] = dtValidate.Rows[0]["ACTIVE *"].ToString();
+                                            drC["Serial"] = nIndex;
+                                            dtCustomer.Rows.Add(drC);
+                                            nIndex++;
+                                        }
+                                        else
+                                        {
+                                            NoErrorsinHeader = false;
+                                            DataRow drW = dtHeaderWrongValues.NewRow();
+                                            drW["CODE *"] = dtValidate.Rows[0]["CODE *"].ToString();
+                                            drW["NAME *"] = dtValidate.Rows[0]["NAME *"].ToString();
+                                            drW["SHINE CODE *"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
+                                            drW["ADDRESS"] = dtValidate.Rows[0]["ADDRESS"].ToString();
+                                            drW["GST NUMBER"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
+                                            drW["ACTIVE *"] = dtValidate.Rows[0]["ACTIVE *"].ToString();
+                                            drW["ERROR"] = RowError;
+                                            dtHeaderWrongValues.Rows.Add(drW);
+                                        }
                                     }
-                                    else
-                                    {
-                                        NoErrorsinHeader = false;
-                                        DataRow drW = dtHeaderWrongValues.NewRow();
-                                        drW["CODE *"] = dtValidate.Rows[0]["CODE *"].ToString();
-                                        drW["NAME *"] = dtValidate.Rows[0]["NAME *"].ToString();
-                                        drW["SHINE CODE *"] = dtValidate.Rows[0]["SHINE CODE *"].ToString();
-                                        drW["ADDRESS"] = dtValidate.Rows[0]["ADDRESS"].ToString();
-                                        drW["GST NUMBER"] = dtValidate.Rows[0]["GST NUMBER"].ToString();
-                                        drW["ACTIVE *"] = dtValidate.Rows[0]["ACTIVE *"].ToString();
-                                        drW["ERROR"] = RowError;
-                                        dtHeaderWrongValues.Rows.Add(drW);
-                                    }
-                                }
-                                #endregion
+                                    #endregion
+                                
                                 
                                 #region save
                                 if (NoErrorsinHeader)
@@ -566,13 +576,20 @@ namespace SampWebApi.Controllers
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
                                 bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                #region Get Shine Code Duplicatevalues
+                                List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
+                                        .GroupBy(r => r.Field<string>("Shine Code *"))
+                                        .Where(g => !string.IsNullOrWhiteSpace(g.Key) && g.Count() > 1)
+                                        .Select(g => g.Key)
+                                        .ToList();
+                                #endregion
                                 #region Header data validation
                                 foreach (DataRow item in dtHeaderData.Rows)
                                 {
                                     DataTable dtValidate = dtHeaderData.Clone();
                                     dtValidate.TableName = "Validation";
                                     dtValidate.Rows.Add(item.ItemArray);
-                                    string RowError = importValidations.SC_VendorValidation(dtValidate);
+                                    string RowError = importValidations.SC_VendorValidation(dtValidate, duplicateShinecodes);
                                     //"CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
                                     //"CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *"
                                     if (string.IsNullOrEmpty(RowError))
@@ -702,13 +719,20 @@ namespace SampWebApi.Controllers
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
                                 bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                #region Get Shine Code Duplicatevalues
+                                List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
+                                        .GroupBy(r => r.Field<string>("Shine Code *"))
+                                        .Where(g => !string.IsNullOrWhiteSpace(g.Key) && g.Count() > 1)
+                                        .Select(g => g.Key)
+                                        .ToList();
+                                #endregion
                                 #region Header data validation
                                 foreach (DataRow item in dtHeaderData.Rows)
                                 {
                                     DataTable dtValidate = dtHeaderData.Clone();
                                     dtValidate.TableName = "Validation";
                                     dtValidate.Rows.Add(item.ItemArray);
-                                    string RowError = importValidations.SC_ProductValidation(dtValidate);
+                                    string RowError = importValidations.SC_ProductValidation(dtValidate, duplicateShinecodes);
                                     //"CODE *",   "NAME *", "SHINE CODE *", "ADDRESS", "GST NUMBER",  "ACTIVE *"
                                     //"CODE *",   "NAME *", "SHINE CODE *", "HSN", "MFR NAME",  "ACTIVE *"
                                     if (string.IsNullOrEmpty(RowError))

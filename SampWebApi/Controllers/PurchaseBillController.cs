@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office.CustomUI;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -1388,7 +1389,7 @@ namespace SampWebApi.Controllers
                     {
                         bl.bl_Transaction(1);
                         DataTable dtResult = bl.bl_ManageTrans("uspCancelPurchaseBill", 4, listTrans.ID, listTrans.CBy, listTrans.CurrentStatus, listTrans.Remarks, listTrans.Narration);
-                        if (dtResult.Rows.Count > 0)
+                        if (dtResult.Columns.Count == 0)
                         {
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()
@@ -1403,6 +1404,28 @@ namespace SampWebApi.Controllers
                         {
                             bl.bl_Transaction(2);
                             bl.BL_UpdateclosingDateforPosting(1, bl.BL_nValidation(listTrans.ID), Convert.ToDateTime(listTrans.Date));
+                            int InvoiceID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
+                            string Shinecode = dtResult.Rows[0][1].ToString();
+                            if (InvoiceID > 0)
+                            {
+                                bl.bl_Transaction_SC(1);
+                                DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 5, 15, InvoiceID, Shinecode);
+                                if (dtSCcheck.Rows.Count == 0)
+                                {
+                                    bl.bl_Transaction_SC(2);
+                                }
+                                else
+                                {
+                                    bl.bl_Transaction_SC(3);
+                                    list.Add(new SaveMessage()
+                                    {
+                                        ID = 1.ToString(),
+                                        MsgID = "1",
+                                        Message = "Invoice transfer document status changed"
+                                    });
+                                    return Ok(list);
+                                }
+                            }
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),
