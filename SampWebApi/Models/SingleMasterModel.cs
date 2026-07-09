@@ -222,6 +222,7 @@ namespace SampWebApi.Models
         public string UserImageData { get; set; }
         public string ThemeData { get; set; }
         public string FilterDatelist { get; set; }
+        public string Menuslist { get; set; }
         public string ResponseMessage { get; set; }
     }
     public class Chequebook

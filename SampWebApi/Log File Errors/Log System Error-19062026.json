@@ -1,1 +1,1 @@
-{"Date":"19-Jun-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseOrder","FunctionName":"purchaseorder/get","Error":"Divide by zero error encountered.","Timestamp":"19-Jun-2026 12:14:54 PM"},
+{"Date":"19-Jun-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Invoice","FunctionName":"invoice/get","Error":"Failed to convert parameter value from a String to a Int32.","Timestamp":"19-Jun-2026 10:48:11 AM"},

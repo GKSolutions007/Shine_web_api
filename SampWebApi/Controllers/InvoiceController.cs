@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Tls;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.DALHelper;
 using SampWebApi.Models;
@@ -11,7 +12,9 @@ using SampWebApi.Printing;
 using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing.Imaging;
@@ -764,6 +767,21 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/invoice/cancelotdraft")]
+        public IHttpActionResult cancelotdraft(string ID, string OTDraft, string UserID)
+        {
+            try
+            {
+                bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 15, OTDraft, ID, UserID);
+                return Ok("0");
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Invoice", "invoice/cancelotdraft", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
         [Route("api/invoice/getproductlist")]
         public IHttpActionResult GetgetproductlistData(string TransID, string Branch, string PriceType, string Date)
         {
@@ -1236,8 +1254,33 @@ namespace SampWebApi.Controllers
                                 nSerial++;
                             }
                         }
+                        int InvoiceIdentID = bl.BL_nValidation(listTrans.ID);
                         if (listTrans.IsDraft == "0")
                         {
+                            if (listTrans.TransMode == "2")
+                            {
+                                string Shinecode = bl.BL_ShineCode(1, bl.BL_nValidation(listTrans.CustomerID));
+                                if (!string.IsNullOrEmpty(Shinecode))
+                                {
+                                    bl.bl_Transaction_SC(1);
+                                    DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 2, 15, InvoiceIdentID, Shinecode);                                    
+                                    if (dtSCcheck.Rows.Count == 0)
+                                    {
+                                        bl.bl_Transaction_SC(2);
+                                    }
+                                    else
+                                    {
+                                        bl.bl_Transaction_SC(3);
+                                        list.Add(new SaveMessage()
+                                        {
+                                            ID = 1.ToString(),
+                                            MsgID = "1",
+                                            Message = "Invoice transfer document status changed(Status :&ensp; <h4><code>"+ dtSCcheck.Rows[0][0] + "</code></h4>)"
+                                        });
+                                        return Ok(list);
+                                    }
+                                }
+                            }
                             bl.bl_Transaction(1);
                             try
                             {
@@ -1279,6 +1322,10 @@ namespace SampWebApi.Controllers
                                         if (nCheck == 21)
                                         {
                                             ErrorMsg = "This Document Already Used in Sales Return";
+                                        }
+                                        else
+                                        {
+                                            ErrorMsg = dtCheck.Rows[0][0].ToString();
                                         }
                                         bl.bl_Transaction(3);
                                         list.Add(new SaveMessage()
@@ -1483,6 +1530,94 @@ namespace SampWebApi.Controllers
                                     }
                                     bl.bl_Transaction(2);
                                     bl.BL_UpdateclosingDateforPosting(15, nBillScopeID, Convert.ToDateTime(listTrans.DocDate));
+                                    #region Posting in Shinecode DB
+                                    DataSet dtShinecode = bl.BL_ExecuteParamSPDataset("uspGetDataforShinecode", 15, nBillScopeID);
+                                    if (dtShinecode.Tables[0].Rows.Count > 0)
+                                    {
+                                        DataTable dtTransactionDetail = new DataTable();
+
+                                        dtTransactionDetail.Columns.Add("InvID", typeof(int));                                        
+                                        dtTransactionDetail.Columns.Add("ItemShinecode", typeof(string));
+                                        dtTransactionDetail.Columns.Add("Price", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("MRP", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("Qty", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("UomID", typeof(short));
+                                        dtTransactionDetail.Columns.Add("TradePern", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("TradeAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("AddnlPern", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("AddnlAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("ProdPern", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("ProdAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("TaxID", typeof(short));
+                                        dtTransactionDetail.Columns.Add("TaxPern", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("GoodsAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("GrossAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("TaxAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("NetAmt", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("UOMCF", typeof(decimal));
+                                        dtTransactionDetail.Columns.Add("ReasonID", typeof(short));
+                                        dtTransactionDetail.Columns.Add("Serial", typeof(short));
+                                        dtTransactionDetail.Columns.Add("BatchNumber", typeof(string));
+                                        dtTransactionDetail.Columns.Add("PKDDate", typeof(DateTime));
+                                        dtTransactionDetail.Columns.Add("ExpiryDate", typeof(DateTime));
+                                        DataTable dtHeader = dtShinecode.Tables[0];
+                                        DataTable dtDetails = dtShinecode.Tables[1];
+                                        for (int i = 0; i < dtDetails.Rows.Count; i++)
+                                        {
+                                            DataRow drr = dtTransactionDetail.NewRow();
+                                            drr["InvID"] = nBillScopeID;
+                                            drr["ItemShinecode"] = dtDetails.Rows[i]["ItemShinecode"];
+                                            drr["Price"] = dtDetails.Rows[i]["Price"];
+                                            drr["MRP"] = dtDetails.Rows[i]["MRP"];
+                                            drr["Qty"] = dtDetails.Rows[i]["Qty"];
+                                            drr["UomID"] = dtDetails.Rows[i]["UomID"];
+                                            drr["TradePern"] = dtDetails.Rows[i]["TradePern"];
+                                            drr["TradeAmt"] = dtDetails.Rows[i]["TradeAmt"];
+                                            drr["AddnlPern"] = dtDetails.Rows[i]["AddnlPern"];
+                                            drr["AddnlAmt"] = dtDetails.Rows[i]["AddnlAmt"];
+                                            drr["ProdPern"] = dtDetails.Rows[i]["ProdPern"];
+                                            drr["ProdAmt"] = dtDetails.Rows[i]["ProdAmt"];
+                                            drr["TaxID"] = dtDetails.Rows[i]["TaxID"];
+                                            drr["TaxPern"] = dtDetails.Rows[i]["TaxPern"];
+                                            drr["GoodsAmt"] = dtDetails.Rows[i]["GoodsAmt"];
+                                            drr["GrossAmt"] = dtDetails.Rows[i]["GrossAmt"];
+                                            drr["TaxAmt"] = dtDetails.Rows[i]["TaxAmt"];
+                                            drr["NetAmt"] = dtDetails.Rows[i]["NetAmt"];
+                                            drr["UOMCF"] = dtDetails.Rows[i]["UOMCF"];
+                                            drr["ReasonID"] = dtDetails.Rows[i]["ReasonID"];
+                                            drr["Serial"] = dtDetails.Rows[i]["Serial"];
+
+                                            drr["BatchNumber"] = dtDetails.Rows[i]["BatchNumber"] == DBNull.Value
+                                                ? DBNull.Value
+                                                : dtDetails.Rows[i]["BatchNumber"];
+
+                                            drr["PKDDate"] = dtDetails.Rows[i]["PKDDate"] == DBNull.Value
+                                                ? DBNull.Value
+                                                : dtDetails.Rows[i]["PKDDate"];
+
+                                            drr["ExpiryDate"] = dtDetails.Rows[i]["ExpiryDate"] == DBNull.Value
+                                                ? DBNull.Value
+                                                : dtDetails.Rows[i]["ExpiryDate"];
+                                            dtTransactionDetail.Rows.Add(drr);
+                                        }
+                                        DataTable dtSCResult = new DataTable();
+                                        int ModifyID = bl.BL_nValidation(listTrans.ID);
+                                        DataRow dr = dtHeader.Rows[0];
+                                        bl.bl_Transaction_SC(1);
+                                        dtSCResult = bl.bl_ManageTrans_SC("uspSaveInvoiceData", dr["Sender"], dr["ID"], dr["DocDate"], dr["DocID"], dr["DocPrefix"],
+                                            dr["Shinecode"], dr["TradePern"], dr["TradeAmt"], dr["AddnlPern"], dr["AddnlAmt"], dr["ProdAmt"], dr["TotalDiscountAmt"],
+                                            dr["OtherPern"], dr["OtherAmt"], dr["Frieght"], dr["GrossAmt"], dr["RoundOfAmt"], dr["TaxAmt"], dr["NetAmt"], dr["Remarks"],
+                                            dr["Narration"], listTrans.UserID, ModifyID, dtTransactionDetail);
+                                        if(dtSCResult.Columns.Count == 1)
+                                        {
+                                            bl.bl_Transaction_SC(2);
+                                        }
+                                        else
+                                        {
+                                            bl.bl_Transaction_SC(3);
+                                        }                                                                                   
+                                    }
+                                    #endregion
                                     list.Add(new SaveMessage()
                                     {
                                         ID = nBillScopeID.ToString(),
@@ -1537,6 +1672,27 @@ namespace SampWebApi.Controllers
                     }
                     else// for cancel
                     {
+                        string Shinecode = bl.BL_ShineCode(1, bl.BL_nValidation(listTrans.CustomerID));
+                        if (!string.IsNullOrEmpty(Shinecode))
+                        {
+                            bl.bl_Transaction_SC(1);
+                            DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 2, 15, listTrans.ID, Shinecode);
+                            if (dtSCcheck.Rows.Count == 0)
+                            {
+                                bl.bl_Transaction_SC(2);
+                            }
+                            else
+                            {
+                                bl.bl_Transaction_SC(3);
+                                list.Add(new SaveMessage()
+                                {
+                                    ID = 1.ToString(),
+                                    MsgID = "1",
+                                    Message = "Invoice transfer document status changed(Status :&ensp; <h4><code>" + dtSCcheck.Rows[0][0] + "</code></h4>)"
+                                });
+                                return Ok(list);
+                            }
+                        }
                         bl.bl_Transaction(1);
                         DataTable dtResult = bl.bl_ManageTrans("uspManageTranSalesCancel", listTrans.CurrentStatus, listTrans.ID, listTrans.UserID, listTrans.TransMode, listTrans.Remarks, listTrans.Narration);
                         if (dtResult.Columns.Count > 1)
@@ -1575,6 +1731,14 @@ namespace SampWebApi.Controllers
                             {
                                 ErrorMsg = "This Document Already Used in Sales Return";
                             }
+                            if (nCheck == 1)
+                            {
+                                ErrorMsg = "Document Status Already Changed";
+                            }
+                            else
+                            {
+                                ErrorMsg = dtResult.Rows[0][0].ToString();
+                            }
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()
                             {
@@ -1588,6 +1752,13 @@ namespace SampWebApi.Controllers
                         {
                             bl.bl_Transaction(2);
                             bl.BL_UpdateclosingDateforPosting(15, bl.BL_nValidation(listTrans.ID), Convert.ToDateTime(listTrans.DocDate));
+                            //change to cancel status
+                            if (!string.IsNullOrEmpty(Shinecode))
+                            {
+                                bl.bl_Transaction_SC(1);
+                                DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 3, 15, listTrans.ID, Shinecode);
+                                bl.bl_Transaction_SC(2);
+                            }
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),
@@ -1606,6 +1777,7 @@ namespace SampWebApi.Controllers
             }
             return Ok("No data found");
         }
+        
         public DataTable ToDataTable<T>(List<T> items)
         {
             DataTable dataTable = new DataTable(typeof(T).Name);
@@ -1871,7 +2043,6 @@ namespace SampWebApi.Controllers
                                 Outputfile = Print.GroupPDFoutputPath;
                         }
                         STPWT.Start();
-                        bl.BL_WriteErrorMsginLog("Stop Watch", "Check Print Completion Time", STPWT.Elapsed.TotalSeconds.ToString() + " Secs");
                         string pathwithFileName = Outputfile;
                         //byte[] bytes = System.IO.File.ReadAllBytes(pathwithFileName);
                         string exts = Path.GetExtension(pathwithFileName);

@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Configuration;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
 namespace SampWebApi.BuisnessLayer
 {
     public class clsBusinessLayer
@@ -34,6 +35,7 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ExecuteParamSPDataset(strProcedure, objParams);
         }
+        
         public string BL_DBName()
         {
             DataTable dtdb = BL_ExecuteSqlQuery("SELECT DB_NAME()");
@@ -49,6 +51,16 @@ namespace SampWebApi.BuisnessLayer
             }
             return AppValue;
         }
+        public string BL_ShineCode(int MasterType,int ID)
+        {
+            string ShineCode = "";
+            DataTable dtApps = ObjDL.dl_ExecuteParamSP("uspGetShineCode", MasterType, ID);
+            if (dtApps.Rows.Count > 0)
+            {
+                ShineCode = dtApps.Rows[0][0].ToString();
+            }
+            return ShineCode;
+        }
         public void bl_Transaction(int action)
         {
             ObjDL.dl_Transaction(action);
@@ -56,6 +68,74 @@ namespace SampWebApi.BuisnessLayer
         public DataTable bl_ManageTrans(string strStoredProc, params object[] obj)
         {
             return ObjDL.dl_ManageTrans(strStoredProc, obj);
+        }
+        public void bl_Transaction_SC(int action)
+        {
+            ObjDL.dl_Transaction_SC(action);
+        }
+        public DataTable bl_ManageTrans_SC(string strStoredProc, params object[] obj)
+        {
+            return ObjDL.dl_ManageTrans_SC(strStoredProc, obj);
+        }
+        public DataTable ExecuteParamSP_SC(string strSPName, params object[] parameters)
+        {
+            string connectionString = DALHelper.clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+            DataTable dt_returnvalue = new DataTable();
+            int Errindex = 0;
+            try
+            {
+                using (SqlConnection aSqlconnection = new SqlConnection(connectionString))
+                {
+                    aSqlconnection.Open();
+                    SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection);
+                    cmd.CommandTimeout = 0;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    SqlCommandBuilder.DeriveParameters(cmd);
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        Errindex = i;
+                        cmd.Parameters[i + 1].Value = parameters[i];
+                    }
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt_returnvalue);
+                    //aSqlconnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt_returnvalue;
+        }
+        public DataSet ExecuteParamSPDataSet_SC(string strSPName, params object[] parameters)
+        {
+            string connectionString = DALHelper.clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+            DataSet dt_returnvalue = new DataSet();
+            int Errindex = 0;
+            try
+            {
+                using (SqlConnection aSqlconnection = new SqlConnection(connectionString))
+                {
+                    aSqlconnection.Open();
+                    SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection);
+                    cmd.CommandTimeout = 0;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    SqlCommandBuilder.DeriveParameters(cmd);
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        Errindex = i;
+                        cmd.Parameters[i + 1].Value = parameters[i];
+                    }
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt_returnvalue);
+                    //aSqlconnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt_returnvalue;
         }
         public decimal ReturnGrossorMRPTaxAmt(int GrossorTax, int TaxID, int TaxTypeID, decimal Price, decimal MRP,bool IsRuninScope = false)
         {
@@ -135,7 +215,7 @@ namespace SampWebApi.BuisnessLayer
             }
             return dstrValue;
         }
-        public bool SendEmail(string Subject, string Body, string ToMailID,string CCMail = null)
+        public bool SendEmail(string Subject, string Body, string ToMailID,string CCMail = null,string UserMail = null)
         {
             bool MailSend = false;
             try
@@ -160,6 +240,8 @@ namespace SampWebApi.BuisnessLayer
                     message.To.Add(new MailAddress(ToMailID));
                     if (!string.IsNullOrEmpty(CCMail))
                         message.CC.Add(new MailAddress(CCMail));
+                    if (!string.IsNullOrEmpty(UserMail))
+                        message.CC.Add(new MailAddress(UserMail));
                     message.Subject = Subject;
                     message.IsBodyHtml = true; //to make message body as html  
                     message.Body = Body;

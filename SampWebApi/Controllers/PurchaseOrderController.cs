@@ -507,7 +507,7 @@ namespace SampWebApi.Controllers
                                 DataTable dtResult = bl.bl_ManageTrans("uspManagePurchaseOrder", dtProd, listTrans.TransMode, bl.BL_nValidation(listTrans.ID), bl.BL_nValidation(listTrans.BranchID), bl.BL_nValidation(listTrans.CurrentStatus),
                                     listTrans.Date, listTrans.VendorID, listTrans.RefNo, 1, bl.BL_dValidation(listTrans.RoundOffAmt), bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt),
                                     bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), listTrans.Remarks, listTrans.Narration,
-                                    listTrans.CBy, bl.BL_nValidation(listTrans.DraftID), bl.BL_nValidation(listTrans.UOMType));
+                                    listTrans.CBy, bl.BL_nValidation(listTrans.DraftID), bl.BL_nValidation(listTrans.UOMType), 0, 0, null, bl.BL_nValidation(listTrans.FilterTypeID));
                                 if (dtResult.Columns.Count > 1)
                                 {
                                     bl.bl_Transaction(3);

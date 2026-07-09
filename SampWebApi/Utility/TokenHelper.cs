@@ -17,7 +17,7 @@ namespace SampWebApi.BuisnessLayer
 {
     public static class TokenHelper
     {
-        public static string GenerateToken(string UserId)
+        public static string GenerateToken(string UserId, string DeviceID = "abcd")
         {
             var Issuer = JwtSettings.Issuer;
             var Audience = JwtSettings.Audience;
@@ -54,10 +54,18 @@ namespace SampWebApi.BuisnessLayer
                 Path = "/"
             };
             HttpContext.Current.Response.Cookies.Add(authCookie);
-
+            HttpCookie deviceCookie = new HttpCookie("DeviceID", DeviceID)
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(RefreshTokenExpiresInDays),
+                SameSite = SameSiteMode.Strict,
+                Path = "/"
+            };
+            HttpContext.Current.Response.Cookies.Add(deviceCookie);
             return authToken;
         }
-        public static string GenerateRefreshToken(string UserId,string AuthToken)
+        public static string GenerateRefreshToken(string UserId,string AuthToken,string DeviceID = "abcd")
         {
             var RefreshTokenExpiresInDays = double.Parse(JwtSettings.RefreshTokenExpiresInDays);
             var AuthTokenExpiresInMins = double.Parse(JwtSettings.AuthTokenExpiresInMins);
@@ -92,7 +100,15 @@ namespace SampWebApi.BuisnessLayer
                 Path = "/"
             };
             HttpContext.Current.Response.Cookies.Add(refreshCookie);
-
+            HttpCookie deviceCookie = new HttpCookie("DeviceID", DeviceID)
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(RefreshTokenExpiresInDays),
+                SameSite = SameSiteMode.Strict,
+                Path = "/"
+            };
+            HttpContext.Current.Response.Cookies.Add(deviceCookie);
             return refreshToken;
         }
 
@@ -212,6 +228,25 @@ namespace SampWebApi.BuisnessLayer
                 SDA.Fill(DDT);
                 conn.Close();
             }
+        }
+        public bool ValidateTrustDevice(string DeviceID)
+        {
+            DataTable DDT = new DataTable();
+            using (var conn = new SqlConnection(connectionString))
+            {
+
+                //SqlConnection sqlConnection = new SqlConnection(connectionString);
+                conn.Open();
+                SqlCommand sqlCommand = new SqlCommand("uspValidateDevice", conn);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@Mode", 5);
+                sqlCommand.Parameters.AddWithValue("@DeviceID", DeviceID);
+                SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
+                SDA.Fill(DDT);
+                conn.Close();
+            }
+            //DataTable dtDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 5, DeviceID);
+            return DDT.Rows.Count > 0;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace SampWebApi.Models
         public string TransMode { get; set; }
         public string TransName { get; set; }
         public string IsDraft { get; set; }
+        public string FilterTypeID { get; set; }
         public string DraftID { get; set; }
         public string BranchID { get; set; }
         public string DocID { get; set; }

@@ -192,7 +192,7 @@ namespace SampWebApi.Controllers
                             {
                                 string strDocPrefix = dtFFooter.Rows[i]["DocPrefix"].ToString();
                                 string TypeID = strDocPrefix == "16" || strDocPrefix == "19" || strDocPrefix == "18" || strDocPrefix == "12" ||
-                                    (strDocPrefix == "18" && strDocPrefix == "5") || (strDocPrefix == "19" && strDocPrefix == "4") ? "1" : "2";
+                                    (DocPrefix == "18" && strDocPrefix == "5") || (DocPrefix == "19" && strDocPrefix == "4") ? "1" : "2";
 
                                 listCollPayDetails.Add(new CollPayDetails
                                 {
@@ -909,6 +909,20 @@ namespace SampWebApi.Controllers
                             }
                         }
                         bl.bl_Transaction(1);
+                        if (bl.BL_nValidation(listTrans.WebCollID) > 0)
+                        {
+                            DataTable dt = bl.bl_ManageTrans("uspValidateWebCollection", 1, bl.BL_nValidation(listTrans.WebCollID), bl.BL_nValidation(listTrans.WebCollStatusID), listTrans.UserID);
+                            if (dt.Rows.Count > 0)
+                            {
+                                list.Add(new SaveMessage()
+                                {
+                                    ID = 0.ToString(),
+                                    MsgID = "1",
+                                    Message = "This Webcollection " + dt.Rows[0][0].ToString()
+                                });
+                                return Ok(list);
+                            }
+                        }
                         DataTable dtResult = new DataTable();
                         dtResult = bl.bl_ManageTrans("uspManageFullColl",
                             listTrans.TransID, bl.BL_nValidation(listTrans.UDFId), dtHeader, dtDetail, dtMopDetails,

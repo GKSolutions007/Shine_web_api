@@ -13,6 +13,7 @@ namespace SampWebApi.Models
         public string ID { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
+        public string Shinecode { get; set; }
         public string DocPrefix { get; set; }
         public string CustomerType { get; set; }
         public string Ratings { get; set; }
@@ -98,6 +99,7 @@ namespace SampWebApi.Models
         public string Code { get; set; }
         public string Name { get; set; }
         public string EAN { get; set; }
+        public string Shinecode { get; set; }
         public string BranchID { get; set; }
         public string MfrID { get; set; }
         public string BrandID { get; set; }

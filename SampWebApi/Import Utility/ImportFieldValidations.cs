@@ -2318,6 +2318,229 @@ namespace SampWebApi.Import_Utility
                 throw ex;
             }
         }
+
+        public string SC_CustomerValidation(DataTable dtCheck, List<string> duplicates)
+        {
+            string RowError = "";
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["CODE *"].ToString()))
+            {
+                RowError += "Code : Code should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["CODE *"].ToString()))
+                {
+                    RowError += "Code : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["NAME *"].ToString()))
+            {
+                RowError += "Name : Name should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["NAME *"].ToString()))
+                {
+                    RowError += "Name : Invalid character\n";
+                }
+            }
+            string Shinecode = dtCheck.Rows[0]["SHINE CODE *"].ToString();
+
+            if (string.IsNullOrEmpty(Shinecode))
+            {
+                RowError += "SHINE CODE : SHINE CODE should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumeric(Shinecode))
+                {
+                    RowError += "SHINE CODE : Invalid character(Alpha Numeric only)\n";
+                }
+                else
+                {
+                    bool exists = duplicates.Any(x => x.Equals(Shinecode, StringComparison.OrdinalIgnoreCase));
+                    if (exists)
+                    {
+                        RowError += "SHINE CODE : Duplicate Shinecode found\n";
+                    }
+                    
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["ADDRESS"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["ADDRESS"].ToString()))
+                {
+                    RowError += "ADDRESS : Invalid character\n";
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["GST NUMBER"].ToString()))
+            {
+                if (!objBL.BL_isValidGSTIN(dtCheck.Rows[0]["GST NUMBER"].ToString()))
+                {
+                    RowError += "GST NUMBER : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["ACTIVE *"].ToString()))
+            {
+                RowError += "Active should not be empty\n\n";
+            }
+            else
+            {
+                if (dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "YES" && dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "NO")
+                {
+                    RowError += "Active : Value should be Yes or No\n";
+                }
+            }
+            return RowError;
+        }
+        public string SC_VendorValidation(DataTable dtCheck, List<string> duplicates)
+        {
+            string RowError = "";
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["CODE *"].ToString()))
+            {
+                RowError += "Code : Code should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["CODE *"].ToString()))
+                {
+                    RowError += "Code : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["NAME *"].ToString()))
+            {
+                RowError += "Name : Name should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["NAME *"].ToString()))
+                {
+                    RowError += "Name : Invalid character\n";
+                }
+            }
+            string Shinecode = dtCheck.Rows[0]["SHINE CODE *"].ToString();
+
+            if (string.IsNullOrEmpty(Shinecode))
+            {
+                RowError += "SHINE CODE : SHINE CODE should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumeric(Shinecode))
+                {
+                    RowError += "SHINE CODE : Invalid character(Alpha Numeric only)\n";
+                }
+                else
+                {
+                    bool exists = duplicates.Any(x => x.Equals(Shinecode, StringComparison.OrdinalIgnoreCase));
+                    if (exists)
+                    {
+                        RowError += "SHINE CODE : Duplicate Shinecode found\n";
+                    }
+
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["ADDRESS"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["ADDRESS"].ToString()))
+                {
+                    RowError += "ADDRESS : Invalid character\n";
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["GST NUMBER"].ToString()))
+            {
+                if (!objBL.BL_isValidGSTIN(dtCheck.Rows[0]["GST NUMBER"].ToString()))
+                {
+                    RowError += "GST NUMBER : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["ACTIVE *"].ToString()))
+            {
+                RowError += "Active should not be empty\n\n";
+            }
+            else
+            {
+                if (dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "YES" && dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "NO")
+                {
+                    RowError += "Active : Value should be Yes or No\n";
+                }
+            }
+            return RowError;
+        }
+        public string SC_ProductValidation(DataTable dtCheck, List<string> duplicates)
+        {
+            string RowError = "";
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["CODE *"].ToString()))
+            {
+                RowError += "Code : Code should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["CODE *"].ToString()))
+                {
+                    RowError += "Code : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["NAME *"].ToString()))
+            {
+                RowError += "Name : Name should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["NAME *"].ToString()))
+                {
+                    RowError += "Name : Invalid character\n";
+                }
+            }
+            string Shinecode = dtCheck.Rows[0]["SHINE CODE *"].ToString();
+
+            if (string.IsNullOrEmpty(Shinecode))
+            {
+                RowError += "SHINE CODE : SHINE CODE should not be empty\n";
+            }
+            else
+            {
+                if (!objBL.BL_AlphaNumeric(Shinecode))
+                {
+                    RowError += "SHINE CODE : Invalid character(Alpha Numeric only)\n";
+                }
+                else
+                {
+                    bool exists = duplicates.Any(x => x.Equals(Shinecode, StringComparison.OrdinalIgnoreCase));
+                    if (exists)
+                    {
+                        RowError += "SHINE CODE : Duplicate Shinecode found\n";
+                    }
+
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["MFR NAME"].ToString()))
+            {
+                if (!objBL.BL_AlphaNumericSpl(dtCheck.Rows[0]["MFR NAME"].ToString()))
+                {
+                    RowError += "MFR NAME : Invalid character\n";
+                }
+            }
+            if (!string.IsNullOrEmpty(dtCheck.Rows[0]["HSN"].ToString()))
+            {
+                if (!objBL.BL_HSNSACValidation(dtCheck.Rows[0]["HSN"].ToString()))
+                {
+                    RowError += "HSN : Invalid character\n";
+                }
+            }
+            if (string.IsNullOrEmpty(dtCheck.Rows[0]["ACTIVE *"].ToString()))
+            {
+                RowError += "Active should not be empty\n\n";
+            }
+            else
+            {
+                if (dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "YES" && dtCheck.Rows[0]["ACTIVE *"].ToString().ToUpper() != "NO")
+                {
+                    RowError += "Active : Value should be Yes or No\n";
+                }
+            }
+            return RowError;
+        }
         void ValidateNumericField(DataRow row, string columnName, bool IsMandatory, ref string rowError)
         {
             string value = row[columnName]?.ToString();
@@ -3687,5 +3910,6 @@ namespace SampWebApi.Import_Utility
             }
             return dtSaveResponse;
         }
+
     }
 }

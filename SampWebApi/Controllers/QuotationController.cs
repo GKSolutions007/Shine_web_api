@@ -460,7 +460,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/quotation/getvariantdata")]
-        public IHttpActionResult GetVariantQTNData(string VariantType, string DocID)
+        public IHttpActionResult GetVariantQTNData(string VariantType, string DocID,string PartyID)
         {
             try
             {
@@ -470,7 +470,7 @@ namespace SampWebApi.Controllers
                 {
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 31, DDT.Rows[i][6].ToString());
+                        DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 31, PartyID);//DDT.Rows[i][6].ToString()
                         List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
                         for (int j = 0; j < DDT1.Rows.Count; j++)
                         {
