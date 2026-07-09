@@ -103,6 +103,7 @@ namespace SampWebApi.Models
         public string InventoryId { get; set; }
         public string ProdID { get; set; }
         public string Code { get; set; }
+        public string Shinecode { get; set; }
         public string Name { get; set; }
         public string UomID { get; set; }
         public string OrgUomID { get; set; }
@@ -192,6 +193,7 @@ namespace SampWebApi.Models
         public string BatchNo { get; set; }
         public string ProdID { get; set; }
         public string HSNCode { get; set; }
+        public string Shinecode { get; set; }
         public string ProductDiscPerc { get; set; }
         public string TradeDiscPerc { get; set; }
         

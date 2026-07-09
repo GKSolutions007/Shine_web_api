@@ -174,6 +174,7 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             Billadd1 = DDT.Rows[i]["Billadd1"].ToString(),
                             Billadd2 = DDT.Rows[i]["Billadd2"].ToString(),
                             Billadd3 = DDT.Rows[i]["Billadd3"].ToString(),
@@ -307,6 +308,7 @@ namespace SampWebApi.Controllers
                             Code = DDT.Rows[i]["Code"].ToString(),
                             Name = DDT.Rows[i]["Name"].ToString(),
                             HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
+                            Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                             //ProductDiscPerc = DDT.Rows[i]["ProductDiscPerc"].ToString(),
                             ProductDiscPerc = OrgDiscPern.ToString(),
                             TradeDiscPerc = OrgTradeDiscPern.ToString(),
@@ -401,6 +403,7 @@ namespace SampWebApi.Controllers
                                     ID = DDT1.Rows[j]["ID"].ToString(),
                                     Code = DDT1.Rows[j]["Code"].ToString(),
                                     Name = DDT1.Rows[j]["Name"].ToString(),
+                                    Shinecode = DDT1.Rows[j]["Shinecode"].ToString(),
                                     Billadd1 = DDT1.Rows[j]["Billadd1"].ToString(),
                                     Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
                                     Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
@@ -538,7 +541,8 @@ namespace SampWebApi.Controllers
                                     ProdID = DDT2.Rows[k]["ProdID"].ToString(),
                                     UomID = DDT2.Rows[k]["UomID"].ToString(),
                                     Code = DDT2.Rows[k]["Code"].ToString(),
-                                    Name = DDT2.Rows[k]["Name"].ToString(),
+                                    Shinecode = DDT2.Rows[k]["Shinecode"].ToString(),
+                                    Name = DDT2.Rows[k]["Name"].ToString(),                                    
                                     TaxID = DDT2.Rows[k]["TaxID"].ToString(),
                                     UomQty = DDT2.Rows[k]["Qty"].ToString(),
                                     MRP = DDT2.Rows[k]["DetailMRP"].ToString(),
@@ -787,22 +791,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspTransProductAutocomplete", TransID, Branch, PriceType, Convert.ToDateTime(Date));
-                //List<ProductModel> list = new List<ProductModel>();
-                //for (int i = 0; i < DDT.Rows.Count; i++)
-                //{
-                //    list.Add(new ProductModel
-                //    {
-                //        ID = DDT.Rows[i]["ID"].ToString(),
-                //        Code = DDT.Rows[i]["Code"].ToString(),
-                //        Name = DDT.Rows[i]["Name"].ToString(),
-                //        EAN = DDT.Rows[i]["EAN"].ToString(),
-                //        HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
-                //        PurchasePrice = DDT.Rows[i]["Price"].ToString(),
-                //        ABSQty = TransID != "17" ? DDT.Rows[i]["ABSQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
-                //        LocationID = DDT.Rows[i]["LocationName"].ToString(),
-                //    });
-                //}
+                DataTable DDT = bl.BL_ExecuteParamSP("uspTransProductAutocomplete", TransID, Branch, PriceType, Convert.ToDateTime(Date));                
                 var list = new List<object>();
                 for (int i = 0; i < DDT.Rows.Count; i++)
                 {
@@ -816,6 +805,7 @@ namespace SampWebApi.Controllers
                         PurchasePrice = DDT.Rows[i]["Price"].ToString(),
                         ABSQty = TransID != "17" ? DDT.Rows[i]["ABSQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
                         LocationID = DDT.Rows[i]["LocationName"].ToString(),
+                        Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                     });
                 }
                 return Ok(list);
@@ -842,7 +832,7 @@ namespace SampWebApi.Controllers
             Code = c["Code"].ToString(),
             Name = c["Name"].ToString(),
             Address = c["Address"].ToString(),
-
+            Shinecode = c["Shinecode"].ToString(),
             BeatDetails = dtBeat.AsEnumerable()
                 .Where(b => Convert.ToInt32(b["CustomerID"]) == Convert.ToInt32(c["ID"]))
                 .Select(b => new BeatDetail

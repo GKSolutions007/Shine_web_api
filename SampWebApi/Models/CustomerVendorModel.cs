@@ -280,6 +280,7 @@ namespace SampWebApi.Models
         public string Code { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
+        public string Shinecode { get; set; }
         public List<BeatDetail> BeatDetails { get; set; }
     }
 
