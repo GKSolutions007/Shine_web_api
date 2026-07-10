@@ -16,6 +16,11 @@ using System.Windows.Forms;
 using System.Configuration;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+using Microsoft.Ajax.Utilities;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
+
 namespace SampWebApi.BuisnessLayer
 {
     public class clsBusinessLayer
@@ -1030,6 +1035,62 @@ namespace SampWebApi.BuisnessLayer
         {
             return BL_ExecuteParamSP("uspGetPrintConfig", nConfigValue);
         }
+        public byte[] CompressImage(Stream inputStream)
+        {
+            if (inputStream == null || inputStream.Length == 0)
+                return null;
 
+            inputStream.Position = 0;
+
+            using (var image = Image.Load(inputStream))
+            {
+                image.Mutate(x =>
+                {
+                    x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(800, 800)
+                    });
+                    x.BackgroundColor(SixLabors.ImageSharp.Color.White);
+                });
+
+                using (var ms = new MemoryStream())
+                {
+                    var encoder = new JpegEncoder { Quality = 75 };
+                    image.Save(ms, encoder);
+                    return ms.ToArray();
+                }
+            }
+        }
+        public byte[] CompressImage_1(HttpPostedFile file)
+        {
+            if (file == null || file.ContentLength == 0)
+                return null;
+
+            using (var image = Image.Load(file.InputStream))
+            {
+                image.Mutate(x =>
+                {
+                    x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(800, 800)
+                    });
+
+                    x.BackgroundColor(SixLabors.ImageSharp.Color.White);
+                });
+
+                using (var ms = new MemoryStream())
+                {
+                    var encoder = new JpegEncoder
+                    {
+                        Quality = 75
+                    };
+
+                    image.Save(ms, encoder);
+                    return ms.ToArray();
+                }
+            }
+        }
     }
 }
