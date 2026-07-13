@@ -1049,7 +1049,7 @@ namespace SampWebApi.BuisnessLayer
                     x.Resize(new ResizeOptions
                     {
                         Mode = ResizeMode.Max,
-                        Size = new Size(800, 800)
+                        Size = new Size(300, 300)
                     });
                     x.BackgroundColor(SixLabors.ImageSharp.Color.White);
                 });

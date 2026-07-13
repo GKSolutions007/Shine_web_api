@@ -193,6 +193,7 @@ namespace SampWebApi.Models
         public string LastActionTime { get; set; }
         public List<clsProdLocMapping> lstProdLocMapping { get; set; }
         public List<CompressedImage> ProductImages { get; set; }
+        public string RemoveProducts { get; set; }
     }
     public class CompressedImage
     {

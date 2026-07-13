@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Vml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using MessagingToolkit.QRCode.Crypt;
 using Newtonsoft.Json;
@@ -767,7 +768,12 @@ namespace SampWebApi.Controllers
                             bl.BL_ExecuteParamSP("uspUpdateProductLocationMapping", IdentID, lst.BranchID, lst.LocationID, Deleted);
                             Deleted = 1;
                         }
-
+                        string[] removeitemimages = lstMaster.RemoveProducts.Split(',');
+                        foreach (string rmvfilename in removeitemimages)
+                        {
+                            if (!string.IsNullOrEmpty(rmvfilename))
+                                bl.BL_ExecuteParamSP("uspSaveImagedata", 2, 1, "Product", IdentID, null, rmvfilename, null);
+                        }
                         // Save image file names against the product — adjust SP/table to your schema
                         foreach (object imgdata in compimgdata)
                         {
@@ -777,7 +783,7 @@ namespace SampWebApi.Controllers
                             byte[] imageData = (byte[])type.GetProperty("compressimagedata")?.GetValue(imgdata);
 
                             //bl.BL_ExecuteParamSP("uspAddProductImage", IdentID, imgName);
-                            bl.BL_ExecuteParamSP("uspSaveImagedata", 1, "Product", IdentID, imageData, fileName, fileSize);
+                            bl.BL_ExecuteParamSP("uspSaveImagedata", 1,1, "Product", IdentID, imageData, fileName, fileSize);
                         }
 
                         list.Add(new SaveMessage()
