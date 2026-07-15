@@ -480,14 +480,10 @@ namespace SampWebApi.Controllers
                                 Random random = new Random();
                                 int OTP = random.Next(100000, 999999);
                                 #region Body Mail Content
-                                string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) &&
-        !string.IsNullOrWhiteSpace(Longitude))
-        ? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank"">
-                        Open Location </a>"
-        : "Location Not Found";                                
+                                string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) && !string.IsNullOrWhiteSpace(Longitude)) ? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank"">Open Location </a>" : "Location Not Found";
                                 string MailBody = GetDeviceVerificationMailBody("Device", LoginUserName, OTP.ToString(), CompCode, CompName, locationHtml);
                                 #endregion
-                                bool Issend = bl.SendEmail("Device Verification OTP", MailBody,
+                                bool Issend = bl.SendEmail("Device Verification OTP - "+ CompCode, MailBody,
                                     //"Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", 
                                     ToEmail, CCMail);
                                 if (Issend)
@@ -535,7 +531,7 @@ namespace SampWebApi.Controllers
                            
                             string MailBody = GetDeviceVerificationMailBody("Device", LoginUserName, OTP.ToString(), CompCode, CompName, locationHtml);
                             #endregion
-                            bool Issend = bl.SendEmail("Device Verification OTP", MailBody,
+                            bool Issend = bl.SendEmail("Device Verification OTP - " + CompCode, MailBody,
                                 //"Dear " + CompName + ", OTP for Device Verification <b>" + OTP.ToString() + "</b>", 
                                 ToEmail, CCMail);
                             if (Issend)
@@ -770,7 +766,7 @@ Open Location </a>"
     : "Location Not Found";
 
                 string MailBody = GetDeviceVerificationMailBody("User", LoginUserName, OTP.ToString(), CompCode, CompName, locationHtml);
-                bool Issend = bl.SendEmail("User Verification OTP", MailBody,
+                bool Issend = bl.SendEmail("User Verification OTP - " + CompCode, MailBody,
                     ToEmail, CCMail, LoginUserEmail);
                 if (Issend)
                 {

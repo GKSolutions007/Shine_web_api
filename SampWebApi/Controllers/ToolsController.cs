@@ -291,7 +291,7 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-
+        
         [HttpPost]
         [Route("api/BranchMapping/save")]
         public IHttpActionResult saveupdateBranch(List<BranchMapping> lstProfiles)
@@ -345,6 +345,70 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-
+        [HttpGet]
+        [Route("api/mfrmap/getusers")]
+        public IHttpActionResult GetMfrUsers(int UserID)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageManufacturerMapping", 0, UserID);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "mfrmap/getusers", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/mfrmap/usersmfrdata")]
+        public IHttpActionResult GetUserMfrMapping(int UserID)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageManufacturerMapping", 1, UserID);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "mfrmap/usersmfrdata", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/mfrmap/save")]
+        public IHttpActionResult savemfrmap(List<MfrMapping> lstMfr)
+        {
+            try
+            {
+                List<SaveMessage> list = new List<SaveMessage>();
+                if (lstMfr != null)
+                {
+                    foreach (MfrMapping item in lstMfr)
+                    {
+                        bl.BL_ExecuteParamSP("uspManageManufacturerMapping", 2, item.MapUserID, item.MfrID, item.Active, item.UserID);
+                    }
+                    list.Add(new SaveMessage()
+                    {
+                        ID = 0.ToString(),
+                        MsgID = "0",
+                        Message = "Saved successfully"
+                    });
+                    return Ok(list);
+                }
+                list.Add(new SaveMessage()
+                {
+                    ID = 0.ToString(),
+                    MsgID = "1",
+                    Message = "Data not saved. Try again"
+                });
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Tools", "mfrmap/save", ex.Message);
+            }
+            return Ok();
+        }
     }
 }

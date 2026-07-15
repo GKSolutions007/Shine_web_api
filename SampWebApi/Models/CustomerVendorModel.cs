@@ -192,8 +192,15 @@ namespace SampWebApi.Models
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
         public List<clsProdLocMapping> lstProdLocMapping { get; set; }
+        public List<CompressedImage> ProductImages { get; set; }
+        public string RemoveProducts { get; set; }
     }
-    
+    public class CompressedImage
+    {
+        public string FileName { get; set; }
+        public string FileSize { get; set; }
+        public string CompressImageData { get; set; }
+    }
     public class clsPurchaseUOM
     {
         public string ID { get; set; }
@@ -272,6 +279,13 @@ namespace SampWebApi.Models
         public string BranchID { get; set; }
         public string Active { get; set; }
         public string SetAsDefault { get; set; }
+        public string UserID { get; set; }
+    }
+    public class MfrMapping
+    {
+        public string MapUserID { get; set; }
+        public string MfrID { get; set; }
+        public string Active { get; set; }
         public string UserID { get; set; }
     }
     public class CustomerList
