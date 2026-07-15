@@ -1,0 +1,2 @@
+{"Date":"15-Jul-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"EInvoiceEWay","FunctionName":"einvoiceeway/updateewayinfo","Error":"Conversion failed when converting the varchar value 'sdfsdfdsf' to data type int.","Timestamp":"15-Jul-2026 04:05:23 PM"},
+{"Date":"15-Jul-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"EInvoiceEWay","FunctionName":"einvoiceeway/updateewayinfo","Error":"Conversion failed when converting the varchar value 'asdasda' to data type int.","Timestamp":"15-Jul-2026 04:06:32 PM"},
