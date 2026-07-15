@@ -281,6 +281,13 @@ namespace SampWebApi.Models
         public string SetAsDefault { get; set; }
         public string UserID { get; set; }
     }
+    public class MfrMapping
+    {
+        public string MapUserID { get; set; }
+        public string MfrID { get; set; }
+        public string Active { get; set; }
+        public string UserID { get; set; }
+    }
     public class CustomerList
     {
         public int ID { get; set; }

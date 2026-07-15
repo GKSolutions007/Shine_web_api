@@ -65,7 +65,7 @@ namespace SampWebApi.Controllers
                 }
                 if (Mode == "5")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);
+                    DDT = bl.BL_ExecuteParamSP("uspManageCustomerMaster", Mode, Name);                    
                     List<CustomerVendorModel> list = new List<CustomerVendorModel>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
