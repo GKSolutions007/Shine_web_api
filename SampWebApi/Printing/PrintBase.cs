@@ -1360,7 +1360,7 @@ Warm regards,<br/>
                         {
                             if (row[14].ToString() == "gksBarCode" && row[18].ToString() == "Header")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksBarCode", 0, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksBarCode", 0, printMode, sw);
                             }
                         }
                     }
@@ -1372,7 +1372,7 @@ Warm regards,<br/>
                         {
                             if (row[14].ToString() == "gksQRCode" && row[18].ToString() == "Header")
                             {
-                                SetFontStyle(row, g, null, 0, 0, "gksQRCode", 0, printMode, sw);
+                                SetFontStyle(row, g, dtGetHeaderVal, 0, 0, "gksQRCode", 0, printMode, sw);
                             }
                         }
                     }
