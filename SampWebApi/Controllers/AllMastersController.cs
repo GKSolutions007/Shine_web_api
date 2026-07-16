@@ -2184,6 +2184,15 @@ namespace SampWebApi.Controllers
                             ValidExpDate = ExpDate.ToString("dd/MMM/yyyy");
                             ValidExpDays = (ExpDate - DateTime.Now).Days.ToString();
                         }
+                        string webdevs = null, mobdevs = null;
+                        if (!string.IsNullOrEmpty(DDT.Rows[i]["WebDevices"].ToString()))
+                        {
+                            webdevs = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["WebDevices"].ToString());
+                        }
+                        if (!string.IsNullOrEmpty(DDT.Rows[i]["MobileDevices"].ToString()))
+                        {
+                            mobdevs = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["MobileDevices"].ToString());
+                        }
                         list.Add(new CompanyDeatils
                         {
                             CompanyId = DDT.Rows[i]["CompanyId"].ToString(),
@@ -2209,6 +2218,8 @@ namespace SampWebApi.Controllers
                             Dl_21 = DDT.Rows[i]["Dl_21"].ToString(),
                             ExpiryDate = ValidExpDate,
                             ExpiryDays = ValidExpDays,
+                            WebDevices = webdevs,
+                            MobileDevices = mobdevs,
                             F_SD = Convert.ToDateTime(DDT.Rows[i]["F_SD"].ToString()).ToString("yyyy-MM-dd"),
                             F_ED = Convert.ToDateTime(DDT.Rows[i]["F_ED"].ToString()).ToString("yyyy-MM-dd"),
                             lstState = lststa
@@ -2229,10 +2240,19 @@ namespace SampWebApi.Controllers
         {
             try
             {
+                string webdevs = null, mobdevs = null;
+                if (!string.IsNullOrEmpty(lstMaster.WebDevices))
+                {
+                    webdevs = clsEncryptDecrypt.Encrypt(lstMaster.WebDevices);
+                }
+                if (!string.IsNullOrEmpty(lstMaster.MobileDevices))
+                {
+                    mobdevs = clsEncryptDecrypt.Encrypt(lstMaster.MobileDevices);
+                }
                 bl.BL_ExecuteParamSP("uspManageUpdateCompanyDetail", 3, lstMaster.CompanyId, lstMaster.CompanyCode, lstMaster.CompanyName, lstMaster.StateID,
                      lstMaster.Address, lstMaster.Country, lstMaster.State, lstMaster.City, lstMaster.Pincode, lstMaster.Contact_Person, lstMaster.MobileNo,
                      lstMaster.PhoneNo, lstMaster.Website, lstMaster.Email, lstMaster.FSSAI, lstMaster.AadharNo, lstMaster.PANNo, lstMaster.GSTIN, lstMaster.Dl_20,
-                     lstMaster.Dl_21, lstMaster.CCEmail, lstMaster.F_SD, lstMaster.F_ED);
+                     lstMaster.Dl_21, lstMaster.CCEmail, lstMaster.F_SD, lstMaster.F_ED, webdevs, mobdevs);
                 List<SaveMessage> list = new List<SaveMessage>();
                 list.Add(new SaveMessage
                 {

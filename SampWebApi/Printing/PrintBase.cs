@@ -2280,7 +2280,10 @@ Warm regards,<br/>
                 {
                     strFrmt.Alignment = StringAlignment.Far;
                 }
-
+                else if (row[25].ToString() == "2")
+                {
+                    strFrmt.Alignment = StringAlignment.Center;
+                }
                 RectangleF drawRect = new RectangleF();
                 if (printMode == 1)
                 {
