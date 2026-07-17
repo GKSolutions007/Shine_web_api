@@ -104,30 +104,34 @@ namespace SampWebApi.Controllers
                         txt = "[";
                         foreach (EInvoiceEwayModel items in selectedData)
                         {
+                            string orgdt = items.DocDate.ToString();
+                            string[] dtsplit = orgdt.Split('/');
+                            string DocDate = dtsplit[2] + "-" + dtsplit[1] + "-" + dtsplit[0];
+                            bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/getjson", orgdt + " - bind date : " + DocDate, "Info");
                             string jsondata = "{" + '"' + "Version" + '"' + ":" + '"' + "1.1" + '"' + ',';
                             DataSet dtforJSON = new DataSet();
-                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 1, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 1, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt1.TableName = "TranDtls";
                             dtforJSON.Tables.Add(dt1);
-                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 2, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 2, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt2.TableName = "DocDtls";
                             dtforJSON.Tables.Add(dt2);
-                            DataTable dt3 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 3, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt3 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 3, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt3.TableName = "SellerDtls";
                             dtforJSON.Tables.Add(dt3);
-                            DataTable dt4 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 4, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt4 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 4, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt4.TableName = "BuyerDtls";
                             dtforJSON.Tables.Add(dt4);
-                            DataTable dt5 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 5, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt5 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 5, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt5.TableName = "ValDtls";
                             dtforJSON.Tables.Add(dt5);
-                            DataTable dt7 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 7, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt7 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 7, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt7.TableName = "EwbDtls";
                             dtforJSON.Tables.Add(dt7);
-                            DataTable dt8 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 8, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt8 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 8, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt8.TableName = "ExpDtls";
                             dtforJSON.Tables.Add(dt8);
-                            DataTable dt6 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 6, items.DocID.ToString(), Convert.ToDateTime(items.DocDate.ToString()), items.DocType.ToString());
+                            DataTable dt6 = bl.BL_ExecuteParamSP("uspGetDataforEInvoiceJSON", 6, items.DocID.ToString(), DocDate, items.DocType.ToString());
                             dt6.TableName = "ItemList";
                             dtforJSON.Tables.Add(dt6);
                             jsondata += '"' + "DispDtls" + '"' + ": null,";
@@ -338,8 +342,11 @@ namespace SampWebApi.Controllers
                                         DocNocols = "Doc No";
                                         DocDateCols = "Doc Date";
                                     }
+                                    string tdocdate = dtResult.Rows[i][DocDateCols].ToString();
+                                    bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/uploadjsonfile", tdocdate, "Info");
                                     DataTable dtE = bl.BL_ExecuteParamSP("uspUpdateEWBImport", dtResult.Rows[i][DocNocols].ToString(),
-                                               bl.BL_ChangeDateFormat(dtResult.Rows[i][DocDateCols].ToString(), 1),
+                                               //bl.BL_ChangeDateFormat(dtResult.Rows[i][DocDateCols].ToString(), 1),
+                                               dtResult.Rows[i][DocDateCols].ToString(),
                                                dtResult.Rows[i]["EWB No"].ToString(),null);
                                 }
                                 Msg = "0";// saved
@@ -377,7 +384,8 @@ namespace SampWebApi.Controllers
                                     }                                  
 
                                     DataTable dtE = bl.BL_ExecuteParamSP("uspUpdateIRNImport", dtResult.Rows[i]["Doc No"].ToString(),
-                                               bl.BL_ChangeDateFormat(dtResult.Rows[i]["Doc Date"].ToString(), 1),
+                                               //bl.BL_ChangeDateFormat(dtResult.Rows[i]["Doc Date"].ToString(), 1),
+                                               dtResult.Rows[i]["Doc Date"].ToString(),
                                                dtResult.Rows[i]["IRN"].ToString(), dtResult.Rows[i]["Ack No"].ToString(),
                                                !string.IsNullOrEmpty(Convert.ToString(dtResult.Rows[i]["Ack Date"].ToString())) ?
                                                Convert.ToDateTime(dtResult.Rows[i]["Ack Date"].ToString()) :

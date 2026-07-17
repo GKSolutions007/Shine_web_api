@@ -880,20 +880,36 @@ namespace SampWebApi.BuisnessLayer
         {
 
             string DateValue = string.Empty;
-            if (!string.IsNullOrEmpty(strDate) && Format == 1) { DateValue = Convert.ToDateTime(strDate).ToString("yyyy-MM-dd"); }
+            try
+            {
+                if (!string.IsNullOrEmpty(strDate) && Format == 1) { DateValue = Convert.ToDateTime(strDate).ToString("yyyy-MM-dd"); }
             else if (!string.IsNullOrEmpty(strDate) && Format == 2) { DateValue = Convert.ToDateTime(strDate).ToString("dd-MM-yyyy"); }
             else if (!string.IsNullOrEmpty(strDate) && Format == 3) { DateValue = Convert.ToDateTime(strDate).ToString("dd/MM/yyyy"); }
             else { DateValue = DateTime.Today.ToString("yyyy-MM-dd"); }
+            }
+            catch (Exception ex)
+            {
+                BL_WriteErrorMsginLog("BL", "BL_ChangeDateFormat", ex.Message);
+                throw;
+            }
             return DateValue;
         }
         public string AmountinINDformat(string Value)
         {
             string Amount = string.Empty;
-            decimal parsed = decimal.Parse(Value, CultureInfo.InvariantCulture);
-            CultureInfo hindia = new CultureInfo("hi-IN");
-            string text = string.Format(hindia, "{0:c}", parsed);
-            string txt = text.Replace("₹", "");
-            Amount = txt.Remove(txt.Length - 3);
+            try
+            {
+                decimal parsed = decimal.Parse(Value, CultureInfo.InvariantCulture);
+                CultureInfo hindia = new CultureInfo("hi-IN");
+                string text = string.Format(hindia, "{0:c}", parsed);
+                string txt = text.Replace("₹", "");
+                Amount = txt.Remove(txt.Length - 3);
+            }
+            catch (Exception ex)
+            {
+                BL_WriteErrorMsginLog("BL", "AmountinINDformat", ex.Message);
+                throw;
+            }
             return Amount;
         }
         public void BL_UpdateclosingDateforPosting(int TranTypeID, int TranID, DateTime TranDate)

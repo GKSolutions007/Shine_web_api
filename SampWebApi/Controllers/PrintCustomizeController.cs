@@ -225,7 +225,7 @@ namespace SampWebApi.Controllers
                         FontStyle = null,// reader["FontStyle"]?.ToString(),
                         TextValue = ControlName,// reader["TextValue"]?.ToString(),
                         ImageData = base64ImageWithPrefix,// reader["ImageData"]?.ToString()
-                        Alignment = !string.IsNullOrEmpty(AlignID) ? AlignID == "0" ? "left" : AlignID == "1" ? "right" : "denter" : "left",
+                        Alignment = !string.IsNullOrEmpty(AlignID) ? AlignID == "0" ? "left" : AlignID == "1" ? "right" : "center" : "left",
                         IsFooter = dtResult.Rows[i]["Footer"].ToString(),
                         Bold = dtResult.Rows[i]["Bold"].ToString(),
                         Italic = dtResult.Rows[i]["Italic"].ToString(),
