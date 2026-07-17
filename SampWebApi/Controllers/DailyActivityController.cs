@@ -3,7 +3,9 @@ using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.SqlServer.Server;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Crmf;
 using Org.BouncyCastle.Asn1.Ocsp;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -18,8 +20,10 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.UI.WebControls;
 using System.Web.Util;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -746,6 +750,115 @@ namespace SampWebApi.Controllers
             catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("DailyActivity", "webcollection/filterdata", ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/bulkordertaken/filterdata")]
+        public IHttpActionResult BOTInitalData()
+        {
+            try
+            {
+                DataSet dataSet = bl.BL_ExecuteParamSPDataset("uspBulkOrdertakendata", 1);
+                return Ok(dataSet);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("DailyActivity", "bulkordertaken/filterdata", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/bulkordertaken/filterdocuments")]
+        public IHttpActionResult BOTDocuments(string BeatID, string SalesmanID, string CustomerID,string ShowAll)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspBulkOrdertakendata", 2, BeatID, SalesmanID, CustomerID, ShowAll);
+                var list = new List<object>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new
+                    {
+                        //ID										                        
+                        ID = DDT.Rows[i]["ID"].ToString(),
+                        EncID = HttpUtility.UrlEncode(clsEncryptDecrypt.Encrypt(DDT.Rows[i]["ID"].ToString())),
+                        Date = DDT.Rows[i]["OTDate"].ToString(),
+                        BranchName = DDT.Rows[i]["Branch"].ToString(),
+                        BeatName = DDT.Rows[i]["Beat"].ToString(),
+                        SalesManName = DDT.Rows[i]["Salesman"].ToString(),
+                        CustomerName = DDT.Rows[i]["CustomerName"].ToString(),
+                        Value = DDT.Rows[i]["Value"].ToString(),
+                        ItemCount = DDT.Rows[i]["ItemCount"].ToString(),
+                        DiscAmt = DDT.Rows[i]["DiscAmt"].ToString(),
+                        Status = DDT.Rows[i]["Status"].ToString(),
+                        StatusID = DDT.Rows[i]["StatusID"].ToString(),
+                        Remarks = DDT.Rows[i]["Remark"].ToString(),
+                        Narration = DDT.Rows[i]["Narration"].ToString(),                        
+                    });
+                }
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("DailyActivity", "bulkordertaken/filterdocuments", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/bulkordertaken/otdata")]
+        public IHttpActionResult OTData(string ID)
+        {
+            try
+            {
+                DataTable dataTable = bl.BL_ExecuteParamSP("uspBulkOrdertakendata", 3, ID);
+                return Ok(dataTable);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("DailyActivity", "bulkordertaken/otdata", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/bulkordertaken/cancel")]
+        public IHttpActionResult OTCancel([FromBody] ValidateIdModel request)
+        {
+            try
+            {
+                if (request?.Items == null)
+                    return BadRequest();
+                var Response = new List<object>();
+                bl.bl_Transaction(1);
+                foreach (var item in request.Items)
+                {
+                    DataTable dt = bl.bl_ManageTrans("uspValidateBulkOrderTaken", request.Mode, item.ID, item.Status, request.UserID);
+                    if (dt.Rows.Count > 0)
+                    {
+                        Response.Add(new
+                        {
+                            Type = "Error",
+                            ID = item.ID,
+                            Message = dt.Rows[0][0].ToString()
+                        });
+                    }
+                    else
+                    {
+                        Response.Add(new
+                        {
+                            Type = "Success",
+                            ID = item.ID,
+                            Message = "Cancelled Successfully"
+                        });
+                    }
+                }
+                bl.bl_Transaction(2);
+                return Ok(Response);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("DailyActivity", "bulkordertaken/cancel", ex.Message);
             }
             return Ok();
         }
