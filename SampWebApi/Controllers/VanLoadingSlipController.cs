@@ -29,7 +29,7 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("DailyActivity", "vanloadslip/getdata", ex.Message);
+                bl.BL_WriteErrorMsginLog("VanLoadingSlip", "vanloadslip/getdata", ex.Message);
             }
             return Ok();
         }
@@ -59,7 +59,7 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("DailyActivity", "vanloadslip/vlsdocumentdata", ex.Message);
+                bl.BL_WriteErrorMsginLog("VanLoadingSlip", "vanloadslip/vlsdocumentdata", ex.Message);
             }
             return Ok();
         }
