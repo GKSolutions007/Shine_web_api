@@ -342,6 +342,7 @@
     <Compile Include="Controllers\TokenController.cs" />
     <Compile Include="Controllers\ToolsController.cs" />
     <Compile Include="Controllers\TransactionImportController.cs" />
+    <Compile Include="Controllers\VanLoadingSlipController.cs" />
     <Compile Include="Import Utility\clsExportData.cs" />
     <Compile Include="Import Utility\ImportFieldValidations.cs" />
     <Compile Include="Models\DeliveryModel.cs" />
@@ -462,6 +463,7 @@
     <Folder Include="Views\ProductMaster\" />
     <Folder Include="Views\PurchaseBill\" />
     <Folder Include="Views\Report\" />
+    <Folder Include="Views\VanLoadingSlip\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
