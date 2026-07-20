@@ -434,10 +434,14 @@ namespace SampWebApi.Controllers
                             DocValue += "'" + dtRanges.Rows[i][0].ToString() + "',";
                         }
                         string Doc = DocValue.Remove(DocValue.Length - 1);
-                        bl.BL_ExecuteParamSP("uspUpdateEwayInTrans", 2, Doc, selectedData[0].VehicleNo, selectedData[0].Distance,
+                        DataTable dt = bl.BL_ExecuteParamSP("uspUpdateEwayInTrans", 2, Doc, selectedData[0].VehicleNo, selectedData[0].Distance,
                                                         selectedData[0].TransportMode, selectedData[0].TransportType, selectedData[0].TransactionID,
                                                          selectedData[0].TransactionName, selectedData[0].Branch,
-                                                         selectedData[0].FromDate, selectedData[0].ToDate);
+                                                         selectedData[0].FromDate, selectedData[0].ToDate, selectedData[0].TypeID);
+                        if(dt.Rows.Count > 0)
+                        {
+
+                        }
                     }
                 }
             }
