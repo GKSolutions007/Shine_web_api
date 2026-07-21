@@ -24,7 +24,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetVanLoadSlipData", 1);
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspGetSetVanLoadSlipData", 1);
                 return Ok(DDT);
             }
             catch (Exception ex)
@@ -376,10 +376,11 @@ namespace SampWebApi.Controllers
                             }
 
                             DataTable dtResult = bl.bl_ManageTrans("uspManageVanloadingSlip", bl.BL_nValidation(listTrans.TransMode), bl.BL_nValidation(listTrans.TransID),
-                                InvoiceIdentID, listTrans.DocDate, listTrans.BranchID, listTrans.SalesmanID, listTrans.RefNo, listTrans.PriceID,
+                                InvoiceIdentID, listTrans.DocDate, listTrans.BranchID, listTrans.SalesmanID, listTrans.RefNo,bl.BL_nValidation(listTrans.PriceID),
                                  bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), bl.BL_dValidation(listTrans.RoundOffAmt),
                                  bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.CurrentStatus), listTrans.Remarks, listTrans.Narration,
-                                 listTrans.UserID, dtProd);
+                                 listTrans.UserID, dtProd, bl.BL_nValidation(listTrans.VehicleNo), bl.BL_nValidation(listTrans.Distance), listTrans.TransportType,
+                                     listTrans.TransportMode, listTrans.TransactionID, listTrans.TransactionName);
 
                             if (dtResult.Columns.Count > 1)
                             {

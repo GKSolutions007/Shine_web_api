@@ -2448,14 +2448,22 @@ Warm regards,<br/>
                         {
                             DataRow r = RowValue.Rows[0];
 
-                            QRBARDocID = r["Document ID"]?.ToString() ?? "No Data";
-                            QRBARAckNNo = r["AckNo"]?.ToString() ?? "No Data";
-                            QRBARSignQR = r["SignedQRCode"]?.ToString() ?? "No Data";
-                            QRBAREWayNo = r["EWBNo"]?.ToString() ?? "No Data";
-                            QRBARUPItn = r["UPItn"]?.ToString() ?? "No Data";
-                            QRBARAmt = r["QRAmt"]?.ToString() ?? "No Data";
-                            QRBARUPIID = r["UPIID"]?.ToString() ?? "No Data";
-                            QRBARUPIName = r["UPIName"]?.ToString() ?? "No Data";
+                            //QRBARDocID = r["Document ID"]?.ToString() ?? "No Data";
+                            //QRBARAckNNo = r["AckNo"]?.ToString() ?? "No Data";
+                            //QRBARSignQR = r["SignedQRCode"]?.ToString() ?? "No Data";
+                            //QRBAREWayNo = r["EWBNo"]?.ToString() ?? "No Data";
+                            //QRBARUPItn = r["UPItn"]?.ToString() ?? "No Data";
+                            //QRBARAmt = r["QRAmt"]?.ToString() ?? "No Data";
+                            //QRBARUPIID = r["UPIID"]?.ToString() ?? "No Data";
+                            //QRBARUPIName = r["UPIName"]?.ToString() ?? "No Data";
+                            QRBARDocID = r.Table.Columns.Contains("Document ID") ? (r["Document ID"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARAckNNo = r.Table.Columns.Contains("AckNo") ? (r["AckNo"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARSignQR = r.Table.Columns.Contains("SignedQRCode") ? (r["SignedQRCode"]?.ToString() ?? "No Data") : "No Data";
+                            QRBAREWayNo = r.Table.Columns.Contains("EWBNo") ? (r["EWBNo"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARUPItn = r.Table.Columns.Contains("UPItn") ? (r["UPItn"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARAmt = r.Table.Columns.Contains("QRAmt") ? (r["QRAmt"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARUPIID = r.Table.Columns.Contains("UPIID") ? (r["UPIID"]?.ToString() ?? "No Data") : "No Data";
+                            QRBARUPIName = r.Table.Columns.Contains("UPIName") ? (r["UPIName"]?.ToString() ?? "No Data") : "No Data";
                         } 
 
 
@@ -2467,11 +2475,12 @@ Warm regards,<br/>
                             nameofqr == "UWO" ? string.Format("upi://pay?pa={0}&pn={1}&cu=INR&tn={2}", upiid, upiname, upitn) : "";
                         string UPIQRDATA = !string.IsNullOrEmpty(upiid) ? UPIURL : "";
 
-                        QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "SQR" ? QRBARSignQR : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : QRBARDocID : "No Data";
                         bool hasPrint = true;
                         //strDocID = "upi://pay?pa=jjsolution2011@okicici&pn=Naresh Kanna&cu=INR&am="+ upiamt + "&tn=" + upitn;
                         if (Mode == "gksQRCode")
                         {
+                            QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "SQR" ? QRBARSignQR : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : QRBARDocID : "No Data";
+
                             //strDocID = strDocID.Substring(0, 122);
                             string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : QRBARDocID);
 
@@ -2486,11 +2495,19 @@ Warm regards,<br/>
                         }
                         else
                         {
-                            QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "BRC" ? QRBARDocID : nameofqr == "BRA" ? QRBARAckNNo : QRBAREWayNo : "No Data";
-                            if (!string.IsNullOrEmpty(QRBARDocID) && QRBARDocID != "0")
+                            string Barcodecontent = "";
+                            if(nameofqr == "BRC")
+                                Barcodecontent = QRBARDocID;
+                            else if (nameofqr == "BRA")
+                                Barcodecontent = QRBARAckNNo;
+                            else if (nameofqr == "BRE")
+                                Barcodecontent = QRBAREWayNo;
+
+                            //QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "BRC" ? QRBARDocID : nameofqr == "BRA" ? QRBARAckNNo : QRBAREWayNo : "No Data";
+                            if (!string.IsNullOrEmpty(Barcodecontent) && Barcodecontent != "0")// && QRBARDocID != "0"
                             {
                                 Code128BarcodeDraw barCode = BarcodeDrawFactory.Code128WithChecksum;
-                                img = barCode.Draw(QRBARDocID, 100);
+                                img = barCode.Draw(Barcodecontent, 100);
                             }
                             else
                             {
@@ -2586,6 +2603,7 @@ Warm regards,<br/>
             }
             catch (Exception ex)
             {
+                GKS_BL.BL_WriteErrorMsginLog("PrintBase", "SetFontStyle", ex.Message);
                 //GKS_BL.BL_ExceptionMsg("Print", "SetFontStyle", ex);
             }
         }
