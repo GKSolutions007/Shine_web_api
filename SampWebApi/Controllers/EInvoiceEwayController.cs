@@ -67,12 +67,12 @@ namespace SampWebApi.Controllers
                 }
                 else
                 {
-                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 2, 0, FromDate, ToDate, DocValue);
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 2, TypeID, 0, FromDate, ToDate, DocValue);
                     if (dtResult.Rows.Count > 0)
                     {
-                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 5, 0, FromDate, ToDate, DocValue);
+                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 5, TypeID, 0, FromDate, ToDate, DocValue);
                         string jsonparty = JsonConvert.SerializeObject(DDT);
-                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 6, 0, FromDate, ToDate, DocValue);
+                        DDT = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 6, TypeID, 0, FromDate, ToDate, DocValue);
                         string jsonpartyinfo = JsonConvert.SerializeObject(DDT);
                         var EInvWayData = new
                         {
@@ -168,16 +168,16 @@ namespace SampWebApi.Controllers
                     }
                     else//E-Way
                     {
-                        DataTable dtverinfo = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 1, 0);
+                        DataTable dtverinfo = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 1, TypeID, 0);
                         txt = "{" + '"' + dtverinfo.Rows[0][0].ToString() + '"' + ":" + '"' + dtverinfo.Rows[0][1].ToString() + '"' + ',' + '"' + "billLists" + '"' + ':' + '[';
                         foreach (EInvoiceEwayModel items in selectedData)
                         {
                             string jsondata = "";
                             DataSet dtforJSON = new DataSet();
-                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 3, items.DocID.ToString());
+                            DataTable dt1 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 3, TypeID, items.DocID.ToString());
                             dt1.TableName = "billLists";
                             dtforJSON.Tables.Add(dt1);
-                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 4, items.DocID.ToString());
+                            DataTable dt2 = bl.BL_ExecuteParamSP("uspGetJsonDataforEWaybill", 4, TypeID, items.DocID.ToString());
                             dt2.TableName = "itemList";
                             //dt2.Columns.Remove("docNo");
                             dtforJSON.Tables.Add(dt2);
@@ -288,7 +288,7 @@ namespace SampWebApi.Controllers
                     bool blResult = true;
                     int EwayMode = 1;
                     List<string> lst = null;
-                    if (TransID == "1")//E-Way
+                    if (TransID == "1" || TransID == "3")//E-Way OR VAN LOAD SLIP
                     {
                         EwayMode = 1;
                         lst = AddEWBImport();
@@ -301,21 +301,21 @@ namespace SampWebApi.Controllers
                     ColumnValidation(lst, ref blResult);
                     if (!blResult)
                     {
-                        if (TransID == "1")//E-Way
+                        if (TransID == "1" || TransID == "3")//E-Way OR VAN LOAD SLIP
                         {
                             EwayMode = 2;
                             lst = AddEWBImportfromReport();
                         }
                         if (TransID == "2")//E-Invoice
                         {
-                            lst = AddEWBImportfromReport();
+                            lst = AddIRNExportfromReport();
                         }
                         ColumnValidation(lst, ref blResult);
                         ErrorColAlreadyExisist = true;
                     }
                     if (blResult)
                     {
-                        if (TransID == "1")//E-Way
+                        if (TransID == "1" || TransID == "3")//E-WayOR VAN LOAD SLIP
                         {
                             
                             if (dtData.Rows.Count > 0)
@@ -343,11 +343,10 @@ namespace SampWebApi.Controllers
                                         DocDateCols = "Doc Date";
                                     }
                                     string tdocdate = dtResult.Rows[i][DocDateCols].ToString();
-                                    bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/uploadjsonfile", tdocdate, "Info");
                                     DataTable dtE = bl.BL_ExecuteParamSP("uspUpdateEWBImport", dtResult.Rows[i][DocNocols].ToString(),
                                                //bl.BL_ChangeDateFormat(dtResult.Rows[i][DocDateCols].ToString(), 1),
                                                dtResult.Rows[i][DocDateCols].ToString(),
-                                               dtResult.Rows[i]["EWB No"].ToString(),null);
+                                               dtResult.Rows[i]["EWB No"].ToString(), TransID == "3" ? "Delivery Challan" : "Tax Invoice");
                                 }
                                 Msg = "0";// saved
                             }
@@ -381,15 +380,17 @@ namespace SampWebApi.Controllers
                                         string splitbyspace = Convert.ToString(dtResult.Rows[i][EwayColumn].ToString());
                                         string[] spt = splitbyspace.Split(' ');
                                         eWayno = spt[0].ToString();
-                                    }                                  
+                                    }
+                                    bl.BL_WriteErrorMsginLog("EInvoiceEWay", "uploadjsonfile", "Doc Date : " + dtResult.Rows[i]["Doc Date"].ToString()
+                                        + "Ack Date : " + dtResult.Rows[i]["Ack Date"].ToString(), "Info");
 
                                     DataTable dtE = bl.BL_ExecuteParamSP("uspUpdateIRNImport", dtResult.Rows[i]["Doc No"].ToString(),
                                                //bl.BL_ChangeDateFormat(dtResult.Rows[i]["Doc Date"].ToString(), 1),
                                                dtResult.Rows[i]["Doc Date"].ToString(),
                                                dtResult.Rows[i]["IRN"].ToString(), dtResult.Rows[i]["Ack No"].ToString(),
                                                !string.IsNullOrEmpty(Convert.ToString(dtResult.Rows[i]["Ack Date"].ToString())) ?
-                                               Convert.ToDateTime(dtResult.Rows[i]["Ack Date"].ToString()) :
-                                               Convert.ToDateTime(dtResult.Rows[i]["Doc Date"].ToString()), 
+                                               (dtResult.Rows[i]["Ack Date"].ToString()) :
+                                               (dtResult.Rows[i]["Doc Date"].ToString()), 
                                                dtResult.Rows[i]["Status"].ToString(),
                                                dtResult.Rows[i][SignQRColumn].ToString(),
                                                 eWayno,
@@ -674,6 +675,8 @@ namespace SampWebApi.Controllers
         }
         public static List<string> AddIRNExport()
         {
+            //Sl. No	Ack No	Ack Date	Doc No	Doc Date	Doc Type	Inv Value.	Recipient GSTIN	Status	IRN	SignedQrCOde	Eway Bill No.
+
             return new List<string>()
                     {
                         "Sl. No",
@@ -709,5 +712,6 @@ namespace SampWebApi.Controllers
                         "Eway Bill No."
                     };
         }
+       
     }
 }
