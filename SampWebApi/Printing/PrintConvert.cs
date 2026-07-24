@@ -409,7 +409,8 @@ namespace SampWebApi.Printing
         /// <param name="fPointParamY"></param>
         private void SetFooterValue(int nFooterValue, int? strFooterValue = null, float? fPointParamY = null)
         {
-            DataRow[] drFooterValue = dtGetConfigPage.Select(dtGetConfigPage.Columns[14].ColumnName + "= 'Value' AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Footer'");
+            //string filterqry = "(" + dtGetConfigPage.Columns[14].ColumnName + "= 'Value' OR " + dtGetConfigPage.Columns[14].ColumnName + " = 'Box') AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Footer'";
+            DataRow[] drFooterValue = dtGetConfigPage.Select("("+dtGetConfigPage.Columns[14].ColumnName + "= 'Value' OR "+ dtGetConfigPage.Columns[14].ColumnName  + " = 'Box') AND " + dtGetConfigPage.Columns[18].ColumnName + "= 'Footer'");
             bool isContinous = false;
             if (drFooterValue.Length > 0)
             {
@@ -605,7 +606,7 @@ namespace SampWebApi.Printing
                 {
                     if (dtValue.Columns.Contains("Doc Prefix"))
                     {
-                        dtTax = dtValue.Select("[Doc Prefix]=2").CopyToDataTable();
+                        dtTax = dtValue.Select("[Doc Prefix]=15").CopyToDataTable();
                     }
                     else
                     {
