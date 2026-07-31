@@ -875,14 +875,15 @@ Open Location </a>"
 
         [HttpGet]
         [Route("api/todayroute/getpost")]
-        public IHttpActionResult GetSettodayroute(string Mode, string UserID, string BeatID = "0", string SalesmanID = "0", string BranchID = "0")
+        public IHttpActionResult GetSettodayroute(string Mode, string UserID, string BeatID = "0", 
+            string SalesmanID = "0", string BranchID = "0", string ProfileID = "0", string UPIID = "")
         {
             try
             {
                 if (Mode == "1")
                 {
                     List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode);
                     if (DDT.Rows.Count > 0)
                     {
                         for (int i = 0; i < DDT.Rows.Count; i++)
@@ -900,22 +901,25 @@ Open Location </a>"
                 }
                 else if (Mode == "2")
                 {
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode, UserID);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode, UserID);
                     List<Users> list = new List<Users>();
                     if (DDT.Rows.Count > 0)
                     {
                         list.Add(new Users
-                        {
-                            BeatID = DDT.Rows[0][0].ToString(),
-                            SalesmanID = DDT.Rows[0][1].ToString(),
-                            BranchID = DDT.Rows[0][2].ToString(),
+                        {                            
+                            BeatID = DDT.Rows[0]["BeatID"].ToString(),
+                            SalesmanID = DDT.Rows[0]["SalesmanID"].ToString(),
+                            BranchID = DDT.Rows[0]["BranchID"].ToString(),
+                            PrintProfileID = DDT.Rows[0]["PrintProfileID"].ToString(),
+                            UPIID = DDT.Rows[0]["UPIID"].ToString(),
                         });
                     }
                     return Ok(list);
                 }
                 else if (Mode == "3")
                 {
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode, UserID, BeatID, SalesmanID, BranchID);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode, UserID, BeatID, 
+                        SalesmanID, BranchID, ProfileID,UPIID);
                     List<SaveMessage> list = new List<SaveMessage>();
                     //if (DDT.Rows.Count > 0)
                     {

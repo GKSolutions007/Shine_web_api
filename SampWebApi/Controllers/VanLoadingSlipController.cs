@@ -385,7 +385,7 @@ namespace SampWebApi.Controllers
                             if (dtResult.Columns.Count > 1)
                             {
                                 bl.bl_Transaction(3);
-                                string RowID = "-1";
+                                string RowID = dtResult.Columns.Count == 4 ? dtResult.Rows[0][3].ToString() : "-1";
                                 string msg = dtResult.Rows[0][0].ToString();
                                 list.Add(new SaveMessage()
                                 {
