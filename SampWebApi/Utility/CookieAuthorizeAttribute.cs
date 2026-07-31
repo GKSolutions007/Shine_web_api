@@ -13,6 +13,7 @@ namespace SampWebApi.Utility
     public class CookieAuthorizeAttribute : AuthorizeAttribute
     {
         private readonly RefreshTokenRepo _refreshTokenRepo = new RefreshTokenRepo();
+        clsBusinessLayer bl = new clsBusinessLayer();
 
         protected override bool IsAuthorized(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
@@ -23,6 +24,7 @@ namespace SampWebApi.Utility
                 var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
                 if (AuthTokenValidate == null || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || !AuthTokenValidate.IsRevoked)
                 {
+                    //bl.BL_WriteErrorMsginLog("CookieAuthorize", "IsAuthorized", token);
                     return false;
                 }
                 var TrustDevice = HttpContext.Current.Request.Cookies["DeviceID"];

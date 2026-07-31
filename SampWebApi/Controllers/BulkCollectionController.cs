@@ -478,13 +478,13 @@ namespace SampWebApi.Controllers
                                             InvRow["ReasonID"] = 0;
                                             dtDetail.Rows.Add(InvRow);
                                         }
-                                        
+                                        int nBTMode = bl.BL_nValidation(chqbtdocs[0].Payments[0].transferMode);
                                         //Cheque/Bank Transfer collection save
                                         bl.bl_Transaction(1);
                                         DataTable dtResult = bl.bl_ManageTrans("uspManageFullColl",
                                                bulkcollectiondata.DocPrefix, 0, dtHeader, dtDetail, dtMopDetails, 0,
                                                chqbtdocs[0].BeatID, chqbtdocs[0].SalesmanID, 0,
-                                               dtDenominationPMDetail, 1, 0, 1, 0, chqbtdocs[0].Remarks,
+                                               dtDenominationPMDetail, 1, 0, 1, nBTMode, chqbtdocs[0].Remarks,
                                                chqbtdocs[0].Narration, bulkcollectiondata.BranchID);
                                         if (dtResult.Columns.Count == 1)
                                         {
