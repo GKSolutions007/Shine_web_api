@@ -945,3 +945,9 @@ D:\2025\SHINE WEB\API\SampWebApi\obj\Debug\SampWebApi.csproj.CoreCompileInputs.c
 D:\2025\SHINE WEB\API\SampWebApi\obj\Debug\SampWebApi.csproj.Up2Date
 D:\2025\SHINE WEB\API\SampWebApi\obj\Debug\SampWebApi.dll
 D:\2025\SHINE WEB\API\SampWebApi\obj\Debug\SampWebApi.pdb
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.DataSet.dll
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.dll
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.pdb
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.xml
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.DataSet.pdb
+D:\2025\SHINE WEB\API\SampWebApi\bin\ExcelDataReader.DataSet.xml

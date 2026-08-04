@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
+using ExcelDataReader;
 using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
@@ -453,6 +454,66 @@ namespace SampWebApi.Controllers
             return Ok();
         }    
 
+        public void ColumnValidation_1(List<string> lst, ref bool blResult)
+        {
+            try
+            {
+                blResult = true;
+                List<string> lstdtColumn = new List<string>();
+                string ffp = strFilePath + strFileName;
+                SpreadsheetDocument docSelected = SpreadsheetDocument.Open(strFilePath + strFileName, false);
+                IEnumerable<Sheet> AllSheet = docSelected.WorkbookPart.Workbook.Descendants<Sheet>();
+                strSheetName = AllSheet.FirstOrDefault()?.Name;
+                Sheet sCurrent = GetSelectedSheet(AllSheet);
+                if (sCurrent != null)
+                {
+                    Worksheet worksheet = (docSelected.WorkbookPart.GetPartById(sCurrent.Id.Value) as WorksheetPart).Worksheet;
+                    IEnumerable<Row> rows = worksheet.GetFirstChild<SheetData>().Descendants<Row>();
+                    // Add Header Columns
+                    foreach (Row row in rows)
+                    {
+                        if (row.RowIndex.Value == 1)
+                        {
+                            foreach (Cell cell in row.Descendants<Cell>())
+                            {
+                                lstdtColumn.Add(GetValue(docSelected, cell));
+                            }
+                        }
+                        break;
+                    }
+                    // Verify Columns Count
+                    if (lst.Count != lstdtColumn.Count)
+                    {
+                        blResult = false;
+                    }
+                    string ErrMsg = "";
+                    // Verify Columns Names Are Same Or Not
+                    foreach (string str in lst)
+                    {
+                        if (!lstdtColumn.Contains(str))
+                        {
+                            ErrMsg = str;
+                            blResult = false;
+                            break;
+                        }
+                    }
+                    if (blResult)
+                    {
+                        GetTable(docSelected, rows);
+                        // Get the elapsed time as a TimeSpan value.
+                    }
+                    //docSelected.Close();
+                }
+            }
+            catch (IOException)
+            {
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public void ColumnValidation(List<string> lst, ref bool blResult)
         {
             try
@@ -460,6 +521,25 @@ namespace SampWebApi.Controllers
                 blResult = true;
                 List<string> lstdtColumn = new List<string>();
                 string ffp = strFilePath + strFileName;
+                using (var stream = File.Open(ffp, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    byte[] header = new byte[8];
+                    stream.Read(header, 0, 8);
+
+                    string hex = BitConverter.ToString(header);
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                       
+                        var result = reader.AsDataSet();
+
+                        DataTable table = result.Tables[0];
+
+                        foreach (DataRow row in table.Rows)
+                        {
+                            Console.WriteLine(row[0]);
+                        }
+                    }
+                }
                 SpreadsheetDocument docSelected = SpreadsheetDocument.Open(strFilePath + strFileName, false);
                 IEnumerable<Sheet> AllSheet = docSelected.WorkbookPart.Workbook.Descendants<Sheet>();
                 strSheetName = AllSheet.FirstOrDefault()?.Name;
