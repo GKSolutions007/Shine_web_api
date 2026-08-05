@@ -454,7 +454,7 @@ namespace SampWebApi.Controllers
             return Ok();
         }    
 
-        public void ColumnValidation_1(List<string> lst, ref bool blResult)
+        public void ColumnValidation(List<string> lst, ref bool blResult)
         {
             try
             {
@@ -514,7 +514,7 @@ namespace SampWebApi.Controllers
                 throw;
             }
         }
-        public void ColumnValidation(List<string> lst, ref bool blResult)
+        public void ColumnValidation_new(List<string> lst, ref bool blResult)
         {
             try
             {

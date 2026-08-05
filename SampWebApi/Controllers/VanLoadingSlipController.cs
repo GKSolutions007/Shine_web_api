@@ -376,7 +376,7 @@ namespace SampWebApi.Controllers
                             }
 
                             DataTable dtResult = bl.bl_ManageTrans("uspManageVanloadingSlip", bl.BL_nValidation(listTrans.TransMode), bl.BL_nValidation(listTrans.TransID),
-                                InvoiceIdentID, listTrans.DocDate, listTrans.BranchID, listTrans.SalesmanID, listTrans.RefNo,bl.BL_nValidation(listTrans.PriceID),
+                                InvoiceIdentID, listTrans.DocDate, listTrans.BranchID, listTrans.SalesmanID, listTrans.RefNo, bl.BL_nValidation(listTrans.PriceID),
                                  bl.BL_dValidation(listTrans.GrossAmt), bl.BL_dValidation(listTrans.TaxAmt), bl.BL_dValidation(listTrans.RoundOffAmt),
                                  bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.CurrentStatus), listTrans.Remarks, listTrans.Narration,
                                  listTrans.UserID, dtProd, bl.BL_nValidation(listTrans.VehicleNo), bl.BL_nValidation(listTrans.Distance), listTrans.TransportType,
@@ -389,7 +389,7 @@ namespace SampWebApi.Controllers
                                 string msg = dtResult.Rows[0][0].ToString();
                                 list.Add(new SaveMessage()
                                 {
-                                    ID = 0.ToString(),
+                                    ID = RowID,
                                     MsgID = "1",
                                     Message = msg,
                                     RowID = RowID
@@ -418,98 +418,31 @@ namespace SampWebApi.Controllers
                     }
                     else// for cancel
                     {
-                        string Shinecode = bl.BL_ShineCode(1, bl.BL_nValidation(listTrans.CustomerID));
-                        if (!string.IsNullOrEmpty(Shinecode))
-                        {
-                            bl.bl_Transaction_SC(1);
-                            DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 2, 15, listTrans.ID, Shinecode);
-                            if (dtSCcheck.Rows.Count == 0)
-                            {
-                                bl.bl_Transaction_SC(2);
-                            }
-                            else
-                            {
-                                bl.bl_Transaction_SC(3);
-                                list.Add(new SaveMessage()
-                                {
-                                    ID = 1.ToString(),
-                                    MsgID = "1",
-                                    Message = "Invoice transfer document status changed(Status :&ensp; <h4><code>" + dtSCcheck.Rows[0][0] + "</code></h4>)"
-                                });
-                                return Ok(list);
-                            }
-                        }
                         bl.bl_Transaction(1);
-                        DataTable dtResult = bl.bl_ManageTrans("uspManageTranSalesCancel", listTrans.CurrentStatus, listTrans.ID, listTrans.UserID, listTrans.TransMode, listTrans.Remarks, listTrans.Narration);
+                        DataTable dtResult = bl.bl_ManageTrans("uspManageVanloadingSlipCancel", listTrans.ID, listTrans.CurrentStatus, listTrans.UserID, listTrans.Remarks, listTrans.Narration);
                         if (dtResult.Columns.Count > 1)
                         {
-                            string ErrorMsg = "";
-                            int nCheck = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
-                            if (nCheck == 7)
-                            {
-                                ErrorMsg = "This document already processed";
-                            }
-                            if (nCheck == 8)
-                            {
-                                ErrorMsg = "Amount miss matched,So this invoice unable to modify or cancel";
-                            }
-                            if (nCheck == 9)
-                            {
-                                ErrorMsg = "Product already de-active for this document";
-                            }
-                            if (nCheck == 10)
-                            {
-                                ErrorMsg = "Qty Not Exist,so this transaction unable to  cancel";
-                            }
-                            if (nCheck == 16)
-                            {
-                                ErrorMsg = "Collection Status Already Changed";
-                            }
-                            if (nCheck == 17)
-                            {
-                                ErrorMsg = "Coupon Status Already Changed";
-                            }
-                            if (nCheck == 20)
-                            {
-                                ErrorMsg = "Amount Partially collected";
-                            }
-                            if (nCheck == 21)
-                            {
-                                ErrorMsg = "This Document Already Used in Sales Return";
-                            }
-                            if (nCheck == 1)
-                            {
-                                ErrorMsg = "Document Status Already Changed";
-                            }
-                            else
-                            {
-                                ErrorMsg = dtResult.Rows[0][0].ToString();
-                            }
+                            string ErrorMsg = dtResult.Rows[0][0].ToString();
+                            string ErrorProdIds = dtResult.Rows[0][3].ToString();
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()
                             {
-                                ID = 1.ToString(),
+                                ID = ErrorProdIds,
                                 MsgID = "1",
-                                Message = "Cancel : " + ErrorMsg
+                                Message = ErrorMsg
                             });
                             return Ok(list);
                         }
                         else
                         {
                             bl.bl_Transaction(2);
-                            bl.BL_UpdateclosingDateforPosting(15, bl.BL_nValidation(listTrans.ID), Convert.ToDateTime(listTrans.DocDate));
-                            //change to cancel status
-                            if (!string.IsNullOrEmpty(Shinecode))
-                            {
-                                bl.bl_Transaction_SC(1);
-                                DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 3, 15, listTrans.ID, Shinecode);
-                                bl.bl_Transaction_SC(2);
-                            }
+                            bl.BL_UpdateclosingDateforPosting(24, bl.BL_nValidation(listTrans.ID), Convert.ToDateTime(listTrans.DocDate));
+
                             list.Add(new SaveMessage()
                             {
                                 ID = 0.ToString(),
                                 MsgID = "0",
-                                Message = "Saved Successfully"
+                                Message = "Cancelled Successfully"
                             });
                             return Ok(list);
                         }

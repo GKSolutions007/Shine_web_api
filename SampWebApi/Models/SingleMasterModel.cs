@@ -329,6 +329,7 @@ namespace SampWebApi.Models
         public string CTPPerPointAmount { get; set; }
         public string UpdateVendorinProduct { get; set; }
         public string Radius { get; set; }
+        public string SpotSalesPriceMode { get; set; }
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         

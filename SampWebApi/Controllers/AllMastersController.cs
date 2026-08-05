@@ -35,7 +35,7 @@ namespace SampWebApi.Controllers
         string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connections"].ConnectionString);
         [HttpGet]
         [Route("api/homescreendraft/get")]
-        public IHttpActionResult GetData(string Mode, string Trans)
+        public IHttpActionResult GetData(string Mode, string Trans,string ID ="1")
         {
             try
             {
@@ -96,9 +96,8 @@ namespace SampWebApi.Controllers
                 }
                 if (Mode == "6")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans);
-                    string Jsondata = JsonConvert.SerializeObject(DDT);
-                    return Ok(Jsondata);
+                    DataSet DDTd = bl.BL_ExecuteParamSPDataset("uspHomescreenData", Mode, Trans);
+                    return Ok(DDTd);
                 }
                 if (Mode == "7")
                 {
@@ -117,6 +116,11 @@ namespace SampWebApi.Controllers
                     DataSet dtbrdata = bl.BL_ExecuteParamSPDataset("uspHomescreenData", Mode, Trans);
                     string Jsondata = JsonConvert.SerializeObject(dtbrdata);
                     return Ok(Jsondata);
+                }
+                if (Mode == "12")
+                {
+                    DataTable dtbrdata = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans, ID);
+                    return Ok(dtbrdata);
                 }
             }
             catch(Exception ex)
@@ -177,7 +181,7 @@ namespace SampWebApi.Controllers
 
         [HttpGet]
         [Route("api/singlemaster/get")]
-        public IHttpActionResult GetData(string FormID, string Mode, string Name)
+        public IHttpActionResult GetSMData(string FormID, string Mode, string Name)
         {
             try
             {
@@ -1834,6 +1838,7 @@ namespace SampWebApi.Controllers
                             CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
                             UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
                             Radius = DDT.Rows[i]["Radius"].ToString(),
+                            SpotSalesPriceMode = DDT.Rows[i]["SpotSalesPriceMode"].ToString(),
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd
                         });
@@ -1907,6 +1912,7 @@ namespace SampWebApi.Controllers
                             CTPPerPointAmount = DDT.Rows[i]["CTPPerPointAmount"].ToString(),
                             UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
                             Radius = DDT.Rows[i]["Radius"].ToString(),
+                            SpotSalesPriceMode = DDT.Rows[i]["SpotSalesPriceMode"].ToString(),
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd
                         });
@@ -1926,61 +1932,60 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                    DataTable DDT = new DataTable();
-                    DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
-                                lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
-                                lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
-                                lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
-                                lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
-                                lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
-                                lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
-                                lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
-                                lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius);
-                    //DataTable dtss = bl.listConvertToDataTable(lstMaster.lstPaymode);
-                    foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
+                            lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
+                            lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                            lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
+                            lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
+                            lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
+                            lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
+                            lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
+                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode);
+
+                foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
+                {
+                    if (item.TypeID == "1")
                     {
-                        if (item.TypeID == "1")
-                        {
-                            bl.BL_ExecuteParamSP("uspManageApplicationConfig", 5, item.ID, item.Active, item.Order);
-                        }
-                        else if (item.TypeID == "2")
-                        {
-                            bl.BL_ExecuteParamSP("uspManageApplicationConfig", 6, item.ID, item.Active);
-                        }
-                        else if (item.TypeID == "4")
-                        {
-                            bl.BL_ExecuteParamSP("uspManageApplicationConfig", 10, item.ID, item.Active, item.Order);
-                        }
+                        bl.BL_ExecuteParamSP("uspManageApplicationConfig", 5, item.ID, item.Active, item.Order);
                     }
-                    foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
+                    else if (item.TypeID == "2")
                     {
-                        bl.BL_ExecuteParamSP("uspManageApplicationConfig", 8, item.ID, clsEncryptDecrypt.Encrypt(item.Passwords));
+                        bl.BL_ExecuteParamSP("uspManageApplicationConfig", 6, item.ID, item.Active);
                     }
-                    List<SaveMessage> list = new List<SaveMessage>();
-                    if (DDT.Columns.Count == 1)
+                    else if (item.TypeID == "4")
                     {
-                        //Success message
-                        list.Add(new SaveMessage()
-                        {
-                            ID = DDT.Rows[0][0].ToString(),
-                            MsgID = "0",
-                            Message = "Saved Successfully"
-                        });
+                        bl.BL_ExecuteParamSP("uspManageApplicationConfig", 10, item.ID, item.Active, item.Order);
                     }
-                    else
+                }
+                foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
+                {
+                    bl.BL_ExecuteParamSP("uspManageApplicationConfig", 8, item.ID, clsEncryptDecrypt.Encrypt(item.Passwords));
+                }
+                List<SaveMessage> list = new List<SaveMessage>();
+                if (DDT.Columns.Count == 1)
+                {
+                    //Success message
+                    list.Add(new SaveMessage()
                     {
-                        //Error message
-                        list.Add(new SaveMessage()
-                        {
-                            ID = "0",
-                            MsgID = "1",
-                            Message = "Name already exists"
-                        });
-                    }
-                    return Ok(list);
-                
+                        ID = DDT.Rows[0][0].ToString(),
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                }
+                else
+                {
+                    //Error message
+                    list.Add(new SaveMessage()
+                    {
+                        ID = "0",
+                        MsgID = "1",
+                        Message = "Name already exists"
+                    });
+                }
+                return Ok(list);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("AllMaster", "applicationconfig/save", ex.Message);
             }

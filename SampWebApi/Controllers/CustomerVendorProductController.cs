@@ -824,7 +824,7 @@ namespace SampWebApi.Controllers
        
         [HttpGet]
         [Route("api/productpricechange/get")]
-        public IHttpActionResult GetProductPRICEData(string Mode, string BranchID, string ProdID)
+        public IHttpActionResult GetProductPRICEData(string Mode, string BranchID, string ProdID,string VLSBatch = "0")
         {
             try
             {
@@ -867,7 +867,7 @@ namespace SampWebApi.Controllers
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
                         List<ProdPricechangedata> listProdPrice = new List<ProdPricechangedata>();
-                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", 4, BranchID, ProdID);
+                        DataTable dtBatch = bl.BL_ExecuteParamSP("uspManageProductPricechangedata", 4, BranchID, ProdID, VLSBatch);
                         for (int j = 0; j < dtBatch.Rows.Count; j++)
                         {
                             string pkd = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : null;
