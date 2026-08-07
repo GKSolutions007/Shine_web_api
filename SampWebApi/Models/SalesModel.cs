@@ -427,4 +427,19 @@ namespace SampWebApi.Models
         public int ID { get; set; }
         public int Status { get; set; }
     }
+    public class ReturnVLS
+    {
+        public int SalesmanID { get; set; }
+        public int BranchID { get; set; }
+        public int UserID { get; set; }
+        public int VLSPriceMode { get; set; }
+        public List<ReturnItems> lstProducts { get; set; }
+    }
+    public class ReturnItems
+    {
+        public string ProdID { get; set; }
+        public string Price { get; set; }
+        public string MRP { get; set; }
+        public string ReturnQty { get; set; }
+    }
 }
