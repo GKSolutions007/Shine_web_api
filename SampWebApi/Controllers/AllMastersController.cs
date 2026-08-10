@@ -2643,7 +2643,7 @@ namespace SampWebApi.Controllers
                 DataTable DDT = new DataTable();
                 if (Mode == "1")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspManageTransactionPrint", Mode);
+                    DDT = bl.BL_ExecuteParamSP("uspManageTransactionPrint", Mode, Name);
                     List<CustomerVendorModel> list = new List<CustomerVendorModel>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {

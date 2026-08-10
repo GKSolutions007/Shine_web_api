@@ -1,0 +1,5 @@
+{"Date":"10-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Login","FunctionName":"login/get","Error":"Failed to convert parameter value from a HttpCookie to a String.","Timestamp":"10-Aug-2026 05:56:50 PM"},
+{"Date":"10-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Login","FunctionName":"login/otpverify","Error":"Failed to convert parameter value from a HttpCookie to a String.","Timestamp":"10-Aug-2026 06:07:38 PM"},
+{"Date":"10-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Login","FunctionName":"login/otpverify","Error":"There is no row at position 0.","Timestamp":"10-Aug-2026 07:10:44 PM"},
+{"Date":"10-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Login","FunctionName":"login/otpverify","Error":"There is no row at position 0.","Timestamp":"10-Aug-2026 07:13:12 PM"},
+{"Date":"10-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Login","FunctionName":"login/otpverify","Error":"There is no row at position 0.","Timestamp":"10-Aug-2026 07:15:33 PM"},
