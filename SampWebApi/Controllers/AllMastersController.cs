@@ -1839,6 +1839,12 @@ namespace SampWebApi.Controllers
                             UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
                             Radius = DDT.Rows[i]["Radius"].ToString(),
                             SpotSalesPriceMode = DDT.Rows[i]["SpotSalesPriceMode"].ToString(),
+
+                            PurchaseAddnlDiscbeforeProdDisc = DDT.Rows[i]["PurchaseAddnlDiscbeforeProdDisc"].ToString(),
+                            PurchaseTradeDiscbeforeProdDisc = DDT.Rows[i]["PurchaseTradeDiscbeforeProdDisc"].ToString(),
+                            SalesAddnlDiscbeforeProdDisc = DDT.Rows[i]["SalesAddnlDiscbeforeProdDisc"].ToString(),
+                            SalesTradeDiscbeforeProdDisc = DDT.Rows[i]["SalesTradeDiscbeforeProdDisc"].ToString(),
+
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd
                         });
@@ -1913,6 +1919,10 @@ namespace SampWebApi.Controllers
                             UpdateVendorinProduct = DDT.Rows[i]["UpdateVendorinProduct"].ToString(),
                             Radius = DDT.Rows[i]["Radius"].ToString(),
                             SpotSalesPriceMode = DDT.Rows[i]["SpotSalesPriceMode"].ToString(),
+                            PurchaseAddnlDiscbeforeProdDisc = DDT.Rows[i]["PurchaseAddnlDiscbeforeProdDisc"].ToString(),
+                            PurchaseTradeDiscbeforeProdDisc = DDT.Rows[i]["PurchaseTradeDiscbeforeProdDisc"].ToString(),
+                            SalesAddnlDiscbeforeProdDisc = DDT.Rows[i]["SalesAddnlDiscbeforeProdDisc"].ToString(),
+                            SalesTradeDiscbeforeProdDisc = DDT.Rows[i]["SalesTradeDiscbeforeProdDisc"].ToString(),
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd
                         });
@@ -1941,7 +1951,9 @@ namespace SampWebApi.Controllers
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
                             lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
-                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode);
+                            lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
+                            lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc,
+                            lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc);
 
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {

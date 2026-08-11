@@ -408,7 +408,18 @@ namespace SampWebApi.Controllers
                                         DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 2, DeviceID, DDT.Rows[0]["ID"].ToString(),
                                     "Browser", Latitude, Longitude, Pincode);
                                     }
-
+                                    int webdevcount = bl.BL_nValidation(clsEncryptDecrypt.Decrypt(DDT.Rows[0]["WebDevices"].ToString()));
+                                    DataTable dtWDC = bl.BL_ExecuteParamSP("uspValidateDevice", 8, webdevcount, DDT.Rows[0]["ID"].ToString());
+                                    if(dtWDC.Rows.Count > 0)
+                                    {
+                                        list.Add(new Users
+                                        {
+                                            Mode = "6",
+                                            ResponseMessage = dtWDC.Rows[0][0].ToString(),
+                                            ID = DDT.Rows[0]["ID"].ToString()
+                                        });
+                                        return Ok(list);
+                                    }
                                     DataTable dtAL = bl.BL_ExecuteParamSP("uspValidateDevice", 6, null, DDT.Rows[0]["ID"].ToString());
                                     if (dtAL.Rows.Count > 0 && DDT.Rows[0]["ID"].ToString() != "1")
                                     {
@@ -701,6 +712,19 @@ namespace SampWebApi.Controllers
                                 "Browser", Latitude, Longitude, Pincode);
                     if (OTPType == "device")
                     {
+                        int webdevcount = bl.BL_nValidation(clsEncryptDecrypt.Decrypt(dtOTP.Rows[0]["WebDevices"].ToString()));
+                        DataTable dtWDC = bl.BL_ExecuteParamSP("uspValidateDevice", 8, webdevcount, UserID);
+                        if (dtWDC.Rows.Count > 0)
+                        {
+                            list.Add(new
+                            {
+                                MsgID = "4",
+                                Message = dtWDC.Rows[0][0].ToString(),
+                                ID = UserID
+                            });
+                            return Ok(list);
+                        }
+
                         DataTable dtAL = bl.BL_ExecuteParamSP("uspValidateDevice", 6, null, UserID);
                         if (dtAL.Rows.Count > 0)
                         {

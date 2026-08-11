@@ -313,6 +313,12 @@ namespace SampWebApi.Models
         public string InvoiceStockOnlyProduct { get; set; }
         public string FilterDate { get; set; }        
         public string PurchaseOneView { get; set; }
+
+        public string PurchaseAddnlDiscbeforeProdDisc { get; set; }
+        public string PurchaseTradeDiscbeforeProdDisc { get; set; }
+        public string SalesAddnlDiscbeforeProdDisc { get; set; }
+        public string SalesTradeDiscbeforeProdDisc { get; set; }
+
         public string SalesOneView { get; set; }       
         public string ItemsperPage { get; set; }
         public string Invoiceallowduplicateitem { get; set; }
