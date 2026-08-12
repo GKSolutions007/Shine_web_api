@@ -265,7 +265,11 @@ namespace SampWebApi.Controllers
                                     ProdPern = DDT2.Rows[k]["ProdPern"].ToString(),
                                     TradePern = DDT2.Rows[k]["TradePern"].ToString(),
                                     AddnlPern = DDT2.Rows[k]["AddnlPern"].ToString(),
+                                    ProdAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                    TradeAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
+                                    AddnlAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
                                     TaxPern = DDT2.Rows[k]["TaxPern"].ToString(),
+                                    GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
                                     GrossAmt = DDT2.Rows[k]["GrossAmt"].ToString(),
                                     TaxAmt = DDT2.Rows[k]["TaxAmt"].ToString(),
                                     TaxName = DDT2.Rows[k]["TaxName"].ToString(),
@@ -530,7 +534,11 @@ namespace SampWebApi.Controllers
                             ProdPern = dtProduts.Rows[k]["ProdPern"].ToString(),
                             TradePern = dtProduts.Rows[k]["TradePern"].ToString(),
                             AddnlPern = dtProduts.Rows[k]["AddnlPern"].ToString(),
+                            ProdAmt = dtProduts.Rows[k]["ProdDiscAmt"].ToString(),
+                            TradeAmt = dtProduts.Rows[k]["TradeDiscAmt"].ToString(),
+                            AddnlAmt = dtProduts.Rows[k]["AddnlDiscAmt"].ToString(),
                             TaxPern = dtProduts.Rows[k]["TaxPern"].ToString(),
+                            GoodsAmt = dtProduts.Rows[k]["GoodsAmt"].ToString(),
                             GrossAmt = dtProduts.Rows[k]["GrossAmt"].ToString(),
                             TaxAmt = dtProduts.Rows[k]["TaxAmt"].ToString(),
                             TaxName = dtProduts.Rows[k]["TaxName"].ToString(),
@@ -731,7 +739,10 @@ namespace SampWebApi.Controllers
                                                         dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"])), (i + 1), bl.BL_nValidation(iRow["TaxID"].ToString()), 1, (i + 1),
                                                         bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"])), bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"])), 1,
                                                         bl.BL_nValidation(listTrans.BranchID), listTrans.PriceID, bl.BL_dValidation(iRow["ConversionRate"].ToString()),
-                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])));
+                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])),
+                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscAmt"])),
+                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscAmt"])),
+                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscAmt"])));
                                                     if (dtResultDetail.Rows.Count > 0)
                                                     {
                                                         string Error = "Qty Mismatched";// dtResultDetail.Rows[0][0].ToString();
