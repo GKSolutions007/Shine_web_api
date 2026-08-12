@@ -87,14 +87,17 @@ namespace SampWebApi.Controllers
                         }
                         if (c.ControlType == "Image")
                         {
-                            string base64Image = c.ImageData; // truncated
-
-                            //Remove the prefix if it exists
-                            if (base64Image.StartsWith("data:image"))
+                            if (c.ImageData != null)
                             {
-                                base64Image = base64Image.Substring(base64Image.IndexOf(",") + 1);
+                                string base64Image = c.ImageData; // truncated
+
+                                //Remove the prefix if it exists
+                                if (base64Image.StartsWith("data:image"))
+                                {
+                                    base64Image = base64Image.Substring(base64Image.IndexOf(",") + 1);
+                                }
+                                imageBytes = Convert.FromBase64String(base64Image);
                             }
-                            imageBytes = Convert.FromBase64String(base64Image);
                         }
                         if (c.ControlType == "gksQRCode" || c.ControlType == "gksBarCode")
                         {
@@ -225,7 +228,7 @@ namespace SampWebApi.Controllers
                         FontStyle = null,// reader["FontStyle"]?.ToString(),
                         TextValue = ControlName,// reader["TextValue"]?.ToString(),
                         ImageData = base64ImageWithPrefix,// reader["ImageData"]?.ToString()
-                        Alignment = !string.IsNullOrEmpty(AlignID) ? AlignID == "0" ? "left" : AlignID == "1" ? "right" : "denter" : "left",
+                        Alignment = !string.IsNullOrEmpty(AlignID) ? AlignID == "0" ? "left" : AlignID == "1" ? "right" : "center" : "left",
                         IsFooter = dtResult.Rows[i]["Footer"].ToString(),
                         Bold = dtResult.Rows[i]["Bold"].ToString(),
                         Italic = dtResult.Rows[i]["Italic"].ToString(),
@@ -378,7 +381,7 @@ namespace SampWebApi.Controllers
 
                     int FID = 1;
                     var allowedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-{
+{                        
     "Arial",
     "Arial Black",
     "Arial Narrow",
@@ -399,8 +402,7 @@ namespace SampWebApi.Controllers
     "Segoe UI",
     "Segoe Print",
     "Segoe Script",
-    "Tahoma",
-    "Times New Roman",
+    "Tahoma",    
     "Trebuchet MS",
     "Verdana",
     "Century Gothic",
@@ -409,7 +411,12 @@ namespace SampWebApi.Controllers
     "Rockwell",
     "Book Antiqua",
     "Baskerville Old Face"
-};
+};                    
+                        objFontNames.Add(new
+                        {
+                            ID = FID++,
+                            FontName = "Times New Roman"
+                        });
                     foreach (FontFamily font in System.Drawing.FontFamily.Families)
                     {
                         if (allowedFonts.Contains(font.Name) && font.IsStyleAvailable(FontStyle.Regular))

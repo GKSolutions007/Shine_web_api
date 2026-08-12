@@ -54,6 +54,7 @@ namespace SampWebApi.Controllers
                 if (HttpContext.Current.Request.Files.Count > 0)
                 {
                     string UserID = HttpContext.Current.Request.Files.AllKeys[0].ToString();
+                    string TransID = HttpContext.Current.Request.Files.AllKeys[1].ToString();
                     string fileName = HttpContext.Current.Request.Files[1].FileName;
                     string fileContentType = HttpContext.Current.Request.Files[1].ContentType;
                     //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "Upload Files\\";
@@ -156,7 +157,7 @@ namespace SampWebApi.Controllers
                                     drW["Party Billing Address 1"] = item.ItemArray[9];
                                     drW["Party Billing Address 2"] = item.ItemArray[10];
                                     drW["Party Billing Address 3"] = item.ItemArray[11];
-                                    drW["Party GSTIN"] = item.ItemArray[12];
+                                    drW["Party GSTIN"] = item.ItemArray[13];
                                     drW["Error"] = RowError;
                                     dtHeaderWrongValues.Rows.Add(drW);
 
@@ -173,7 +174,7 @@ namespace SampWebApi.Controllers
                                     drC["Party Billing Address 1"] = item.ItemArray[9];
                                     drC["Party Billing Address 2"] = item.ItemArray[10];
                                     drC["Party Billing Address 3"] = item.ItemArray[11];
-                                    drC["Party GSTIN"] = item.ItemArray[12];
+                                    drC["Party GSTIN"] = item.ItemArray[13];
                                     drC["Error"] = RowError;
                                     dtHeaderCorrectValues.Rows.Add(drC);
                                 }
@@ -193,7 +194,7 @@ namespace SampWebApi.Controllers
                                     drW["Party Billing Address 1"] = item.ItemArray[9];
                                     drW["Party Billing Address 2"] = item.ItemArray[10];
                                     drW["Party Billing Address 3"] = item.ItemArray[11];
-                                    drW["Party GSTIN"] = item.ItemArray[12];
+                                    drW["Party GSTIN"] = item.ItemArray[13];
                                     drW["Error"] = RowError;
                                     dtHeaderWrongValues.Rows.Add(drW);
                                 }
@@ -278,7 +279,7 @@ namespace SampWebApi.Controllers
                                         {
                                             strFileName = DocID + ".pdf";
                                         }
-                                        DCSExportPdf(dtHead, dtItems);
+                                        DCSExportPdf(dtHead, dtItems, TransID);
                                     }
                                 }
                                 string destPath = FPt + "Upload Files\\Customize Print PDF\\";
@@ -886,7 +887,7 @@ namespace SampWebApi.Controllers
                 "Error"
             };
         }
-        public void DCSExportPdf(DataTable dtHeader,DataTable dtItems)
+        public void DCSExportPdf(DataTable dtHeader,DataTable dtItems,string TransID)
         {
             bool allHSNEmpty = !dtItems.AsEnumerable()
                                .Any(row => row["HSN"] != DBNull.Value
@@ -933,7 +934,8 @@ namespace SampWebApi.Controllers
             cell22.Padding = 3;
             cell22.Border = Rectangle.RIGHT_BORDER;// | Rectangle.LEFT_BORDER | Rectangle.TOP_BORDER;
             pdfTableParam.AddCell(cell22);
-            cell22 = new PdfPCell(new Phrase("GST INVOICE", new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.TIMES_ROMAN, 9, 1, BaseColor.BLACK)));
+            string TransactionHeading = TransID == "1" ? "GST INVOICE" : "CREDIT NOTE";
+            cell22 = new PdfPCell(new Phrase(TransactionHeading, new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.TIMES_ROMAN, 9, 1, BaseColor.BLACK)));
             cell22.HorizontalAlignment = Element.ALIGN_CENTER;
             cell22.Padding = 3;
             cell22.Border = Rectangle.RIGHT_BORDER;// | Rectangle.LEFT_BORDER | Rectangle.TOP_BORDER;

@@ -567,3 +567,9 @@ D:\2025\SHINE WEB\API\SampWebApi\obj\Release\SampWebApi.csproj.CoreCompileInputs
 D:\2025\SHINE WEB\API\SampWebApi\obj\Release\SampWebApi.csproj.Up2Date
 D:\2025\SHINE WEB\API\SampWebApi\obj\Release\SampWebApi.dll
 D:\2025\SHINE WEB\API\SampWebApi\obj\Release\SampWebApi.pdb
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.DataSet.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.pdb
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.xml
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.DataSet.pdb
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\ExcelDataReader.DataSet.xml

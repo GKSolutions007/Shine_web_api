@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BuinessLayer;
+using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -31,6 +32,7 @@ namespace SampWebApi.Controllers
                     DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", 4);
                     if (dtResult.Rows.Count > 0)
                     {
+                        string mobcounts = SampWebApi.BuisnessLayer.clsEncryptDecrypt.Decrypt(dtResult.Rows[0]["MobileDevices"].ToString());
                         for (int i = 0; i < dtResult.Rows.Count; i++)
                         {
                             sList.Add(new SystemApprovalModel
@@ -40,7 +42,8 @@ namespace SampWebApi.Controllers
                                 UserID = dtResult.Rows[i][2].ToString(),
                                 DeviceID = dtResult.Rows[i][5].ToString(),
                                 Activate = dtResult.Rows[i][3].ToString(),
-                                MobileNo = dtResult.Rows[i][6].ToString()
+                                MobileNo = dtResult.Rows[i][6].ToString(),
+                                DBName = mobcounts,
                             });
                         }
                     }
@@ -74,28 +77,43 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                if (nMode != "7" && nMode != "8")
-                {
-                    //string Cons = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connection"].ConnectionString);
-                    //string Cons = APIGlobalConn.Decrypt(HttpUtility.UrlDecode(WebCon));
-                    //SqlConnection con = new SqlConnection(Cons);
-                    //con.Open();
-                    //SqlCommand cmd = new SqlCommand("uspLoginInfoRecieve", con);
-                    //cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@Mode", nMode);
-                    //cmd.Parameters.AddWithValue("@TokenValue", nDBs);
-                    //cmd.Parameters.AddWithValue("@UserID", nUserID);
-                    //cmd.Parameters.AddWithValue("@DeviceIdent", nDeviceID);
-                    //SqlDataAdapter sda = new SqlDataAdapter(cmd);                
-                    //sda.Fill(dtResult);
-                    //con.Close();
+                if(nMode == "6")// DeActive Device (nMode != "7" && nMode != "8")
+                {                    
                     DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                    return Ok(1);
                 }
-                else if (nMode == "8")
+                if (nMode == "5")// Active Device
                 {
-                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                    var sList = new List<object>();
+                    DataTable dtMobDev = objBL.BL_ExecuteParamSP("uspManageUpdateCompanyDetail", 1);
+                    string MobDevCount = dtMobDev.Rows.Count > 0 ? SampWebApi.BuisnessLayer.clsEncryptDecrypt.Decrypt(dtMobDev.Rows[0]["MobileDevices"].ToString()) : "1";
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID, MobDevCount);
+                    if(dtResult.Rows.Count > 0)
+                    {
+                        sList.Add(new
+                        {
+                            MsgID = "1",
+                            Message = dtResult.Rows[0][0].ToString(),
+                        });                        
+                    }
+                    else
+                    {
+                        sList.Add(new
+                        {
+                            MsgID = "0",
+                            Message = "Activated Successfully.!!!",
+                        });                        
+                    }
+                    return Ok(sList);
                 }
-                return Ok(1);
+                if (nMode == "8")
+                {
+                    
+
+                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", nMode, null, nUserID, nDeviceID);
+                    return Ok(1);
+                }
+                return Ok();
             }
             catch(Exception ex)
             {

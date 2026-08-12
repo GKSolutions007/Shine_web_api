@@ -1009,6 +1009,11 @@ namespace SampWebApi.Controllers
                         dtProd.Columns.Add("ProdDiscPercent", typeof(decimal));
                         dtProd.Columns.Add("TradeDiscPercent", typeof(decimal));
                         dtProd.Columns.Add("AddnlDiscPercent", typeof(decimal));
+
+                        dtProd.Columns.Add("ProdDiscAmount", typeof(decimal));
+                        dtProd.Columns.Add("TradeDiscAmount", typeof(decimal));
+                        dtProd.Columns.Add("AddnlDiscAmount", typeof(decimal));
+
                         dtProd.Columns.Add("GrossAmt", typeof(decimal));
                         dtProd.Columns.Add("TaxAmt", typeof(decimal));
                         dtProd.Columns.Add("NetAmt", typeof(decimal));
@@ -1041,6 +1046,8 @@ namespace SampWebApi.Controllers
                         dtPaymodeDetails = ToDataTable(listTrans.lstPaymodeInfo);
                     DataTable dtBatch = ToDataTable(listTrans.lstBatchInfo);
                     DataTable dtProducts = ToDataTable(listTrans.lstProdInfo);
+                    bool PurTrdDiscb4Prod = bl.BL_GetAppConfigValue(44) == "1";
+                    bool PurAddnlDiscb4Prod = bl.BL_GetAppConfigValue(43) == "1";
                     List<SaveMessage> list = new List<SaveMessage>();
                     if (listTrans.TransMode != "4")
                     {
@@ -1085,8 +1092,8 @@ namespace SampWebApi.Controllers
                                     decimal TrDisc = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"]));
                                     decimal AddDisc = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"]));
                                     decimal PrDAmt = (PrDisc * dGrs) / 100;
-                                    decimal TrDAmt = (TrDisc * (dGrs - PrDAmt)) / 100;
-                                    decimal AddDAmt = (AddDisc * (dGrs - PrDAmt)) / 100;
+                                    decimal TrDAmt = PurTrdDiscb4Prod ? ((TrDisc * dGrs) / 100) : (TrDisc * (dGrs - PrDAmt)) / 100;
+                                    decimal AddDAmt = PurAddnlDiscb4Prod ? ((AddDisc * dGrs) / 100) : (AddDisc * (dGrs - PrDAmt)) / 100;
                                     decimal fgrsamt = dGrs - (PrDAmt + TrDAmt + AddDAmt);
                                     decimal dTax = dApponMRPCum > 0 ? MRPonTaxAMt : (fgrsamt * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;
                                     decimal dNet = fgrsamt + dTax;

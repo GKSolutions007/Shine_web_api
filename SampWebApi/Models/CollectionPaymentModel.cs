@@ -56,6 +56,7 @@ namespace SampWebApi.Models
         public string BankID { get; set; }
         public string BankName { get; set; }
         public string Branch { get; set; }
+        public string BTMode { get; set; }
         public List<CollPayDetails> lstCollPayDtl { get; set; }
         public List<CustomerVendorModel> lstvPartyDtl { get; set; }
     }

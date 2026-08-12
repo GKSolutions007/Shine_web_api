@@ -220,6 +220,8 @@ namespace SampWebApi.Models
         public string CBy { get; set; }
         public string CDate { get; set; }
         public string UserImageData { get; set; }
+        public string UPIID { get; set; }
+        public string PrintProfileID { get; set; }
         public string ThemeData { get; set; }
         public string FilterDatelist { get; set; }
         public string Menuslist { get; set; }
@@ -311,6 +313,12 @@ namespace SampWebApi.Models
         public string InvoiceStockOnlyProduct { get; set; }
         public string FilterDate { get; set; }        
         public string PurchaseOneView { get; set; }
+
+        public string PurchaseAddnlDiscbeforeProdDisc { get; set; }
+        public string PurchaseTradeDiscbeforeProdDisc { get; set; }
+        public string SalesAddnlDiscbeforeProdDisc { get; set; }
+        public string SalesTradeDiscbeforeProdDisc { get; set; }
+
         public string SalesOneView { get; set; }       
         public string ItemsperPage { get; set; }
         public string Invoiceallowduplicateitem { get; set; }
@@ -327,6 +335,7 @@ namespace SampWebApi.Models
         public string CTPPerPointAmount { get; set; }
         public string UpdateVendorinProduct { get; set; }
         public string Radius { get; set; }
+        public string SpotSalesPriceMode { get; set; }
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         

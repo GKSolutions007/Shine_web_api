@@ -408,7 +408,18 @@ namespace SampWebApi.Controllers
                                         DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 2, DeviceID, DDT.Rows[0]["ID"].ToString(),
                                     "Browser", Latitude, Longitude, Pincode);
                                     }
-
+                                    int webdevcount = bl.BL_nValidation(clsEncryptDecrypt.Decrypt(DDT.Rows[0]["WebDevices"].ToString()));
+                                    DataTable dtWDC = bl.BL_ExecuteParamSP("uspValidateDevice", 8, webdevcount, DDT.Rows[0]["ID"].ToString());
+                                    if(dtWDC.Rows.Count > 0)
+                                    {
+                                        list.Add(new Users
+                                        {
+                                            Mode = "6",
+                                            ResponseMessage = dtWDC.Rows[0][0].ToString(),
+                                            ID = DDT.Rows[0]["ID"].ToString()
+                                        });
+                                        return Ok(list);
+                                    }
                                     DataTable dtAL = bl.BL_ExecuteParamSP("uspValidateDevice", 6, null, DDT.Rows[0]["ID"].ToString());
                                     if (dtAL.Rows.Count > 0 && DDT.Rows[0]["ID"].ToString() != "1")
                                     {
@@ -420,6 +431,7 @@ namespace SampWebApi.Controllers
                                         });
                                         return Ok(list);
                                     }
+
                                     DateTime dtClssTKDate = Convert.ToDateTime(DDT.Rows[0]["UpdateClsDate"].ToString());
                                     if (dtClssTKDate.Date != DateTime.Today)
                                     {
@@ -427,6 +439,11 @@ namespace SampWebApi.Controllers
                                         bl.bl_ManageTrans("uspUpdateClsStockRepost", 2);
                                         bl.bl_Transaction(2);
                                     }
+                                    //Insert Login time
+                                    var Sessionidcookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
+                                    bl.BL_ExecuteParamSP("uspSaveLoginHistory", 1, DDT.Rows[0]["ID"].ToString(), Sessionidcookie.Value,
+                                    Latitude, Longitude);
+
                                     DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
                                     int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
                                     DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
@@ -647,7 +664,8 @@ namespace SampWebApi.Controllers
                     border-left:4px solid #ffc107;
                     color:#856404;
                     font-size:13px;'>
-            Please do not share this OTP with anyone. If you did not request this verification,
+            * 🔐 OTP is valid for 10 minutes only. Please enter the OTP before it expires. Request a new OTP if it expires.<br/>
+            * Please do not share this OTP with anyone. If you did not request this verification,
             contact your system administrator immediately.
         </div>
 
@@ -681,10 +699,32 @@ namespace SampWebApi.Controllers
                 DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 2, OTPID, null, OTP);
                 if (dtOTP.Rows.Count > 0)
                 {
+                    if(dtOTP.Columns.Count == 1)
+                    {
+                        list.Add(new
+                        {
+                            MsgID = "11",
+                            Message = dtOTP.Rows[0][0].ToString()
+                        });
+                        return Ok(list);
+                    }
                     DataTable dtNewDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 3, DeviceID, UserID,
                                 "Browser", Latitude, Longitude, Pincode);
                     if (OTPType == "device")
                     {
+                        int webdevcount = bl.BL_nValidation(clsEncryptDecrypt.Decrypt(dtOTP.Rows[0]["WebDevices"].ToString()));
+                        DataTable dtWDC = bl.BL_ExecuteParamSP("uspValidateDevice", 8, webdevcount, UserID);
+                        if (dtWDC.Rows.Count > 0)
+                        {
+                            list.Add(new
+                            {
+                                MsgID = "4",
+                                Message = dtWDC.Rows[0][0].ToString(),
+                                ID = UserID
+                            });
+                            return Ok(list);
+                        }
+
                         DataTable dtAL = bl.BL_ExecuteParamSP("uspValidateDevice", 6, null, UserID);
                         if (dtAL.Rows.Count > 0)
                         {
@@ -703,6 +743,10 @@ namespace SampWebApi.Controllers
                     var authToken = TokenHelper.GenerateToken(UserID, DeviceID);
                     var tkn = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
                     var refreshToken = TokenHelper.GenerateRefreshToken(UserID, authToken, DeviceID);
+
+                    //Insert Login time
+                    bl.BL_ExecuteParamSP("uspSaveLoginHistory", 1, UserID, tkn.Value, Latitude, Longitude);
+
                     DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
                     int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
                     DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
@@ -804,11 +848,12 @@ Open Location </a>"
         }
         [HttpGet]
         [Route("api/resetlogin")]
-        public IHttpActionResult resetlogin(string token)
+        public IHttpActionResult resetlogin(string token,string sessionid)
         {
             try
             {
                 bl.BL_ExecuteParamSP("uspUpdateRefreshToken", 2, token);
+                bl.BL_ExecuteParamSP("uspSaveLoginHistory", 2, 0, sessionid);
             }
             catch (Exception ex)
             {
@@ -816,6 +861,7 @@ Open Location </a>"
             }
             return Ok();
         }
+
         [HttpGet]
         [Route("api/forgotpassword/validate")]
         public IHttpActionResult GetFGuserData(string UserName, string Email)
@@ -875,14 +921,15 @@ Open Location </a>"
 
         [HttpGet]
         [Route("api/todayroute/getpost")]
-        public IHttpActionResult GetSettodayroute(string Mode, string UserID, string BeatID = "0", string SalesmanID = "0", string BranchID = "0")
+        public IHttpActionResult GetSettodayroute(string Mode, string UserID, string BeatID = "0", 
+            string SalesmanID = "0", string BranchID = "0", string ProfileID = "0", string UPIID = "")
         {
             try
             {
                 if (Mode == "1")
                 {
                     List<CustomerVendorModel> list = new List<CustomerVendorModel>();
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode);
                     if (DDT.Rows.Count > 0)
                     {
                         for (int i = 0; i < DDT.Rows.Count; i++)
@@ -900,22 +947,25 @@ Open Location </a>"
                 }
                 else if (Mode == "2")
                 {
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode, UserID);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode, UserID);
                     List<Users> list = new List<Users>();
                     if (DDT.Rows.Count > 0)
                     {
                         list.Add(new Users
-                        {
-                            BeatID = DDT.Rows[0][0].ToString(),
-                            SalesmanID = DDT.Rows[0][1].ToString(),
-                            BranchID = DDT.Rows[0][2].ToString(),
+                        {                            
+                            BeatID = DDT.Rows[0]["BeatID"].ToString(),
+                            SalesmanID = DDT.Rows[0]["SalesmanID"].ToString(),
+                            BranchID = DDT.Rows[0]["BranchID"].ToString(),
+                            PrintProfileID = DDT.Rows[0]["PrintProfileID"].ToString(),
+                            UPIID = DDT.Rows[0]["UPIID"].ToString(),
                         });
                     }
                     return Ok(list);
                 }
                 else if (Mode == "3")
                 {
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageTodayRoute", Mode, UserID, BeatID, SalesmanID, BranchID);
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspWebShineTodayRoute", Mode, UserID, BeatID, 
+                        SalesmanID, BranchID, ProfileID,UPIID);
                     List<SaveMessage> list = new List<SaveMessage>();
                     //if (DDT.Rows.Count > 0)
                     {
