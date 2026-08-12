@@ -912,6 +912,19 @@ namespace SampWebApi.BuisnessLayer
             }
             return Amount;
         }
+        public string BL_GetAppConfigValue(int nAppID)
+        {
+            string strAppValue = "";
+            DataTable dtGetAppvalue = BL_ExecuteSqlQuery("SELECT AppValue FROM tblAppConfig WHERE AppId="+ nAppID);
+            if (dtGetAppvalue.Rows.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(Convert.ToString(dtGetAppvalue.Rows[0][0])))
+                {
+                    strAppValue = Convert.ToString(dtGetAppvalue.Rows[0][0]);
+                }
+            }
+            return strAppValue;
+        }
         public void BL_UpdateclosingDateforPosting(int TranTypeID, int TranID, DateTime TranDate)
         {
             try

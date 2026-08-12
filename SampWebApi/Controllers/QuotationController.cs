@@ -138,6 +138,7 @@ namespace SampWebApi.Controllers
                             DSTradeDiscPern = bl.BL_dValidation(dtDiscScheme.Rows[0][4]);
                             DSTradeDiscAmt = bl.BL_dValidation(dtDiscScheme.Rows[0][5]) * dConvFact;
                             int ReplaceExists = bl.BL_nValidation(dtDiscScheme.Rows[0][1]);
+                            bool SalesTradeDiscbeforeProdDisc = bl.BL_nValidation(dtDiscScheme.Rows[0]["SalesTradeDiscbeforeProdDisc"]) == 1;
                             if (bl.BL_dValidation(dtDiscScheme.Rows[0][0]) == 1)//apply scheme in qtn
                             {
                                 decimal PDiscAmt = 0, dTradPernfromAmt = 0, dProdPernfromAmt = 0;
@@ -151,7 +152,8 @@ namespace SampWebApi.Controllers
                                 }
                                 if (DSTradeDiscAmt > 0)
                                 {
-                                    dTradPernfromAmt = bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
+                                    dTradPernfromAmt = SalesTradeDiscbeforeProdDisc ? bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice)) * 100) :
+                                        bl.BL_dValidation((DSTradeDiscAmt / (ApplyPrice - PDiscAmt - DSProdDiscAmt)) * 100);
                                 }
                                 if (DSProdDiscAmt > 0)
                                 {
