@@ -340,6 +340,7 @@
     <Compile Include="Controllers\DeliveryController.cs" />
     <Compile Include="Controllers\EInvoiceEwayController.cs" />
     <Compile Include="Controllers\FinancialReportsController.cs" />
+    <Compile Include="Controllers\MasterSyncController.cs" />
     <Compile Include="Controllers\MobileDeviceVerifyController.cs" />
     <Compile Include="Controllers\PartyProductAnalticReportController.cs" />
     <Compile Include="Controllers\PrintCustomizeController.cs" />
