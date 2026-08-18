@@ -129,7 +129,21 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-
+        [HttpGet]
+        [Route("api/homescreen/brandsummary")]
+        public IHttpActionResult Getbrandsummary(string BranchID,string FromDate,string ToDate)
+        {
+            try
+            {
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspHomeBrandSummaryDashboard", BranchID, FromDate, ToDate);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("AllMaster", "homescreen/brandsummary", ex.Message);
+            }
+            return Ok();
+        }
         [HttpGet]
         [Route("api/getfilterdates/get")]
         public IHttpActionResult GetFilterDates()
