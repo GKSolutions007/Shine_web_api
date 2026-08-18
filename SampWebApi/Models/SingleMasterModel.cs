@@ -323,6 +323,8 @@ namespace SampWebApi.Models
         public string ItemsperPage { get; set; }
         public string Invoiceallowduplicateitem { get; set; }
         public string CommonAgeingCreditDays { get; set; }
+        public string AllowPostChequeDaysColl { get; set; }
+        
         public string RestrictBlocklistinInvoice { get; set; }
         public string RetainDate {  get; set; }
         public string BeatMandatoryinCustomer { get; set; }

@@ -315,5 +315,20 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/masterlist")]
+        public IHttpActionResult MasterFielddata(string FormName, string SubField,string Value)
+        {
+            try
+            {
+                DataTable dtMSTdetail = bl.BL_ExecuteParamSP("uspgetMasterlists", FormName, SubField, Value);
+                return Ok(dtMSTdetail);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "masterlist", ex.Message);
+            }
+            return Ok();
+        }
     }
 }

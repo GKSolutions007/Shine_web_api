@@ -381,6 +381,10 @@ namespace SampWebApi.Controllers
                                         string splitbyspace = Convert.ToString(dtResult.Rows[i][EwayColumn].ToString());
                                         string[] spt = splitbyspace.Split(' ');
                                         eWayno = spt[0].ToString();
+                                        if (eWayno.Contains("ErrorCode"))
+                                        {
+                                            eWayno = null;
+                                        }
                                     }
                                     bl.BL_WriteErrorMsginLog("EInvoiceEWay", "uploadjsonfile", "Doc Date : " + dtResult.Rows[i]["Doc Date"].ToString()
                                         + "Ack Date : " + dtResult.Rows[i]["Ack Date"].ToString(), "Info");
