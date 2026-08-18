@@ -716,6 +716,7 @@ namespace SampWebApi.Controllers
                             Status = DDT.Rows[i][17].ToString(),
                             Bankname = DDT.Rows[i][18].ToString(),
                             OSAmt = DDT.Rows[i][19].ToString(),
+                            ChequeValue = DDT.Rows[i]["ChqAging"].ToString(),
                         });
                     }
                     string str = "";
@@ -741,7 +742,8 @@ namespace SampWebApi.Controllers
                                        InvoiceAmt = users.InvoiceAmt,
                                        StatusID = users.Status,
                                        Status = users.Bankname,
-                                       OSAmt = users.OSAmt
+                                       OSAmt = users.OSAmt,
+                                       ChequeAging = users.ChequeValue
                                    };
 
                     return Ok(data);

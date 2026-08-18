@@ -815,7 +815,7 @@ Open Location </a>"
                 if (Issend)
                 {
                     int OTPID = 0;
-                    DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "DeviceVerify", OTP, ID);
+                    DataTable dtOTP = bl.BL_ExecuteParamSP("uspManageOTP", 1, 0, "UserVerify", OTP, ID);
                     if (dtOTP.Rows.Count > 0)
                     {
                         OTPID = Convert.ToInt32(dtOTP.Rows[0][0].ToString());
@@ -1064,6 +1064,38 @@ Open Location </a>"
             catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Login", "validatepermissions", ex.Message);
+            }
+            return Ok();
+        }
+        [CookieAuthorize]
+        [HttpGet]
+        [Route("api/loginhistory/users")]
+        public IHttpActionResult Getloghistoryusers()
+        {
+            try
+            {
+                DataTable dtRes = bl.BL_ExecuteParamSP("uspLoginHistroy", 1);
+                return Ok(dtRes);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Login", "loginhistory/users", ex.Message);
+            }
+            return Ok();
+        }
+        [CookieAuthorize]
+        [HttpGet]
+        [Route("api/loginhistory/userdata")]
+        public IHttpActionResult Getloghistoryuserdata(string UserID,string FromDate,string ToDate)
+        {
+            try
+            {
+                DataTable dtRes = bl.BL_ExecuteParamSP("uspLoginHistroy", 2, UserID, FromDate, ToDate);
+                return Ok(dtRes);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Login", "loginhistory/userdata", ex.Message);
             }
             return Ok();
         }

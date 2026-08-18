@@ -286,6 +286,10 @@ namespace SampWebApi.Controllers
                                     ProdPern = DDT2.Rows[k]["ProdPern"].ToString(),
                                     TradePern = DDT2.Rows[k]["TradePern"].ToString(),
                                     AddnlPern = DDT2.Rows[k]["AddnlPern"].ToString(),
+                                    //ProdDiscAmt,TradeDiscAmt,AddnlDiscAmt
+                                    ProdAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                    TradeAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
+                                    AddnlAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
                                     TaxPern = DDT2.Rows[k]["TaxPern"].ToString(),
                                     GrossAmt = DDT2.Rows[k]["GrossAmt"].ToString(),
                                     TaxAmt = DDT2.Rows[k]["TaxAmt"].ToString(),
@@ -1085,18 +1089,22 @@ namespace SampWebApi.Controllers
                                         MRPonTaxAMt = bl.ReturnGrossorMRPTaxAmt(0, TaxID, TaxTypeID, 0, dMRP) *
                                             (bl.BL_dValidation(iRow["DmgQty"].ToString()) + bl.BL_dValidation(iRow["Qty"].ToString()));
                                     }
-                                    decimal dGrs = (bl.BL_dValidation(iRow["DmgQty"].ToString()) + bl.BL_dValidation(iRow["Qty"].ToString())) * bl.BL_dValidation(iRow["PurchasePrice"].ToString());
+                                    decimal dGoods = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["GoodsAmt"]));
+                                    decimal dGrs = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["GrossAmt"]));
+                                    //(bl.BL_dValidation(iRow["DmgQty"].ToString()) + bl.BL_dValidation(iRow["Qty"].ToString())) * bl.BL_dValidation(iRow["PurchasePrice"].ToString());
                                     //decimal dTax = (dGrs * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;
 
                                     decimal PrDisc = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"]));
                                     decimal TrDisc = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"]));
                                     decimal AddDisc = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"]));
-                                    decimal PrDAmt = (PrDisc * dGrs) / 100;
-                                    decimal TrDAmt = PurTrdDiscb4Prod ? ((TrDisc * dGrs) / 100) : (TrDisc * (dGrs - PrDAmt)) / 100;
-                                    decimal AddDAmt = PurAddnlDiscb4Prod ? ((AddDisc * dGrs) / 100) : (AddDisc * (dGrs - PrDAmt)) / 100;
-                                    decimal fgrsamt = dGrs - (PrDAmt + TrDAmt + AddDAmt);
-                                    decimal dTax = dApponMRPCum > 0 ? MRPonTaxAMt : (fgrsamt * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;
-                                    decimal dNet = fgrsamt + dTax;
+                                    decimal PrDAmt = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscAmt"]));
+                                    //(PrDisc * dGrs) / 100;
+                                    decimal TrDAmt = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscAmt"]));
+                                    //PurTrdDiscb4Prod ? ((TrDisc * dGrs) / 100) : (TrDisc * (dGrs - PrDAmt)) / 100;
+                                    decimal AddDAmt = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscAmt"]));
+                                    //PurAddnlDiscb4Prod ? ((AddDisc * dGrs) / 100) : (AddDisc * (dGrs - PrDAmt)) / 100;
+                                    decimal dTax = dApponMRPCum > 0 ? MRPonTaxAMt : (dGrs * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;
+                                    decimal dNet = dGrs + dTax;
 
                                     DataRow dtRow = dtProd.NewRow();
                                     dtRow["ProdId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
@@ -1123,8 +1131,14 @@ namespace SampWebApi.Controllers
                                     dtRow["GoodsAmt"] = dGrs;// bl.BL_dValidation(iRow["GoodsAmt"].ToString()); // GoodsAmt
                                     dtRow["ProdDiscPercent"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"]));// bl.BL_dValidation(iRow["ProdDisc"]);
                                     dtRow["TradeDiscPercent"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"]));//bl.BL_dValidation(iRow["TradeDiscAmt"]); // Trade disc Amt;
+                                    
                                     dtRow["AddnlDiscPercent"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"]));// bl.BL_dValidation(iRow["AddnlDiscAmt"]); // Addnl Disc Amt
-                                    dtRow["GrossAmt"] = fgrsamt; // gross
+
+                                    dtRow["ProdDiscAmount"] = PrDAmt;
+                                    dtRow["TradeDiscAmount"] = TrDAmt;
+                                    dtRow["AddnlDiscAmount"] = AddDAmt;
+
+                                    dtRow["GrossAmt"] = dGoods; // gross
                                     dtRow["TaxAmt"] = dTax + bl.BL_dValidation(dUomTax); // tax
                                     dtRow["NetAmt"] = dNet + bl.BL_dValidation(dUomTax); // net
                                     dtRow["InventoryId"] = bl.BL_dValidation(iRow["InventoryID"].ToString()); ;// bl.BL_nValidation(iRow["InventoryId"].ToString());

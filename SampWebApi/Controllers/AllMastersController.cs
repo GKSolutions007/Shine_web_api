@@ -1827,6 +1827,7 @@ namespace SampWebApi.Controllers
                             ItemsperPage = DDT.Rows[i]["ItemsperPage"].ToString(),
                             Invoiceallowduplicateitem = DDT.Rows[i]["Invoiceallowduplicateitem"].ToString(),
                             CommonAgeingCreditDays = DDT.Rows[i]["CommonAgeingCreditDays"].ToString(),
+                            AllowPostChequeDaysColl = DDT.Rows[i]["AllowPostChequeDaysColl"].ToString(),
                             RestrictBlocklistinInvoice = DDT.Rows[i]["RestrictBlocklistinInvoice"].ToString(),
                             RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
                             BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
@@ -1907,6 +1908,7 @@ namespace SampWebApi.Controllers
                             ItemsperPage = DDT.Rows[i]["ItemsperPage"].ToString(),
                             Invoiceallowduplicateitem = DDT.Rows[i]["Invoiceallowduplicateitem"].ToString(),
                             CommonAgeingCreditDays = DDT.Rows[i]["CommonAgeingCreditDays"].ToString(),
+                            AllowPostChequeDaysColl = DDT.Rows[i]["AllowPostChequeDaysColl"].ToString(),
                             RestrictBlocklistinInvoice = DDT.Rows[i]["RestrictBlocklistinInvoice"].ToString(),
                             RetainDate = DDT.Rows[i]["RetainDate"].ToString(),
                             BeatMandatoryinCustomer = DDT.Rows[i]["BeatMandatoryinCustomer"].ToString(),
@@ -1953,7 +1955,8 @@ namespace SampWebApi.Controllers
                             lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
                             lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
                             lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc,
-                            lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc);
+                            lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
+                            lstMaster.AllowPostChequeDaysColl);
 
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
