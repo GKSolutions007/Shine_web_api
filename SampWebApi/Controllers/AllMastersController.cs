@@ -477,7 +477,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                if (Mode == "3" || Mode == "4")
+                if (Mode == "3" || Mode == "4" || Mode == "6")
                 {
                     SqlConnection sqlConnection = new SqlConnection(connectionString);
                     sqlConnection.Open();
