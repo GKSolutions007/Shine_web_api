@@ -440,7 +440,7 @@ namespace SampWebApi.Controllers
                         bl.bl_Transaction(2);
                         list.Add(new SaveMessage()
                         {
-                            ID = 0.ToString(),
+                            ID = DDT.Rows[0][0].ToString(),
                             MsgID = "0",
                             Message = "Saved Successfully"
                         });
@@ -477,7 +477,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                if (Mode == "3" || Mode == "4" || Mode == "6")
+                if (Mode == "3" || Mode == "4" || Mode == "6" || Mode == "7")
                 {
                     SqlConnection sqlConnection = new SqlConnection(connectionString);
                     sqlConnection.Open();
