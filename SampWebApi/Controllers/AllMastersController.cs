@@ -1828,6 +1828,7 @@ namespace SampWebApi.Controllers
                             UPIName = DDT.Rows[i]["UPIName"].ToString(),
                             WriteoffAmt = DDT.Rows[i]["WriteoffAmt"].ToString(),
                             AllSalesmanInvoice = DDT.Rows[i]["AllSalesmanInvoice"].ToString(),
+                            ALSearchstartwith = DDT.Rows[i]["ALSearchstartwith"].ToString(),
                             AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
                             ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
                             SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
@@ -1902,6 +1903,7 @@ namespace SampWebApi.Controllers
                             DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
                             Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
                             ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
+                            ALSearchstartwith = DDT.Rows[i]["ALSearchstartwith"].ToString(),
                             EnableReturnPrice = DDT.Rows[i]["EnableReturnPrice"].ToString(),
                             VisaPern = DDT.Rows[i]["VisaPern"].ToString(),
                             DefaultCustID = DDT.Rows[i]["DefaultCustID"].ToString(),
@@ -1909,6 +1911,7 @@ namespace SampWebApi.Controllers
                             UPIName = DDT.Rows[i]["UPIName"].ToString(),
                             WriteoffAmt = DDT.Rows[i]["WriteoffAmt"].ToString(),
                             AllSalesmanInvoice = DDT.Rows[i]["AllSalesmanInvoice"].ToString(),
+
                             AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
                             ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
                             SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
@@ -1970,7 +1973,7 @@ namespace SampWebApi.Controllers
                             lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
                             lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc,
                             lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
-                            lstMaster.AllowPostChequeDaysColl);
+                            lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith);
 
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
