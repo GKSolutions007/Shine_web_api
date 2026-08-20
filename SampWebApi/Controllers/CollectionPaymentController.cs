@@ -32,7 +32,7 @@ namespace SampWebApi.Controllers
             try
             {
                 DataTable DDT = new DataTable();
-                if (Mode == "1" || Mode == "5")
+                if (Mode == "1")
                 {
                     DDT = bl.BL_ExecuteParamSP("uspGetSetCollPayData", Mode, ID, CodeName, DocPrefix);
                     var list = new List<object>();
@@ -46,6 +46,25 @@ namespace SampWebApi.Controllers
                             Code = DDT.Rows[i][3].ToString(),
                             Name = DDT.Rows[i][4].ToString(),
                             Billadd1 = DDT.Rows[i][5].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if(Mode == "5")
+                {
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetCollPayData", Mode, ID, CodeName, DocPrefix);
+                    var list = new List<object>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new //CustomerVendorModel
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            Billadd1 = DDT.Rows[i][5].ToString(),
+                            CBID = DDT.Rows[i][5].ToString(),
                         });
                     }
                     return Ok(list);

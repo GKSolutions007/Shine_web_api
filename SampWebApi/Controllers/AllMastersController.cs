@@ -1033,7 +1033,7 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/chequebook/get")]
-        public IHttpActionResult GetCBData(string Mode, string Name)
+        public IHttpActionResult GetCBData(string Mode, string Name, string ID = "0")
         {
             try
             {
@@ -1089,6 +1089,36 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             ChequeNo = DDT.Rows[i]["Name"].ToString(),
                             Status = DDT.Rows[i]["Status"].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if(Mode == "9")
+                {
+                    SqlConnection sqlConnection = new SqlConnection(connectionString);
+                    sqlConnection.Open();
+                    SqlCommand sqlCommand = new SqlCommand("uspManageChequeBook", sqlConnection);
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@Mode", Mode);
+                    sqlCommand.Parameters.AddWithValue("@ID", Name);
+                    DataTable DDT = new DataTable();
+                    SqlDataAdapter SDA = new SqlDataAdapter(sqlCommand);
+                    SDA.Fill(DDT);
+                    sqlConnection.Close();
+                    List<Chequebook> list = new List<Chequebook>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new Chequebook
+                        {
+                            ID = DDT.Rows[i][0].ToString(),
+                            Refno = DDT.Rows[i][1].ToString(),
+                            StartingNo = DDT.Rows[i][2].ToString(),
+                            NoofLeaves = DDT.Rows[i][3].ToString(),
+                            BankAccID = DDT.Rows[i][4].ToString(),
+                            BankAccName = DDT.Rows[i][5].ToString(),
+                            Active = DDT.Rows[i][6].ToString(),
+                            CBy = DDT.Rows[i]["UserName"].ToString(),
+                            CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                         });
                     }
                     return Ok(list);

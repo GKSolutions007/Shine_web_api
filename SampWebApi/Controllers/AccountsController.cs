@@ -442,7 +442,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                if (Mode == "1" || Mode == "4")
+                if (Mode == "1")
                 {
                     DataTable DDT = new DataTable();
                     DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, Value, ID);
@@ -456,6 +456,25 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i][2].ToString(),
                             Code = DDT.Rows[i][3].ToString(),
                             Name = DDT.Rows[i][4].ToString(),
+                        });
+                    }
+                    return Ok(list);
+                }
+                if(Mode == "4")
+                {
+                    DataTable DDT = new DataTable();
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetContraData", Mode, TransID, Value, ID);
+                    var list = new List<object>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new 
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            CBID = DDT.Rows[i][5].ToString(),
                         });
                     }
                     return Ok(list);
@@ -892,7 +911,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                if (Mode == "1" || Mode == "4")
+                if (Mode == "1")
                 {
                     DataTable DDT = new DataTable();
                     DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, Value, ID);
@@ -922,6 +941,25 @@ namespace SampWebApi.Controllers
                                 Name = DDT.Rows[i][4].ToString(),
                             });
                         }
+                    }
+                    return Ok(list);
+                }
+                if (Mode == "4")
+                {
+                    DataTable DDT = new DataTable();
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetOtherCollPayData", Mode, TransID, Value, ID);
+                    var list = new List<object>();
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        list.Add(new
+                        {
+                            FType = DDT.Rows[i][0].ToString(),
+                            Form = DDT.Rows[i][1].ToString(),
+                            ID = DDT.Rows[i][2].ToString(),
+                            Code = DDT.Rows[i][3].ToString(),
+                            Name = DDT.Rows[i][4].ToString(),
+                            CBID = DDT.Rows[i][5].ToString(),
+                        });
                     }
                     return Ok(list);
                 }
