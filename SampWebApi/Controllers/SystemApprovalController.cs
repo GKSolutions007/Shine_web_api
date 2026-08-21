@@ -29,10 +29,13 @@ namespace SampWebApi.Controllers
                 List<SystemApprovalModel> sList = new List<SystemApprovalModel>();
                 if (Mode == 1)// Web Approval Load
                 {
-                    DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", 4);
+                    var sDeviceList = new List<object>();
+
+                    DataSet dt = objBL.BL_ExecuteParamSPDataset("uspLoginInfoRecieve", 4);
+                    DataTable dtResult = dt.Tables[0];
+                    DataTable dtDevices = dt.Tables[1];
                     if (dtResult.Rows.Count > 0)
                     {
-                        string mobcounts = SampWebApi.BuisnessLayer.clsEncryptDecrypt.Decrypt(dtResult.Rows[0]["MobileDevices"].ToString());
                         for (int i = 0; i < dtResult.Rows.Count; i++)
                         {
                             sList.Add(new SystemApprovalModel
@@ -43,13 +46,22 @@ namespace SampWebApi.Controllers
                                 DeviceID = dtResult.Rows[i][5].ToString(),
                                 Activate = dtResult.Rows[i][3].ToString(),
                                 MobileNo = dtResult.Rows[i][6].ToString(),
-                                DBName = mobcounts,
                             });
                         }
                     }
+                    string mobcounts = SampWebApi.BuisnessLayer.clsEncryptDecrypt.Decrypt(dtDevices.Rows[0]["MobileDevices"].ToString());
+
+                    sDeviceList.Add(new 
+                    {
+                        Devicelist = sList,
+                        DeviceCount= mobcounts
+                    });
+                    return Ok(sDeviceList);
                 }
                 if (Mode == 10)
                 {
+                    
+
                     DataTable dtResult = objBL.BL_ExecuteParamSP("uspLoginInfoRecieve", Mode);
                     if (dtResult.Rows.Count > 0)
                     {
