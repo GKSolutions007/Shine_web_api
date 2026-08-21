@@ -131,11 +131,11 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/homescreen/brandsummary")]
-        public IHttpActionResult Getbrandsummary(string BranchID,string FromDate,string ToDate)
+        public IHttpActionResult Getbrandsummary(string BranchID,string FromDate,string ToDate,string WithTax)
         {
             try
             {
-                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspHomeBrandSummaryDashboard", BranchID, FromDate, ToDate);
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspHomeBrandSummaryDashboard", BranchID, FromDate, ToDate, WithTax);
                 return Ok(DDT);
             }
             catch (Exception ex)
