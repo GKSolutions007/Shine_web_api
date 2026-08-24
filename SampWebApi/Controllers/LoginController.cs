@@ -24,6 +24,7 @@ using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System.Security.Policy;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System.Diagnostics;
 
 namespace SampWebApi.Controllers
 {
@@ -441,9 +442,11 @@ namespace SampWebApi.Controllers
                                     }
                                     //Insert Login time
                                     var Sessionidcookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
-                                    bl.BL_ExecuteParamSP("uspSaveLoginHistory", 1, DDT.Rows[0]["ID"].ToString(), Sessionidcookie.Value,
-                                    Latitude, Longitude);
-
+                                    if (Sessionidcookie != null)
+                                    {
+                                        bl.BL_ExecuteParamSP("uspSaveLoginHistory", 1, DDT.Rows[0]["ID"].ToString(), Sessionidcookie.Value,
+                                        Latitude, Longitude);
+                                    }
                                     DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
                                     int ThemeID = bl.BL_nValidation(dtAppconfig.Rows[0]["ThemeID"].ToString());
                                     DataTable DTTHEME = bl.BL_ExecuteParamSP("uspManageColorSettings", 1, ThemeID);
@@ -584,7 +587,22 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("Login", "login/get", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error Msg : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+
+                bl.BL_WriteErrorMsginLog("Login", "login/get", errorDetails);
             }
             return Ok();
         }

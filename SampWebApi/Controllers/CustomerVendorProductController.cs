@@ -88,6 +88,23 @@ namespace SampWebApi.Controllers
                                 Remarks = dtREM.Rows[j][1].ToString()
                             });
                         }
+                        DataTable dtCustomerImages = bl.BL_ExecuteParamSP("uspManageCustomerMaster", 10, DDT.Rows[i]["ID"].ToString());
+                        List<CompressedImage> listcustomerimages = new List<CompressedImage>();
+                        for (int k = 0; k < dtCustomerImages.Rows.Count; k++)
+                        {
+                            string imgdata = null;
+                            if (!string.IsNullOrEmpty(dtCustomerImages.Rows[k][5].ToString()))
+                            {
+                                byte[] photoBytes = (byte[])dtCustomerImages.Rows[k][5];
+                                imgdata = Convert.ToBase64String(photoBytes);
+                            }
+                            listcustomerimages.Add(new CompressedImage
+                            {
+                                FileName = dtCustomerImages.Rows[k][3].ToString(),
+                                FileSize = dtCustomerImages.Rows[k][4].ToString(),
+                                CompressImageData = imgdata,
+                            });
+                        }
                         list.Add(new CustomerVendorModel
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
@@ -138,9 +155,11 @@ namespace SampWebApi.Controllers
                             Active = DDT.Rows[i]["Active"].ToString(),
                             CustomerType = DDT.Rows[i]["CustomerType"].ToString(),
                             Ratings = DDT.Rows[i]["Rating"].ToString(),
-                            
+                            MobilePinAddress = DDT.Rows[i]["MobilePinAddress"].ToString(),
                             BSM = listBSM,
-                            lstCustRemark = listREM
+                            lstCustRemark = listREM,
+                            PartyImages = listcustomerimages
+                            
                         });
                     }
                     return Ok(list);

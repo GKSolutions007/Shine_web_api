@@ -7,6 +7,7 @@ using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -486,7 +487,8 @@ namespace SampWebApi.Controllers
                     DataTable DDTBranches = bl.BL_ExecuteParamSP("uspGetBranchByRoles", RoleID);
                     if(DDTBranches.Rows.Count > 0)
                     {
-                        DataRow row = DDTBranches.AsEnumerable().FirstOrDefault(r => r.Field<bool>("SetAsDefault") == true);
+                        //DataRow row = DDTBranches.AsEnumerable().FirstOrDefault(r => r.Field<bool>("SetAsDefault") == true);
+                        DataRow row = DDTBranches.AsEnumerable().FirstOrDefault(r => r["SetAsDefault"] != DBNull.Value && Convert.ToInt32(r["SetAsDefault"]) == 1);
                         if (row != null)
                         {
                             nBranchID = bl.BL_nValidation(row[0]); // Value of the first column
@@ -577,6 +579,11 @@ namespace SampWebApi.Controllers
                                         ProdPern = dtGridData.Rows[k]["ProdPern"].ToString(),
                                         TradePern = dtGridData.Rows[k]["TradePern"].ToString(),
                                         AddnlPern = dtGridData.Rows[k]["AddnlPern"].ToString(),
+
+                                        ProdAmt = dtGridData.Rows[k]["ProdAmt"].ToString(),
+                                        TradeAmt = dtGridData.Rows[k]["TradeAmt"].ToString(),
+                                        AddnlAmt = dtGridData.Rows[k]["AddnlAmt"].ToString(),
+
                                         TaxPern = dtShinecodeitem.Rows[0]["GST"].ToString(),
                                         GrossAmt = dtGridData.Rows[k]["GrossAmt"].ToString(),
                                         TaxAmt = dtGridData.Rows[k]["TaxAmt"].ToString(),
@@ -764,7 +771,22 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("PurchaseBill", "purchasebill/invoicedata", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+
+                bl.BL_WriteErrorMsginLog("PurchaseBill", "purchasebill/invoicedata", errorDetails);
             }
             return Ok();
         }
