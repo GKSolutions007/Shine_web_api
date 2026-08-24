@@ -30,6 +30,7 @@ namespace SampWebApi.Models
         public string Shipadd2 { get; set; }
         public string Shipadd3 { get; set; }
         public string Pincode { get; set; }
+        public string MobilePinAddress { get; set; }
         public string ContactPerson { get; set; }
         public string Ph1 { get; set; }
         public string Ph2 { get; set; }
@@ -82,6 +83,7 @@ namespace SampWebApi.Models
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
         public string CustomerScheme { get; set; }
+        public List<CompressedImage> PartyImages { get; set; }
     }
     public class clsCustomerRemarks
     {
