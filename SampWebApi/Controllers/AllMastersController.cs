@@ -122,6 +122,11 @@ namespace SampWebApi.Controllers
                     DataTable dtbrdata = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans, ID);
                     return Ok(dtbrdata);
                 }
+                if (Mode == "13")
+                {
+                    DataTable dtbrdata = bl.BL_ExecuteParamSP("uspHomescreenData", Mode, Trans, ID);
+                    return Ok(dtbrdata);
+                }
             }
             catch(Exception ex)
             {
@@ -1861,6 +1866,7 @@ namespace SampWebApi.Controllers
                             ALSearchstartwith = DDT.Rows[i]["ALSearchstartwith"].ToString(),
                             AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
                             ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
+                            AssignInvBeatSalesmanfrom = DDT.Rows[i]["AssignInvBeatSalesmanfrom"].ToString(),
                             SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
                             ClearConfirmpopup = DDT.Rows[i]["ClearConfirmpopup"].ToString(),
                             CloseConfirmpopup = DDT.Rows[i]["CloseConfirmpopup"].ToString(),
@@ -1944,6 +1950,7 @@ namespace SampWebApi.Controllers
 
                             AllowPrint = DDT.Rows[i]["AllowPrint"].ToString(),
                             ApplySchemeinQuotation = DDT.Rows[i]["ApplySchemeinQuotation"].ToString(),
+                            AssignInvBeatSalesmanfrom = DDT.Rows[i]["AssignInvBeatSalesmanfrom"].ToString(),
                             SelectinvoiceinSR = DDT.Rows[i]["SelectinvoiceinSR"].ToString(),
                             ClearConfirmpopup = DDT.Rows[i]["ClearConfirmpopup"].ToString(),
                             CloseConfirmpopup = DDT.Rows[i]["CloseConfirmpopup"].ToString(),
@@ -2003,8 +2010,7 @@ namespace SampWebApi.Controllers
                             lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
                             lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc,
                             lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
-                            lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith);
-
+                            lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith,lstMaster.AssignInvBeatSalesmanfrom);                
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
                     if (item.TypeID == "1")

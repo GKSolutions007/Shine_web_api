@@ -19,7 +19,7 @@ namespace SampWebApi.Controllers
         [HttpGet]
         [Route("api/assigninvoices/getdata")]
         public IHttpActionResult GetData(string Mode, string ID, string BeatID, string SalesmanID, string Party, string FromDate,
-            string ToDate, string Showall,string FilterBranch)
+            string ToDate, string Showall,string FilterBranch, string BeatSMFilter = "0")
         {
             try
             {
@@ -158,7 +158,8 @@ namespace SampWebApi.Controllers
                 }
                 else if (Mode == "5")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, 0, BeatID, SalesmanID, Party, FromDate, ToDate, Showall, FilterBranch);
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetAssignInvoices", Mode, 0, BeatID, SalesmanID, Party, FromDate, ToDate, Showall, FilterBranch,
+                        BeatSMFilter);
                     List<AssignInvoiceDetails> list = new List<AssignInvoiceDetails>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
