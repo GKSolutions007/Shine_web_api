@@ -964,3 +964,4 @@ D:\2025\Shine_web_api\SampWebApi\bin\ExcelDataReader.xml
 D:\2025\Shine_web_api\SampWebApi\bin\ExcelDataReader.DataSet.pdb
 D:\2025\Shine_web_api\SampWebApi\bin\ExcelDataReader.DataSet.xml
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Elmah.dll
+D:\2025\Shine_web_api\SampWebApi\bin\Elmah.dll
