@@ -1203,7 +1203,7 @@ namespace SampWebApi.Controllers
                                 dtRow["TaxPercentage"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TaxPern"]));
                                 dtRow["TaxAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TaxAmt"]));
                                 dtRow["NetAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["NetAmt"]));
-                                dtRow["ReasonId"] = 0;
+                                dtRow["ReasonId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"]));
                                 dtRow["Serial"] = nSerial;
                                 dtRow["BatchNumber"] = Convert.ToString(dtProducts.Rows[i]["BatchNo"]);
                                 dtRow["PkgDate"] = Convert.ToString(dtProducts.Rows[i]["PKD"]);

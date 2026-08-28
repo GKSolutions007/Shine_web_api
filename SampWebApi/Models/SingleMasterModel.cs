@@ -309,6 +309,7 @@ namespace SampWebApi.Models
         public string AllSalesmanInvoice { get; set; }
         public string AllowPrint {  get; set; }
         public string ApplySchemeinQuotation { get; set; }
+        public string AssignInvBeatSalesmanfrom { get; set; }
         public string SelectinvoiceinSR { get; set; }
         public string InvoiceStockOnlyProduct { get; set; }
         public string FilterDate { get; set; }        
