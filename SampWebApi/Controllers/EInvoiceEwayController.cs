@@ -10,11 +10,14 @@ using SampWebApi.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Http;
@@ -86,7 +89,21 @@ namespace SampWebApi.Controllers
             }
             catch(Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/get", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/get", errorDetails);
             }
             return Ok();
         }
@@ -222,7 +239,21 @@ namespace SampWebApi.Controllers
             }
             catch(Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/getjson", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/getjson", errorDetails);
             }
             return Ok();            
         }
@@ -299,7 +330,13 @@ namespace SampWebApi.Controllers
                         lst = AddIRNExport();
                     }
                     bool ErrorColAlreadyExisist = false;
-                    ColumnValidation(lst, ref blResult);
+                    //ColumnValidation(lst, ref blResult);
+                    //ColumnValidation_new1(lst, ref blResult);
+                    Printing.clsExcelOpenreadwrite clsExcelvalid = new Printing.clsExcelOpenreadwrite();
+                    clsExcelvalid.strFileName = strFileName;
+                    clsExcelvalid.strFilePath = strFilePath;
+                    clsExcelvalid.ColumnValidation(lst, ref blResult);
+
                     if (!blResult)
                     {
                         if (TransID == "1" || TransID == "3")//E-Way OR VAN LOAD SLIP
@@ -311,14 +348,15 @@ namespace SampWebApi.Controllers
                         {
                             lst = AddIRNExportfromReport();
                         }
-                        ColumnValidation(lst, ref blResult);
+                        //ColumnValidation(lst, ref blResult);
+                        clsExcelvalid.ColumnValidation(lst, ref blResult);
                         ErrorColAlreadyExisist = true;
                     }
                     if (blResult)
                     {
                         if (TransID == "1" || TransID == "3")//E-WayOR VAN LOAD SLIP
                         {
-                            
+                            dtData = clsExcelvalid.dtData;
                             if (dtData.Rows.Count > 0)
                             {
                                 if (EwayMode == 2)
@@ -344,10 +382,36 @@ namespace SampWebApi.Controllers
                                         DocDateCols = "Doc Date";
                                     }
                                     string tdocdate = dtResult.Rows[i][DocDateCols].ToString();
+                                    //"EWD Date","Valid Till Date",
+                                    string EWBDATE = dtResult.Rows[i]["EWD Date"].ToString();
+                                    DateTime ewbdt = DateTime.Now;
+                                    if (!string.IsNullOrEmpty(dtResult.Rows[i]["EWD Date"].ToString()))
+                                    {
+                                        ewbdt = DateTime.ParseExact(
+                                            EWBDATE,
+                                            "M/d/yyyy hh:mm:ss tt",
+                                            CultureInfo.InvariantCulture
+                                        );
+                                    }
+                                    EWBDATE = !string.IsNullOrEmpty(dtResult.Rows[i]["EWD Date"].ToString()) ?
+                                        ewbdt.ToString("yyyy-MM-dd HH:mm:ss") : null;
+                                    string ValidTillDATE = dtResult.Rows[i]["Valid Till Date"].ToString();
+                                    DateTime validdt = DateTime.Now;
+                                    if (!string.IsNullOrEmpty(dtResult.Rows[i]["Valid Till Date"].ToString()))
+                                    {
+                                        validdt = DateTime.ParseExact(
+                                            ValidTillDATE,
+                                            "M/d/yyyy hh:mm:ss tt",
+                                            CultureInfo.InvariantCulture
+                                        );
+                                    }
+                                    ValidTillDATE = !string.IsNullOrEmpty(dtResult.Rows[i]["Valid Till Date"].ToString()) ?
+                                        validdt.ToString("yyyy-MM-dd HH:mm:ss") : null;
                                     DataTable dtE = bl.BL_ExecuteParamSP("uspUpdateEWBImport", dtResult.Rows[i][DocNocols].ToString(),
                                                //bl.BL_ChangeDateFormat(dtResult.Rows[i][DocDateCols].ToString(), 1),
                                                dtResult.Rows[i][DocDateCols].ToString(),
-                                               dtResult.Rows[i]["EWB No"].ToString(), TransID == "3" ? "Delivery Challan" : "Tax Invoice");
+                                               dtResult.Rows[i]["EWB No"].ToString(), TransID == "3" ? "Delivery Challan" : "Tax Invoice",
+                                               EWBDATE, ValidTillDATE);
                                 }
                                 Msg = "0";// saved
                             }
@@ -358,6 +422,7 @@ namespace SampWebApi.Controllers
                         }
                         else if (TransID == "2")//E-Invoice
                         {
+                            dtData = clsExcelvalid.dtData;
                             if (dtData.Rows.Count > 0)
                             {
                                 dtResult = dtData;
@@ -417,7 +482,22 @@ namespace SampWebApi.Controllers
             }
             catch(Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/uploadjsonfile", ex.Message);
+                Msg = "3_" + ex.Message;
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/uploadjsonfile", errorDetails);                
             }         
             return Ok(Msg);
         }
@@ -453,7 +533,21 @@ namespace SampWebApi.Controllers
             }
             catch(Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/updateewayinfo", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                bl.BL_WriteErrorMsginLog("EInvoiceEWay", "einvoiceeway/updateewayinfo", errorDetails);
             }
             return Ok();
         }    
@@ -525,12 +619,25 @@ namespace SampWebApi.Controllers
                 blResult = true;
                 List<string> lstdtColumn = new List<string>();
                 string ffp = strFilePath + strFileName;
-                using (var stream = File.Open(ffp, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                //using (var stream = File.Open(ffp, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream stream = new FileStream(
+    ffp,
+    FileMode.Open,
+    FileAccess.Read,
+    FileShare.ReadWrite))
                 {
                     byte[] header = new byte[8];
                     stream.Read(header, 0, 8);
+                    int bytesRead = stream.Read(header, 0, header.Length);
 
+                    string hexHeader = BitConverter.ToString(header, 0, bytesRead);
+                    string textHeader = System.Text.Encoding.ASCII.GetString(header, 0, bytesRead);
                     string hex = BitConverter.ToString(header);
+                    if (stream.CanSeek)
+                    {
+                        stream.Position = 0;
+                    }
+
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
                        
@@ -591,6 +698,130 @@ namespace SampWebApi.Controllers
             catch (IOException)
             {
 
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public void ColumnValidation_new1(List<string> lst, ref bool blResult)
+        {
+            try
+            {
+                blResult = true;
+
+                string filePath = System.IO.Path.Combine(strFilePath, strFileName);
+
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException(
+                        "Excel file not found.",
+                        filePath);
+                }
+
+                using (FileStream stream = new FileStream(
+                    filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite))
+                {
+                    // Always start from beginning
+                    stream.Position = 0;
+
+                    // Check file signature
+                    byte[] header = new byte[8];
+
+                    int bytesRead = stream.Read(
+                        header,
+                        0,
+                        header.Length);
+
+                    string hexHeader =
+                        BitConverter.ToString(header, 0, bytesRead);
+
+                    string textHeader =
+                        System.Text.Encoding.ASCII.GetString(
+                            header,
+                            0,
+                            bytesRead);
+
+                    System.Diagnostics.Debug.WriteLine(
+                        "Excel HEX Header : " + hexHeader);
+
+                    System.Diagnostics.Debug.WriteLine(
+                        "Excel Text Header: " + textHeader);
+
+                    // Reset stream after header check
+                    stream.Position = 0;
+
+                    // Read XLS / XLSX
+                    using (var reader =
+                        ExcelReaderFactory.CreateReader(stream))
+                    {
+                        var result = reader.AsDataSet();
+
+                        if (result == null ||
+                            result.Tables.Count == 0)
+                        {
+                            blResult = false;
+                            return;
+                        }
+
+                        DataTable table = result.Tables[0];
+
+                        strSheetName = table.TableName;
+
+                        if (table.Rows.Count == 0)
+                        {
+                            blResult = false;
+                            return;
+                        }
+
+                        // ---------------------------------------
+                        // Validate Columns
+                        // ---------------------------------------
+
+                        List<string> excelColumns =
+                            new List<string>();
+
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            excelColumns.Add(
+                                column.ColumnName.Trim());
+                        }
+
+                        // Column count
+                        if (lst.Count != excelColumns.Count)
+                        {
+                            blResult = false;
+                        }
+
+                        // Column names
+                        foreach (string expectedColumn in lst)
+                        {
+                            if (!excelColumns.Contains(
+                                expectedColumn,
+                                StringComparer.OrdinalIgnoreCase))
+                            {
+                                blResult = false;
+                                break;
+                            }
+                        }
+
+                        // ---------------------------------------
+                        // If validation successful
+                        // ---------------------------------------
+
+                        if (blResult)
+                        {
+                            dtData = table.Copy();
+                        }
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                throw;
             }
             catch (Exception)
             {
