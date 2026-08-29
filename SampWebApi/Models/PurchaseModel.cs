@@ -227,6 +227,7 @@ namespace SampWebApi.Models
         public string MRPonTax { get; set; }
         public string CumMRPonTax { get; set; }
         public string MRP { get; set; }
+        public List<SingleMasterModel> lstReason { get; set; }
     }
     public class PRBatch
     {

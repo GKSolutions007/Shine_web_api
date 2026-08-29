@@ -1,2 +1,0 @@
-{"Date":"21-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"AllMaster","FunctionName":"homescreen/brandsummary","Error":"Error converting data type nvarchar to numeric.","Timestamp":"21-Aug-2026 04:53:37 PM"},
-{"Date":"21-Aug-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"AllMaster","FunctionName":"homescreen/brandsummary","Error":"Error converting data type varchar to numeric.","Timestamp":"21-Aug-2026 05:01:59 PM"},
