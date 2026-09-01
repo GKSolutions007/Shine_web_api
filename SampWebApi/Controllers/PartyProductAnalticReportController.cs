@@ -186,11 +186,11 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/monthwisesalesanaltic/filterdata")]
-        public IHttpActionResult mwsfilterdata(string Mode,string FilterID)
+        public IHttpActionResult mwsfilterdata(string Mode,string FilterID, string TransID)
         {
             try
             {
-                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMonthwisesalesAnalticsReport", Mode, FilterID);
+                DataSet DDT = bl.BL_ExecuteParamSPDataset("uspMonthwisesalesAnalticsReport", Mode, FilterID, TransID);
                 return Ok(DDT);
             }
             catch(Exception ex)
