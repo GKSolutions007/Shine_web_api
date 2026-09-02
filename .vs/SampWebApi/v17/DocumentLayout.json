@@ -3,40 +3,48 @@
   "WorkspaceRootPath": "D:\\2025\\shineweb_api\\shaineweb.api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\allmasterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\allmasterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\purchasereturncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\purchasereturncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\invoicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\uploadfilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\uploadfilescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\printing\\printbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\printing\\printbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F234B6C0-C86C-4663-AFB5-40399FD134AE}|Shinewebprint\\Shinewebprint.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\shinewebprint\\mergepdf.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F234B6C0-C86C-4663-AFB5-40399FD134AE}|Shinewebprint\\Shinewebprint.csproj|solutionrelative:shinewebprint\\mergepdf.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\purchasereturncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\purchasereturncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\models\\purchasemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\models\\purchasemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\accountscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\accountscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\toolscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\toolscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\allmasterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\allmasterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\einvoiceewaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\einvoiceewaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|d:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\controllers\\assigninvoicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\controllers\\assigninvoicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|D:\\2025\\shineweb_api\\shaineweb.api\\sampwebapi\\models\\singlemastermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AAE8E786-BC01-4900-856A-CFFCAC7A42F3}|SampWebApi\\SampWebApi.csproj|solutionrelative:sampwebapi\\models\\singlemastermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,8 +54,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "InvoiceController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\InvoiceController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\InvoiceController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\InvoiceController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\InvoiceController.cs",
+              "ViewState": "AgIAAM4DAAAAAAAAAAAAAN8DAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-27T10:36:03.958Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PurchaseReturnController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\PurchaseReturnController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\PurchaseReturnController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\PurchaseReturnController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\PurchaseReturnController.cs",
+              "ViewState": "AgIAAD8CAAAAAAAAAAASwEoCAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T07:28:54.526Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:130:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
@@ -74,119 +110,119 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AllMastersController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AllMastersController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\AllMastersController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AllMastersController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\AllMastersController.cs",
-              "ViewState": "AgIAAEwAAAAAAAAAAAAQwFoAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T13:41:38.187Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "HomeController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\HomeController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\HomeController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\HomeController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T13:40:56.6Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UploadFilesController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\UploadFilesController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\UploadFilesController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\UploadFilesController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\UploadFilesController.cs",
-              "ViewState": "AgIAAGcBAAAAAAAAAAAewHwBAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T09:39:26.508Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "PrintBase.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Printing\\PrintBase.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Printing\\PrintBase.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Printing\\PrintBase.cs",
-              "RelativeToolTip": "SampWebApi\\Printing\\PrintBase.cs",
-              "ViewState": "AgIAAGEAAAAAAAAAAAAgwHEAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T08:54:59.396Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MergePDF.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\Shinewebprint\\MergePDF.cs",
-              "RelativeDocumentMoniker": "Shinewebprint\\MergePDF.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\Shinewebprint\\MergePDF.cs",
-              "RelativeToolTip": "Shinewebprint\\MergePDF.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAiwB4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T08:55:56.44Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "InvoiceController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\InvoiceController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\InvoiceController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\InvoiceController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\InvoiceController.cs",
-              "ViewState": "AgIAAGsFAAAAAAAAAAAAAHIFAAAUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T08:54:41.374Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AccountsController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AccountsController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\AccountsController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AccountsController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\AccountsController.cs",
-              "ViewState": "AgIAAAUGAAAAAAAAAAAqwBoGAABJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T06:10:04.089Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
               "Title": "PurchaseModel.cs",
               "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Models\\PurchaseModel.cs",
               "RelativeDocumentMoniker": "SampWebApi\\Models\\PurchaseModel.cs",
               "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Models\\PurchaseModel.cs",
               "RelativeToolTip": "SampWebApi\\Models\\PurchaseModel.cs",
-              "ViewState": "AgIAAPEAAAAAAAAAAIA6wAEBAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAALkAAAAAAAAAAAAmwMIAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T06:08:04.485Z",
+              "WhenOpened": "2026-08-29T08:38:52.981Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Web.config",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Web.config",
+              "RelativeDocumentMoniker": "SampWebApi\\Web.config",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Web.config",
+              "RelativeToolTip": "SampWebApi\\Web.config",
+              "ViewState": "AgIAAHgAAAAAAAAAAAAmwJ0AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-29T06:52:33.55Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ToolsController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\ToolsController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\ToolsController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\ToolsController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\ToolsController.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAADgv18AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-28T13:58:16.985Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ReportController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\ReportController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\ReportController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\ReportController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\ReportController.cs",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAYwIIAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-28T09:14:56.672Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "PurchaseReturnController.cs",
-              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\PurchaseReturnController.cs",
-              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\PurchaseReturnController.cs",
-              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\PurchaseReturnController.cs",
-              "RelativeToolTip": "SampWebApi\\Controllers\\PurchaseReturnController.cs",
-              "ViewState": "AgIAAPECAAAAAAAAAAAawPgCAABHAAAAAAAAAA==",
+              "Title": "LoginController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\LoginController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\LoginController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\LoginController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\LoginController.cs",
+              "ViewState": "AgIAABMCAAAAAAAAAAAiwFoCAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-20T05:30:01.103Z",
+              "WhenOpened": "2026-08-27T11:37:16.059Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "EInvoiceEwayController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\EInvoiceEwayController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\EInvoiceEwayController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\EInvoiceEwayController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\EInvoiceEwayController.cs",
+              "ViewState": "AgIAAFIBAAAAAAAAAAAiwH0BAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-27T05:31:31.436Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AssignInvoicesController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AssignInvoicesController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\AssignInvoicesController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AssignInvoicesController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\AssignInvoicesController.cs",
+              "ViewState": "AgIAAIAAAAAAAAAAAAAAAJIAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-25T13:47:29.542Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "SingleMasterModel.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Models\\SingleMasterModel.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Models\\SingleMasterModel.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Models\\SingleMasterModel.cs",
+              "RelativeToolTip": "SampWebApi\\Models\\SingleMasterModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-25T13:38:52.902Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AllMastersController.cs",
+              "DocumentMoniker": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AllMastersController.cs",
+              "RelativeDocumentMoniker": "SampWebApi\\Controllers\\AllMastersController.cs",
+              "ToolTip": "D:\\2025\\shineweb_api\\shaineweb.api\\SampWebApi\\Controllers\\AllMastersController.cs",
+              "RelativeToolTip": "SampWebApi\\Controllers\\AllMastersController.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAAAAALAAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-25T13:38:05.05Z",
               "EditorCaption": ""
             }
           ]
