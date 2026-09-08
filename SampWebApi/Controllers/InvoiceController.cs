@@ -2,7 +2,11 @@
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using HarfBuzzSharp;
+using MathNet.Numerics;
 using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using Org.BouncyCastle.Tls;
 using SampWebApi.BuisnessLayer;
@@ -10,6 +14,7 @@ using SampWebApi.DALHelper;
 using SampWebApi.Models;
 using SampWebApi.Printing;
 using SampWebApi.Utility;
+using Spire.Pdf.Security;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -27,9 +32,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Web.Util;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
@@ -376,6 +384,7 @@ namespace SampWebApi.Controllers
                             DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, DDT.Rows[i][8].ToString());
                             List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
                             List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
+
                             DataTable dtRem = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 34, DDT1.Rows[i]["ID"].ToString());
                             if (dtRem.Rows.Count > 0)
                             {
@@ -458,24 +467,7 @@ namespace SampWebApi.Controllers
                                         ConvRate = dtUOM.Rows[j][2].ToString()
                                     });
                                 }
-                                List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                                //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                                //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                                //for (int j = 0; j < dtBatch.Rows.Count; j++)
-                                //{
-                                //    ulistBatch.Add(new InvoiceBatchPopup
-                                //    {
-                                //        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                //        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                //        ProdID = DDT.Rows[i]["ID"].ToString(),
-                                //        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                //        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                //        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                //        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                //        MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                //        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                                //    });
-                                //}
+                                
                                 bool OrderSchemeApply = true;
                                 #region Discount Schemme
                                 decimal OrgDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
@@ -578,7 +570,7 @@ namespace SampWebApi.Controllers
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
                                     UOMList = ulist,
-                                    lstInvPopup = ulistBatch
+                                    //lstInvPopup = ulistBatch
                                 });
                             }
                             list.Add(new SalesModel
@@ -644,7 +636,220 @@ namespace SampWebApi.Controllers
                     //bl.BL_WriteErrorMsginLog("Invoice", "Item Load End", DateTime.Now.ToLongTimeString());
                     return Ok(list);
                 }
-                if (Mode == "14")
+                if (Mode == "71" || Mode == "111" || Mode == "171" || Mode == "211")
+                {
+                    try
+                    {
+                        bl.BL_WriteErrorMsginLog("Invoice", "Item Load Start", DateTime.Now.ToLongTimeString());
+                        var validModes = new HashSet<string> { "7", "11", "17", "21" };
+                        if (!validModes.Contains(Mode)) return Ok();
+
+                        var DDTTest = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, null, CodeName);
+                        if (DDTTest.Rows.Count == 0) return Ok(new List<SalesModel>());
+
+                        var salesList = DDTTest.AsEnumerable().Select(row =>
+                        {
+                            string dateStr = Convert.ToDateTime(row["Date"]).ToString("yyyy-MM-dd");
+                            string id = row["ID"].ToString();
+
+                            var DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, row[8].ToString());
+
+                            var remarks = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 34, DDT1.Rows[0]["ID"].ToString())
+                                .AsEnumerable()
+                                .Select(r => new clsCustomerRemarks { Remarks = r[1].ToString() })
+                                .ToList();
+
+                            var partyInfo = DDT1.AsEnumerable().Select(r => new CustomerVendorModel
+                            {
+                                //ID = r["ID"].ToString(),
+                                //Name = r["Name"].ToString(),
+                                //Email = r["Email"].ToString(),
+                                //Distance = row["Distance"].ToString(),
+                                //lstCustRemark = remarks
+                                ID = r["ID"].ToString(),
+                                Code = r["Code"].ToString(),
+                                Name = r["Name"].ToString(),
+                                Shinecode = r["Shinecode"].ToString(),
+                                Billadd1 = r["Billadd1"].ToString(),
+                                Billadd2 = r["Billadd2"].ToString(),
+                                Billadd3 = r["Billadd3"].ToString(),
+                                Shipadd1 = r["Shipadd1"].ToString(),
+                                Shipadd2 = r["shipadd2"].ToString(),   // note lowercase column name
+                                Shipadd3 = r["Shipadd3"].ToString(),
+                                Pincode = r["Pincode"].ToString(),
+                                ContactPerson = r["ContactPerson"].ToString(),
+                                Ph1 = r["Ph1"].ToString(),
+                                Ph2 = r["Ph2"].ToString(),
+                                Mob1 = r["Mob1"].ToString(),
+                                Mob2 = r["Mob2"].ToString(),
+                                Email = r["Email"].ToString(),
+                                PANNumber = r["PANNumber"].ToString(),
+                                AadharNo = r["AadharNo"].ToString(),
+                                DLNo20 = r["DLNo20"].ToString(),
+                                DLNo21 = r["DLNo21"].ToString(),
+                                FSSAINo = r["FSSAINo"].ToString(),
+                                StateID = r["StateID"].ToString(),
+                                GSTIN = r["GSTIN"].ToString(),
+                                CreditTermID = r["CreditTermID"].ToString(),
+                                PaymentModeID = r["PaymentModeID"].ToString(),
+                                TaxTypeID = r["TaxTypeID"].ToString(),
+                                FAID = r["FAID"].ToString(),
+                                Active = r["Active"].ToString(),
+                                Ratings = r["Rating"].ToString(),
+
+                                // These values come from parent row context
+                                RatingName = r["RatingName"].ToString(),
+                                Distance = r["Distance"].ToString(),
+                                lstCustRemark = remarks
+                                //CloseBal = strOSVal,
+                                //OSType = strOSType,
+                                //ACDate = ACDay,
+                                //                            
+                                //CustomerScheme = strCustomerScheme
+                            }).ToList();
+                            int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : Mode == "17" ? 18 : 22;
+
+                            //int TMode = Mode switch
+                            //{
+                            //    "7" => 8,
+                            //    "11" => 12,
+                            //    "17" => 18,
+                            //    _ => 22
+                            //};
+
+                            var DDT2 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", TMode, null, CodeName);
+
+                            var productGrid = DDT2.AsEnumerable().Select(r =>
+                            {
+                                var uomList = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 5, "", r["ProdID"].ToString())
+                                    .AsEnumerable()
+                                    .Select(u => new clsPurchaseUOM
+                                    {
+                                        ID = u[0].ToString(),
+                                        Name = u[1].ToString(),
+                                        ConvRate = u[2].ToString()
+                                    }).ToList();
+
+                                return new SalesDetail
+                                {
+                                    //ProdID = r["ProdID"].ToString(),
+                                    //Name = r["Name"].ToString(),
+                                    //NetAmt = r["NetAmt"].ToString(),
+                                    //UOMList = uomList
+                                    ProdID = r["ProdID"].ToString(),
+                                    UomID = r["UomID"].ToString(),
+                                    Code = r["Code"].ToString(),
+                                    Shinecode = r["Shinecode"].ToString(),
+                                    Name = r["Name"].ToString(),
+                                    TaxID = r["TaxID"].ToString(),
+                                    UomQty = r["Qty"].ToString(),
+                                    MRP = r["DetailMRP"].ToString(),
+                                    UomSalePrice = r["ExclPrice"].ToString(),
+                                    UomSalePriceIncl = r["InclPrice"].ToString(),
+                                    ProdDiscPern = "0",// OrgDiscPern.ToString(),
+                                    ProdDiscAmt = r["ProdDiscAmt"].ToString(),
+                                    TradeDiscPern = "0",// OrgTradeDiscPern.ToString(),
+                                    TradeDiscAmt = r["TradeDiscAmt"].ToString(),
+                                    AddnlDiscPern = r["AddnlPern"].ToString(),
+                                    AddnlDiscAmt = r["AddnlDiscAmt"].ToString(),
+                                    TaxPern = r["TaxPern"].ToString(),
+                                    GrossAmt = r["GrossAmt"].ToString(),
+                                    TaxAmt = r["TaxAmt"].ToString(),
+                                    TaxName = r["TaxName"].ToString(),
+                                    NetAmt = r["NetAmt"].ToString(),
+                                    GoodsAmt = r["GoodsAmt"].ToString(),
+                                    OrgPrice = r["BaseUomPrice"].ToString(),
+                                    BatchNo = r["BatchNo"].ToString(),
+                                    PKD = !string.IsNullOrEmpty(r["PKD"].ToString())
+            ? Convert.ToDateTime(r["PKD"]).ToString("dd/MM/yyyy")
+            : "",
+                                    Expiry = !string.IsNullOrEmpty(r["Expiry"].ToString())
+            ? Convert.ToDateTime(r["Expiry"]).ToString("dd/MM/yyyy")
+            : "",
+                                    InvYN = r["TrackInventory"].ToString() == "True" ? "1" : "0",
+                                    BatchYN = r["TrackBatch"].ToString() == "True" ? "1" : "0",
+                                    PKDYN = r["TrackPDK"].ToString() == "True" ? "1" : "0",
+                                    SerialYN = r["TrackSerial"].ToString() == "True" ? "1" : "0",
+                                    DiffAmt = r["DiffValue"].ToString(),
+                                    ProductTransPrice = r["InvoicePrice"].ToString(),
+                                    QtyType = r["QtyType"].ToString(),
+                                    MRPonTax = r["MRPonTaxAmt"].ToString(),
+                                    CumMRPonTax = r["CumMRPonTax"].ToString(),
+                                    UOMList = uomList
+                                };
+                            }).ToList();
+
+                            return new SalesModel
+                            {
+                                ID = row["ID"].ToString(),
+                                DocDate = Convert.ToDateTime(row["Date"]).ToString("yyyy-MM-dd"),
+                                TransID = row["TransID"].ToString(),
+                                DocPrefix = row["Prefix"].ToString(),
+                                BranchID = row["BranchID"].ToString(),
+                                DocId = row["DocID"].ToString(),
+                                DocValue = row["DocValue"].ToString(),
+                                BeatID = row["BeatID"].ToString(),
+                                SalesmanID = row["SalesmanID"].ToString(),
+                                CustomerID = row["CustomerID"].ToString(),
+                                RefNo = row["RefNo"].ToString(),
+                                TaxTypeID = row["TaxTypeID"].ToString(),
+                                PriceID = row["PriceID"].ToString(),
+                                PaymentModeID = row["PaymentModeID"].ToString(),
+                                PaymentTermID = row["CreditTermID"].ToString(),
+                                FrightAmt = row["FrightAmt"].ToString(),
+                                OtherChargePern = row["OtherChrgPern"].ToString(),
+                                OtherChargeAmt = row["OtherChargeAmt"].ToString(),
+                                TradeDiscPern = row["TradePern"].ToString(),
+                                AddnlDiscPern = row["AddnlPern"].ToString(),
+                                TotalProdDiscAmt = row["TotalProdDiscAmt"].ToString(),
+                                TradeDiscAmt = row["TradeDiscAmt"].ToString(),
+                                AddnlDiscAmt = row["AddnlDiscAmt"].ToString(),
+                                RoundOffAmt = row["RoundOffAmt"].ToString(),
+                                GrossAmt = row["GrossAmt"].ToString(),
+                                TaxAmt = row["TaxAmt"].ToString(),
+                                NetAmt = row["NetAmt"].ToString(),
+                                Status = row["Status"].ToString(),
+                                UDFId = row["UDFId"].ToString(),
+                                UDFDocId = row["UDFDocId"].ToString(),
+                                UDFDocPrefix = row["UDFDocPrefix"].ToString(),
+                                UDFDocValue = row["UDFDocValue"].ToString(),
+                                Remarks = row["Remarks"].ToString(),
+                                Narration = row["Narration"].ToString(),
+                                TCSTaxAmt = row["TCSTaxAmt"].ToString(),
+                                TDSAmount = row["TDSAmount"].ToString(),
+                                WriteOffAmt = row["Writeoff"].ToString(),
+                                VehicleNo = row["VehicleNo"].ToString(),
+                                Distance = row["Distance"].ToString(),
+                                IRN = row["IRN"].ToString(),
+                                AckNo = row["AckNo"].ToString(),
+                                AckDate = row["AckDate"].ToString(),
+                                AckStatus = row["AckStatus"].ToString(),
+                                EWBNo = row["EWBNo"].ToString(),
+                                SignedQRCode = row["SignedQRCode"].ToString(),
+                                TransportType = row["VehicleType"].ToString(),
+                                TransportMode = row["TransMode"].ToString(),
+                                TransactionID = row["TransportID"].ToString(),
+                                TransactionName = row["TransportName"].ToString(),
+                                DiffValueGross = row["DiffValueGross"].ToString(),
+                                DiffValueNet = row["DiffValueNet"].ToString(),
+                                Balance = row["Balance"].ToString(),
+
+                                // Inject previously built lists
+                                lstPartyInfo = partyInfo,
+                                lstProdInfo = productGrid
+                            };
+                        }).ToList();
+
+                        bl.BL_WriteErrorMsginLog("Invoice", "Item Load End", DateTime.Now.ToLongTimeString());
+                        return Ok(salesList);
+                    }
+                    catch (Exception ex)
+                    {
+                        bl.BL_WriteErrorMsginLog("Invoice", "invoice/get", ex.Message);
+                        return Ok();
+                    }
+                }
+                    if (Mode == "14")
                 {
                     DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, CodeName, ID);
                     List<PurchaseDetail> list = new List<PurchaseDetail>();
@@ -2135,7 +2340,21 @@ namespace SampWebApi.Controllers
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("PDFGenerate", "SaveFileinLocation", ex.Message);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error Msg : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                bl.BL_WriteErrorMsginLog("PDFGenerate", "SaveFileinLocation", errorDetails);
             }
             return null;
         }
