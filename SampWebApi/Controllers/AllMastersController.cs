@@ -1737,6 +1737,7 @@ namespace SampWebApi.Controllers
                             ConfirmPopupYes = DDT.Rows[i]["ConfirmPopupYes"].ToString(),
                             ConfirmPopupNo = DDT.Rows[i]["ConfirmPopupNo"].ToString(),
                             SubMenuColor = DDT.Rows[i]["SubMenuColor"].ToString(),
+                            SubMenuHover = DDT.Rows[i]["SubMenuHover"].ToString(),
                             MenuColor = DDT.Rows[i]["MenuColor"].ToString(),
                             CompanyNameColor = DDT.Rows[i]["CompanyNameColor"].ToString(),
                             GridHeaderBackGround = DDT.Rows[i]["GridHeaderBackGround"].ToString(),
@@ -1770,7 +1771,7 @@ namespace SampWebApi.Controllers
                     DataTable DDT = new DataTable();
                     DDT = bl.BL_ExecuteParamSP("uspManageColorSettings", 2, lstMaster.ThemeID, lstMaster.UID, lstMaster.MenuHeader, lstMaster.AddButton, lstMaster.SaveButton, lstMaster.ClearButton,
                                 lstMaster.CloseButton, lstMaster.PDFButton, lstMaster.PreviewButton, lstMaster.PopupHeader, lstMaster.PopupFooter,
-                                lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor, lstMaster.MenuColor, lstMaster.CompanyNameColor,
+                                lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor,lstMaster.SubMenuHover, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                                 lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
                                 lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2, lstMaster.ButtonTextColor,
                                 lstMaster.EditButton, lstMaster.CancelButton, lstMaster.VariantButton);
