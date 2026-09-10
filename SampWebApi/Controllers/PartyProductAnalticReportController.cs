@@ -101,12 +101,12 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/invoiceanalticalreport/getinvoices")]
-        public IHttpActionResult GetinvoiceData()
+        public IHttpActionResult GetinvoiceData(int ShowAll)
         {
             try
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspInvoiceTrackReportData", 1);
+                DDT = bl.BL_ExecuteParamSP("uspInvoiceTrackReportData", 1, ShowAll);
                 string jsonparty = JsonConvert.SerializeObject(DDT);
                 return Ok(jsonparty);
             }
