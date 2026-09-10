@@ -21,6 +21,7 @@ using SampWebApi.DALHelper;
 using Zen.Barcode;
 using System.Drawing.Imaging;
 using System.Security.Cryptography;
+using System.Diagnostics;
 namespace SampWebApi.Printing
 {
     public class PrintBase
@@ -745,9 +746,24 @@ namespace SampWebApi.Printing
                     }
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                //GKS_BL.BL_ExceptionMsg("Mail Unable to Process that time", Ex.Message, Ex);
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error Msg : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                GKS_BL.BL_WriteErrorMsginLog("PrintBase", "DocWiseGeneratePDF", errorDetails);
+
             }
         }
         private void ConvertXPStoPDF(string pdfTempPath, string pdfMainPath, string strFileName, bool IsFinished)
@@ -775,14 +791,30 @@ namespace SampWebApi.Printing
             }
             catch (Exception ex)
             {
+                var stackTrace = new StackTrace(ex, true);
+                var frame = stackTrace.GetFrames()?
+                                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
 
+                int lineNumber = frame?.GetFileLineNumber() ?? 0;
+                string fileName = frame?.GetFileName() ?? "";
+                string methodName = frame?.GetMethod()?.Name ?? "";
+
+                string errorDetails =
+                    "Error Msg : " + ex.Message +
+                    " , Line: " + lineNumber +
+                    " , File: " + fileName +
+                    " , Method: " + methodName +
+                    " , StackTrace: " + ex.StackTrace;
+                GKS_BL.BL_WriteErrorMsginLog("PrintBase", "ConvertXPStoPDF", errorDetails);
             }
             finally
             {
                 if (IsFinished)
                 {
+
                     string[] filePaths = Directory.GetFiles(pdfTempPath, "*.pdf", SearchOption.TopDirectoryOnly);
                     string opPth = MergePDF.MergeAllPDF(pdfMainPath, filePaths);
+
                     GroupPDFoutputPath = opPth;
                     DeleteDirectory(pdfTempPath, strFileName);
                     //ProcessStartInfo startInfo = new ProcessStartInfo(opPth);
