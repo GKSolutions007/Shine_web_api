@@ -373,8 +373,10 @@ namespace SampWebApi.Controllers
 
                 if (Mode == "7" || Mode == "11" || Mode == "17" || Mode == "21")
                 {
-                    //bl.BL_WriteErrorMsginLog("Invoice", "Item Load Start", DateTime.Now.ToLongTimeString());
+                    //bl.BL_WriteErrorMsginLog("Invoice", "Load Start", DateTime.Now.ToLongTimeString());
+                    string RunTimings = "Start : " + DateTime.Now.ToLongTimeString();
                     DDT = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", Mode, null, CodeName);
+                    RunTimings += ", Header Data Fetch : " + DateTime.Now.ToLongTimeString();
                     List<SalesModel> list = new List<SalesModel>();
                     if (DDT.Rows.Count > 0)
                     {
@@ -382,6 +384,7 @@ namespace SampWebApi.Controllers
                         //for (int i = 0; i < DDT.Rows.Count; i++)
                         {
                             DataTable DDT1 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 31, DDT.Rows[i][8].ToString());
+                            RunTimings += ", Party Data Fetch : " + DateTime.Now.ToLongTimeString();
                             List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
                             List<clsCustomerRemarks> listRemark = new List<clsCustomerRemarks>();
 
@@ -396,6 +399,7 @@ namespace SampWebApi.Controllers
                                     });
                                 }
                             }
+                            RunTimings += ", Party OS Fetch Start : " + DateTime.Now.ToLongTimeString();
                             string strOSVal = "0", strOSType = "Cr", ACDay = "0";
                             DataTable dtPartyOs = bl.BL_ExecuteParamSP("uspPartyReportData", 2, DDT1.Rows[i]["FAID"].ToString(), 1);
                             if (dtPartyOs.Rows.Count > 0)
@@ -404,9 +408,11 @@ namespace SampWebApi.Controllers
                                 strOSType = dtPartyOs.Rows[0]["CrDr"].ToString();
                                 ACDay = dtPartyOs.Rows[0]["ACC"].ToString();
                             }
+                            RunTimings += ", Party OS Fetch End : " + DateTime.Now.ToLongTimeString();
                             DataTable dtDiscScheme = bl.BL_ExecuteParamSP("uspGetCustWiseProdDisc", Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
                                 DDT1.Rows[0]["ID"].ToString(), 0);
                             string strCustomerScheme = dtDiscScheme.Rows.Count > 0 ? "1" : "0";
+                            RunTimings += ", Party Data Fill Start : " + DateTime.Now.ToLongTimeString();
                             for (int j = 0; j < DDT1.Rows.Count; j++)
                             {
                                 listParty.Add(new CustomerVendorModel
@@ -450,24 +456,43 @@ namespace SampWebApi.Controllers
                                     CustomerScheme = strCustomerScheme
                                 });
                             }
-
+                            RunTimings += ", Party Data Fill End : " + DateTime.Now.ToLongTimeString();
                             List<SalesDetail> listProductGrid = new List<SalesDetail>();
                             int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : Mode == "17" ? 18 : 22;
-                            DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", TMode, null, CodeName);
+                            DataSet dtInvItems = bl.BL_ExecuteParamSPDataset("uspGetSetInvoiceData", TMode, null, CodeName);
+                            DataTable DDT2 = dtInvItems.Tables[0];
+                            DataTable dtItemUOMs = dtInvItems.Tables[1];
+                            //DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", TMode, null, CodeName);
+                            RunTimings += ", Item Data Fill Start : " + DateTime.Now.ToLongTimeString();
                             for (int k = 0; k < DDT2.Rows.Count; k++)
                             {
-                                DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
+                                //DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
                                 List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                                for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                //for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                //{
+                                //    ulist.Add(new clsPurchaseUOM
+                                //    {
+                                //        ID = dtUOM.Rows[j][0].ToString(),
+                                //        Name = dtUOM.Rows[j][1].ToString(),
+                                //        ConvRate = dtUOM.Rows[j][2].ToString()
+                                //    });
+                                //}
+                                var uomLookup = dtItemUOMs.AsEnumerable()
+                         .GroupBy(r => r["ProdID"].ToString())
+                         .ToDictionary(g => g.Key, g => g.ToList());
+                                if (uomLookup.TryGetValue(DDT2.Rows[k]["ProdID"].ToString(), out var uomRows))
                                 {
-                                    ulist.Add(new clsPurchaseUOM
+                                    foreach (var row in uomRows)
                                     {
-                                        ID = dtUOM.Rows[j][0].ToString(),
-                                        Name = dtUOM.Rows[j][1].ToString(),
-                                        ConvRate = dtUOM.Rows[j][2].ToString()
-                                    });
+                                        ulist.Add(new clsPurchaseUOM
+                                        {
+                                            ID = row[0].ToString(),
+                                            Name = row[1].ToString(),
+                                            ConvRate = row[2].ToString()
+                                        });
+                                    }
                                 }
-                                
+
                                 bool OrderSchemeApply = true;
                                 #region Discount Schemme
                                 decimal OrgDiscPern = bl.BL_dValidation(DDT2.Rows[k]["ProdPern"].ToString());
@@ -573,6 +598,9 @@ namespace SampWebApi.Controllers
                                     //lstInvPopup = ulistBatch
                                 });
                             }
+                            RunTimings += ", Item Data Fill End : " + DateTime.Now.ToLongTimeString();
+                            RunTimings += ", Header Data Fill Start : " + DateTime.Now.ToLongTimeString();
+
                             list.Add(new SalesModel
                             {
                                 //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
@@ -631,9 +659,11 @@ namespace SampWebApi.Controllers
                                 lstPartyInfo = listParty,
                                 lstProdInfo = listProductGrid,
                             });
+                            RunTimings += ", Header Data Fill End : " + DateTime.Now.ToLongTimeString();
+
                         }
                     }
-                    //bl.BL_WriteErrorMsginLog("Invoice", "Item Load End", DateTime.Now.ToLongTimeString());
+                    bl.BL_WriteErrorMsginLog("Invoice", "Load End", RunTimings);
                     return Ok(list);
                 }
                 if (Mode == "71" || Mode == "111" || Mode == "171" || Mode == "211")
