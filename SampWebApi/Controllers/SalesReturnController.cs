@@ -391,23 +391,41 @@ namespace SampWebApi.Controllers
 
                             List<SalesDetail> listProductGrid = new List<SalesDetail>();
                             int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : 18;
-                            DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", TMode, DocPrefix, null, CodeName);
+                            DataSet dtSRVariantData = bl.BL_ExecuteParamSPDataset("uspGetSetSalesDamageReturnData", TMode, DocPrefix, null, CodeName);
+                            DataTable DDT2 = dtSRVariantData.Tables[0];
+                            DataTable dtItemUOMs = dtSRVariantData.Tables[1];
+                            DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
+                            DataRow[] drr = dtReason.Select("Type = 12");
                             for (int k = 0; k < DDT2.Rows.Count; k++)
                             {
-                                DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT2.Rows[k]["ProdID"].ToString());
                                 List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                                for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                //DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, DocPrefix, "", DDT2.Rows[k]["ProdID"].ToString());
+                                //for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                //{
+                                //    ulist.Add(new clsPurchaseUOM
+                                //    {
+                                //        ID = dtUOM.Rows[j][0].ToString(),
+                                //        Name = dtUOM.Rows[j][1].ToString(),
+                                //        ConvRate = dtUOM.Rows[j][2].ToString()
+                                //    });
+                                //}
+                                var uomLookup = dtItemUOMs.AsEnumerable()
+                         .GroupBy(r => r["ProdID"].ToString())
+                         .ToDictionary(g => g.Key, g => g.ToList());
+                                if (uomLookup.TryGetValue(DDT2.Rows[k]["ProdID"].ToString(), out var uomRows))
                                 {
-                                    ulist.Add(new clsPurchaseUOM
+                                    foreach (var row in uomRows)
                                     {
-                                        ID = dtUOM.Rows[j][0].ToString(),
-                                        Name = dtUOM.Rows[j][1].ToString(),
-                                        ConvRate = dtUOM.Rows[j][2].ToString()
-                                    });
+                                        ulist.Add(new clsPurchaseUOM
+                                        {
+                                            ID = row[0].ToString(),
+                                            Name = row[1].ToString(),
+                                            ConvRate = row[2].ToString()
+                                        });
+                                    }
                                 }
                                 List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
-                                DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, DocPrefix);
-                                DataRow[] drr = dtReason.Select("Type = 12");
+                                
                                 for (int r = 0; r < drr.Length; r++)
                                 {
                                     ulistreason.Add(new SingleMasterModel
@@ -417,23 +435,23 @@ namespace SampWebApi.Controllers
                                     });
                                 }
                                 List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                                DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                                    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                                for (int j = 0; j < dtBatch.Rows.Count; j++)
-                                {
-                                    ulistBatch.Add(new InvoiceBatchPopup
-                                    {
-                                        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                        ProdID = DDT.Rows[i]["ID"].ToString(),
-                                        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                        MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                                    });
-                                }
+                                //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                                //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
+                                //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                                //{
+                                //    ulistBatch.Add(new InvoiceBatchPopup
+                                //    {
+                                //        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                //        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                                //        ProdID = DDT.Rows[i]["ID"].ToString(),
+                                //        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                //        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                //        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                //        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                //        MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                //        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                                //    });
+                                //}
 
                                 List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
                                 ulistTempBatch.Add(new SRTempBatch
@@ -769,23 +787,42 @@ namespace SampWebApi.Controllers
                         }
 
                         List<SalesDetail> listProductGrid = new List<SalesDetail>();
-                        DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
+                        DataSet dtSRVariantData = bl.BL_ExecuteParamSPDataset("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
+                        DataTable DDT2 = dtSRVariantData.Tables[0];
+                        DataTable dtItemUOMs = dtSRVariantData.Tables[1];
+                        DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, 16);
+                        DataRow[] drr = dtReason.Select("Type = 12");
                         for (int k = 0; k < DDT2.Rows.Count; k++)
                         {
-                            DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, 16, "", DDT2.Rows[k]["ProdID"].ToString());
+                            //DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 5, 16, "", DDT2.Rows[k]["ProdID"].ToString());
+                            //for (int j = 0; j < dtUOM.Rows.Count; j++)
+                            //{
+                            //    ulist.Add(new clsPurchaseUOM
+                            //    {
+                            //        ID = dtUOM.Rows[j][0].ToString(),
+                            //        Name = dtUOM.Rows[j][1].ToString(),
+                            //        ConvRate = dtUOM.Rows[j][2].ToString()
+                            //    });
+                            //}
                             List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                            for (int j = 0; j < dtUOM.Rows.Count; j++)
+
+                            var uomLookup = dtItemUOMs.AsEnumerable()
+                         .GroupBy(r => r["ProdID"].ToString())
+                         .ToDictionary(g => g.Key, g => g.ToList());
+                            if (uomLookup.TryGetValue(DDT2.Rows[k]["ProdID"].ToString(), out var uomRows))
                             {
-                                ulist.Add(new clsPurchaseUOM
+                                foreach (var row in uomRows)
                                 {
-                                    ID = dtUOM.Rows[j][0].ToString(),
-                                    Name = dtUOM.Rows[j][1].ToString(),
-                                    ConvRate = dtUOM.Rows[j][2].ToString()
-                                });
+                                    ulist.Add(new clsPurchaseUOM
+                                    {
+                                        ID = row[0].ToString(),
+                                        Name = row[1].ToString(),
+                                        ConvRate = row[2].ToString()
+                                    });
+                                }
                             }
                             List<SingleMasterModel> ulistreason = new List<SingleMasterModel>();
-                            DataTable dtReason = bl.BL_ExecuteParamSP("uspGetSetSalesDamageReturnData", 1, 16);
-                            DataRow[] drr = dtReason.Select("Type = 12");
+                            
                             for (int r = 0; r < drr.Length; r++)
                             {
                                 ulistreason.Add(new SingleMasterModel
@@ -795,23 +832,23 @@ namespace SampWebApi.Controllers
                                 });
                             }
                             List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
-                            DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
-                                Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
-                            for (int j = 0; j < dtBatch.Rows.Count; j++)
-                            {
-                                ulistBatch.Add(new InvoiceBatchPopup
-                                {
-                                    QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                    QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                    ProdID = DDT.Rows[i]["ID"].ToString(),
-                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                    PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                    ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                    ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                    SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                                });
-                            }
+                            //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, DDT.Rows[i]["BranchID"].ToString(), 2,
+                            //    Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"), DDT2.Rows[k]["ProdID"].ToString(), DDT.Rows[i]["ID"].ToString());
+                            //for (int j = 0; j < dtBatch.Rows.Count; j++)
+                            //{
+                            //    ulistBatch.Add(new InvoiceBatchPopup
+                            //    {
+                            //        QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                            //        QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                            //        ProdID = DDT.Rows[i]["ID"].ToString(),
+                            //        BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                            //        PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                            //        ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                            //        ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                            //        MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                            //        SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                            //    });
+                            //}
                             List<SRTempBatch> ulistTempBatch = new List<SRTempBatch>();
                             ulistTempBatch.Add(new SRTempBatch
                             {

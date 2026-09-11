@@ -83,6 +83,7 @@ namespace SampWebApi.Models
         public string UserName { get; set; }
         public string LastActionTime { get; set; }
         public string CustomerScheme { get; set; }
+        public string RemoveImages { get; set; }
         public List<CompressedImage> PartyImages { get; set; }
     }
     public class clsCustomerRemarks
