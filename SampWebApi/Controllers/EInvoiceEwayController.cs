@@ -389,7 +389,7 @@ namespace SampWebApi.Controllers
                                     {
                                         ewbdt = DateTime.ParseExact(
                                             EWBDATE,
-                                            "M/d/yyyy hh:mm:ss tt",
+                                            "M/d/yyyy h:m:s tt",
                                             CultureInfo.InvariantCulture
                                         );
                                     }
@@ -401,7 +401,7 @@ namespace SampWebApi.Controllers
                                     {
                                         validdt = DateTime.ParseExact(
                                             ValidTillDATE,
-                                            "M/d/yyyy hh:mm:ss tt",
+                                            "M/d/yyyy h:m:s tt",
                                             CultureInfo.InvariantCulture
                                         );
                                     }
