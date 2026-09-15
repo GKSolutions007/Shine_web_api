@@ -221,6 +221,18 @@ namespace SampWebApi.Controllers
                             bl.BL_ExecuteParamSP("uspManageCustomerMaster", 8, IdentID, item.Remarks, IsoldDelete);
                             IsoldDelete = 1;
                         }
+                        if (lstMaster.RemoveImages != null)
+                        {
+                            string[] removecustomerimages = lstMaster.RemoveImages.Split(',');
+                            foreach (string imgname in removecustomerimages)
+                            {
+                                if (!string.IsNullOrEmpty(imgname))
+                                {
+                                    bl.BL_ExecuteParamSP("uspSaveImagedata", 2, 2, "Customer",
+                                        IdentID, null, imgname, null);
+                                }
+                            }
+                        }
                         //Success message
                         list.Add(new SaveMessage()
                         {

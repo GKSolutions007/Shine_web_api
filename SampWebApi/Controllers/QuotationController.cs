@@ -294,19 +294,37 @@ namespace SampWebApi.Controllers
 
                             List<SalesDetail> listProductGrid = new List<SalesDetail>();
                             int TMode = Mode == "7" ? 8 : Mode == "11" ? 12 : 18;
-                            DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetQuotationData", TMode, null, CodeName);
+                            DataSet dtVariantItems = bl.BL_ExecuteParamSPDataset("uspGetSetQuotationData", TMode, null, CodeName);
+                            DataTable DDT2 = dtVariantItems.Tables[0];
+                            DataTable dtItemUOMs = dtVariantItems.Tables[1];
                             for (int k = 0; k < DDT2.Rows.Count; k++)
                             {
-                                DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
                                 List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                                for (int j = 0; j < dtUOM.Rows.Count; j++)
+
+                                //DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
+                                //for (int j = 0; j < dtUOM.Rows.Count; j++)
+                                //{
+                                //    ulist.Add(new clsPurchaseUOM
+                                //    {
+                                //        ID = dtUOM.Rows[j][0].ToString(),
+                                //        Name = dtUOM.Rows[j][1].ToString(),
+                                //        ConvRate = dtUOM.Rows[j][2].ToString()
+                                //    });
+                                //}
+                                var uomLookup = dtItemUOMs.AsEnumerable()
+                         .GroupBy(r => r["ProdID"].ToString())
+                         .ToDictionary(g => g.Key, g => g.ToList());
+                                if (uomLookup.TryGetValue(DDT2.Rows[k]["ProdID"].ToString(), out var uomRows))
                                 {
-                                    ulist.Add(new clsPurchaseUOM
+                                    foreach (var row in uomRows)
                                     {
-                                        ID = dtUOM.Rows[j][0].ToString(),
-                                        Name = dtUOM.Rows[j][1].ToString(),
-                                        ConvRate = dtUOM.Rows[j][2].ToString()
-                                    });
+                                        ulist.Add(new clsPurchaseUOM
+                                        {
+                                            ID = row[0].ToString(),
+                                            Name = row[1].ToString(),
+                                            ConvRate = row[2].ToString()
+                                        });
+                                    }
                                 }
                                 listProductGrid.Add(new SalesDetail
                                 {
@@ -511,19 +529,37 @@ namespace SampWebApi.Controllers
                         }
 
                         List<SalesDetail> listProductGrid = new List<SalesDetail>();
-                        DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
+                        DataSet dtVariantItems = bl.BL_ExecuteParamSPDataset("uspGetTransVariantQuotationdata", VariantType, 2, DocID);
+                        DataTable DDT2 = dtVariantItems.Tables[0];
+                        DataTable dtItemUOMs = dtVariantItems.Tables[1];
                         for (int k = 0; k < DDT2.Rows.Count; k++)
                         {
-                            DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
                             List<clsPurchaseUOM> ulist = new List<clsPurchaseUOM>();
-                            for (int j = 0; j < dtUOM.Rows.Count; j++)
+
+                            //DataTable dtUOM = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 5, "", DDT2.Rows[k]["ProdID"].ToString());
+                            //for (int j = 0; j < dtUOM.Rows.Count; j++)
+                            //{
+                            //    ulist.Add(new clsPurchaseUOM
+                            //    {
+                            //        ID = dtUOM.Rows[j][0].ToString(),
+                            //        Name = dtUOM.Rows[j][1].ToString(),
+                            //        ConvRate = dtUOM.Rows[j][2].ToString()
+                            //    });
+                            //}
+                            var uomLookup = dtItemUOMs.AsEnumerable()
+                         .GroupBy(r => r["ProdID"].ToString())
+                         .ToDictionary(g => g.Key, g => g.ToList());
+                            if (uomLookup.TryGetValue(DDT2.Rows[k]["ProdID"].ToString(), out var uomRows))
                             {
-                                ulist.Add(new clsPurchaseUOM
+                                foreach (var row in uomRows)
                                 {
-                                    ID = dtUOM.Rows[j][0].ToString(),
-                                    Name = dtUOM.Rows[j][1].ToString(),
-                                    ConvRate = dtUOM.Rows[j][2].ToString()
-                                });
+                                    ulist.Add(new clsPurchaseUOM
+                                    {
+                                        ID = row[0].ToString(),
+                                        Name = row[1].ToString(),
+                                        ConvRate = row[2].ToString()
+                                    });
+                                }
                             }
                             listProductGrid.Add(new SalesDetail
                             {
