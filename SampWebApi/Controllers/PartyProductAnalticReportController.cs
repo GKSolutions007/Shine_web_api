@@ -19,12 +19,12 @@ namespace SampWebApi.Controllers
         clsBusinessLayer bl = new clsBusinessLayer();
         [HttpGet]
         [Route("api/partyanalticalreport/getparty")]
-        public IHttpActionResult GetData(int PartyType)
+        public IHttpActionResult GetData(int PartyType,int ShowAll)
         {
             try
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspPartyReportData", 1, PartyType);
+                DDT = bl.BL_ExecuteParamSP("uspPartyReportData", 1, PartyType, ShowAll);
                 string jsonparty = JsonConvert.SerializeObject(DDT);
                 return Ok(jsonparty);
             }
@@ -60,12 +60,12 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/productanalticalreport/getproduct")]
-        public IHttpActionResult GetproductData()
+        public IHttpActionResult GetproductData(int ShowAll)
         {
             try
             {
                 DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspProductReportData", 1);
+                DDT = bl.BL_ExecuteParamSP("uspProductReportData", 1, ShowAll);
                 string jsonparty = JsonConvert.SerializeObject(DDT);
                 return Ok(jsonparty);
             }

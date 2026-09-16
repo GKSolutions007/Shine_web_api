@@ -2177,7 +2177,7 @@ namespace SampWebApi.Controllers
                                      bl.BL_dValidation(listTrans.NetAmt), bl.BL_nValidation(listTrans.UDFId), dtDocument, dtProd, dtSerialInfo, dtTempBachInfo, 1, bl.BL_nValidation(listTrans.CurrentStatus), null,
                                      0, bl.BL_nValidation(listTrans.TCSTaxAmt), bl.BL_nValidation(listTrans.TDSAmount), 0,
                                      listTrans.Remarks, listTrans.Narration, bl.BL_nValidation(listTrans.DraftID), bl.BL_nValidation(listTrans.FilterTypeID), bl.BL_dValidation(listTrans.DiffValueGross), bl.BL_dValidation(listTrans.DiffValueNet));
-                            if (dtResult.Columns.Count > 1)
+                                if (dtResult.Columns.Count > 1)
                             {
                                 bl.bl_Transaction(3);
                                 list.Add(new SaveMessage()
