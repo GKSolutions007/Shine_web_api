@@ -21,6 +21,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Results;
+using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Xml.Linq;
 using WebGrease.Activities;
@@ -551,12 +552,14 @@ namespace SampWebApi.Controllers
                     DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
                     for (int i = 0; i < dtResult.Rows.Count; i++)
                     {
+                        string coltype = !string.IsNullOrEmpty(dtResult.Rows[i]["ColumnType"].ToString()) ? dtResult.Rows[i]["ColumnType"].ToString() : "1";
                         //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
                         list.Add(new ColumnSettingsDataModel()
                         {
                             field = dtResult.Rows[i]["ColumnName"].ToString(),
                             header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                            type = "label",
+                            type = coltype == "3" ? "labeldecimal" :coltype == "2" ? "labelnumber" :"label",
+                            ColumnType = coltype,
                             width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
                             align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
                             visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
@@ -598,18 +601,21 @@ namespace SampWebApi.Controllers
                         bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
                           item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
                           item.EnableAvg, item.EnableCount, item.EnableUnique, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
-                          !string.IsNullOrEmpty(item.Printwidth.ToString()) ? item.Printwidth : 0);
+                          !string.IsNullOrEmpty(item.Printwidth.ToString()) ? item.Printwidth : 0,
+                          !string.IsNullOrEmpty(item.ColumnType.ToString()) ? item.ColumnType : "1");
                     }
                     List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
                     DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", 2, ColumnSettingData[0].FormID, ColumnSettingData[0].TableID, ColumnSettingData[0].FormorReport);
                     for (int i = 0; i < dtResult.Rows.Count; i++)
                     {
-                        //field	header	type	width	align	visible	EnableColumnMenu	ShowinColumnOption	Total	TotalYN	EnableSum	EnableAvg	precision	ClickPopup
+                        string coltype = !string.IsNullOrEmpty(dtResult.Rows[i]["ColumnType"].ToString()) ? dtResult.Rows[i]["ColumnType"].ToString() : "1";
+
                         Columnlist.Add(new ColumnSettingsDataModel()
                         {
                             field = dtResult.Rows[i]["ColumnName"].ToString(),
                             header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                            type = "label",
+                            type = coltype == "3" ? "labeldecimal" : coltype == "2" ? "labelnumber" : "label",
+                            ColumnType = coltype,
                             width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
                             align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
                             visible = dtResult.Rows[i]["Visible"].ToString() == "1" ? true : false,
