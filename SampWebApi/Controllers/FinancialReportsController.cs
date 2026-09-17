@@ -601,7 +601,7 @@ namespace SampWebApi.Controllers
                         bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, item.FormID, item.TableID, item.ColumnID, item.FormorReport,
                           item.DisplayColumnName, item.Width, item.Visible, item.Alignment, item.DisplayIndex, item.TotalYN, item.EnableSum,
                           item.EnableAvg, item.EnableCount, item.EnableUnique, item.EnableColumnMenu, item.ShowinColumnOption, item.PrintYN ? 1 : 0, item.PrintColumnName,
-                          item.Printwidth);
+                          item.Printwidth, !string.IsNullOrEmpty(item.ColumnType.ToString()) ? item.ColumnType : "1");
                     }
                     List<ColumnSettingsDataModel> Columnlist = new List<ColumnSettingsDataModel>();
                     DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", 2, ColumnSettingData[0].FormID, ColumnSettingData[0].TableID, ColumnSettingData[0].FormorReport);

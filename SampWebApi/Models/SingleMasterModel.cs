@@ -549,6 +549,7 @@ namespace SampWebApi.Models
         public int Printwidth { get; set; }
         public bool PrintYN { get; set; }
         public string PrintColumnName { get; set; }
+        public string ColumnType { get; set; }
     }
     public class ColumnSettingsModel
     {
@@ -577,7 +578,7 @@ namespace SampWebApi.Models
         public int Printwidth { get; set; }
         public bool PrintYN { get; set; }
         public string PrintColumnName { get; set; }
-
+        public string ColumnType { get; set; }
     }
     public class MapRoleModel
     {
