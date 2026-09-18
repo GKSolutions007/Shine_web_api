@@ -386,10 +386,11 @@ namespace SampWebApi.Controllers
                 {
                     string Mode = FType == "1" ? "6" : FType == "2" ? "9" : "13";
                     DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseOrderData", Mode, TransID, FType, Branch, Party, FromDate, ToDate, Showall);
-                    List<PurchaseModel> list = new List<PurchaseModel>();
+                    //List<PurchaseModel> list = new List<PurchaseModel>();
+                    var list = new List<object>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
-                        list.Add(new PurchaseModel
+                        list.Add(new //PurchaseModel
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
                             DocID = DDT.Rows[i]["DocID"].ToString(),
@@ -397,7 +398,7 @@ namespace SampWebApi.Controllers
                             RefNo = DDT.Rows[i]["RefNo"].ToString(),
                             BranchID = DDT.Rows[i]["Branch"].ToString(),
                             VendorID = DDT.Rows[i]["Party"].ToString(),
-                            GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                            GrossAmt = DDT.Rows[i]["GrossAmt"],
                             TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
                             NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
                             Status = DDT.Rows[i]["Status"].ToString(),
