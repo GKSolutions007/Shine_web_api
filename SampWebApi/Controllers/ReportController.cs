@@ -558,7 +558,7 @@ namespace SampWebApi.Controllers
                         {
                             field = dtResult.Rows[i]["ColumnName"].ToString(),
                             header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                            type = coltype == "3" ? "labeldecimal" :coltype == "2" ? "labelnumber" :"label",
+                            type = coltype == "3" ? "labeldecimal" :coltype == "2" ? "labelnumber" : coltype == "4" ? "labeldate" : "label",
                             ColumnType = coltype,
                             width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
                             align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",
@@ -614,7 +614,7 @@ namespace SampWebApi.Controllers
                         {
                             field = dtResult.Rows[i]["ColumnName"].ToString(),
                             header = dtResult.Rows[i]["DisplayColumnName"].ToString(),
-                            type = coltype == "3" ? "labeldecimal" : coltype == "2" ? "labelnumber" : "label",
+                            type = coltype == "3" ? "labeldecimal" : coltype == "2" ? "labelnumber" : coltype == "4" ? "labeldate" : "label",
                             ColumnType = coltype,
                             width = Convert.ToInt32(dtResult.Rows[i]["Width"].ToString()),
                             align = dtResult.Rows[i]["Alignment"].ToString() == "1" ? "left" : dtResult.Rows[i]["Alignment"].ToString() == "2" ? "right" : "center",

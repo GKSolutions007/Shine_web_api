@@ -1,0 +1,2 @@
+{"Date":"19-Sep-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseOrder","FunctionName":"purchaseorder/getfilterdata","Error":"Argument data type varchar is invalid for argument 1 of format function.","Timestamp":"19-Sep-2026 04:14:30 PM"},
+{"Date":"19-Sep-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseOrder","FunctionName":"purchaseorder/getfilterdata","Error":"Argument data type varchar is invalid for argument 1 of format function.","Timestamp":"19-Sep-2026 04:14:33 PM"},
