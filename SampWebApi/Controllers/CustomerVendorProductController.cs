@@ -1030,5 +1030,43 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Route("api/customermaster/CustomerLocation")]
+        public IHttpActionResult CustomerLocation(int ShowAll = 0)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageCustomerLocationVerification", ShowAll);
+
+                if(DDT != null && DDT.Rows.Count > 0)
+                {
+                    return Ok(DDT);
+                }
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "customermaster/CustomerLocation", ex.Message);
+                return InternalServerError(ex);
+            }
+        }
+
+
+        [HttpPost]
+        [Route("api/customermaster/CustomerLocationSave")]
+        public IHttpActionResult CustomerLocationSave(int mode, int id, int userId)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspSaveCustomerLocationVerification", mode, id, userId);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("SystemApproval", "DeviceApproval/save", ex.Message);
+                return InternalServerError(ex);
+            }
+        }
     }
 }
