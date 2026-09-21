@@ -1050,17 +1050,33 @@ namespace SampWebApi.Controllers
 
 
         [HttpPost]
-        [Route("api/customermaster/CustomerLocationSave")]
-        public IHttpActionResult CustomerLocationSave(int mode, int id, int userId)
+        [Route("api/customermaster/CustomerLocationVerificationSave")]
+        public IHttpActionResult CustomerLocationVerificationSave(int mode, int id, int userId, string remarks = null)
         {
             try
             {
-                DataTable DDT = bl.BL_ExecuteParamSP("uspSaveCustomerLocationVerification", mode, id, userId);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspSaveCustomerLocationVerification", mode, id, userId, (object)remarks ?? DBNull.Value);
                 return Ok(DDT);
             }
             catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("SystemApproval", "DeviceApproval/save", ex.Message);
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/customermaster/CustomerLocationImage")]
+        public IHttpActionResult GetCustomerLocationImage(int CustomerID)
+        {
+            try
+            {
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetCustomerLocationImage", CustomerID);
+                return Ok(DDT);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CustomerVendorProduct", "customermaster/GetCustomerLocationImage", ex.Message);
                 return InternalServerError(ex);
             }
         }
