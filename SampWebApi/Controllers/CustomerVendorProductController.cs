@@ -1038,12 +1038,8 @@ namespace SampWebApi.Controllers
             try
             {
                 DataTable DDT = bl.BL_ExecuteParamSP("uspManageCustomerLocationVerification", ShowAll);
-
-                if(DDT != null && DDT.Rows.Count > 0)
-                {
-                    return Ok(DDT);
-                }
-                return NotFound();
+                //string JSONCONV = JsonConvert.SerializeObject(DDT);
+                return Ok(DDT);
             }
             catch (Exception ex)
             {
