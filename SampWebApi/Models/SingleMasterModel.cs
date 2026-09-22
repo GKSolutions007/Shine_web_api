@@ -282,6 +282,14 @@ namespace SampWebApi.Models
         public string AutocompleteLine2 { get; set; }
         public string ButtonTextColor { get; set; }
         public string SubMenuHover { get; set; }
+
+        public string AutocompleteFieldBG { get; set; }
+        public string FilterButton { get; set; }
+        public string MailButton { get; set; }
+        public string PrintButton { get; set; }
+        public string BatchButton { get; set; }
+        
+
     }
     public class ApplicationConfig
     {
