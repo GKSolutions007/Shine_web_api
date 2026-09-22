@@ -1749,6 +1749,12 @@ namespace SampWebApi.Controllers
                             AutocompleteLine1 = DDT.Rows[i]["AutocompleteLine1"].ToString(),
                             AutocompleteLine2 = DDT.Rows[i]["AutocompleteLine2"].ToString(),
                             ButtonTextColor = DDT.Rows[i]["ButtonTextColor"].ToString(),
+
+                            AutocompleteFieldBG = DDT.Rows[i]["AutocompleteFieldBG"].ToString(),
+                            FilterButton = DDT.Rows[i]["FilterButton"].ToString(),
+                            MailButton = DDT.Rows[i]["MailButton"].ToString(),
+                            PrintButton = DDT.Rows[i]["PrintButton"].ToString(),
+                            BatchButton = DDT.Rows[i]["BatchButton"].ToString(),
                         });
                     }
                     return Ok(list);
@@ -1774,7 +1780,9 @@ namespace SampWebApi.Controllers
                                 lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor,lstMaster.SubMenuHover, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                                 lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
                                 lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2, lstMaster.ButtonTextColor,
-                                lstMaster.EditButton, lstMaster.CancelButton, lstMaster.VariantButton);
+                                lstMaster.EditButton, lstMaster.CancelButton, lstMaster.VariantButton,
+                                lstMaster.AutocompleteFieldBG, lstMaster.FilterButton, lstMaster.MailButton, lstMaster.PrintButton,
+                                lstMaster.BatchButton);
                     List<SaveMessage> list = new List<SaveMessage>();
                     if (DDT.Columns.Count == 1)
                     {
