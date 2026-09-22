@@ -206,7 +206,7 @@ namespace SampWebApi.Controllers
                         bl.CheckString(lstMaster.CreditlimitOS), lstMaster.PriceTypeID,
                         lstMaster.OwnerName, bl.CheckString(lstMaster.DiscountPern), bl.CheckString(lstMaster.TrackPoint), bl.CheckString(lstMaster.ClosingTrackPoint), lstMaster.TCSTax, lstMaster.Latitude, lstMaster.Longtitude,
                         bl.CheckString(lstMaster.Distance),
-                        lstMaster.Remark, lstMaster.Active, lstMaster.UserID, lstMaster.CustomerType, lstMaster.Ratings, lstMaster.Shinecode);
+                        lstMaster.Remark, lstMaster.Active, lstMaster.UserID, lstMaster.CustomerType, lstMaster.Ratings, lstMaster.Shinecode, lstMaster.Removelocation);
                     if (DDT.Columns.Count == 1)
                     {
                         int IsoldDelete = 0, IdentID = Convert.ToInt32(DDT.Rows[0][0].ToString());
