@@ -1711,6 +1711,11 @@ namespace SampWebApi.Controllers
         {
             try
             {
+                if (Mode == "0")
+                {
+                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageColorSettings", 0);
+                    return Ok(DDT);
+                }
                 if (Mode == "1")
                 {
                     DataTable DDT = new DataTable();
@@ -1755,12 +1760,13 @@ namespace SampWebApi.Controllers
                             MailButton = DDT.Rows[i]["MailButton"].ToString(),
                             PrintButton = DDT.Rows[i]["PrintButton"].ToString(),
                             BatchButton = DDT.Rows[i]["BatchButton"].ToString(),
+                            AutoCompleteSelectBG = DDT.Rows[i]["AutoCompleteSelectBG"].ToString(),
                         });
                     }
                     return Ok(list);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("AllMaster", "colorsettings/get", ex.Message);
             }
@@ -1775,17 +1781,20 @@ namespace SampWebApi.Controllers
                 if (lstMaster != null)
                 {
                     DataTable DDT = new DataTable();
-                    DDT = bl.BL_ExecuteParamSP("uspManageColorSettings", 2, lstMaster.ThemeID, lstMaster.UID, lstMaster.MenuHeader, lstMaster.AddButton, lstMaster.SaveButton, lstMaster.ClearButton,
+                    bl.bl_Transaction(1);
+                    DDT = bl.bl_ManageTrans("uspManageColorSettings", 2, lstMaster.ThemeID, lstMaster.UID, lstMaster.TransMode, lstMaster.NewThemeName, 
+                        lstMaster.MenuHeader, lstMaster.AddButton, lstMaster.SaveButton, lstMaster.ClearButton,
                                 lstMaster.CloseButton, lstMaster.PDFButton, lstMaster.PreviewButton, lstMaster.PopupHeader, lstMaster.PopupFooter,
                                 lstMaster.ConfirmPopupYes, lstMaster.ConfirmPopupNo, lstMaster.SubMenuColor,lstMaster.SubMenuHover, lstMaster.MenuColor, lstMaster.CompanyNameColor,
                                 lstMaster.GridHeaderBackGround, lstMaster.GridHeaderTextColor, lstMaster.PopupHeaderText, lstMaster.DraftButton,
                                 lstMaster.AutocompleteBG, lstMaster.AutocompleteLine1, lstMaster.AutocompleteLine2, lstMaster.ButtonTextColor,
                                 lstMaster.EditButton, lstMaster.CancelButton, lstMaster.VariantButton,
                                 lstMaster.AutocompleteFieldBG, lstMaster.FilterButton, lstMaster.MailButton, lstMaster.PrintButton,
-                                lstMaster.BatchButton);
+                                lstMaster.BatchButton,lstMaster.AutoCompleteSelectBG);
                     List<SaveMessage> list = new List<SaveMessage>();
-                    if (DDT.Columns.Count == 1)
+                    if (DDT.Columns.Count == 2)
                     {
+                        bl.bl_Transaction(2);
                         //Success message
                         list.Add(new SaveMessage()
                         {
@@ -1796,6 +1805,7 @@ namespace SampWebApi.Controllers
                     }
                     else
                     {
+                        bl.bl_Transaction(3);
                         //Error message
                         list.Add(new SaveMessage()
                         {

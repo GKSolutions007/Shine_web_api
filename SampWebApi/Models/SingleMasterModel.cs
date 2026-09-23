@@ -250,6 +250,9 @@ namespace SampWebApi.Models
     }
     public class ColorSettings
     {
+        
+            public string TransMode { get; set; }
+        public string NewThemeName { get; set; }
         public string ThemeID { get; set; }
         public string UID { get; set; }
         
@@ -288,8 +291,8 @@ namespace SampWebApi.Models
         public string MailButton { get; set; }
         public string PrintButton { get; set; }
         public string BatchButton { get; set; }
+        public string AutoCompleteSelectBG { get; set; }
         
-
     }
     public class ApplicationConfig
     {
