@@ -10,69 +10,31 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
-using System.Windows.Forms;
 
 namespace SampWebApi.Controllers
 {
     [CookieAuthorize]
-    public class BarcodrprofileconfigController : ApiController
+    public class BarcoderPrintController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();
         [HttpGet]
-        [Route("api/barcodeprofiles/initialDatas")]
-        public IHttpActionResult GetinitialDatas()
+        [Route("api/barcodeprint/filterdata")]
+        public IHttpActionResult GetFilterData(string Branch, string FromDate, string ToDate, string Showall)
         {
             try
             {
-                var InitialData = new List<object>();
-                var objProfiles = new List<object>();
-                var objprnFiles = new List<object>();
-                DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetBarcodeProfileConfig", 1);
-                if (dtTrans.Rows.Count > 0)
-                {
-                    for (int i = 0; i < dtTrans.Rows.Count; i++)
-                    {
-                        objProfiles.Add(new
-                        {
-                            ID = dtTrans.Rows[i]["Id"].ToString(),
-                            ProfileName = dtTrans.Rows[i]["ProfileName"].ToString(),
-                            FileName = dtTrans.Rows[i]["FileName"].ToString(),
-                            Width = dtTrans.Rows[i]["Width"].ToString(),
-                            Height = dtTrans.Rows[i]["Height"].ToString(),
-                            NoofRows = dtTrans.Rows[i]["NoofRows"].ToString(),
-                        });
-                    }
-                }
-                int FID = 1;
-                //string strBarcodePath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Barcode\\";
-                string strBarcodePath = AppDomain.CurrentDomain.BaseDirectory + "\\Barcodefile\\";
-                if (Directory.Exists(strBarcodePath))
-                {
-                    string[] prnFiles = Directory.GetFiles(strBarcodePath, "*.prn");
-                    foreach (string file in prnFiles)
-                    {
-                        FileInfo f = new FileInfo(file);
-                        //Console.WriteLine(file);
 
-                        objprnFiles.Add(new
-                        {
-                            ID = FID++,
-                            FileName = f.Name
-                        });
-                    }
-                }
-                InitialData.Add(new
-                {
-                    BarcodeProfiles = objProfiles,
-                    FileNames = objprnFiles
-                });
-                return Ok(InitialData);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 1, Branch, 25, FromDate, ToDate, Showall);
+                return Ok(DDT);
+
             }
-            catch(Exception ex){
-                bl.BL_WriteErrorMsginLog("BarcodeProfileConfig", "barcodeprofiles/initialDatas", ex.Message);
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Inventory", "inventoryadjustment/getfilterdata", ex.Message);
             }
             return Ok();
         }
+
         [HttpGet]
         [Route("api/barcodeprofiles/remove")]
         public IHttpActionResult removebarcodeprofiles(int ProfileID)
@@ -169,7 +131,7 @@ namespace SampWebApi.Controllers
                 });
                 return Ok(savemsg);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("BarcodeProfileConfig", "barcodeprofiles/saveprofiles", ex.Message);
             }

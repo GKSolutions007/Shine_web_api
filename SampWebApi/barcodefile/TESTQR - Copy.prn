@@ -1,0 +1,20 @@
+<xpml><page quantity='0' pitch='25.0 mm'></xpml>G0
+n
+M0500
+O0214
+V0
+t1
+Kf0070
+<xpml></page></xpml><xpml><page quantity='1' pitch='25.0 mm'></xpml>L
+D11
+ySPM
+A2
+1911A1000770077GKBS
+1W1D44000003201372,LA,$BARCODE
+1W1c55000003900082000000000$NAME
+1911A1000770279GKBS
+1W1D44000003203392,LA,$CODE
+1W1c55000003902102000000000$NAME
+Q0001
+E
+<xpml></page></xpml><xpml><end/></xpml>

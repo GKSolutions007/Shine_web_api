@@ -663,7 +663,7 @@ namespace SampWebApi.Controllers
 
                         }
                     }
-                    bl.BL_WriteErrorMsginLog("Invoice", "Load End", RunTimings);
+                    //bl.BL_WriteErrorMsginLog("Invoice", "Load End", RunTimings);
                     return Ok(list);
                 }
                 if (Mode == "71" || Mode == "111" || Mode == "171" || Mode == "211")
