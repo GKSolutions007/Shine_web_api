@@ -154,7 +154,7 @@ namespace SampWebApi.Controllers
                                     Reason = DDT3.Rows[l]["Reason"].ToString(),
                                     Code = DDT3.Rows[l]["Code"].ToString(),
                                     Name = DDT3.Rows[l]["Name"].ToString(),
-                                    ActQty = DDT3.Rows[l]["OrgQty"].ToString(),
+                                    ActQty = DDT3.Rows[l]["DmgQty"].ToString(),
                                     UOMName = DDT3.Rows[l]["UOMName"].ToString(),
                                     PurchasePrice = DDT3.Rows[l]["GrossAmt"].ToString()
                                 });
@@ -238,7 +238,7 @@ namespace SampWebApi.Controllers
                                             DataTable dtResultDetail = new DataTable();
                                             if (InventID > 0)
                                             {
-                                                dtResultDetail = bl.bl_ManageTrans("uspInventoryConvertionDetailSave", bl.BL_nValidation(listTrans.BranchID), nPRID, listTrans.Date, nProdID, listTrans.ConvertionType,
+                                                dtResultDetail = bl.bl_ManageTrans("uspStockDestructionDetailSave", bl.BL_nValidation(listTrans.BranchID), nPRID, listTrans.Date, nProdID,
                                                    dQty, InventID, dGrs, bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonID"])),
                                                    listTrans.CBy);
                                             }
@@ -260,7 +260,7 @@ namespace SampWebApi.Controllers
                                 }
                             }
                             bl.bl_Transaction(2);
-                            bl.BL_UpdateclosingDateforPosting(22, nPRID, Convert.ToDateTime(listTrans.Date));
+                            bl.BL_UpdateclosingDateforPosting(26, nPRID, Convert.ToDateTime(listTrans.Date));
                             int nBillScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
                             list.Add(new SaveMessage()
                             {
@@ -320,7 +320,7 @@ namespace SampWebApi.Controllers
                             CBy = DDT.Rows[i]["UserName"].ToString(),
                             CDate = DDT.Rows[i]["LastActionTime"].ToString(),
                             CurrentStatus = DDT.Rows[i]["StatusID"].ToString(),
-                            ConvertionType = DDT.Rows[i]["ConvertionType"].ToString(),
+                            //ConvertionType = DDT.Rows[i]["ConvertionType"].ToString(),
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Narration = DDT.Rows[i]["Narration"].ToString()
                         });
