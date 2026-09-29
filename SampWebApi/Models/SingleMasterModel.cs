@@ -561,6 +561,7 @@ namespace SampWebApi.Models
         public bool PrintYN { get; set; }
         public string PrintColumnName { get; set; }
         public string ColumnType { get; set; }
+        public int Permission { get; set; }
     }
     public class ColumnSettingsModel
     {
@@ -590,6 +591,7 @@ namespace SampWebApi.Models
         public bool PrintYN { get; set; }
         public string PrintColumnName { get; set; }
         public string ColumnType { get; set; }
+        public string Permission { get; set; }
     }
     public class MapRoleModel
     {
