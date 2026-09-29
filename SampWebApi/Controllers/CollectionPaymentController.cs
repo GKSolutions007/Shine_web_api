@@ -363,7 +363,9 @@ namespace SampWebApi.Controllers
                     strExPayable = "Voucher = 'Receivable'";
                     strExReceivable = "Voucher = 'Payable'";
                 }
+
                 DataTable DDT = new DataTable();
+
                 if (DocPrefix == "19")
                     DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", PartyID, Convert.ToDateTime(Date), TransID, Mode, BranchID);
                 else
@@ -390,7 +392,10 @@ namespace SampWebApi.Controllers
                             UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
                         });
                     }
-                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["PartyId"].ToString(), Date);
+                }
+                if (PartyID != "0")
+                {
+                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", PartyID, Date, DocPrefix);//DDT.Rows[0]["PartyId"].ToString()
                     DataRow[] dtTopGridRows = dtOCOP.Select(strExPayable);
                     for (int i = 0; i < dtTopGridRows.Length; i++)
                     {
@@ -437,7 +442,10 @@ namespace SampWebApi.Controllers
                             Ageing = DDT.Rows[i]["Ageing"].ToString(),
                         });
                     }
-                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(), Date);
+                }
+                if (PartyID != "0")
+                {
+                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", PartyID, Date);//DDT.Rows[0]["FAID"].ToString()
                     DataRow[] dtTopGridRows = dtOCOP.Select(strExReceivable);
                     for (int i = 0; i < dtTopGridRows.Length; i++)
                     {
@@ -461,7 +469,7 @@ namespace SampWebApi.Controllers
                 }
                 return Ok(list);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("CollectionPayment", "collectionpayment/getosdocs", ex.Message);
             }

@@ -1,4 +1,5 @@
-﻿using SampWebApi.BuisnessLayer;
+﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
 using System;
@@ -23,119 +24,240 @@ namespace SampWebApi.Controllers
         {
             try
             {
-
                 DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 1, Branch, 25, FromDate, ToDate, Showall);
                 return Ok(DDT);
 
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("Inventory", "inventoryadjustment/getfilterdata", ex.Message);
+                bl.BL_WriteErrorMsginLog("BarcoderPrint", "barcodeprint/filterdata", ex.Message);
             }
             return Ok();
         }
-
         [HttpGet]
-        [Route("api/barcodeprofiles/remove")]
-        public IHttpActionResult removebarcodeprofiles(int ProfileID)
+        [Route("api/barcodeprint/Productdata")]
+        public IHttpActionResult GetProductdata(string ProdID,string BranchID,string Date,string QtyBatchOnly)
         {
             try
             {
-                DataTable dtTrans = bl.BL_ExecuteParamSP("uspGetSetBarcodeProfileConfig", 3, ProfileID);
-                return Ok("Profile Deleted Successfully");
+                DataTable DDT = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 2, ProdID);
+                int ProdPriceID = DDT.Rows.Count > 0 ? bl.BL_nValidation(DDT.Rows[0]["BarcodePriceId"]) : 0;
+                DataTable DDTbatch = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 3, ProdID, BranchID, Date, null,
+                    QtyBatchOnly, ProdPriceID);
+                DataSet ds = new DataSet();
+                ds.Tables.Add(DDT);
+                ds.Tables[0].TableName = "ProductData";
+                ds.Tables.Add(DDTbatch);
+                ds.Tables[1].TableName = "BatchData";
+                return Ok(ds);
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("BarcodeProfileConfig", "barcodeprofiles/remove", ex.Message);
+                bl.BL_WriteErrorMsginLog("BarcoderPrint", "barcodeprint/Productdata", ex.Message);
             }
             return Ok();
         }
-        [System.Web.Http.HttpPost]
-        [System.Web.Http.Route("api/barcode/uploadfile")]
-        public IHttpActionResult myuploadsFiles()
+        [HttpGet]
+        [Route("api/barcodeprint/productbatch")]
+        public IHttpActionResult Getproductbatch(string BranchID, string PriceID, string Date, string ProductID,string QtyBatchOnly)
         {
-            string Msg = "";
-            string dt = "";
-            List<ImportResults> MTM = new List<ImportResults>();
             try
             {
-                var file = HttpContext.Current.Request.Files.Count > 1 ? HttpContext.Current.Request.Files[0] : null;
-                //var data = Request.Files[0].InputStream.Read;                                                       
-                if (HttpContext.Current.Request.Files.Count > 0)
-                {
-                    DataTable dtBakPath = bl.BL_ExecuteSqlQuery("select BackupPath from tblCompanyRegistration");
-                    string path = AppDomain.CurrentDomain.BaseDirectory;
-                    string strFilePath = path + "\\barcodefile\\";
-                    string UserID = HttpContext.Current.Request.Files.AllKeys[0].ToString();
-                    for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
-                    {
-                        string fileName = HttpContext.Current.Request.Files[i].FileName;
-                        string fileContentType = HttpContext.Current.Request.Files[i].ContentType;
-                        //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "Upload Files\\";
-                        if (!Directory.Exists(strFilePath))
-                        {
-                            Directory.CreateDirectory(strFilePath);
-                        }
-                        HttpContext.Current.Request.Files[i].SaveAs(strFilePath + fileName);
-                    }
-                    MTM.Add(new ImportResults()
-                    {
-                        ID = "0",
-                        Msg = "File Uploaded Successfully.",
-                    });
-                    return Ok(MTM);
-                }
+                DataTable DDTbatch = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 3, ProductID, BranchID, Date, null,
+                   QtyBatchOnly, PriceID);
+                return Ok(DDTbatch);
             }
             catch (Exception ex)
             {
-                MTM.Add(new ImportResults()
-                {
-                    ID = "2",
-                    Msg = ex.Message + " Date : " + dt,
-                });
-                return Ok(MTM);
+                bl.BL_WriteErrorMsginLog("barcodeprint", "barcodeprint/productdetails", ex.Message);
             }
-            return Ok(Msg);
-        }
+            return Ok();
+        }       
         [HttpPost]
-        [Route("api/barcodeprofiles/saveprofiles")]
-        public IHttpActionResult Saveprofiles([FromBody] List<BarcodeProfiles> ProfileDetails)
+        [Route("api/barcodeprint/save")]
+        public IHttpActionResult Save(SalesModel listTrans)
         {
             try
             {
-                List<SaveMessage> savemsg = new List<SaveMessage>();
-                if (ProfileDetails == null || ProfileDetails.Count == 0)
-                    return BadRequest("No controls received.");
-                bl.bl_Transaction(1);
-                foreach (BarcodeProfiles profile in ProfileDetails)
+                if (listTrans != null)
                 {
-                    DataTable dtTrans = bl.bl_ManageTrans("uspGetSetBarcodeProfileConfig", 2, profile.ID, profile.ProfileName,
-                        profile.FileName, profile.Width, profile.Height, profile.NoofRows, profile.UID);
-                    if (dtTrans.Rows.Count > 0)
+                    DataTable dtProd = new DataTable();
+                    if (dtProd.Columns.Count == 0)
                     {
-                        bl.bl_Transaction(3);
-                        savemsg.Add(new SaveMessage()
+                        dtProd.Columns.Add("ProdId", typeof(int));
+                        dtProd.Columns.Add("InvoiceYesNo", typeof(int));
+                        dtProd.Columns.Add("BatchYesNo", typeof(int));
+                        dtProd.Columns.Add("PKDYesNo", typeof(int));
+                        dtProd.Columns.Add("SerialYesNo", typeof(int));
+                        dtProd.Columns.Add("BaseUomPrice", typeof(decimal));
+                        dtProd.Columns.Add("UomId", typeof(int));
+                        dtProd.Columns.Add("UomQty", typeof(decimal));
+                        dtProd.Columns.Add("UomPrice", typeof(decimal));
+                        dtProd.Columns.Add("GoodsAmt", typeof(decimal));
+                        dtProd.Columns.Add("UserDisc", typeof(decimal));
+                        dtProd.Columns.Add("UserDiscAmt", typeof(decimal));
+                        dtProd.Columns.Add("ProdDisc", typeof(decimal));
+                        dtProd.Columns.Add("ProdDiscAmt", typeof(decimal));
+                        dtProd.Columns.Add("TradeDisc", typeof(decimal));
+                        dtProd.Columns.Add("TradeDiscPern", typeof(decimal));
+                        dtProd.Columns.Add("AddnlDisc", typeof(decimal));
+                        dtProd.Columns.Add("AddnlDiscPern", typeof(decimal));
+                        dtProd.Columns.Add("GrossAmt", typeof(decimal));
+                        dtProd.Columns.Add("TaxId", typeof(int));
+                        dtProd.Columns.Add("TaxPercentage", typeof(decimal));
+                        dtProd.Columns.Add("TaxAmt", typeof(decimal));
+                        dtProd.Columns.Add("NetAmt", typeof(decimal));
+                        dtProd.Columns.Add("ReasonId", typeof(int));
+                        dtProd.Columns.Add("Serial", typeof(int));
+                        dtProd.Columns.Add("BatchNumber", typeof(string));
+                        dtProd.Columns.Add("PkgDate", typeof(string));
+                        dtProd.Columns.Add("ExpiryDate", typeof(string));
+                        dtProd.Columns.Add("InvoicePrice", typeof(decimal));
+                        dtProd.Columns.Add("MRP", typeof(decimal));
+                        dtProd.Columns.Add("InvQtyType", typeof(int));
+                        dtProd.Columns.Add("TempBatchInvId", typeof(int));
+                        dtProd.Columns.Add("UomCR", typeof(decimal));
+                        dtProd.Columns.Add("DiffAmt", typeof(decimal));
+
+                    }                    
+
+                    DataTable dtProducts = bl.ConvertListToDataTable(listTrans.lstProdInfo);
+
+                    List<SaveMessage> list = new List<SaveMessage>();
+                    if (listTrans.TransMode != "4")
+                    {
+                        int nSerial = 1;
+                        for (int i = 0; i < dtProducts.Rows.Count; i++)
                         {
-                            ID = 0.ToString(),
-                            MsgID = "1",
-                            Message = profile.ProfileName + " - " + dtTrans.Rows[0][0].ToString(),
-                        });
-                        return Ok(savemsg);
+                            int nProdID = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
+                            if (nProdID > 0)
+                            {
+                                //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
+                                decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
+                                                    //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
+                                DataRow dtRow = dtProd.NewRow();
+
+                                dtRow["ProdId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
+                                dtRow["InvoiceYesNo"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["InvYN"]));
+                                dtRow["BatchYesNo"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["BatchYN"]));
+                                dtRow["PKDYesNo"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["PKDYN"]));
+                                dtRow["SerialYesNo"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["SerialYN"]));
+                                dtRow["BaseUomPrice"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["OrgPrice"]));
+                                dtRow["UomId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["UOMID"]));
+                                dtRow["UomQty"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["UomQty"]));
+                                dtRow["UomPrice"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["SalePrice"]));
+                                dtRow["GoodsAmt"] = 0;
+                                dtRow["UserDisc"] = 0;
+                                dtRow["UserDiscAmt"] = 0;
+                                dtRow["ProdDisc"] = 0;
+                                dtRow["ProdDiscAmt"] = 0;
+                                dtRow["TradeDisc"] = 0;
+                                dtRow["TradeDiscPern"] = 0;
+                                dtRow["AddnlDisc"] = 0;
+                                dtRow["AddnlDiscPern"] = 0;
+                                dtRow["GrossAmt"] =0;
+                                dtRow["TaxId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["TaxID"])); ;
+                                dtRow["TaxPercentage"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TaxPern"]));
+                                dtRow["TaxAmt"] = 0;
+                                dtRow["NetAmt"] =0;
+                                dtRow["ReasonId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"]));
+                                dtRow["Serial"] = nSerial;
+                                dtRow["BatchNumber"] = Convert.ToString(dtProducts.Rows[i]["BatchNo"]);
+                                dtRow["PkgDate"] = Convert.ToString(dtProducts.Rows[i]["PKD"]);
+                                dtRow["ExpiryDate"] = Convert.ToString(dtProducts.Rows[i]["Expiry"]);
+                                dtRow["InvoicePrice"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["OrgPrice"]));
+                                dtRow["MRP"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"]));
+                                dtRow["UomCR"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ConvFact"]));
+                                dtRow["InvQtyType"] =0;
+                                dtRow["TempBatchInvId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["InventoryId"]));
+                                dtRow["DiffAmt"] = 0;
+                                dtProd.Rows.Add(dtRow);
+                                nSerial++;
+                            }
+                        }
+                        nSerial = 1;
+                        int InvoiceIdentID = bl.BL_nValidation(listTrans.ID);
+                        bl.bl_Transaction(1);
+                        try
+                        {                           
+
+                            DataTable dtResult = bl.bl_ManageTrans("uspSaveBarcodePrinting", bl.BL_nValidation(listTrans.TransMode), bl.BL_nValidation(listTrans.TransID),
+                                InvoiceIdentID, listTrans.BranchID, listTrans.DocDate,  listTrans.RefNo, listTrans.Remarks, listTrans.Narration,
+                                 listTrans.UserID, dtProd);
+
+                            if (dtResult.Columns.Count > 1)
+                            {
+                                bl.bl_Transaction(3);
+                                string RowID = dtResult.Columns.Count == 4 ? dtResult.Rows[0][3].ToString() : "-1";
+                                string msg = dtResult.Rows[0][0].ToString();
+                                list.Add(new SaveMessage()
+                                {
+                                    ID = RowID,
+                                    MsgID = "1",
+                                    Message = msg,
+                                    RowID = RowID
+                                });
+                                return Ok(list);
+                            }
+                            else
+                            {
+                                //bl.bl_Transaction(2);
+                                int nBillScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
+                                bl.bl_Transaction(2);
+                                bl.BL_UpdateclosingDateforPosting(25, nBillScopeID, Convert.ToDateTime(listTrans.DocDate));
+                                list.Add(new SaveMessage()
+                                {
+                                    ID = nBillScopeID.ToString(),
+                                    MsgID = "0",
+                                    Message = "Saved Successfully"
+                                });
+                                return Ok(list);
+                            }
+                        }
+                        catch
+                        {
+                            bl.bl_Transaction(3);
+                        }
                     }
+                    else// for cancel
+                    {
+                        bl.bl_Transaction(1);
+                        DataTable dtResult = bl.bl_ManageTrans("uspManageVanloadingSlipCancel", listTrans.ID, listTrans.CurrentStatus, listTrans.UserID, listTrans.Remarks, listTrans.Narration);
+                        if (dtResult.Columns.Count > 1)
+                        {
+                            string ErrorMsg = dtResult.Rows[0][0].ToString();
+                            string ErrorProdIds = dtResult.Rows[0][3].ToString();
+                            bl.bl_Transaction(3);
+                            list.Add(new SaveMessage()
+                            {
+                                ID = ErrorProdIds,
+                                MsgID = "1",
+                                Message = ErrorMsg
+                            });
+                            return Ok(list);
+                        }
+                        else
+                        {
+                            bl.bl_Transaction(2);
+                            bl.BL_UpdateclosingDateforPosting(24, bl.BL_nValidation(listTrans.ID), Convert.ToDateTime(listTrans.DocDate));
+
+                            list.Add(new SaveMessage()
+                            {
+                                ID = 0.ToString(),
+                                MsgID = "0",
+                                Message = "Cancelled Successfully"
+                            });
+                            return Ok(list);
+                        }
+                    }
+                    return Ok(0);
                 }
-                bl.bl_Transaction(2);
-                savemsg.Add(new SaveMessage()
-                {
-                    MsgID = "0",
-                    Message = "Saved Successfully",
-                });
-                return Ok(savemsg);
             }
             catch (Exception ex)
             {
-                bl.BL_WriteErrorMsginLog("BarcodeProfileConfig", "barcodeprofiles/saveprofiles", ex.Message);
+                bl.BL_WriteErrorMsginLog("Invoice", "invoice/save", ex.Message);
             }
-            return Ok();
+            return Ok("No data found");
         }
     }
 }
