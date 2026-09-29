@@ -58,6 +58,23 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpGet]
+        [Route("api/barcodeprint/bpdocumentdata")]
+        public IHttpActionResult getdocumentdata(string ID,string Status)
+        {
+            try
+            {
+                DataSet ds = bl.BL_ExecuteParamSPDataset("uspGetSetBarcodeprint", 4, ID);             
+                ds.Tables[0].TableName = "HeaderData";
+                ds.Tables[1].TableName = "ProductData";
+                return Ok(ds);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("BarcoderPrint", "barcodeprint/bpdocumentdata", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
         [Route("api/barcodeprint/productbatch")]
         public IHttpActionResult Getproductbatch(string BranchID, string PriceID, string Date, string ProductID,string QtyBatchOnly)
         {

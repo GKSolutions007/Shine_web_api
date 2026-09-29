@@ -1259,7 +1259,7 @@ namespace SampWebApi.Controllers
                                 dtRow["UomQty"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["UomQty"]));
                                 dtRow["UomPrice"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["SalePrice"]));
                                 dtRow["GoodsAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["GoodsAmt"]));
-                                dtRow["UserDisc"] = 0;
+                                dtRow["UserDisc"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["HiddenRowID"]));
                                 dtRow["UserDiscAmt"] = 0;
                                 dtRow["ProdDisc"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"]));
                                 dtRow["ProdDiscAmt"] = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscAmt"]));
