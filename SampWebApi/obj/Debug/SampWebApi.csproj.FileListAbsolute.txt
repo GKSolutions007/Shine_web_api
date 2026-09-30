@@ -1110,3 +1110,6 @@ D:\2025\shineweb_api\shaineweb.api\SampWebApi\obj\Debug\SampWebApi.sourcelink.js
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\obj\Debug\SampWebApi.csproj.Up2Date
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\obj\Debug\SampWebApi.dll
 D:\2025\shineweb_api\shaineweb.api\SampWebApi\obj\Debug\SampWebApi.pdb
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Drucken.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Windows.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Koine.dll

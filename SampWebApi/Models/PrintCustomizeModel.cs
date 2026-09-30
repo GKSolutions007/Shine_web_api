@@ -72,5 +72,6 @@ namespace SampWebApi.Models
         public string Height { get; set; }
         public string NoofRows { get; set; }
         public string UID { get; set; }
+        public string Print { get; set; }
     }
 }

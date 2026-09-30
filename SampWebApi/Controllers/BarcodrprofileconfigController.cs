@@ -40,6 +40,7 @@ namespace SampWebApi.Controllers
                             Width = dtTrans.Rows[i]["Width"].ToString(),
                             Height = dtTrans.Rows[i]["Height"].ToString(),
                             NoofRows = dtTrans.Rows[i]["NoofRows"].ToString(),
+                            Active = Convert.ToBoolean(dtTrans.Rows[i]["Active"]),
                         });
                     }
                 }
@@ -148,7 +149,7 @@ namespace SampWebApi.Controllers
                 foreach (BarcodeProfiles profile in ProfileDetails)
                 {
                     DataTable dtTrans = bl.bl_ManageTrans("uspGetSetBarcodeProfileConfig", 2, profile.ID, profile.ProfileName,
-                        profile.FileName, profile.Width, profile.Height, profile.NoofRows, profile.UID);
+                        profile.FileName, profile.Width, profile.Height, profile.NoofRows, profile.Print, profile.UID);
                     if (dtTrans.Rows.Count > 0)
                     {
                         bl.bl_Transaction(3);
