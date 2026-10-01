@@ -677,3 +677,6 @@ D:\2025\SHINE WEB\API\SampWebApi\bin\SkiaSharp.pdb
 D:\2025\SHINE WEB\API\SampWebApi\bin\System.Security.Cryptography.Xml.xml
 D:\2025\SHINE WEB\API\SampWebApi\bin\ZString.xml
 D:\2025\SHINE WEB\API\SampWebApi\obj\Release\SampWebApi.sourcelink.json
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Drucken.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Windows.dll
+D:\2025\shineweb_api\shaineweb.api\SampWebApi\bin\Koine.dll

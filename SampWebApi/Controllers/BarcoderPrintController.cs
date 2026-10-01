@@ -316,6 +316,76 @@ namespace SampWebApi.Controllers
             }
             return Ok("No data found");
         }
+        [HttpGet]
+        [Route("api/barcodeprint/print")]
+        public IHttpActionResult printData(int TransID,int ID)
+        {
+            var printmessage = new List<object>();
+            try
+            {
+                DataTable dtProfileData = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 6);//get print Yes profile only
+                if(dtProfileData.Rows.Count == 0)
+                {
+                    printmessage.Add(new
+                    {
+                        code = 1,                        
+                        Message = "Unable to get printer profile. Check Tools -> Barcode Profile Config -> Set Print Yes for anyone profile"
+                    });
+                    return Ok(printmessage);
+                }
+                DataTable dtData = bl.BL_ExecuteParamSP("uspGetSetBarcodeprint", 5, ID);
+
+                string OutFile = AppDomain.CurrentDomain.BaseDirectory + @"\barcodefile\";
+                if (!Directory.Exists(OutFile)) Directory.CreateDirectory(OutFile);
+                FileInfo fout = new FileInfo(OutFile + "GKBSBarcodeSpool.out");//TempSpool
+                if (!fout.Exists)
+                {
+                    FileInfo fi = new FileInfo(OutFile + "GKBSBarcodeSpool.txt");//TempSpool
+                    if (!fi.Exists) fi.Create().Dispose();
+                    fi.MoveTo(System.IO.Path.ChangeExtension(fi.FullName, ".out"));
+                }
+
+                object[,] szItems = new object[16, dtData.Rows.Count];
+                for (int i = 0; i < dtData.Rows.Count; i++)
+                {
+                    szItems[0, i] = dtData.Rows[i][0].ToString(); //PRODUCT CODE
+                    szItems[1, i] = "Rs : " + bl.BL_RoundOffTwoDecimal(dtData.Rows[i][1].ToString()); //Sales Price
+                    szItems[2, i] = (int)Math.Truncate(bl.BL_dValidation(dtData.Rows[i][2].ToString()));//quantity
+                    szItems[3, i] = dtData.Rows[i][3].ToString(); //Product Name
+                    szItems[4, i] = "PKD :" + dtData.Rows[i][4].ToString(); //Transaction date(PKD)
+                    szItems[5, i] = "Batch No :" + dtData.Rows[i][5].ToString(); // Brand
+                    szItems[6, i] = dtData.Rows[i][6].ToString();//Expire month
+                    szItems[7, i] = "MRP : " + bl.BL_RoundOffTwoDecimal(dtData.Rows[i][7].ToString());//MRP
+                    szItems[8, i] = dtData.Rows[i][8].ToString();
+                    szItems[9, i] = dtData.Rows[i][9].ToString();//Label1
+                    szItems[10, i] = dtData.Rows[i][10].ToString();//label2
+                    szItems[11, i] = dtData.Rows[i][11].ToString();//label3
+                    szItems[12, i] = dtData.Rows[i][12].ToString();//Reason
+                    szItems[13, i] = dtData.Rows[i][13].ToString();//DOC DATE
+                    szItems[14, i] = dtData.Rows[i][14].ToString();//Expiry Days in Product Master
+                    szItems[15, i] = dtData.Rows[i][15].ToString();//Remark in Product Master
+                }
+                HALDriver halDriver = new HALDriver();
+                halDriver.SendtoPrinter = false;
+                halDriver.PrintBarCodeLabels2(ref szItems, dtProfileData);
+                printmessage.Add(new
+                {
+                    code = 0,
+                    Message = "Print Initiated"
+                });
+            }
+            catch (Exception ex)
+            {
+                printmessage.Add(new
+                {
+                    code = 1,
+                    Message = "Error Occured. Error : " + ex.Message
+                });
+                bl.BL_WriteErrorMsginLog("barcodeprint", "barcodeprint/print", ex.Message);
+                return Ok(printmessage);
+            }
+            return Ok(printmessage);
+        }
         [System.Web.Http.HttpGet]
         [System.Web.Http.Route("api/barcodeprint/downloadprint")]
         public HttpResponseMessage downloadprintData()
