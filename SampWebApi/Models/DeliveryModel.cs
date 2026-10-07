@@ -23,6 +23,7 @@ namespace SampWebApi.Models
         public string Remarks { get; set; }
         public string Narration { get; set; }
         public string DocumentIDs { get; set; }
+        public string DocumentIDStatus { get; set; }
         public string FilterBranch { get; set; }
         public string UID { get; set; }        
     }
@@ -31,6 +32,7 @@ namespace SampWebApi.Models
         public string BranchID { get; set; }
         public string TransMode { get; set; }
         public string DocumentIDs { get; set; }
+        public string DocumentIDStatus { get; set; }
         public string DeliveryID { get; set; }
         public string BeatID { get; set; }
         public string SalesmanID { get; set; }

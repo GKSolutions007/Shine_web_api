@@ -280,6 +280,11 @@ namespace SampWebApi.Models
         public string OCR { get; set; }
         public string BranchID { get; set; }
         public string BranchName { get; set; }
+
+        public string OpenCount { get; set; }
+        public string CloseCount { get; set; }
+        public string ReturnCount { get; set; }
+        public string Anyonestatuschanged { get; set; }
     }
     public class AssignInvoiceDetails
     {
@@ -295,6 +300,7 @@ namespace SampWebApi.Models
         public string Ageing { get; set; }
         public string AssignedInvoiceCount { get; set; }
         public string Status { get; set; }
+        public string StatusDesp { get; set; }
     }
     public class DailyActivity
     {

@@ -89,6 +89,7 @@ namespace SampWebApi.Models
         public string BeatName { get; set; }
         public string UpdateVendor { get; set; }
         public string DeliveryCount { get; set; }
+        public string AssignInvCount { get; set; }
         public List<PurchaseBatchInfo> lstBatchInfo { get; set; }
         public List<PurchaseDetail> lstProdInfo { get; set; }
         public List<CustomerVendorModel> lstPartyInfo { get; set; }

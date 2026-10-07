@@ -1456,6 +1456,11 @@ namespace SampWebApi.Controllers
                         Salesman = DDT.Rows[i]["Salesman"].ToString(),
                         BeatName = DDT.Rows[i]["BeatName"].ToString(),
                         DeliveryCount = DDT.Rows[i]["DeliveryCount"].ToString(),
+                        AssignInvCount = DDT.Rows[i]["AssignCount"].ToString(),
+                        DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
+                        DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString(),
+                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                        
                     });
                 }
                 //return Ok(list);            
@@ -1494,6 +1499,10 @@ namespace SampWebApi.Controllers
                                    Salesman = users.Salesman,
                                    BeatName = users.BeatName,
                                    DeliveryCount = users.DeliveryCount,
+                                   DiffExcl = users.DiffValueGross,
+                                   DiffIncl = users.DiffValueNet,
+                                   PaymentModeID = users.PaymentModeID,
+                                   AssignInvCount = users.AssignInvCount,
                                };
                 return Ok(data);
             }
@@ -1827,31 +1836,31 @@ namespace SampWebApi.Controllers
                                         {
                                             ErrorMsg = "This document already processed";
                                         }
-                                        if (nCheck == 8)
+                                        else if (nCheck == 8)
                                         {
                                             ErrorMsg = "Amount miss matched,So this invoice unable to modify or cancel";
                                         }
-                                        if (nCheck == 9)
+                                        else if (nCheck == 9)
                                         {
                                             ErrorMsg = "Product already de-active for this document";
                                         }
-                                        if (nCheck == 10)
+                                        else if (nCheck == 10)
                                         {
                                             ErrorMsg = "Qty Not Exist,so this transaction unable to  cancel";
                                         }
-                                        if (nCheck == 16)
+                                        else if (nCheck == 16)
                                         {
                                             ErrorMsg = "Collection Status Already Changed";
                                         }
-                                        if (nCheck == 17)
+                                        else if (nCheck == 17)
                                         {
                                             ErrorMsg = "Coupon Status Already Changed";
                                         }
-                                        if (nCheck == 20)
+                                        else if (nCheck == 20)
                                         {
                                             ErrorMsg = "Amount Partially collected";
                                         }
-                                        if (nCheck == 21)
+                                        else if (nCheck == 21)
                                         {
                                             ErrorMsg = "This Document Already Used in Sales Return";
                                         }
@@ -2235,35 +2244,35 @@ namespace SampWebApi.Controllers
                             {
                                 ErrorMsg = "This document already processed";
                             }
-                            if (nCheck == 8)
+                            else if (nCheck == 8)
                             {
                                 ErrorMsg = "Amount miss matched,So this invoice unable to modify or cancel";
                             }
-                            if (nCheck == 9)
+                            else if (nCheck == 9)
                             {
                                 ErrorMsg = "Product already de-active for this document";
                             }
-                            if (nCheck == 10)
+                            else if (nCheck == 10)
                             {
                                 ErrorMsg = "Qty Not Exist,so this transaction unable to  cancel";
                             }
-                            if (nCheck == 16)
+                            else if (nCheck == 16)
                             {
                                 ErrorMsg = "Collection Status Already Changed";
                             }
-                            if (nCheck == 17)
+                            else if (nCheck == 17)
                             {
                                 ErrorMsg = "Coupon Status Already Changed";
                             }
-                            if (nCheck == 20)
+                            else if (nCheck == 20)
                             {
                                 ErrorMsg = "Amount Partially collected";
                             }
-                            if (nCheck == 21)
+                            else if (nCheck == 21)
                             {
                                 ErrorMsg = "This Document Already Used in Sales Return";
                             }
-                            if (nCheck == 1)
+                            else if (nCheck == 1)
                             {
                                 ErrorMsg = "Document Status Already Changed";
                             }

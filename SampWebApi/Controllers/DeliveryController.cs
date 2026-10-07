@@ -129,43 +129,51 @@ namespace SampWebApi.Controllers
                 List<SaveMessage> list = new List<SaveMessage>();
                 if (listTrans != null)
                 {
+                    string[] strDocIds = listTrans.DocumentIDs.Trim().Split(',').Select(sValue => sValue.Trim()).ToArray();
+                    string[] strDocIdsts = listTrans.DocumentIDStatus.Trim().Split(',').Select(sValue => sValue.Trim()).ToArray();
                     DataView dtView = new DataView(bl.BL_StringSplitCommaHyphen(listTrans.DocumentIDs.Trim()));
                     DataTable dtDocIDs = dtView.ToTable(true, "SerialNo");
+
+                    dtView = new DataView(bl.BL_StringSplitCommaHyphen(listTrans.DocumentIDStatus.Trim()));
+                    DataTable dtDocIDstatus = dtView.ToTable(true, "SerialNo");
+
                     DataTable dtSelDocs = new DataTable("Docs");
                     dtSelDocs.Columns.Add("TransName", typeof(string));
                     dtSelDocs.Columns.Add("Status", typeof(int));
                     dtSelDocs.Columns.Add("DocumentID", typeof(int));
-                    for (int i = 0; i < dtDocIDs.Rows.Count; i++)
+                    for (int i = 0; i < strDocIds.Length; i++)
                     {
-                        DataRow drr = dtSelDocs.NewRow();
-                        drr["TransName"] = "Delivery";
-                        drr["DocumentID"] = dtDocIDs.Rows[i][0].ToString();
-                        drr["Status"] = (i + 1);
-                        dtSelDocs.Rows.Add(drr);
+                        if (!string.IsNullOrEmpty(strDocIds[i]))
+                        {
+                            DataRow drr = dtSelDocs.NewRow();
+                            drr["TransName"] = "Delivery";
+                            drr["DocumentID"] = strDocIds[i].ToString();
+                            drr["Status"] = strDocIdsts[i].ToString(); //(i + 1);
+                            dtSelDocs.Rows.Add(drr);
+                        }
                     }
                     int nTransMode = bl.BL_nValidation(listTrans.TransMode);
                     if (nTransMode != 6)
                     {
                         bl.bl_Transaction(1);
                         DataTable dtInvoiceData = bl.bl_ManageTrans("uspValidateDeliveryDocumentData", listTrans.FilterBranch,
-                            listTrans.TransMode, bl.BL_nValidation(listTrans.ID), dtSelDocs);
-                        bl.bl_Transaction(2);
+                            listTrans.TransMode, bl.BL_nValidation(listTrans.ID), dtSelDocs);                       
                         if (dtInvoiceData.Rows.Count > 0)
                         {
-
-                            string DocsID = "";
-                            for (int i = 0; i < dtInvoiceData.Rows.Count; i++)
-                            {
-                                DocsID += dtInvoiceData.Rows[i][0].ToString() + ",";
-                            }
-
+                            bl.bl_Transaction(3);
+                            string DocsID = dtInvoiceData.Rows[0][3].ToString();
+                            
                             list.Add(new SaveMessage()
                             {
-                                ID = 0.ToString(),
+                                ID = DocsID,
                                 MsgID = "2",
-                                Message = DocsID//"<code>" + DocsID + "</code> Document Already Mapped"
+                                Message = dtInvoiceData.Rows[0][0].ToString()//"<code>" + DocsID + "</code> Document Already Mapped"
                             });
                             return Ok(list);
+                        }
+                        else
+                        {
+                            bl.bl_Transaction(2);
                         }
                     }
                     bl.bl_Transaction(1);

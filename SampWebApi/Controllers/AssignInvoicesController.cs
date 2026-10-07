@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -64,7 +65,11 @@ namespace SampWebApi.Controllers
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Narration = DDT.Rows[i]["Narration"].ToString(),
                             OCR = DDT.Rows[i]["OCR"].ToString(),
-                            BranchName = DDT.Rows[i]["Branch Name"].ToString()
+                            BranchName = DDT.Rows[i]["Branch Name"].ToString(),
+                            OpenCount = DDT.Rows[i]["dtlOpen"].ToString(),
+                            CloseCount = DDT.Rows[i]["dtlClose"].ToString(),
+                            ReturnCount = DDT.Rows[i]["dtlReturn"].ToString(),
+                            Anyonestatuschanged = DDT.Rows[i]["AnyoneStsChanged"].ToString(),
                         });
                     }
 
@@ -88,6 +93,11 @@ namespace SampWebApi.Controllers
                                        Narration = users.Narration,
                                        OCR = users.OCR,
                                        BranchName = users.BranchName,
+
+                                       OpenCount = users.OpenCount,
+                                       CloseCount = users.CloseCount,
+                                       ReturnCount = users.ReturnCount,
+                                       Anyonestatuschanged = users.Anyonestatuschanged,
                                    };
 
                     return Ok(data);
@@ -117,8 +127,9 @@ namespace SampWebApi.Controllers
                                 Balance = DDT1.Rows[i]["Balance"].ToString(),
                                 Ageing = DDT1.Rows[i]["Ageing"].ToString(),
                                 Status = DDT1.Rows[i]["Status"].ToString(),
-
+                                StatusDesp = DDT1.Rows[i]["StatusDesp"].ToString(),
                                 AssignedInvoiceCount = DDT1.Rows[i]["AssignedInvoiceCount"].ToString(),
+                                
                             });
                         }
                         var data = from users in listDetails
@@ -137,6 +148,7 @@ namespace SampWebApi.Controllers
                                            Ageing = users.Ageing,
                                            Status = users.Status,
                                            AssignedInvoiceCount = users.AssignedInvoiceCount,
+                                           StatusDesp = users.StatusDesp
                                        };
                         string InvoiceJSONCONV = JsonConvert.SerializeObject(data);
                         list.Add(new AssignInvoiceHeader
@@ -166,6 +178,7 @@ namespace SampWebApi.Controllers
                         list.Add(new AssignInvoiceDetails
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
+                            Status = DDT.Rows[i]["StatusID"].ToString(),
                             DocId = DDT.Rows[i]["DocID"].ToString(),
                             DocDate = DDT.Rows[i]["Date"].ToString(),
                             RefNo = DDT.Rows[i]["RefNo"].ToString(),
@@ -184,6 +197,7 @@ namespace SampWebApi.Controllers
                                    new
                                    {
                                        ID = users.ID,
+                                       Status = users.Status,
                                        DocID = users.DocId,
                                        Date = users.DocDate,
                                        RefNo = users.RefNo,
@@ -225,9 +239,10 @@ namespace SampWebApi.Controllers
                         for (int i = 0; i < dtInvoices.Rows.Count; i++)
                         {
                             int nInvID = bl.BL_nValidation(Convert.ToString(dtInvoices.Rows[i]["ID"]));
+                            int stsid = bl.BL_nValidation(Convert.ToString(dtInvoices.Rows[i]["Status"]));
                             DataRow dtRow = dtDocument.NewRow();
                             dtRow[0] = (i + 1);
-                            dtRow[1] = 1;
+                            dtRow[1] = stsid;
                             dtRow[2] = nInvID;
                             dtDocument.Rows.Add(dtRow);
                         }
@@ -241,11 +256,12 @@ namespace SampWebApi.Controllers
                         {
                             bl.bl_Transaction(3);
                             string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
-
+                            string Errorids = dtResult.Rows[0][3].ToString();
+                            string strmsgid = !string.IsNullOrEmpty(Errorids) ? "2" : "1";
                             list.Add(new SaveMessage()
                             {
-                                ID = 0.ToString(),
-                                MsgID = "1",
+                                ID = Errorids.ToString(),
+                                MsgID = strmsgid,
                                 Message = dtResult.Rows[0][0].ToString()
                             });
                             return Ok(list);
@@ -269,6 +285,16 @@ namespace SampWebApi.Controllers
                     }
                     else
                     {
+                        for (int i = 0; i < dtInvoices.Rows.Count; i++)
+                        {
+                            int nInvID = bl.BL_nValidation(Convert.ToString(dtInvoices.Rows[i]["ID"]));
+                            int stsid = bl.BL_nValidation(Convert.ToString(dtInvoices.Rows[i]["Status"]));
+                            DataRow dtRow = dtDocument.NewRow();
+                            dtRow[0] = (i + 1);
+                            dtRow[1] = stsid;
+                            dtRow[2] = nInvID;
+                            dtDocument.Rows.Add(dtRow);
+                        }
                         bl.bl_Transaction(1);
                         DataTable dtResult = bl.bl_ManageTrans("uspManageAssignInvoices", listTrans.TransMode, bl.BL_nValidation(listTrans.TransID), bl.BL_nValidation(listTrans.ID),
                             listTrans.Date, listTrans.SalesmanID, listTrans.RefNo, listTrans.UDFId, listTrans.CBy, bl.BL_nValidation(listTrans.Status), bl.BL_nValidation(listTrans.CurrentStatus),
@@ -278,10 +304,12 @@ namespace SampWebApi.Controllers
                             bl.bl_Transaction(3);
                             string[] strErrorList = dtResult.Rows[0][0].ToString().Split('$');
 
+                            string Errorids = dtResult.Rows[0][3].ToString();
+                            string strmsgid = !string.IsNullOrEmpty(Errorids) ? "2" : "1";
                             list.Add(new SaveMessage()
                             {
-                                ID = 0.ToString(),
-                                MsgID = "1",
+                                ID = Errorids.ToString(),
+                                MsgID = strmsgid,
                                 Message = dtResult.Rows[0][0].ToString()
                             });
                             return Ok(list);

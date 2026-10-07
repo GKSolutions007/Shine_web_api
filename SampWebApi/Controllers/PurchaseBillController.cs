@@ -1163,7 +1163,7 @@ namespace SampWebApi.Controllers
                                     dtRow["GrossAmt"] = dGoods; // gross
                                     dtRow["TaxAmt"] = dTax + bl.BL_dValidation(dUomTax); // tax
                                     dtRow["NetAmt"] = dNet + bl.BL_dValidation(dUomTax); // net
-                                    dtRow["InventoryId"] = bl.BL_dValidation(iRow["InventoryID"].ToString()); ;// bl.BL_nValidation(iRow["InventoryId"].ToString());
+                                    dtRow["InventoryId"] = listTrans.TransMode == "3" || listTrans.TransMode == "1" ? 0 : bl.BL_dValidation(iRow["InventoryID"].ToString()); ;// bl.BL_nValidation(iRow["InventoryId"].ToString());
                                     dtRow["InclusiveYesNo"] = bl.BL_nValidation(iRow["CheckInclusive"].ToString());
                                     dtRow["ReasonID"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"]));
                                     dtRow["LocationID"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["LocationID"]));
@@ -1432,7 +1432,7 @@ namespace SampWebApi.Controllers
                     {
                         bl.bl_Transaction(1);
                         DataTable dtResult = bl.bl_ManageTrans("uspCancelPurchaseBill", 4, listTrans.ID, listTrans.CBy, listTrans.CurrentStatus, listTrans.Remarks, listTrans.Narration);
-                        if (dtResult.Columns.Count == 0)
+                        if (dtResult.Columns.Count == 3)
                         {
                             bl.bl_Transaction(3);
                             list.Add(new SaveMessage()

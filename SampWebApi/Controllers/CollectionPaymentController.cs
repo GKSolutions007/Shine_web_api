@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using BuinessLayer;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Asn1.X509;
 using SampWebApi.BuisnessLayer;
@@ -12,6 +13,8 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Encodings.Web;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.UI;
@@ -771,7 +774,7 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
                             Ageing = DDT.Rows[i]["Ageing"].ToString(),
                         });
                     }
-                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(), Date);
+                    DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", PartyID, Date);// DDT.Rows[0]["FAID"].ToString()
                     DataRow[] dtTopGridRows = dtOCOP.Select(strExReceivable);
                     for (int i = 0; i < dtTopGridRows.Length; i++)
                     {
@@ -821,7 +824,10 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
 
                         string strExPayable = "Voucher = 'Payable'";
                         string strExReceivable = "Voucher = 'Receivable'";
-                        DataTable DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", dtHeader.Rows[0]["CustId"].ToString(), 
+
+                        string PartyID = dtHeader.Rows[0]["CustId"].ToString();
+
+                        DataTable DDT = bl.BL_ExecuteParamSP("uspGetAdjusmentDoc", PartyID, 
                             Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1, dtHeader.Rows[0]["BranchID"].ToString());
                         if (DDT.Rows.Count > 0)
                         {
@@ -868,7 +874,7 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
                         }
 
                         //pending invoices
-                        DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", dtHeader.Rows[0]["CustId"].ToString(),
+                        DDT = bl.BL_ExecuteParamSP("uspGetPendingInv", PartyID,
                             Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), 0, 1, dtHeader.Rows[0]["BranchID"].ToString());
                         if (DDT.Rows.Count > 0)
                         {
@@ -908,7 +914,7 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
                                     DiscAmt = DiscAmt,
                                 });
                             }
-                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", DDT.Rows[0]["FAID"].ToString(),
+                            DataTable dtOCOP = bl.BL_ExecuteParamSP("uspGetAccDetailsForOtherColl", PartyID,//DDT.Rows[0]["FAID"].ToString()
                                 Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()), dtHeader.Rows[0]["BranchID"].ToString());
                             DataRow[] dtTopGridRows = dtOCOP.Select(strExReceivable);
                             for (int i = 0; i < dtTopGridRows.Length; i++)
@@ -939,7 +945,7 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
                             }
                         }
 
-                        DataTable DDTParty = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 3, dtHeader.Rows[0]["CustId"].ToString(), 0, 19);
+                        DataTable DDTParty = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 3, PartyID, 0, 19);
                         if (DDTParty.Rows.Count > 0)
                         {
                             for (int i = 0; i < DDTParty.Rows.Count; i++)
@@ -1035,7 +1041,44 @@ TotalAdjAmt = "0", Ageing = "0", ReasonID = "0", ReasonName = "";
             }
             return Ok();
         }
-       [HttpGet]
+        //
+        [HttpGet]
+        [Route("api/collectionpayment/validatewebcollosdocs")]
+        public IHttpActionResult validatewebcollosdocs(string ID)
+        {
+            try
+            {
+                var WebCollectionData = new List<object>();
+                DataTable dtsData = bl.BL_ExecuteParamSP("uspGetSetCollPayData", 9, null, ID);
+                if (dtsData.Rows.Count > 0)
+                {
+                    string ErrorMsg = dtsData.Rows[0]["Msg"].ToString();
+                    WebCollectionData.Add(new
+                    {
+                        Response = "Error",
+                        ResponseMessage = ErrorMsg,
+                        Documents = dtsData,
+                    });
+                }
+                else
+                {
+                    WebCollectionData.Add(new
+                    {
+                        Response = "Success",
+                        ResponseMessage = "",
+                        Documents = "",
+                    });
+                }
+                return Ok(WebCollectionData);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Collection", "getwebcolldocs", ex.Message);
+            }
+            return Ok();
+        }
+        //
+        [HttpGet]
         [Route("api/collectionpayment/getfilterdata")]
         public IHttpActionResult GetFilterData(string Mode, string TransID, string Party, string FromDate, string ToDate, string Showall)
         {
