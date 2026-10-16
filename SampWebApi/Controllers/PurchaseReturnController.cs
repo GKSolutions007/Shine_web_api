@@ -908,6 +908,8 @@ namespace SampWebApi.Controllers
                                         {
 
                                             DataRow[] dr = dtBatch.Select("ProdID = '" + nProdID + "'", null);
+                                            bool PurAddnlDiscb4Prod = listTrans.AddnlDiscb4Prod;
+                                            bool PurTrdDiscb4Prod = listTrans.TradeDiscb4Prod;
                                             foreach (DataRow iRow in dr)
                                             {
                                                 dtGSTInfo.Rows.Clear();
@@ -927,7 +929,18 @@ namespace SampWebApi.Controllers
                                                     {
                                                         MRPonTaxAMt = bl.ReturnGrossorMRPTaxAmt(0, TaxID, TaxTypeID, 0, dMRP, true) * dQty;
                                                     }
-                                                    decimal dGrs = dQty * bl.BL_dValidation(iRow["ReturnPrice"].ToString());
+                                                    decimal dgoods = dQty * bl.BL_dValidation(iRow["ReturnPrice"].ToString());
+                                                    decimal dProdDiscPern = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"]));
+                                                    decimal dTradeDiscPern = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"]));
+                                                    decimal dAddnlDiscPern = bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"]));
+
+                                                    decimal dProdDiscAmt = bl.BL_dValidation((dProdDiscPern * dgoods) / 100);
+                                                    decimal basevalueforTrade = PurAddnlDiscb4Prod ? dgoods : dgoods - dProdDiscAmt;
+                                                    decimal dTradeDiscAmt = (dTradeDiscPern * basevalueforTrade) / 100;
+                                                    decimal basevalueforAddnl = PurTrdDiscb4Prod ? dgoods : dgoods - dProdDiscAmt;
+                                                    decimal dAddnlDiscAmt = (dAddnlDiscPern * basevalueforAddnl) / 100;
+
+                                                    decimal dGrs = dgoods - (dProdDiscAmt + dTradeDiscAmt + dAddnlDiscAmt);
                                                     decimal dTax = dApponMRPCum > 0 ? MRPonTaxAMt : (dGrs * bl.BL_dValidation(iRow["TaxPern"].ToString())) / 100;
                                                     decimal dNet = dGrs + dTax;
 
@@ -937,14 +950,14 @@ namespace SampWebApi.Controllers
                                                         bl.BL_dValidation(iRow["Qty"].ToString()), bl.BL_dValidation(iRow["FreeQty"].ToString()), bl.BL_dValidation(iRow["DmgQty"].ToString()),
                                                         iRow["BatchNo"].ToString(), pkd, exp, bl.BL_dValidation(iRow["OrgRTNPrice"].ToString()),
                                                         bl.BL_dValidation(iRow["MRP"].ToString()), bl.BL_nValidation(iRow["TaxPern"].ToString()), bl.BL_dValidation(iRow["ReturnPrice"].ToString()),
-                                                        bl.BL_dValidation(iRow["TaxPern"].ToString()), dGrs, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"])), dGrs, dTax,
+                                                        bl.BL_dValidation(iRow["TaxPern"].ToString()), dgoods, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"])), dGrs, dTax,
                                                         dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"])), (i + 1), bl.BL_nValidation(iRow["TaxID"].ToString()), 1, (i + 1),
                                                         bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"])), bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"])), 1,
                                                         bl.BL_nValidation(listTrans.BranchID), listTrans.PriceID, bl.BL_dValidation(iRow["ConversionRate"].ToString()),
                                                         bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])),
-                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscAmt"])),
-                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscAmt"])),
-                                                        bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscAmt"])));
+                                                        bl.BL_dValidation(dProdDiscAmt),
+                                                        bl.BL_dValidation(dTradeDiscAmt),
+                                                        bl.BL_dValidation(dAddnlDiscAmt));
                                                     if (dtResultDetail.Rows.Count > 0)
                                                     {
                                                         string Error = "Qty Mismatched";// dtResultDetail.Rows[0][0].ToString();

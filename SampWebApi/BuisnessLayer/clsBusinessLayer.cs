@@ -212,9 +212,9 @@ namespace SampWebApi.BuisnessLayer
             string number = Convert.ToString(dstrValue);
             if (number.Contains('.'))
             {
-                if (number.Substring(number.IndexOf(".")).Length > 6)
+                if (number.Substring(number.IndexOf(".")).Length > 4)
                 {
-                    dstrValue = Math.Round(dstrValue, 6);
+                    dstrValue = Math.Round(dstrValue, 4);
                     //dstrValue = Convert.ToDecimal(dstrValue.ToString().Substring(0, (dstrValue.ToString().IndexOf('.') + 7)));
                 }
             }

@@ -1239,7 +1239,7 @@ namespace SampWebApi.Controllers
                                     nPriceID == 5 ? "SPLPrice" : nPriceID == 6 ? "ReturnPrice" : "";
                                 int TempBatchYN = 0;// dtTempBatch.Select("ProdId = " + nProdID, null).Length;
                                 string selectquery = "ProdId = '" + nProdID + "' and MRP = '" + bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"])) + "' and " + strprice + " = '" +
-                                    bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["OrgPrice"])) + "'";
+                                 (nPriceID == 4 ? bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["MRP"])) : bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["OrgPrice"]))) + "'";
                                 DataRow[] drserialrow = dtTempBachInfo.Select(selectquery, null);
                                 if (drserialrow.Length > 0)
                                 {

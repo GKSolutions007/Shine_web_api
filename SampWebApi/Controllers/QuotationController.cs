@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;
@@ -475,6 +476,21 @@ namespace SampWebApi.Controllers
             catch(Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Quotation", "quotation/getfilterdata", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpGet]
+        [Route("api/quotation/pricetypechange")]
+        public IHttpActionResult GetGendralColumnData(string Products,string PriceType)
+        {
+            try
+            {
+                DataTable dtResult = bl.BL_ExecuteParamSP("uspGetSetQuotationData", 20, Products, PriceType);
+                return Ok(dtResult);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Quotation", "quotation/pricetypechange", ex.Message);
             }
             return Ok();
         }
