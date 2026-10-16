@@ -96,6 +96,10 @@ namespace SampWebApi.Models
         public List<PurchaseGridData> lstProdGrid { get; set; }
         public List<ProductModel> lstProduct { get; set; }
         public List<PaymentmodeInfo> lstPaymodeInfo { get; set; }
+
+        public bool TradeDiscb4Prod { get; set; }
+        public bool AddnlDiscb4Prod { get; set; }
+
     }
     public class PurchaseDetail
     {

@@ -593,6 +593,13 @@ namespace SampWebApi.Models
         public string ColumnType { get; set; }
         public string Permission { get; set; }
     }
+    public class TransactionColumnSettings
+    {
+        public int FormID { get; set; }
+        public int TableID { get; set; }
+        public int FormType { get; set; }
+        public List<ColumnSettingsModel> ColumnSettings { get; set; }
+    }
     public class MapRoleModel
     {
         public MapRoleModel()

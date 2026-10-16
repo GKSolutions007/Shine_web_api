@@ -580,6 +580,11 @@ namespace SampWebApi.Controllers
                     }
                     return Ok(list);
                 }
+                if (Mode == "3")
+                {
+                    DataTable dtResult = bl.BL_ExecuteParamSP("uspGetGendralColumnSettings", Mode, FormID, TableID, FormorReport);
+                    return Ok(dtResult);
+                }
             }
             catch(Exception ex)
             {
@@ -644,6 +649,34 @@ namespace SampWebApi.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "columnsettings/Savecolumnsettings", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/columnsettings/Savetransactioncolumnsettings")]
+        public IHttpActionResult saveTransactionColumnData(TransactionColumnSettings ColumnSettingData)
+        {
+            try
+            {
+                if (ColumnSettingData != null)
+                {
+                    var list = new List<object>();
+                    foreach (ColumnSettingsModel item in ColumnSettingData.ColumnSettings)
+                    {
+                        bl.BL_ExecuteParamSP("uspSaveGendralColumnSettings", 1, ColumnSettingData.FormID, ColumnSettingData.TableID,
+                            item.ColumnID, ColumnSettingData.FormType, item.DisplayColumnName, item.Width, item.Visible);
+                    }
+                    list.Add(new
+                    {
+                        MsgID = "0",
+                        Message = "Saved Successfully",                        
+                    });
+                    return Ok(list);
+                }
+            }
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Report", "columnsettings/Savecolumnsettings", ex.Message);
             }
