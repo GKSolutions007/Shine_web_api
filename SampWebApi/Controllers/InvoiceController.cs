@@ -462,6 +462,7 @@ namespace SampWebApi.Controllers
                             DataSet dtInvItems = bl.BL_ExecuteParamSPDataset("uspGetSetInvoiceData", TMode, null, CodeName);
                             DataTable DDT2 = dtInvItems.Tables[0];
                             DataTable dtItemUOMs = dtInvItems.Tables[1];
+                            DataTable dtPaymodedetails = dtInvItems.Tables[2];
                             //DataTable DDT2 = bl.BL_ExecuteParamSP("uspGetSetInvoiceData", TMode, null, CodeName);
                             RunTimings += ", Item Data Fill Start : " + DateTime.Now.ToLongTimeString();
                             for (int k = 0; k < DDT2.Rows.Count; k++)
@@ -600,7 +601,36 @@ namespace SampWebApi.Controllers
                             }
                             RunTimings += ", Item Data Fill End : " + DateTime.Now.ToLongTimeString();
                             RunTimings += ", Header Data Fill Start : " + DateTime.Now.ToLongTimeString();
-
+                            List<PaymentmodeInfo> pmdtl = new List<PaymentmodeInfo>();
+                            if (dtPaymodedetails.Rows.Count > 0)
+                            {
+                                for (int pmd = 0; pmd < dtPaymodedetails.Rows.Count; pmd++)
+                                {
+                                    //PayModeId	Acc_OR_PaytermId	ChequeNo	Cheque_OR_DDNumber_OR_NEFTId	PMDate	
+                                    //PayAt	IfscCode	Bank	Branch	Amt	SerialNo	RecdAmt	VisaPer	VisaAmt	PaymentMode	
+                                    //AccountNo	AccountName	OrgPMDate                                    
+                                    pmdtl.Add(new PaymentmodeInfo
+                                    {
+                                        AccID = DDT.Rows[i]["CustomerID"].ToString(),
+                                        Mode = dtPaymodedetails.Rows[pmd]["PayModeId"].ToString(),
+                                        ChequeDDNumber = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        Date = dtPaymodedetails.Rows[pmd]["OrgPMDate"].ToString(),
+                                        BankAccId = dtPaymodedetails.Rows[pmd]["Acc_OR_PaytermId"].ToString(),
+                                        Neft = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        Amt = dtPaymodedetails.Rows[pmd]["Amt"].ToString(),
+                                        IFSC = dtPaymodedetails.Rows[pmd]["IfscCode"].ToString(),
+                                        Bank = dtPaymodedetails.Rows[pmd]["Bank"].ToString(),
+                                        BankID = dtPaymodedetails.Rows[pmd]["BankID"].ToString(),
+                                        Branch = dtPaymodedetails.Rows[pmd]["Branch"].ToString(),
+                                        BankAccNo = dtPaymodedetails.Rows[pmd]["AccountNo"].ToString(),
+                                        ChequeBkRefNo = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        ChequeBookID = dtPaymodedetails.Rows[pmd]["ChequeNo"].ToString(),
+                                        RecdAmt = dtPaymodedetails.Rows[pmd]["RecdAmt"].ToString(),
+                                        VisaPern = dtPaymodedetails.Rows[pmd]["VisaPer"].ToString(),
+                                        VisaAmt = dtPaymodedetails.Rows[pmd]["VisaAmt"].ToString(),
+                                    });
+                                }
+                            }
                             list.Add(new SalesModel
                             {
                                 //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
@@ -658,6 +688,7 @@ namespace SampWebApi.Controllers
                                 Balance = DDT.Rows[i]["Balance"].ToString(),
                                 lstPartyInfo = listParty,
                                 lstProdInfo = listProductGrid,
+                                lstPaymodeInfo= pmdtl
                             });
                             RunTimings += ", Header Data Fill End : " + DateTime.Now.ToLongTimeString();
 

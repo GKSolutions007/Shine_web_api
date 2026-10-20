@@ -352,6 +352,8 @@ namespace SampWebApi.Controllers
                                     GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                    AdjQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    AdjFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
                                     UOMList = ulist
                                 });
                             }

@@ -223,7 +223,9 @@ namespace SampWebApi.Controllers
 
                 if (Mode == "7" || Mode == "11" || Mode == "17")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", Mode, null, CodeName);
+                    DataSet DDTBillData = bl.BL_ExecuteParamSPDataset("uspGetSetPurchaseData", Mode, null, CodeName);
+                    DDT = DDTBillData.Tables[0];
+                    DataTable dtPaymodedetails = DDTBillData.Tables[1];
                     List<PurchaseModel> list = new List<PurchaseModel>();
                     if (DDT.Rows.Count > 0)
                     {
@@ -347,7 +349,36 @@ namespace SampWebApi.Controllers
                                     ConversionRate = DDT3.Rows[l]["UOMCF"].ToString(),
                                 });
                             }
-
+                            List<PaymentmodeInfo> pmdtl = new List<PaymentmodeInfo>();
+                            if (dtPaymodedetails.Rows.Count > 0)
+                            {
+                                for (int pmd = 0; pmd < dtPaymodedetails.Rows.Count; pmd++)
+                                {
+                                    //PayModeId	Acc_OR_PaytermId	ChequeNo	Cheque_OR_DDNumber_OR_NEFTId	PMDate	
+                                    //PayAt	IfscCode	Bank	Branch	Amt	SerialNo	RecdAmt	VisaPer	VisaAmt	PaymentMode	
+                                    //AccountNo	AccountName	OrgPMDate                                    
+                                    pmdtl.Add(new PaymentmodeInfo
+                                    {
+                                        AccID = DDT.Rows[i]["VendorID"].ToString(),
+                                        Mode = dtPaymodedetails.Rows[pmd]["PayModeId"].ToString(),
+                                        ChequeDDNumber = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        Date = dtPaymodedetails.Rows[pmd]["OrgPMDate"].ToString(),
+                                        BankAccId = dtPaymodedetails.Rows[pmd]["Acc_OR_PaytermId"].ToString(),
+                                        Neft = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        Amt = dtPaymodedetails.Rows[pmd]["Amt"].ToString(),
+                                        IFSC = dtPaymodedetails.Rows[pmd]["IfscCode"].ToString(),
+                                        Bank = dtPaymodedetails.Rows[pmd]["Bank"].ToString(),
+                                        BankID = dtPaymodedetails.Rows[pmd]["BankID"].ToString(),
+                                        Branch = dtPaymodedetails.Rows[pmd]["Branch"].ToString(),
+                                        BankAccNo = dtPaymodedetails.Rows[pmd]["AccountNo"].ToString(),
+                                        ChequeBkRefNo = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                        ChequeBookID = dtPaymodedetails.Rows[pmd]["ChequeNo"].ToString(),
+                                        RecdAmt = dtPaymodedetails.Rows[pmd]["RecdAmt"].ToString(),
+                                        VisaPern = dtPaymodedetails.Rows[pmd]["VisaPer"].ToString(),
+                                        VisaAmt = dtPaymodedetails.Rows[pmd]["VisaAmt"].ToString(),
+                                    });
+                                }
+                            }
                             string asdf = "";
                             list.Add(new PurchaseModel
                             {
@@ -410,7 +441,7 @@ namespace SampWebApi.Controllers
                                 DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
                                 lstPartyInfo = listParty,
                                 lstProdGrid = listProductGrid,
-                                lstBatchInfo = listBatch
+                                lstBatchInfo = listBatch,lstPaymodeInfo = pmdtl
                             });
                         }
                     }
@@ -895,7 +926,8 @@ namespace SampWebApi.Controllers
                         TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
                         DiffValueGross = DDT.Rows[i]["DiffExcl"].ToString(),
                         DiffValueNet = DDT.Rows[i]["DiffIncl"].ToString(),
-                        WriteOffAmt = DDT.Rows[i]["WriteOff"].ToString()
+                        WriteOffAmt = DDT.Rows[i]["WriteOff"].ToString(),
+                        PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
                     });
                 }
 
@@ -934,7 +966,8 @@ namespace SampWebApi.Controllers
                                    TCSTaxAmt = users.TCSTaxAmt,
                                    DiffExcl = users.DiffValueGross,
                                    DiffIncl = users.DiffValueNet,
-                                   WriteOff = users.WriteOffAmt
+                                   WriteOff = users.WriteOffAmt,
+                                   PaymentModeID = users.PaymentModeID
                                };
                 return Ok(data);
             }
