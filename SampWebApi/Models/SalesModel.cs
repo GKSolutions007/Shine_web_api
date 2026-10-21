@@ -240,6 +240,7 @@ namespace SampWebApi.Models
         public string Amt { get; set; }
         public string IFSC { get; set; }
         public string Bank { get; set; }
+        public string BankID { get; set; }
         public string Branch { get; set; }
         public string PayAt { get; set; }
         public string BankAccNo { get; set; }

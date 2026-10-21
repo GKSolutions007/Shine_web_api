@@ -1823,11 +1823,7 @@ namespace SampWebApi.Controllers
                 if (Mode == "2")
                 {
                     DataTable DDT = bl.BL_ExecuteParamSP("uspgetsetBRSData", Mode, AccNo, Party, FromDate, ToDate, Showblank);
-                    if (DDT.Rows.Count > 0)
-                    {
-                        string JSONCONV = JsonConvert.SerializeObject(DDT);
-                        return Ok(JSONCONV);
-                    }
+                    return Ok(DDT);
                 }
             }
             catch(Exception ex)
