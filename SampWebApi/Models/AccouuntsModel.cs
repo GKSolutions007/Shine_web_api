@@ -161,4 +161,41 @@ namespace SampWebApi.Models
         public string FromDate { get; set; }
         public string ToDate { get; set; }
     }
+
+    public class GstReconModel
+    {
+        public string TransID { get; set; }
+        public string ID { get; set; }
+        public string BranchName { get; set; }
+        public string PortalDate { get; set; }
+        public string TransDate { get; set; }
+        public string DocID { get; set; }
+        public string RefNo { get; set; }
+        public string PartyName { get; set; }
+        public string GrossAmount { get; set; }
+        public string TaxAmount { get; set; }
+        public string NetAmount { get; set; }
+    }
+
+    public class PreferredLanguageModel
+    {
+        public string ID { get; set; }
+        public string OriginalName { get; set; }
+        public string Name { get; set; }
+        public string BillAddress1 { get; set; }
+        public string BillAddress2 { get; set; }
+        public string BillAddress3 { get; set; }
+        public string ContactPerson { get; set; }
+    }
+
+    public class PreferredLanguageSaveModel
+    {
+        public int Form { get; set; }
+        public string ID { get; set; }
+        public string PLName { get; set; }
+        public string PLBillAdd1 { get; set; }
+        public string PLBillAdd2 { get; set; }
+        public string PLBillAdd3 { get; set; }
+        public string PLContactPerson { get; set; }
+    }
 }
