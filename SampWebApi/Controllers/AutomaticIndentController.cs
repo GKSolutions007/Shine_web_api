@@ -285,15 +285,16 @@ namespace SampWebApi.Controllers
             try
             {
                 string qry = "select MBO.Name Branch,dbo.fngetroundedvalue(SUM(ActualQty)) ActualQty,dbo.fngetroundedvalue(SUM(ActualFreeQty)) ActualFreeQty,dbo.fngetroundedvalue(SUM(ActualDmgQty)) ActualDmgQty,MP.Name ProductName,MP.Code ProductCode from tblProductInventory PV JOIN tblMasterBranchOffice MBO ON MBO.ID = PV.BranchID JOIN tblMasterProduct MP ON MP.ID = PV.ProdID WHERE PRODID = " + ProdID + " GROUP BY MBO.Name,MP.Name,MP.Code";
-                DataTable dtQty = bl.BL_ExecuteSqlQuery(qry);
-                List<ProductModel> listProd = new List<ProductModel>();
+                DataTable dtQty = bl.BL_ExecuteParamSP("uspBranchwiseABSQty", ProdID);
+                var listProd = new List<object>();
                 for (int i = 0; i < dtQty.Rows.Count; i++)
                 {
-                    listProd.Add(new ProductModel()
+                    listProd.Add(new
                     {
                         Name = dtQty.Rows[i]["ProductName"].ToString(),
                         Code = dtQty.Rows[i]["ProductCode"].ToString(),
                         Branch = dtQty.Rows[i]["Branch"].ToString(),
+                        BranchID = dtQty.Rows[i]["BranchID"].ToString(),
                         ABSQty = dtQty.Rows[i]["ActualQty"].ToString(),
                         ABSFreeQty = dtQty.Rows[i]["ActualFreeQty"].ToString(),
                         ABSDmgQty = dtQty.Rows[i]["ActualDmgQty"].ToString(),

@@ -266,6 +266,8 @@ namespace SampWebApi.Controllers
                                     UOM = DDT2.Rows[k]["UomCR"].ToString(),
                                     MRPonTax = DDT2.Rows[k]["CumulativeTax"].ToString(),//dApponMRPCum.ToString(),
                                     MRP = DDT2.Rows[k]["MRP"].ToString(),
+                                    ABSQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    ABSFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
                                 });
                             }
                             list.Add(new PurchaseModel
@@ -420,7 +422,8 @@ namespace SampWebApi.Controllers
         }
         [HttpGet]
         [Route("api/purchaseorder/manufitems")]
-        public IHttpActionResult GetManufItems(string PartyID, string ManufID, string DaysAvg, string BaseorPurchase)
+        public IHttpActionResult GetManufItems(string PartyID, string ManufID, string DaysAvg, string BaseorPurchase
+            , string BranchID)
         {
             try
             {
@@ -443,7 +446,7 @@ namespace SampWebApi.Controllers
                 {
                     Days = DaysAvg;
                 }
-                DataTable DDT = bl.BL_ExecuteParamSP("uspLoadManufItemsinPO", PartyID, ManufID, Days, Avg, BaseorPurchase);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspLoadManufItemsinPO", PartyID, ManufID, Days, Avg, BaseorPurchase, BranchID);
                 return Ok(DDT);
             }
             catch(Exception ex)

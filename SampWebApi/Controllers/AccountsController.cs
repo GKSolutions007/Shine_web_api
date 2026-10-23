@@ -1823,11 +1823,7 @@ namespace SampWebApi.Controllers
                 if (Mode == "2")
                 {
                     DataTable DDT = bl.BL_ExecuteParamSP("uspgetsetBRSData", Mode, AccNo, Party, FromDate, ToDate, Showblank);
-                    if (DDT.Rows.Count > 0)
-                    {
-                        string JSONCONV = JsonConvert.SerializeObject(DDT);
-                        return Ok(JSONCONV);
-                    }
+                    return Ok(DDT);
                 }
             }
             catch(Exception ex)
@@ -1888,5 +1884,188 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+
+        [HttpGet]
+        [Route("api/gstreconsiliation/getgstrecon")]
+        //public IHttpActionResult GetBRSData(string Mode, string AccNo, string Party, string FromDate, string ToDate, string Showblank)
+        public IHttpActionResult GetGstReconData (string Transaction, string FromDate, string ToDate, string ShowBlankDate)
+        {
+            try
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("UspGstReconciliationstatement", Transaction, FromDate, ToDate, ShowBlankDate);
+                List<GstReconModel> list = new List<GstReconModel>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new GstReconModel
+                    {
+                        TransID = DDT.Rows[i]["TransID"].ToString(),
+                        ID = DDT.Rows[i]["ID"].ToString(),
+                        TransDate = Convert.ToDateTime(DDT.Rows[i]["Trans Date"]).ToString("yyyy-MM-dd"),
+                        PortalDate = DDT.Rows[i]["Portal Date"] == DBNull.Value ? "" : Convert.ToDateTime(DDT.Rows[i]["Portal Date"]).ToString("yyyy-MM-dd"),
+                        DocID = DDT.Rows[i]["Doc ID"]?.ToString(),
+                        RefNo = DDT.Rows[i]["Ref No"]?.ToString(),
+                        PartyName = DDT.Rows[i]["Party Name"]?.ToString(),
+                        BranchName = DDT.Rows[i]["Branch Name"]?.ToString(),
+                        GrossAmount = DDT.Rows[i]["Gross Amount"].ToString(),
+                        TaxAmount = DDT.Rows[i]["Tax Amount"].ToString(),
+                        NetAmount = DDT.Rows[i]["Net Amount"].ToString()
+                    });
+                }
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Accounts", "gstreconsiliation/getgstrecon", ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("api/gstreconsiliation/savegstrecon")]
+        public IHttpActionResult SaveGstRecon(List<GstReconModel> listTrans)
+        {
+            try
+            {
+                if (listTrans != null)
+                {
+                    DataTable dtSave = new DataTable();
+                    dtSave.Columns.Add("SNO", typeof(int));
+                    dtSave.Columns.Add("ID", typeof(int));
+                    dtSave.Columns.Add("TransID", typeof(int));
+                    dtSave.Columns.Add("PortalDate", typeof(string));
+                    dtSave.Columns.Add("TransDate", typeof(string));
+
+                    List<SaveMessage> list = new List<SaveMessage>();
+                    DataTable dtCheqs = bl.listConvertToDataTable(listTrans);
+                    int nCount = 1;
+                    for (int i = 0; i < dtCheqs.Rows.Count; i++)
+                    {
+                        int nID = bl.BL_nValidation(dtCheqs.Rows[i]["ID"]);
+                        int nTransID = bl.BL_nValidation(dtCheqs.Rows[i]["TransID"]);
+                        if (nID > 0)
+                        {
+                            string PortalDate = Convert.ToString(dtCheqs.Rows[i]["PortalDate"]);
+                            string TransDate = Convert.ToString(dtCheqs.Rows[i]["TransDate"]);
+                            DataRow drSave = dtSave.NewRow();
+                            drSave["SNO"] = nCount;
+                            drSave["ID"] = nID;
+                            drSave["TransID"] = nTransID;
+                            drSave["PortalDate"] = !string.IsNullOrEmpty(PortalDate) ? PortalDate : "";
+                            drSave["TransDate"] = TransDate;
+                            dtSave.Rows.Add(drSave);
+                            nCount++;
+                        }
+                    }
+                    bl.bl_Transaction(1);
+                    DataTable dtResult = bl.bl_ManageTrans("UspSaveGstReconciliation", dtSave);
+                    bl.bl_Transaction(2);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = "0",
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                    return Ok(list);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Accounts", "gstreconsiliation/savegstrecon", ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/preferredlanguage/getpreferredlanguage")]
+        public IHttpActionResult GetPreferredLanguage(string Form, string ShowAll)
+        {
+            try
+            {
+                DataTable DDT = new DataTable();
+                DDT = bl.BL_ExecuteParamSP("UspGetPreferredLanguage", Form, ShowAll);
+                bool isParty = DDT.Columns.Contains("BillAddress1");
+                List<PreferredLanguageModel> list = new List<PreferredLanguageModel>();
+                for (int i = 0; i < DDT.Rows.Count; i++)
+                {
+                    list.Add(new PreferredLanguageModel
+                    {
+                        ID = DDT.Rows[i]["ID"].ToString(),
+                        OriginalName = DDT.Rows[i]["OriginalName"]?.ToString(),
+                        Name = DDT.Rows[i]["Name"]?.ToString(),
+                        BillAddress1 = isParty ? DDT.Rows[i]["BillAddress1"]?.ToString() : "",
+                        BillAddress2 = isParty ? DDT.Rows[i]["BillAddress2"]?.ToString() : "",
+                        BillAddress3 = isParty ? DDT.Rows[i]["BillAddress3"]?.ToString() : "",
+                        ContactPerson = isParty ? DDT.Rows[i]["ContactPerson"]?.ToString() : ""
+                    });
+                }
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Master", "preferredlanguage/getpreferredlanguage", ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("api/preferredlanguage/savepreferredlanguage")]
+        public IHttpActionResult SavePreferredLanguage(List<PreferredLanguageSaveModel> listPL)
+        {
+            try
+            {
+                if (listPL != null && listPL.Count > 0)
+                {
+                    DataTable dtSave = new DataTable();
+                    dtSave.Columns.Add("SNO", typeof(int));
+                    dtSave.Columns.Add("Form", typeof(int));
+                    dtSave.Columns.Add("ID", typeof(int));
+                    dtSave.Columns.Add("PLName", typeof(string));
+                    dtSave.Columns.Add("PLBillAdd1", typeof(string));
+                    dtSave.Columns.Add("PLBillAdd2", typeof(string));
+                    dtSave.Columns.Add("PLBillAdd3", typeof(string));
+                    dtSave.Columns.Add("PLContactPerson", typeof(string));
+
+                    List<SaveMessage> list = new List<SaveMessage>();
+                    int nCount = 1;
+                    foreach (var item in listPL)
+                    {
+                        int nID = bl.BL_nValidation(item.ID);
+                        if (nID > 0)
+                        {
+                            DataRow drSave = dtSave.NewRow();
+                            drSave["SNO"] = nCount;
+                            drSave["Form"] = item.Form;
+                            drSave["ID"] = nID;
+                            drSave["PLName"] = item.PLName ?? "";
+                            drSave["PLBillAdd1"] = item.PLBillAdd1 ?? "";
+                            drSave["PLBillAdd2"] = item.PLBillAdd2 ?? "";
+                            drSave["PLBillAdd3"] = item.PLBillAdd3 ?? "";
+                            drSave["PLContactPerson"] = item.PLContactPerson ?? "";
+                            dtSave.Rows.Add(drSave);
+                            nCount++;
+                        }
+                    }
+
+                    bl.bl_Transaction(1);
+                    DataTable dtResult = bl.bl_ManageTrans("UspSavePreferredLanguage", dtSave);
+                    bl.bl_Transaction(2);
+                    list.Add(new SaveMessage()
+                    {
+                        ID = "0",
+                        MsgID = "0",
+                        Message = "Saved Successfully"
+                    });
+                    return Ok(list);
+                }
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Master", "preferredlanguage/savepreferredlanguage", ex.Message);
+            }
+            return Ok();
+        }
+
     }
+
 }
