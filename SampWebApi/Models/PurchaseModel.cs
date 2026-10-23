@@ -234,6 +234,7 @@ namespace SampWebApi.Models
         public string MRP { get; set; }
         public string ABSQty { get; set; }
         public string ABSFreeQty { get; set; }
+        public string ABSDmgQty { get; set; }
         public List<SingleMasterModel> lstReason { get; set; }
     }
     public class PRBatch
