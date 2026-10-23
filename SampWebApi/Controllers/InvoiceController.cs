@@ -1376,7 +1376,10 @@ namespace SampWebApi.Controllers
                         EAN = DDT.Rows[i]["EAN"].ToString(),
                         HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
                         PurchasePrice = DDT.Rows[i]["Price"].ToString(),
-                        ABSQty = TransID != "17" ? DDT.Rows[i]["ABSQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
+                        ABSQty = TransID != "17" ? DDT.Rows[i]["ABSandFreeQty"].ToString() : DDT.Rows[i]["ABSDmgQty"].ToString(),
+                        ActualQty = DDT.Rows[i]["ABSQty"].ToString(),
+                        ABSFreeQty = DDT.Rows[i]["ABSFreeQty"].ToString(),
+                        ABSDmgQty = DDT.Rows[i]["ABSDmgQty"].ToString(),
                         LocationID = DDT.Rows[i]["LocationName"].ToString(),
                         Shinecode = DDT.Rows[i]["Shinecode"].ToString(),
                     });

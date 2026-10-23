@@ -123,7 +123,7 @@ namespace SampWebApi.Controllers
                 }
                 if (Mode == "4")
                 {
-                    DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", Mode, CodeName);
+                    DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseData", Mode, CodeName, ID);
                     List<ProductModel> list = new List<ProductModel>();
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
@@ -186,6 +186,8 @@ namespace SampWebApi.Controllers
                             Remarks = DDT.Rows[i]["Remarks"].ToString(),
                             Active = DDT.Rows[i]["Active"].ToString(),
                             ABSQty = DDT.Rows[i]["ABSQty"].ToString(),
+                            ABSFreeQty = DDT.Rows[i]["ABSFreeQty"].ToString(),
+                            ABSDmgQty = DDT.Rows[i]["ABSDmgQty"].ToString(),
                             TaxName = DDT.Rows[i]["TaxName"].ToString(),
                             GSTPern = DDT.Rows[i]["GST"].ToString(),
                             IGSTPern = DDT.Rows[i]["IGST"].ToString(),
@@ -305,6 +307,10 @@ namespace SampWebApi.Controllers
                                     DiffAmt = DDT2.Rows[k]["DiffAmt"].ToString(),
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+
+                                    ABSQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    ABSFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                    ABSDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                                 });
                             }
                             List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
@@ -627,6 +633,9 @@ namespace SampWebApi.Controllers
                                         DiffAmt = "0.00",                                        
                                         MRPonTax = MRPonTax.ToString(),
                                         CumMRPonTax = dCumMRPonTax.ToString(),
+                                        ABSQty = "0.00",
+                                        ABSFreeQty = "0.00",
+                                        ABSDmgQty = "0.00",
                                     });
                                     DataRow drmit = dtShinecodeitem.Rows[0];
                                     dtMyItemTable.Rows.Add(drmit.ItemArray);

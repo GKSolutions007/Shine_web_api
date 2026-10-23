@@ -2528,6 +2528,14 @@ Warm regards,<br/>
                                 QRContent = QReWayInfo;
                             else if (nameofqr == "NQR")// Doc ID or Text
                                 QRContent = (!string.IsNullOrEmpty(Convert.ToString(QRText)) ? Convert.ToString(QRText) : QRBARDocID);
+                            else if(nameofqr == "DBA")
+                            {
+                                DataTable dtDBADetails = GKS_BL.BL_ExecuteParamSP("uspgetDefaultBankAccount");
+                                if(dtDBADetails.Rows.Count > 0)
+                                {
+                                    QRContent = dtDBADetails.Rows[0]["BankAccountDetails"].ToString();
+                                }
+                            }
                             //QRBARDocID = QRBARDocID != "No Data" ? nameofqr == "SQR" ? QRBARSignQR : nameofqr == "UWA" || nameofqr == "UWO" ? UPIQRDATA : QRBARDocID : "No Data";                            
                             //string Content = (!string.IsNullOrEmpty(Convert.ToString(row[31])) ? Convert.ToString(row[31]) : QRBARDocID);
 
