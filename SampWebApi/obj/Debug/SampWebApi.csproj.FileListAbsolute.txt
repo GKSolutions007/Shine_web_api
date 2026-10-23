@@ -1264,8 +1264,6 @@ D:\2026\api\Shine_web_api\SampWebApi\bin\System.Web.WebPages.Razor.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\WebGrease.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\Zen.Barcode.Core.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\ZString.dll
-D:\2026\api\Shine_web_api\SampWebApi\bin\Windows.dll
-D:\2026\api\Shine_web_api\SampWebApi\bin\Koine.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\Microsoft.mshtml.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\Shinewebprint.pdb
 D:\2026\api\Shine_web_api\SampWebApi\bin\BouncyCastle.Cryptography.xml
