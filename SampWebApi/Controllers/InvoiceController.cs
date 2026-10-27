@@ -241,21 +241,28 @@ namespace SampWebApi.Controllers
                             });
                         }
                         List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
+                        decimal AbsQty = 0.00M, AbsFreeQty = 0.00M;
+
                         DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventory", 1, BranchID, PriceID, Convert.ToDateTime(Date), DDT.Rows[i][0].ToString(), 0);
-                        for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        if (dtBatch.Rows.Count > 0)
                         {
-                            ulistBatch.Add(new InvoiceBatchPopup
+                            for (int j = 0; j < dtBatch.Rows.Count; j++)
                             {
-                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                ProdID = DDT.Rows[i]["ID"].ToString(),
-                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                            });
+                                ulistBatch.Add(new InvoiceBatchPopup
+                                {
+                                    QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                    QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                                    ProdID = DDT.Rows[i]["ID"].ToString(),
+                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                    PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                    ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                    ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                    SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                                });
+                            }
+                            AbsQty = bl.BL_dValidation(dtBatch.Compute("sum(Qty)", "Tag = 1"));
+                            AbsFreeQty = bl.BL_dValidation(dtBatch.Compute("sum(Qty)", "Tag = 2"));
                         }
                         #region Discount Schemme
                         decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
@@ -343,7 +350,9 @@ namespace SampWebApi.Controllers
                             TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
                             ItemTransactionPrice = DDT.Rows[i]["InvoicePrice"].ToString(),
                             UOMList = ulist,
-                            lstInvPopup = ulistBatch
+                            lstInvPopup = ulistBatch,
+                            ActQty = AbsQty.ToString(),
+                            ActFreeQty = AbsFreeQty.ToString(),
                         });
                     }
                     return Ok(list);

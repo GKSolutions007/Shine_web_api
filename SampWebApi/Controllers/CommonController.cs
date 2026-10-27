@@ -330,5 +330,20 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/loadshortcuts")]
+        public IHttpActionResult loadshortcutsdata(string Mode, string FormName)
+        {
+            try
+            {
+                DataTable dtMSTdetail = bl.BL_ExecuteParamSP("uspGetShortcutkeys", Mode,FormName);
+                return Ok(dtMSTdetail);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("CommonController", "loadshortcuts", ex.Message);
+            }
+            return Ok();
+        }
     }
 }

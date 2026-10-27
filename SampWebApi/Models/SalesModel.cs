@@ -208,6 +208,7 @@ namespace SampWebApi.Models
         public string TaxName { get; set; }
         public string CheckInclusive { get; set; }
         public string ActQty { get; set; }
+        public string ActFreeQty { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public string UOM { get; set; }
