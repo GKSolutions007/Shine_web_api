@@ -127,30 +127,37 @@ namespace SampWebApi.Controllers
                         //string Mode, string CodeName, string ID = null,string BranchID = "0",string Date ="", string PriceID = "1"
                         //DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetSetPurchaseReturnData", 41, DDT.Rows[i][0].ToString(),PriceID,12,
                         //    BranchID,Convert.ToDateTime(Date));
+                        decimal AbsQty = 0.00M, AbsFreeQty = 0.00M, AbsDmgQty = 0.00M;
                         DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetPRProductIntoryBatch", DDT.Rows[i][0].ToString(), BranchID, Convert.ToDateTime(Date), PriceID, ID);
-                        for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        if (dtBatch.Rows.Count > 0)
                         {
-                            string PKD = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : "";//dd/MM/yyyy
-                            string Exp = !string.IsNullOrEmpty(dtBatch.Rows[j]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : "";
-                            ulistBatch.Add(new PurchaseBatchInfo
+                            for (int j = 0; j < dtBatch.Rows.Count; j++)
                             {
-                                InventoryID = dtBatch.Rows[j]["InventoryID"].ToString(),
-                                ProdID = dtBatch.Rows[j]["ProdID"].ToString(),
-                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                PKDDate = PKD,//dtBatch.Rows[j]["PKDDate"].ToString(),
-                                ExpiryDate = Exp,// dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[j]["ActualQty"].ToString(),
-                                ActFreeQty = dtBatch.Rows[j]["ActualFreeQty"].ToString(),
-                                ActDmgQty = dtBatch.Rows[j]["ActualDmgQty"].ToString(),
-                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),
-                                ReturnPrice = dtBatch.Rows[j]["ReturnPrice"].ToString(),
-                                TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
-                                TrackPKD = DDT.Rows[i]["TrackPDK"].ToString(),
-                                Qty = dtBatch.Rows[j]["Qty"].ToString(),
-                                FreeQty = dtBatch.Rows[j]["FreeQty"].ToString(),
-                                DmgQty = dtBatch.Rows[j]["DmgQty"].ToString(),
-                            });
+                                string PKD = !string.IsNullOrEmpty(dtBatch.Rows[j]["PKDDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["PKDDate"].ToString()).ToString("yyyy-MM-dd") : "";//dd/MM/yyyy
+                                string Exp = !string.IsNullOrEmpty(dtBatch.Rows[j]["ExpiryDate"].ToString()) ? Convert.ToDateTime(dtBatch.Rows[j]["ExpiryDate"].ToString()).ToString("yyyy-MM-dd") : "";
+                                ulistBatch.Add(new PurchaseBatchInfo
+                                {
+                                    InventoryID = dtBatch.Rows[j]["InventoryID"].ToString(),
+                                    ProdID = dtBatch.Rows[j]["ProdID"].ToString(),
+                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                    PKDDate = PKD,//dtBatch.Rows[j]["PKDDate"].ToString(),
+                                    ExpiryDate = Exp,// dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                    ActQty = dtBatch.Rows[j]["ActualQty"].ToString(),
+                                    ActFreeQty = dtBatch.Rows[j]["ActualFreeQty"].ToString(),
+                                    ActDmgQty = dtBatch.Rows[j]["ActualDmgQty"].ToString(),
+                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                    PurchasePrice = dtBatch.Rows[j]["PurchasePrice"].ToString(),
+                                    ReturnPrice = dtBatch.Rows[j]["ReturnPrice"].ToString(),
+                                    TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
+                                    TrackPKD = DDT.Rows[i]["TrackPDK"].ToString(),
+                                    Qty = dtBatch.Rows[j]["Qty"].ToString(),
+                                    FreeQty = dtBatch.Rows[j]["FreeQty"].ToString(),
+                                    DmgQty = dtBatch.Rows[j]["DmgQty"].ToString(),
+                                });
+                            }
+                            AbsQty = bl.BL_dValidation(dtBatch.Compute("sum(ActualQty)", null));
+                            AbsFreeQty = bl.BL_dValidation(dtBatch.Compute("sum(ActualFreeQty)", null));
+                            AbsDmgQty = bl.BL_dValidation(dtBatch.Compute("sum(ActualDmgQty)", null));
                         }
                         list.Add(new PRBatch
                         {
@@ -171,6 +178,9 @@ namespace SampWebApi.Controllers
                             TransactionPrice = DDT.Rows[i]["PurchaseReturnPrice"].ToString(),
                             UOMList = ulist,
                             PRBatchInfo = ulistBatch,
+                            Qty1 = AbsQty.ToString(),
+                            FreeQty1 = AbsFreeQty.ToString(),
+                            DmgQty1 = AbsDmgQty.ToString(),
                         });
                     }
                     return Ok(list);
@@ -278,6 +288,9 @@ namespace SampWebApi.Controllers
                                     DiffAmt = DDT2.Rows[k]["DiffAmt"].ToString(),
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                    ABSQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    ABSFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                    ABSDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                                 });
                             }
                             List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
@@ -557,7 +570,10 @@ namespace SampWebApi.Controllers
                                 DiffAmt = DDT2.Rows[k]["DiffAmt"].ToString(),
                                 MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                 CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
-                                lstReason = listReasons
+                                lstReason = listReasons,
+                                ABSQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                ABSFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                ABSDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                             });
                         }
                         List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
@@ -749,6 +765,9 @@ namespace SampWebApi.Controllers
                             DiffAmt = dtProduts.Rows[k]["DiffAmt"].ToString(),
                             MRPonTax = dtProduts.Rows[k]["MRPonTaxAmt"].ToString(),
                             CumMRPonTax = dtProduts.Rows[k]["CumMRPonTax"].ToString(),
+                            ABSQty = dtProduts.Rows[k]["ActualQty"].ToString(),
+                            ABSFreeQty = dtProduts.Rows[k]["ActualFreeQty"].ToString(),
+                            ABSDmgQty = dtProduts.Rows[k]["ActualDmgQty"].ToString(),
                         });
                     }
                     List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();                    
