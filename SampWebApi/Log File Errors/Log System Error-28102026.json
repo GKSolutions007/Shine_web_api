@@ -1,0 +1,1 @@
+{"Date":"28-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Accounts","FunctionName":"gstreconsiliation/getgstrecon","Error":"Procedure or function 'UspGstReconciliationstatement' expects parameter '@FromDate', which was not supplied.","Timestamp":"28-Oct-2026 01.54.32 PM"},
