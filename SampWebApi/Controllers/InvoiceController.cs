@@ -605,6 +605,9 @@ namespace SampWebApi.Controllers
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
                                     UOMList = ulist,
+                                    AdjQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    AdjFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                    AdjDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                                     //lstInvPopup = ulistBatch
                                 });
                             }
