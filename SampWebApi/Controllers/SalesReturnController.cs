@@ -198,21 +198,27 @@ namespace SampWebApi.Controllers
                         DataTable dtBatch = bl.BL_ExecuteParamSP("uspGetProdInventoryInSalesReturn", BranchID, PriceID, qtymode, DDT.Rows[i][0].ToString(),
                             Convert.ToDateTime(Date), 0, 0, ShowZerobatch);
                         decimal dPrice = 0;
-                        for (int j = 0; j < dtBatch.Rows.Count; j++)
+                        decimal AbsQty = 0.00M, AbsFreeQty = 0.00M;
+                        if (dtBatch.Rows.Count > 0)
                         {
-                            dPrice = bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString());
-                            ulistBatch.Add(new InvoiceBatchPopup
+                            for (int j = 0; j < dtBatch.Rows.Count; j++)
                             {
-                                QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
-                                QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
-                                ProdID = DDT.Rows[i]["ID"].ToString(),
-                                BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
-                                PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
-                                ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
-                                ActQty = dtBatch.Rows[j]["Qty"].ToString(),
-                                MRP = dtBatch.Rows[j]["MRP"].ToString(),
-                                SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
-                            });
+                                dPrice = bl.BL_dValidation(dtBatch.Rows[0]["Price"].ToString());
+                                ulistBatch.Add(new InvoiceBatchPopup
+                                {
+                                    QtyType = dtBatch.Rows[j]["QtyType"].ToString(),
+                                    QtyTag = dtBatch.Rows[j]["Tag"].ToString(),
+                                    ProdID = DDT.Rows[i]["ID"].ToString(),
+                                    BatchNo = dtBatch.Rows[j]["BatchNumber"].ToString(),
+                                    PKDDate = dtBatch.Rows[j]["PKDDate"].ToString(),
+                                    ExpiryDate = dtBatch.Rows[j]["ExpiryDate"].ToString(),
+                                    ActQty = dtBatch.Rows[j]["Qty"].ToString(),
+                                    MRP = dtBatch.Rows[j]["MRP"].ToString(),
+                                    SalesPrice = dtBatch.Rows[j]["Price"].ToString(),
+                                });
+                            }
+                            AbsQty = bl.BL_dValidation(dtBatch.Compute("sum(Qty)", "Tag = 1"));
+                            AbsFreeQty = bl.BL_dValidation(dtBatch.Compute("sum(Qty)", "Tag = 2"));
                         }
                         #region Discount Schemme
                         decimal dConvFact = bl.BL_dValidation(DDT.Rows[i]["SalesCR"].ToString());
@@ -297,6 +303,8 @@ namespace SampWebApi.Controllers
                             TrackBatch = DDT.Rows[i]["TrackBatch"].ToString(),
                             TrackInventory = DDT.Rows[i]["TrackInventory"].ToString(),
                             ItemTransactionPrice = DDT.Rows[i]["SalesReturnPrice"].ToString(),
+                            ActQty = AbsQty.ToString(),
+                            ActFreeQty = AbsFreeQty.ToString(),
                             UOMList = ulist,
                             lstInvPopup = ulistBatch,
                             lstReason = ulistreason
@@ -512,6 +520,9 @@ namespace SampWebApi.Controllers
                                     NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
                                     MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                     CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                    AdjQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                    AdjFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                    AdjDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                                     UOMList = ulist,
                                     lstInvPopup = ulistBatch,
                                     lstReason = ulistreason,
@@ -907,6 +918,9 @@ namespace SampWebApi.Controllers
                                 NewBatchCreated = DDT2.Rows[k]["NewBatchCreated"].ToString(),
                                 MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
                                 CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+                                AdjQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                AdjFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                AdjDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
                                 lstTempBatch = ulistTempBatch,
                                 UOMList = ulist,
                                 lstInvPopup = ulistBatch,
