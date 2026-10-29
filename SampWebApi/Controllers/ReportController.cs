@@ -21,6 +21,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Results;
+using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using System.Windows.Interop;
 using System.Xml.Linq;
@@ -416,6 +417,58 @@ namespace SampWebApi.Controllers
                 return result;
             }
             catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Report", "reportscript/get", ex.Message);
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+        [HttpGet]
+        [Route("api/columnsettingssript")]
+        public HttpResponseMessage Getcolumnsettingssript(string FormType, string FormID)
+        {
+            try
+            {
+                string strAppStartPath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"] + "\\Report_Script_Data\\";
+                if (!Directory.Exists(strAppStartPath))
+                {
+                    Directory.CreateDirectory(strAppStartPath);
+                }
+                DataSet dtColsett = bl.BL_ExecuteParamSPDataset("uspColumnsettingsscript", FormType, FormID);
+                string ReportName = !string.IsNullOrEmpty(dtColsett.Tables[0].Rows[0][0].ToString()) ? dtColsett.Tables[0].Rows[0][0].ToString() : "Columnscript";
+                DataTable dt = dtColsett.Tables[1];
+                string strFileName = ReportName + "_" + DateTime.Now.ToString("yyyymmddhhmmss") + ".txt";
+                using (StreamWriter sw = System.IO.File.CreateText(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                {                    
+                        if (dt.Rows.Count > 0)
+                        {
+                            for (int iRow = 0; iRow < dt.Rows.Count; iRow++)
+                            {
+                                if (!string.IsNullOrEmpty(Convert.ToString(dt.Rows[iRow][0]).Trim()))
+                                        sw.WriteLine(Convert.ToString(dt.Rows[iRow][0]).Trim());
+                            }
+                            sw.WriteLine("");
+                        }
+
+                    
+                }
+                Type officeType = Type.GetTypeFromProgID("Excel.Application");
+                var sDocument = System.IO.Path.Combine(strAppStartPath, strFileName);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(sDocument);
+                //return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                if (!System.IO.File.Exists(System.IO.Path.Combine(strAppStartPath, strFileName)))
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK);
+                var stream = new FileStream(System.IO.Path.Combine(strAppStartPath, strFileName), FileMode.Open, FileAccess.Read);
+                result.Content = new StreamContent(stream);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = strFileName
+                };
+                return result;
+            }
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Report", "reportscript/get", ex.Message);
             }
