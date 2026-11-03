@@ -1,36 +1,39 @@
-Run order
+Deploy order
 
-Back up the database.
-Run 04 in a quiet window, then review #IndexLog and the list of tables still without a clustered index.
-Run 05.
-Deploy the API and UI builds together.
-On the server, run Protect-WebConfig.ps1 -SitePath <path> -App Api and then again with -App Ui, both with -DryRun first. It needs the new build already deployed.
-Watch the old-format password count query in 05. Later, force a password reset for anyone who hasn't logged in.
-Still open (flagged, not fixed)
+Deploy the new API and UI builds first.
+Run 04, then 05, then 06 on each database. Schedule 05 in a maintenance window, because building clustered indexes locks each table while it runs.
+Run Migrate-LegacyPasswords.ps1 -Database <db> -DryRun, then run it again without -DryRun.
+Once every database reports "remaining legacy: 0", set AllowLegacyPasswords=false in the API Web.config.
 
-forgotpassword/setpassword has no OTP check and no login check, so anyone with a username and email can set a new password. forgotpassword/validate also returns the OTP to the client. I'd fix these first.
-api/login/get sends the password in the query string.
-App-config passwords (tblAppPasswordSettings) can still be decrypted and are returned by applicationconfig/get (point 1).
+P2 (after P1, same maintenance window is fine)
 
-Point 10 (report procedures)
+Deploy the API/UI build that contains SafeRollback in DALHelper\clsDAL.cs before 09.
+Run 07, then 08, then 09 on each database. All three are safe to re-run.
+  07 replaces 7 posting procedures only where the database has exactly the version it was written for
+     (SHA-256 check); other versions are skipped with a message. On WSHINE_VIG001, 3 of the 7 differ.
+  08 adds 3 date indexes for the stock reports (seconds per index) and fixes one ISNULL filter.
+  09 adds SET NOCOUNT ON / SET XACT_ABORT ON to the procedures (about 1.5 minutes) and guarded
+     transactions to the writer procedures the API calls without one.
+Every procedure that 07/08/09 changes is saved first in dbo.DbaProcBackup.
+10 is optional and changes nothing by default: run section 1 to check blocking; keep
+READ_COMMITTED_SNAPSHOT off (see its header).
 
-Run 06_parameterize_report_procedures.sql after 01 (any time; it does not depend on 04/05).
-Then open each changed report once with and without filters. If one breaks, re-run just that procedure's block from 06_rollback_report_procedures.sql.
+P3 (setup before P1, then ongoing)
 
-Points 11 and 12 (scripts are in Database\Performance)
+Before P1, on production: Deploy\Capture-PerfBaseline.ps1 -Database <db>  (read-only, Query Store).
+  Output goes to D:\ShineBaselines (outside the repo; it contains query text).
+After each deploy, once a few days of normal load have run:
+  Capture-PerfBaseline.ps1 -Database <db> -CompareWith <earlier baseline folder>
+11 is read-only. It lists SELECT *, UNION without ALL and (MAX) columns with a suggested size.
+  Fix these only when a procedure is changed for another reason. Before resizing a column,
+  check its maximum length in every customer database and in the API/UI models.
+12 changes nothing by default. Set @SwitchToFull = 1 only if the business needs point-in-time
+  restore, and register the log backups straight away (otherwise the log file keeps growing):
+  Deploy\Register-BackupTasks.ps1 -Database <db,...> -BackupDir <dir> -WhatIf, then again without -WhatIf
+  (elevated PowerShell). Backups are taken by Deploy\Backup-ShineDatabase.ps1.
 
-Run after 01-06 (07 is built from their versions; procedures that don't match are skipped, never overwritten).
-1. Backup, then 07_functions_and_procedure_hygiene.sql. Check the result sets: everything should be APPLIED; review any SKIPPED/FAILED rows. The last result shows whether fnGetRoundedValue is inlineable.
-2. Retest saves (sales, purchase, collection, payment, journal, delivery, assign invoices, van loading) and a few reports.
-3. In a quiet window: 08_integrity_and_snapshot.sql with @EnableRCSI = 0. Review the SKIPPED foreign keys (orphan rows) and the type report.
-4. When you're ready for non-blocking reads: set @EnableRCSI = 1 in section 4 and run 08 again (exclusive access needed; other sessions' open transactions are rolled back). Watch tempdb.
-Undo: 08_rollback first, then 07_rollback.
+Still needs a decision
 
-Point 5 (rotate secrets) - on each server, after the new API+UI build is deployed
-
-1. Deploy\Protect-WebConfig.ps1 for Api and Ui (-DryRun first). Rotation refuses to run before this.
-2. Create a new Gmail app password for the account in appSettings "email" (keep the old one for now).
-3. If not done yet: Database\Security\03 steps 1-5, so the site uses the dedicated login shineweb_app_login (any temporary password).
-4. Deploy\Rotate-Secrets.ps1 -ApiSitePath <api> -UiSitePath <ui> -RotateJwtKey -RotateSmtpPassword -RotateSqlPassword -DryRun, then without -DryRun, in a quiet moment.
-5. Sign in, send a forgot-password mail, open a few pages. Then revoke the OLD Gmail app password and delete the Web.config.bak-* files.
-Every user has to sign in again after the JWT key changes.
+Mobile tokens: tblMobileLogin.TokenValue is still plain text. A mobile backend outside this repo writes and reads it, so hashing it here would break that app. It needs that team's input.
+SMTP password in the database: if the database mailbox is the same as the Web.config email, you can clear the database copy. Invoice mail then uses the Web.config password.
+Procedures used only by the mobile backend that write data are not changed by 09 (list in 09).
