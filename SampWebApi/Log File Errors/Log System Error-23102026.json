@@ -1,2 +1,3 @@
 {"Date":"23-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"Accounts","FunctionName":"gstreconsiliation/getgstrecon","Error":"Procedure or function 'UspGstReconciliationstatement' expects parameter '@FromDate', which was not supplied.","Timestamp":"23-Oct-2026 11:03:22 AM"},
 {"Date":"23-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/get","Error":"Operand data type nvarchar is invalid for sum operator.","Timestamp":"23-Oct-2026 05:16:27 PM"},
+{"Date":"23-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/getfilterdata","Error":"Invalid column name 'PaymentModeID'.","Timestamp":"23-Oct-2026 07:25:32 PM"},

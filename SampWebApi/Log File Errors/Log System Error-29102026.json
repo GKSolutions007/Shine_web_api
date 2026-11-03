@@ -1,0 +1,4 @@
+{"Date":"29-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/getfilterdata","Error":"Invalid column name 'PaymentModeID'.","Timestamp":"29-Oct-2026 06:56:36 PM"},
+{"Date":"29-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/getfilterdata","Error":"Invalid column name 'PaymentModeID'.","Timestamp":"29-Oct-2026 06:56:53 PM"},
+{"Date":"29-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/getfilterdata","Error":"Invalid column name 'PaymentModeID'.","Timestamp":"29-Oct-2026 06:59:00 PM"},
+{"Date":"29-Oct-2026","LogType":"Error","DataBase":"WSHINE_DEV001_APR2024","FormName":"PurchaseBill","FunctionName":"purchasebill/getfilterdata","Error":"Invalid column name 'PaymentModeID'.","Timestamp":"29-Oct-2026 06:59:13 PM"},
