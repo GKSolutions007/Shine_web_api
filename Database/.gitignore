@@ -1,0 +1,8 @@
+# Full schema export of a customer database: never commit it (this repository is public).
+script.ipynb
+*.ipynb
+
+# Backups and performance baselines contain data / query text
+*.bak
+*.trn
+Baselines/
