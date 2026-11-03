@@ -17,13 +17,16 @@ namespace SampWebApi
         public static void Register(HttpConfiguration config)
         {
             string allowedOrigins = ConfigurationManager.AppSettings["AllowedOrigins"];
-            //if (string.IsNullOrWhiteSpace(allowedOrigins))
-            //{
-            //    // Safe default for local development; specify explicit origins in production via web.config/appSettings
-            //    allowedOrigins = "http://localhost:44327";
-            //}
-            // Web API configuration and services
-            var cors = new EnableCorsAttribute(allowedOrigins, headers: "*", methods: "*") //   Allow only frontend URL
+            // Guard: never pass null/empty to the CORS attribute. A null origin combined with
+            // SupportsCredentials=true is a misconfiguration. If the setting is missing we fail
+            // closed by disallowing cross-origin requests rather than silently allowing all.
+            if (string.IsNullOrWhiteSpace(allowedOrigins))
+            {
+                allowedOrigins = "null"; // effectively disallows CORS until configured
+            }
+            // EnableCorsAttribute accepts a comma-separated list, so multiple environment origins
+            // can be configured in appSettings["AllowedOrigins"] (e.g. "https://a,https://b").
+            var cors = new EnableCorsAttribute(allowedOrigins, headers: "*", methods: "*")
             {
                 SupportsCredentials = true //  Allows cookies to be sent
             };
@@ -42,6 +45,10 @@ namespace SampWebApi
                 defaults: new { id = RouteParameter.Optional }
             );
             config.Filters.Add(new SessionEnabledAttribute());
+            // Safety net: return a proper HTTP 500 + JSON body for any UNCAUGHT exception,
+            // instead of the default HTML error page. Controllers that catch their own
+            // exceptions are unaffected.
+            config.Filters.Add(new SampWebApi.Utility.GlobalExceptionFilter());
             //var cors = new EnableCorsAttribute("*", "*", "*");
         }
     }

@@ -1,0 +1,12 @@
+
+  Shinewebprint -> D:\2026\api\Shine_web_api\Shinewebprint\bin\Release\Shinewebprint.dll
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\UploadFilesController.cs(56,20): warning CS0219: The variable 'dt' is assigned but its value is never used [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Import Utility\clsExportData.cs(618,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\CustomizebillprintController.cs(777,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\EInvoiceEwayController.cs(897,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\AllMastersController.cs(188,55): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\PurchaseReturnController.cs(1193,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\PurchaseOrderController.cs(53,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\ImportexportController.cs(3599,18): warning CS0219: The variable 'IsValid' is assigned but its value is never used [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+D:\2026\api\Shine_web_api\SampWebApi\Controllers\ImportexportController.cs(4427,21): warning CS0162: Unreachable code detected [D:\2026\api\Shine_web_api\SampWebApi\SampWebApi.csproj]
+  SampWebApi -> D:\2026\api\Shine_web_api\SampWebApi\bin\SampWebApi.dll

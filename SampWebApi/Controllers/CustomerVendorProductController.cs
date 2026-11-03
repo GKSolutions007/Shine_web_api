@@ -23,7 +23,6 @@ using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SampWebApi.Controllers
 {

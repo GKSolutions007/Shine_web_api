@@ -12,7 +12,6 @@ using SampWebApi.DALHelper;
 using System.Reflection;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Configuration;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
@@ -27,6 +26,11 @@ namespace SampWebApi.BuisnessLayer
     {
         clsDAL ObjDL = new clsDAL();
         public int strDigits { get; set; }
+
+        // Cache the database name — it never changes at runtime and calling SELECT DB_NAME()
+        // on every log entry is wasteful.
+        private static string _cachedDbName = null;
+        private static readonly object _dbNameLock = new object();
         public DataTable BL_ExecuteParamSP(string strProcedure, params object[] objParams)
         {
             return ObjDL.dl_ExecuteParamSP(strProcedure, objParams);
@@ -34,6 +38,14 @@ namespace SampWebApi.BuisnessLayer
         public DataTable BL_ExecuteSqlQuery(string strquery)
         {
             return ObjDL.dl_ExecuteSqlQuery(strquery);
+        }
+        /// <summary>
+        /// Parameterized ad-hoc query — use instead of concatenating values into BL_ExecuteSqlQuery.
+        /// Reference params as @p0, @p1, ... in the query text.
+        /// </summary>
+        public DataTable BL_ExecuteParamQuery(string strquery, params object[] parameters)
+        {
+            return ObjDL.dl_ExecuteParamQuery(strquery, parameters);
         }
 
         public DataSet BL_ExecuteParamSPDataset(string strProcedure, params object[] objParams)
@@ -43,8 +55,18 @@ namespace SampWebApi.BuisnessLayer
         
         public string BL_DBName()
         {
-            DataTable dtdb = BL_ExecuteSqlQuery("SELECT DB_NAME()");
-            return dtdb.Rows[0][0].ToString();
+            if (_cachedDbName == null)
+            {
+                lock (_dbNameLock)
+                {
+                    if (_cachedDbName == null)
+                    {
+                        DataTable dtdb = BL_ExecuteSqlQuery("SELECT DB_NAME()");
+                        _cachedDbName = dtdb.Rows[0][0].ToString();
+                    }
+                }
+            }
+            return _cachedDbName;
         }
         public string BL_AppConfigValuebyID(int AppID)
         {
@@ -82,63 +104,67 @@ namespace SampWebApi.BuisnessLayer
         {
             return ObjDL.dl_ManageTrans_SC(strStoredProc, obj);
         }
+        // Configurable query timeout (seconds) for the Shinecode DB calls — parity with clsDAL.
+        private static readonly int _scQueryTimeoutSeconds = GetScTimeout();
+        private static int GetScTimeout()
+        {
+            int val;
+            string cfg = ConfigurationManager.AppSettings["QueryTimeoutSeconds"];
+            return int.TryParse(cfg, out val) && val >= 0 ? val : 120;
+        }
         public DataTable ExecuteParamSP_SC(string strSPName, params object[] parameters)
         {
-            string connectionString = DALHelper.clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+            string connectionString = Utility.SecretConfig.ConnectionString("ShinecodeConnection");
             DataTable dt_returnvalue = new DataTable();
-            int Errindex = 0;
             try
             {
                 using (SqlConnection aSqlconnection = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection))
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                 {
                     aSqlconnection.Open();
-                    SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection);
-                    cmd.CommandTimeout = 0;
+                    cmd.CommandTimeout = _scQueryTimeoutSeconds;
                     cmd.CommandType = CommandType.StoredProcedure;
-                    SqlCommandBuilder.DeriveParameters(cmd);
+                    DALHelper.clsDAL.PrepareSpParameters(cmd);   // cached: no catalog round-trip per call
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        Errindex = i;
                         cmd.Parameters[i + 1].Value = parameters[i];
                     }
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    da.Fill(dt_returnvalue);
-                    //aSqlconnection.Close();
+                    try { da.Fill(dt_returnvalue); }
+                    catch (SqlException ex) when (DALHelper.clsDAL.IsSpSignatureMismatch(ex)) { DALHelper.clsDAL.InvalidateSpParameters(cmd); throw; }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return dt_returnvalue;
         }
         public DataSet ExecuteParamSPDataSet_SC(string strSPName, params object[] parameters)
         {
-            string connectionString = DALHelper.clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+            string connectionString = Utility.SecretConfig.ConnectionString("ShinecodeConnection");
             DataSet dt_returnvalue = new DataSet();
-            int Errindex = 0;
             try
             {
                 using (SqlConnection aSqlconnection = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection))
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                 {
                     aSqlconnection.Open();
-                    SqlCommand cmd = new SqlCommand(strSPName, aSqlconnection);
-                    cmd.CommandTimeout = 0;
+                    cmd.CommandTimeout = _scQueryTimeoutSeconds;
                     cmd.CommandType = CommandType.StoredProcedure;
-                    SqlCommandBuilder.DeriveParameters(cmd);
+                    DALHelper.clsDAL.PrepareSpParameters(cmd);   // cached: no catalog round-trip per call
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        Errindex = i;
                         cmd.Parameters[i + 1].Value = parameters[i];
                     }
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    da.Fill(dt_returnvalue);
-                    //aSqlconnection.Close();
+                    try { da.Fill(dt_returnvalue); }
+                    catch (SqlException ex) when (DALHelper.clsDAL.IsSpSignatureMismatch(ex)) { DALHelper.clsDAL.InvalidateSpParameters(cmd); throw; }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return dt_returnvalue;
         }
@@ -235,7 +261,7 @@ namespace SampWebApi.BuisnessLayer
                 //}
                 HostName = ConfigurationManager.AppSettings["smtphost"].ToString();// "smtp.gmail.com";
                 EMail = ConfigurationManager.AppSettings["email"].ToString();// "shineasst@gmail.com";
-                Pwd = clsEncryptDecrypt.Decrypt(ConfigurationManager.AppSettings["passkey"].ToString());// "mmjs bxlv sqgp pivo";
+                Pwd = Utility.SecretConfig.AppSecret("passkey");
                 if (!string.IsNullOrEmpty(HostName) && !string.IsNullOrEmpty(EMail) && !string.IsNullOrEmpty(Pwd))
                 {                    
                     MailMessage message = new MailMessage();
@@ -254,8 +280,6 @@ namespace SampWebApi.BuisnessLayer
                     smtp.Host = HostName;// "smtp.gmail.com"; //for gmail host  
                     smtp.EnableSsl = true;
                     smtp.UseDefaultCredentials = false;
-                    //smtp.Credentials = new NetworkCredential("gks.helpdesk@gmail.com", "mkolocmylhzuuvdk");
-                    //smtp.Credentials = new NetworkCredential("vipassana.pveasllp@gmail.com", "eyilfwmebqgydnjg");//pveasllp@2021
                     smtp.Credentials = new NetworkCredential(EMail, Pwd);
                     smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
 
@@ -268,15 +292,11 @@ namespace SampWebApi.BuisnessLayer
                     //BL_WriteErrorMsginLog("BL", "Mail Send", "E-Mail config details are empty in App Config. You should give the details there.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MailSend = false;
                 //BL_WriteErrorMsginLog("BL", "Mail Send - Exception", ex.Message);
-                throw ex;
-            }
-            finally
-            {
-
+                throw; // preserve original stack trace
             }
             return MailSend;
         }
@@ -361,33 +381,26 @@ namespace SampWebApi.BuisnessLayer
                 throw;
             }
         }
+        /// <summary>
+        /// Kept for backward compatibility — delegates to ConvertListToDataTable.
+        /// Use ConvertListToDataTable directly in new code.
+        /// </summary>
         public DataTable listConvertToDataTable<T>(List<T> items)
         {
-            DataTable dataTable = new DataTable(typeof(T).Name);
-            //Get all the properties
-            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            foreach (PropertyInfo prop in Props)
-            {
-                //Setting column names as Property names
-                dataTable.Columns.Add(prop.Name);
-            }
-            foreach (T item in items)
-            {
-                var values = new object[Props.Length];
-                for (int i = 0; i < Props.Length; i++)
-                {
-                    //inserting property values to datatable rows
-                    values[i] = Props[i].GetValue(item, null);
-                }
-                dataTable.Rows.Add(values);
-            }
-            //put a breakpoint here and check datatable
-            return dataTable;
+            return ConvertListToDataTable(items);
         }
         public void BL_WriteErrorMsginLog(string strfrmName, string strmsg, string errors,string LogType = "Error")
         {
             //int Error = System.Runtime.InteropServices.Marshal.GetExceptionCode();            
-            BL_LogFileWrite(LogType + "|" + strfrmName + "|" + strmsg + "|" + errors);
+            try
+            {
+                BL_LogFileWrite(LogType + "|" + strfrmName + "|" + strmsg + "|" + errors);
+            }
+            catch
+            {
+                // Swallow logger failures silently — a logging error must never mask the original
+                // application exception that triggered the log call.
+            }
         }
         //LOG SYSTEM ERROR MESSAGE
         public void BL_LogFileWrite(string message)
@@ -396,11 +409,14 @@ namespace SampWebApi.BuisnessLayer
             StreamWriter streamWriter = null;
             try
             {
+                // Log folder: use the configured SupportFilePath when provided, otherwise fall
+                // back to the web app's base directory. (Previously the SupportFilePath-derived
+                // path was computed and then immediately overwritten, so the setting had no effect.)
                 string logFilePath = System.Configuration.ConfigurationManager.AppSettings["SupportFilePath"];
-                DirectoryInfo parentDir = Directory.GetParent(logFilePath.EndsWith("\\") ? logFilePath : string.Concat(logFilePath, "\\"));
-                var myParentDir = parentDir.Parent.FullName;
-                string strFol = myParentDir + "\\Log File Errors\\";
-                strFol = AppDomain.CurrentDomain.BaseDirectory + "\\Log File Errors\\";
+                string baseFolder = !string.IsNullOrWhiteSpace(logFilePath)
+                    ? (logFilePath.EndsWith("\\") ? logFilePath : logFilePath + "\\")
+                    : AppDomain.CurrentDomain.BaseDirectory + "\\";
+                string strFol = baseFolder + "Log File Errors\\";
                 strFol = strFol + "Log System Error" + "-" + DateTime.Today.ToString("ddMMyyyy") + "." + "json";
                 string DB = BL_DBName();
                 string[] Msgs = message.Split(new char[] { '|' });
@@ -497,10 +513,6 @@ namespace SampWebApi.BuisnessLayer
                 return (false);
 
         }
-        public bool BL_Numeric(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = ((e.KeyChar < '0' || e.KeyChar > '9') && e.KeyChar != '\b' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
         public bool BL_Numeric(string txtvalue)
         {
             if (txtvalue.ToString().All(char.IsDigit))
@@ -522,9 +534,9 @@ namespace SampWebApi.BuisnessLayer
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return false;
         }
@@ -538,9 +550,9 @@ namespace SampWebApi.BuisnessLayer
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return false;
         }
@@ -579,26 +591,9 @@ namespace SampWebApi.BuisnessLayer
                 // MessageBox.Show("Enter Numeric or decimal with 2 Digit", " Validation Error ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false);
         }
-        public bool BL_AlphaNumeric(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = (!char.IsLetterOrDigit(e.KeyChar) && e.KeyChar != '\b' && e.KeyChar != ' ' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
-        public bool BL_Alpha(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = (!char.IsLetter(e.KeyChar) && e.KeyChar != '\b' && e.KeyChar != ' ' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
-        public bool BL_AlphaWithoutSpace(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = (!char.IsLetter(e.KeyChar) && e.KeyChar != '\b' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
-        public bool BL_AlphaNumerWoSpaceWSlash(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = ((!char.IsLetter(e.KeyChar) && !char.IsNumber(e.KeyChar)) && e.KeyChar != '/' && e.KeyChar != '\b' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
-        public bool BL_AlphaNumerWoSpaceWHyphonSlashComma(object sender, KeyPressEventArgs e)
-        {
-            return e.Handled = ((!char.IsLetter(e.KeyChar) && !char.IsNumber(e.KeyChar)) && e.KeyChar != '/' && e.KeyChar != '-' && e.KeyChar != ',' && e.KeyChar != '\b' && e.KeyChar != '\r' && e.KeyChar != '\u001b');
-        }
+        // Note: BL_AlphaNumeric(object sender, KeyPressEventArgs), BL_Alpha(object sender, KeyPressEventArgs),
+        // BL_AlphaWithoutSpace and BL_AlphaNumerWoSpaceWSlash WinForms overloads removed — they depend on
+        // System.Windows.Forms which has no role in a web API server process.
         public bool BL_Dateonly(string txtvalue)
         {
             string strRegex = @"^(0[1-9]|[12][0-9]|3[01])[-/.](0[1-9]|1[012])[- /.](19|20)\d\d$";
@@ -713,9 +708,9 @@ namespace SampWebApi.BuisnessLayer
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return bIsDate;
         }
@@ -845,7 +840,8 @@ namespace SampWebApi.BuisnessLayer
         public bool IsNumvericValue(string Value)
         {
             bool IsNumeric = false;
-            DataTable dt = this.BL_ExecuteSqlQuery("SELECT ISNUMERIC('" + Value + "')");
+            // Value comes from user-typed document ranges; pass it as a parameter (was concatenated -> SQL injection).
+            DataTable dt = this.BL_ExecuteParamQuery("SELECT ISNUMERIC(@p0)", Value ?? string.Empty);
             if (dt.Rows.Count > 0)
             {
                 IsNumeric = dt.Rows[0][0].ToString() == "1";

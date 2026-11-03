@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace SampWebApi.Import_Utility
 {
@@ -112,9 +111,9 @@ namespace SampWebApi.Import_Utility
                     excel.Quit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             finally
             {
@@ -529,7 +528,6 @@ public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSe
                         }
                         // Added By Sriram G
                         // Excel Cell Value Decimal Should be RoundOff 6 Digits
-                        decimal dOutValue = 0.00M;
                         string strCellValue = GetValue(docSelected, cell);
                         //if (!string.IsNullOrEmpty(strCellValue))
                         //{
@@ -592,7 +590,6 @@ public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSe
                         }
                         // Added By Sriram G
                         // Excel Cell Value Decimal Should be RoundOff 6 Digits
-                        decimal dOutValue = 0.00M;
                         string strCellValue = GetValue(docSelected, cell);                        
                         dCheck.Rows[dCheck.Rows.Count - 1][nCount] = strCellValue;
                         nCount++;
@@ -618,7 +615,6 @@ public void AddingHelptoExcel(string strFileLocation, int HelpSheetIndex, DataSe
                 if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
                 {
                     return doc.WorkbookPart.SharedStringTablePart.SharedStringTable.ChildElements[(int.Parse(cell.CellValue.InnerText))].InnerText;
-                    return null;
                 }
                 else
                 if (cell.StyleIndex != null)

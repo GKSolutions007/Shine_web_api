@@ -308,7 +308,6 @@ namespace SampWebApi.Controllers
                                     ConversionRate = DDT3.Rows[l]["ConversionRate"].ToString(),
                                 });
                             }
-                            string asdf = "";
                             list.Add(new PurchaseModel
                             {
                                 ID = DDT.Rows[i]["ID"].ToString(),
@@ -414,7 +413,7 @@ namespace SampWebApi.Controllers
                 if (Mode == "16")
                 {
                     string trkPKD = "False", trkBATCH = "False", trkTrkInv = "True";
-                    DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory,PurchaseTaxID,MT.GST from tblMasterProduct MP JOIN tblMasterTax MT ON MT.TaxID = MP.PurchaseTaxID WHERE MP.ID = " + CodeName);
+                    DataTable dtProdinfo = bl.BL_ExecuteParamQuery("select TrackBatch,TrackPDK,TrackInventory,PurchaseTaxID,MT.GST from tblMasterProduct MP JOIN tblMasterTax MT ON MT.TaxID = MP.PurchaseTaxID WHERE MP.ID = @p0", CodeName);
                     if (dtProdinfo.Rows.Count > 0)
                     {
                         trkPKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
@@ -587,7 +586,6 @@ namespace SampWebApi.Controllers
                                 ConversionRate = DDT3.Rows[l]["ConversionRate"].ToString(),
                             });
                         }
-                        string asdf = "";
                         list.Add(new PurchaseModel
                         {
                             ID = DDT.Rows[i]["ID"].ToString(),
@@ -802,8 +800,7 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                string BranchID = "", PriceType = "", ProdID = "", TransDate = "", PRID = "";
-                decimal GoodsAmt = 0;
+                string BranchID = "", PriceType = "", TransDate = "", PRID = "";
                 var ManufProdData = new List<object>();
                 
                 DataTable dtBatches = bl.BL_ExecuteParamSP("uspGetPRProductIntoryBatch", BranchID, TransDate, PriceType, PRID);
@@ -914,7 +911,7 @@ namespace SampWebApi.Controllers
                                             {
                                                 dtGSTInfo.Rows.Clear();
                                                 //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
-                                                decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
+                                                //dUomTax = bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
                                                                     //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
 
                                                 decimal dQty = (bl.BL_dValidation(iRow["DmgQty"].ToString()) + bl.BL_dValidation(iRow["Qty"].ToString()));
@@ -1094,7 +1091,7 @@ namespace SampWebApi.Controllers
                                         foreach (DataRow iRow in dr)
                                         {
                                             //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
-                                            decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
+                                            //dUomTax = bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
                                                                 //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
 
                                             decimal dQty = (bl.BL_dValidation(iRow["DmgQty"].ToString()) + bl.BL_dValidation(iRow["Qty"].ToString()));
@@ -1193,7 +1190,6 @@ namespace SampWebApi.Controllers
                             return Ok(list);
                         }
                     }
-                    return Ok(0);
                 }
             }
             catch(Exception ex)

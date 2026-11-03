@@ -32,7 +32,17 @@ namespace SampWebApi.Controllers
     public class AllMastersController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connections"].ConnectionString);
+        // Lazy-evaluated: decryption only runs when an action actually opens a raw SqlConnection.
+        private string _connectionString;
+        private string connectionString
+        {
+            get
+            {
+                if (_connectionString == null)
+                    _connectionString = SampWebApi.Utility.SecretConfig.ConnectionString("Connections");
+                return _connectionString;
+            }
+        }
         [HttpGet]
         [Route("api/homescreendraft/get")]
         public IHttpActionResult GetData(string Mode, string Trans,string ID ="1")
@@ -174,7 +184,7 @@ namespace SampWebApi.Controllers
             {
                 DataTable dtDoc = bl.BL_ExecuteParamSP("uspGetIDfromDocIDforQuickAccess", TransID, strDocID);
                 List<SaveMessage> listProd = new List<SaveMessage>();
-                for (int i = 0; i < dtDoc.Rows.Count; i++)
+                if (dtDoc.Rows.Count > 0)
                 {
                     listProd.Add(new SaveMessage()
                     {
@@ -182,13 +192,15 @@ namespace SampWebApi.Controllers
                         MsgID = "0",
                         ID = HttpUtility.UrlEncode(clsEncryptDecrypt.Encrypt(dtDoc.Rows[0]["ID"].ToString())),
                     });
-                    return Ok(listProd);
                 }
-                listProd.Add(new SaveMessage()
+                else
                 {
-                    Message = "No document found for this Doc ID",
-                    MsgID = "1",
-                });
+                    listProd.Add(new SaveMessage()
+                    {
+                        Message = "No document found for this Doc ID",
+                        MsgID = "1",
+                    });
+                }               
                 return Ok(listProd);
             }
             catch(Exception ex)
@@ -2784,7 +2796,7 @@ namespace SampWebApi.Controllers
             catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Backup", "Powershellzip", ex.Message);
-                throw ex;
+                throw; // preserve original stack trace
             }
         }
 

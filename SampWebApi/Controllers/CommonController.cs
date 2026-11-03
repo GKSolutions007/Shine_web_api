@@ -134,7 +134,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction(2);
                     fileList.Add(new
                     {                        
-                        MsgID = 1,
+                        MsgID = "1",
                         Message = dtMTdetail.Rows[0][0].ToString(),                        
                     });
                 }
@@ -143,7 +143,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction(3);
                     fileList.Add(new
                     {
-                        MsgID = 0,
+                        MsgID = "0",
                         Message = "Valid document",
                     });
                 }
@@ -178,7 +178,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction(3);
                     fileList.Add(new
                     {                        
-                        MsgID = 2,
+                        MsgID = "2",
                         Message = dtMTdetail.Rows[0][0].ToString(),
                     });
                 }
@@ -201,7 +201,8 @@ namespace SampWebApi.Controllers
                 var fileList = new List<object>();
                 if (dtMTdetail.Rows.Count == 0)
                 {
-                    DataTable dtSCcheck = bl.bl_ManageTrans_SC("uspgetMasterdata", 5, TransID, ID, Shinecode);
+                    // Run the Shinecode master cleanup within the same transaction before commit.
+                    bl.bl_ManageTrans_SC("uspgetMasterdata", 5, TransID, ID, Shinecode);
                     bl.bl_Transaction_SC(2);
                     fileList.Add(new
                     {
@@ -214,7 +215,7 @@ namespace SampWebApi.Controllers
                     bl.bl_Transaction_SC(3);
                     fileList.Add(new
                     {
-                        MsgID = 2,
+                        MsgID = "2",
                         Message = dtMTdetail.Rows[0][0].ToString(),
                     });
                 }

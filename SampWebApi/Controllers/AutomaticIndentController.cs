@@ -239,7 +239,6 @@ namespace SampWebApi.Controllers
                                     POopen = POcount,
                                 });
                             }
-                            string asdf = "";
                             list.Add(new PurchaseModel
                             {
                                 ID = DDT.Rows[i]["ID"].ToString(),

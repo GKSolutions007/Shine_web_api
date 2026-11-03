@@ -23,7 +23,7 @@ namespace SampWebApi.Controllers
     public class ShinecodesController : ApiController
     {
         clsBusinessLayer objBL = new clsBusinessLayer();
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["ShinecodeConnection"].ConnectionString);
+        string connectionString = SampWebApi.Utility.SecretConfig.ConnectionString("ShinecodeConnection");
 
         public string strExtension = ".xlsx";
         public string strFileName = "";
@@ -310,8 +310,6 @@ namespace SampWebApi.Controllers
         }
         public List<ImportResults> RunTransactionImport(string jobId, string TransID, string TransName, string UserID, List<FileData> httpFile)
         {
-            string Msg = "";
-            string dt = "";
             List<ImportResults> MTM = new List<ImportResults>();
             clsExportData clsExport = new clsExportData();
             var job = ExportJobManager.Jobs[jobId];
@@ -324,7 +322,6 @@ namespace SampWebApi.Controllers
                 //var data = Request.Files[0].InputStream.Read;                                                       
                 if (httpFile.Count > 0)
                 {
-                    string fileName = "";
                     job.Progress = 10;
                     job.ProgressMessage = "Read file data..."; //Thread.Sleep(3000);
                                                                //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "Upload Files\\";
@@ -349,7 +346,6 @@ namespace SampWebApi.Controllers
                     job.ProgressMessage = "File saved successfully..."; //Thread.Sleep(3000);
                     bool blHeaderResult = true, blItemsResult = true;
                     List<string> lstHeader = null;
-                    List<string> lstItems = null;
 
                     ImportFieldValidations importValidations = new ImportFieldValidations();
                     job.Progress = 30;
@@ -430,7 +426,7 @@ namespace SampWebApi.Controllers
                                 job.ProgressMessage = "Validate Data..."; //Thread.Sleep(3000);
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
-                                bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                bool NoErrorsinHeader = true;
 
                                 #region Get Shine Code Duplicatevalues
                                 List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
@@ -575,7 +571,7 @@ namespace SampWebApi.Controllers
                                 job.ProgressMessage = "Validate Data..."; //Thread.Sleep(3000);
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
-                                bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                bool NoErrorsinHeader = true;
                                 #region Get Shine Code Duplicatevalues
                                 List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
                                         .GroupBy(r => r.Field<string>("Shine Code *"))
@@ -718,7 +714,7 @@ namespace SampWebApi.Controllers
                                 job.ProgressMessage = "Validate Data..."; //Thread.Sleep(3000);
                                 int currentProgress = job.Progress;
                                 int nIndex = 1;
-                                bool NoErrorsinHeader = true, NoErrorsinItems = true;
+                                bool NoErrorsinHeader = true;
                                 #region Get Shine Code Duplicatevalues
                                 List<string> duplicateShinecodes = dtHeaderData.AsEnumerable()
                                         .GroupBy(r => r.Field<string>("Shine Code *"))

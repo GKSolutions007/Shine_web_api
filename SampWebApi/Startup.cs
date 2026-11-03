@@ -159,7 +159,9 @@ namespace SampWebApi
 
         public void ConfigureOAuth(IAppBuilder app)
         {
-            var key = Encoding.UTF8.GetBytes("yPqB3dmFXNfJg6X1W/JzNX4A2Sc6sZ7Q7+p2lYxPrCY="); // Use a secure key
+            // Use the SAME key source as JwtSettings/CookieAuthorizeAttribute so tokens minted
+            // here (if OWIN OAuth is ever enabled) validate against the live auth pipeline.
+            var key = SampWebApi.Utility.JwtSettings.GetKey();
             string APIurl = ConfigurationManager.AppSettings["ValidIssuer"].ToString();
             string url = ConfigurationManager.AppSettings["ValidAudience"].ToString();
 

@@ -32,7 +32,10 @@ namespace SampWebApi.Utility
                 identity.AddClaim(new Claim("role", "admin"));
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes("yPqB3dmFXNfJg6X1W/JzNX4A2Sc6sZ7Q7+p2lYxPrCY=");
+                // Use the SAME signing key as JwtSettings (the one CookieAuthorizeAttribute
+                // validates against). Previously this used a different hardcoded key, which
+                // would make any token minted here fail validation if this provider were enabled.
+                var key = JwtSettings.GetKey();
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {

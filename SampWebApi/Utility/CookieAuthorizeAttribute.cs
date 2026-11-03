@@ -18,13 +18,18 @@ namespace SampWebApi.Utility
         protected override bool IsAuthorized(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
             var cookie = HttpContext.Current.Request.Cookies["AuthToken"];
+            if (cookie == null || string.IsNullOrEmpty(cookie.Value))
+                return false;
+
             if (cookie != null)
             {
                 var token = cookie.Value;
                 var AuthTokenValidate = _refreshTokenRepo.GetAuthToken(token);
+                // IsRevoked = true means the session has been ended (revoked/logged-out).
+                // A valid active session has IsRevoked = false.
                 if (AuthTokenValidate == null || AuthTokenValidate.AuthTokenExpiresAt <= DateTime.Now || !AuthTokenValidate.IsRevoked)
                 {
-                    //bl.BL_WriteErrorMsginLog("CookieAuthorize", "IsAuthorized", token);
+                    //bl.BL_WriteErrorMsginLog("CookieAuthorize", "IsAuthorized", "Token invalid, expired, or revoked for token: " + token?.Substring(0, Math.Min(20, token.Length)));
                     return false;
                 }
                 var TrustDevice = HttpContext.Current.Request.Cookies["DeviceID"];
@@ -40,7 +45,6 @@ namespace SampWebApi.Utility
                 var Issuer = JwtSettings.Issuer;
                 var Audience = JwtSettings.Audience;
                 var key = JwtSettings.GetKey();
-                //var key = Encoding.UTF8.GetBytes("yPqB3dmFXNfJg6X1W/JzNX4A2Sc6sZ7Q7+p2lYxPrCY=");
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var validationParameters = new TokenValidationParameters

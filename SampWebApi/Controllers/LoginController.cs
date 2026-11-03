@@ -31,7 +31,60 @@ namespace SampWebApi.Controllers
     public class LoginController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connections"].ConnectionString);
+        // Lazy-evaluated: decryption only runs in actions that open a raw SqlConnection.
+        private string _connectionString;
+        private string connectionString
+        {
+            get
+            {
+                if (_connectionString == null)
+                    _connectionString = SecretConfig.ConnectionString("Connections");
+                return _connectionString;
+            }
+        }
+
+        // Hash used when the user name does not exist, so a wrong user name takes as long as a
+        // wrong password (otherwise response time reveals which user names exist).
+        private static readonly Lazy<string> _dummyHash = new Lazy<string>(() => PasswordHasher.Hash(Guid.NewGuid().ToString()));
+
+        /// <summary>
+        /// Verifies a login password against tblUsers. Accepts PBKDF2 hashes and, for users not yet
+        /// migrated, the legacy encrypted value; a legacy (or weaker) value is replaced with a new
+        /// hash on success. Returns the stored value to pass to uspManageUsers mode 6, or null.
+        /// </summary>
+        private string VerifyLoginPassword(string userName, string password)
+        {
+            DataTable dt = bl.BL_ExecuteParamSP("uspGetUserCredential", userName);
+            bool unused;
+            if (dt.Rows.Count == 0)
+            {
+                PasswordHasher.Verify(password, _dummyHash.Value, out unused);
+                return null;
+            }
+            foreach (DataRow row in dt.Rows)
+            {
+                string stored = row["Password"].ToString();
+                bool needsRehash;
+                if (!PasswordHasher.Verify(password, stored, out needsRehash)) continue;
+                if (needsRehash)
+                {
+                    string newHash = PasswordHasher.Hash(password);
+                    try
+                    {
+                        DataTable upd = bl.BL_ExecuteParamSP("uspSetUserPasswordHash", row["ID"], stored, newHash);
+                        if (upd.Rows.Count > 0 && Convert.ToInt32(upd.Rows[0][0]) == 1)
+                            stored = newHash;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Login still succeeds with the legacy value; the upgrade is retried next time.
+                        bl.BL_WriteErrorMsginLog("Login", "password hash upgrade", ex.Message);
+                    }
+                }
+                return stored;
+            }
+            return null;
+        }
         [CookieAuthorize]
         [HttpGet]
         [Route("api/signup/get")]
@@ -66,7 +119,9 @@ namespace SampWebApi.Controllers
                             ID = DDT.Rows[i]["ID"].ToString(),
                             UserName = DDT.Rows[i]["UserName"].ToString(),
                             Active = DDT.Rows[i]["Active"].ToString(),
-                            Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
+                            // Passwords are stored as one-way hashes and are never sent to the browser.
+                            // The edit form leaves the field blank; blank on save keeps the current password.
+                            Password = "",
                             Mobilenumber = DDT.Rows[i]["Mobilenumber"].ToString(),
                             EMailID = DDT.Rows[i]["EMailID"].ToString(),
                             RoleID = DDT.Rows[i]["RoleID"].ToString(),
@@ -117,10 +172,18 @@ namespace SampWebApi.Controllers
                     sqlConnection.Open();
                     SqlCommand sqlCommand = new SqlCommand("uspManageUsers", sqlConnection);
                     sqlCommand.CommandType = CommandType.StoredProcedure;
+                    // Store a one-way PBKDF2 hash. On edit (Mode 2) an empty password means
+                    // "keep the current one" (uspManageUsers mode 2 keeps it when @Password is NULL).
+                    bool noPassword = string.IsNullOrEmpty(lstMaster.Password);
+                    if (noPassword && lstMaster.Mode != "2")
+                    {
+                        sqlConnection.Close();
+                        return Ok(new List<SaveMessage> { new SaveMessage { ID = "0", MsgID = "1", Message = "Password should not be empty" } });
+                    }
                     sqlCommand.Parameters.AddWithValue("@Mode", lstMaster.Mode);
                     sqlCommand.Parameters.AddWithValue("@ID", lstMaster.ID);
                     sqlCommand.Parameters.AddWithValue("@UserName", lstMaster.UserName);
-                    sqlCommand.Parameters.AddWithValue("@Password", clsEncryptDecrypt.Encrypt(lstMaster.Password));
+                    sqlCommand.Parameters.AddWithValue("@Password", noPassword ? (object)DBNull.Value : PasswordHasher.Hash(lstMaster.Password));
                     sqlCommand.Parameters.AddWithValue("@Mobilenumber", lstMaster.Mobilenumber);
                     sqlCommand.Parameters.AddWithValue("@EMailID", lstMaster.EMailID);
                     sqlCommand.Parameters.AddWithValue("@RoleID", lstMaster.RoleID);
@@ -383,7 +446,12 @@ namespace SampWebApi.Controllers
             {
                 if (!string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password))
                 {
-                    DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 6, 0, UserName, clsEncryptDecrypt.Encrypt(Password));
+                    // Verify the password in C# (PBKDF2; legacy values are upgraded to a hash here),
+                    // then load the user row with the verified stored value exactly as before.
+                    string storedPassword = VerifyLoginPassword(UserName, Password);
+                    DataTable DDT = storedPassword == null
+                        ? new DataTable()
+                        : bl.BL_ExecuteParamSP("uspManageUsers", 6, 0, UserName, storedPassword);
                     List<Users> list = new List<Users>();
                     if (DDT.Rows.Count > 0)
                     {
@@ -497,8 +565,15 @@ namespace SampWebApi.Controllers
                                 string CompCode = dtCompData.Rows[0]["CompanyCode"].ToString();
                                 string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                                 string LoginUserName = DDT.Rows[0]["UserName"].ToString();
-                                Random random = new Random();
-                                int OTP = random.Next(100000, 999999);
+                                // Use cryptographically secure RNG — System.Random is clock-seeded
+                                // and can produce the same OTP for concurrent requests.
+                                int OTP;
+                                using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+                                {
+                                    byte[] bytes = new byte[4];
+                                    rng.GetBytes(bytes);
+                                    OTP = 100000 + (int)(BitConverter.ToUInt32(bytes, 0) % 900000);
+                                }
                                 #region Body Mail Content
                                 string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) && !string.IsNullOrWhiteSpace(Longitude)) ? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank"">Open Location </a>" : "Location Not Found";
                                 string MailBody = GetDeviceVerificationMailBody("Device", LoginUserName, OTP.ToString(), CompCode, CompName, locationHtml);
@@ -543,8 +618,15 @@ namespace SampWebApi.Controllers
                             string CompCode = dtCompData.Rows[0]["CompanyCode"].ToString();
                             string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                             string LoginUserName = DDT.Rows[0]["UserName"].ToString();
-                            Random random = new Random();
-                            int OTP = random.Next(100000, 999999);
+                            // Use cryptographically secure RNG — System.Random is clock-seeded
+                            // and can produce the same OTP for concurrent requests.
+                            int OTP;
+                            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+                            {
+                                byte[] bytes = new byte[4];
+                                rng.GetBytes(bytes);
+                                OTP = 100000 + (int)(BitConverter.ToUInt32(bytes, 0) % 900000);
+                            }
                             #region Body Mail Content
                             string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) &&
     !string.IsNullOrWhiteSpace(Longitude)) ? $@"<a href=""https://www.google.com/maps?q={Latitude},{Longitude}"" target=""_blank""> Open Location </a>" : "Location Not Found";
@@ -865,8 +947,8 @@ Open Location </a>"
             return Ok();
         }
         [HttpGet]
-        [Route("api/resetlogin")]
-        public IHttpActionResult resetlogin(string token,string sessionid)
+        [Route("api/resetlogin_old")]
+        public IHttpActionResult resetlogin_old(string token,string sessionid)
         {
             try
             {
@@ -879,7 +961,24 @@ Open Location </a>"
             }
             return Ok();
         }
-
+        [HttpGet]
+        [Route("api/resetlogin")]
+        public IHttpActionResult resetlogin()
+        {
+            try
+            {
+                var token = HttpContext.Current.Request.Headers["X-Auth-Token"];
+                
+                var sessionid = HttpContext.Current.Request.Headers["X-Session-Id"];
+                bl.BL_ExecuteParamSP("uspUpdateRefreshToken", 2, token);
+                bl.BL_ExecuteParamSP("uspSaveLoginHistory", 2, 0, sessionid);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Login", "resetlogin", ex.Message);
+            }
+            return Ok();
+        }
         [HttpGet]
         [Route("api/forgotpassword/validate")]
         public IHttpActionResult GetFGuserData(string UserName, string Email)
@@ -917,7 +1016,9 @@ Open Location </a>"
             try
             {
 
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 9, 0, UserName, clsEncryptDecrypt.Encrypt(Password),
+                if (string.IsNullOrEmpty(Password))
+                    return Ok(new List<SaveMessage> { new SaveMessage { MsgID = "1", Message = "Password should not be empty" } });
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 9, 0, UserName, PasswordHasher.Hash(Password),
                     null, Email);
                 List<SaveMessage> list = new List<SaveMessage>();
                 //if (DDT.Rows.Count > 0)

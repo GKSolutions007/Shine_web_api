@@ -385,7 +385,6 @@ namespace SampWebApi.Controllers
                                     });
                                 }
                             }
-                            string asdf = "";
                             list.Add(new PurchaseModel
                             {
                                 ID = DDT.Rows[i]["ID"].ToString(),
@@ -707,7 +706,7 @@ namespace SampWebApi.Controllers
 
                             List<PurchaseModel> list = new List<PurchaseModel>();
                             string strPrefix = "";
-                            DataTable dtPrefix = bl.BL_ExecuteSqlQuery("select dbo.fnTransactionPrefix('" + Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd") + "'," + nBranchID + ",1)");
+                            DataTable dtPrefix = bl.BL_ExecuteParamQuery("select dbo.fnTransactionPrefix(@p0, @p1, 1)", Convert.ToDateTime(dtHeader.Rows[0]["DocDate"].ToString()).ToString("yyyy-MM-dd"), nBranchID);
                             if(dtPrefix.Rows.Count > 0)
                             {
                                 strPrefix = dtPrefix.Rows[0][0].ToString();

@@ -36,9 +36,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Web.Util;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -47,8 +45,10 @@ namespace SampWebApi.Controllers
     public class InvoiceController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();
-        DataTable dtPMDetail = new DataTable(), dtPopUpDetail = new DataTable(), dtGSTInfo = new DataTable(), dtProd = new DataTable(), dtDocument = new DataTable(), dtSerialInfo = new DataTable(),
-            dtMop = new DataTable();
+        // DataTables that were previously declared as instance fields have been moved to
+        // method-local scope inside the actions that use them. Instance-level DataTables
+        // allocate memory on every request (even GETs that never use them) and could
+        // bleed state between requests if the controller were ever reused.
         [HttpGet]
         [Route("api/invoice/get")]
         public IHttpActionResult GetData(string Mode, string CodeName, string ID = null, string BranchID = "0", string Date = "",
@@ -1215,7 +1215,6 @@ namespace SampWebApi.Controllers
                                 }
                             }
                             #endregion
-                            string detailstart = "";
                             listProductGrid.Add(new SalesDetail
                             {
                                 ProdID = DDT2.Rows[k]["ProdID"].ToString(),
@@ -1258,7 +1257,6 @@ namespace SampWebApi.Controllers
                                 lstReason = listReasons
                             });
                         }
-                        string headerstart = "";
                         list.Add(new SalesModel
                         {
                             //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
@@ -1638,6 +1636,12 @@ namespace SampWebApi.Controllers
         [Route("api/invoice/save")]
         public IHttpActionResult Save(SalesModel listTrans)
         {
+            // These DataTables are declared locally so they are allocated only when Save
+            // is called, and are not shared across requests.
+            DataTable dtPMDetail = new DataTable(), dtPopUpDetail = new DataTable(),
+                      dtGSTInfo = new DataTable(), dtProd = new DataTable(),
+                      dtDocument = new DataTable(), dtSerialInfo = new DataTable(),
+                      dtMop = new DataTable();
             try
             {
                 if (listTrans != null)
@@ -1757,7 +1761,7 @@ namespace SampWebApi.Controllers
                             if (nProdID > 0)
                             {
                                 //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
-                                decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
+                                //dUomTax = bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
                                                     //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
                                 DataRow dtRow = dtProd.NewRow();
 

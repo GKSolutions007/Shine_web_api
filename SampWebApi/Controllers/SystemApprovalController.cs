@@ -1,5 +1,4 @@
-﻿using BuinessLayer;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SampWebApi.BuisnessLayer;
 using SampWebApi.Models;
 using SampWebApi.Utility;

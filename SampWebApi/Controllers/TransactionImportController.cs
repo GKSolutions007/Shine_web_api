@@ -18,10 +18,10 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using static iTextSharp.text.pdf.qrcode.Version;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
+    [SampWebApi.Utility.CookieAuthorize]
     public class TransactionImportController : ApiController
     {
         clsBusinessLayer objBL = new clsBusinessLayer();
@@ -330,8 +330,6 @@ namespace SampWebApi.Controllers
         }
         public List<ImportResults> RunTransactionImport(string jobId, string TransID,string TransName, string UserID, List<FileData> httpFile)
         {
-            string Msg = "";
-            string dt = "";
             List<ImportResults> MTM = new List<ImportResults>();
             clsExportData clsExport = new clsExportData();
             var job = ExportJobManager.Jobs[jobId];
@@ -344,7 +342,6 @@ namespace SampWebApi.Controllers
                 //var data = Request.Files[0].InputStream.Read;                                                       
                 if (httpFile.Count  > 0)
                 {
-                    string fileName = "";                                        
                     job.Progress = 10;
                     job.ProgressMessage = "Read file data..."; //Thread.Sleep(3000);
                     //strFilePath = AppDomain.CurrentDomain.BaseDirectory + "Upload Files\\";

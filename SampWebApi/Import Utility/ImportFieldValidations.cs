@@ -10,7 +10,6 @@ using System.Linq;
 using System.Web;
 using System.Windows.Forms;
 using static iTextSharp.text.pdf.qrcode.Version;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Import_Utility
 {
@@ -38,7 +37,7 @@ namespace SampWebApi.Import_Utility
         decimal taxValue = 0, uomcr = 0, qty = 0, freeqty = 0, dmgQty = 0, prodDiscPern = 0;
         decimal price = 0, Saleprice = 0, ECPprice = 0, SPLprice = 0, MRP = 0, Returnprice = 0;
         decimal goodsAmt = 0, prodDiscAmt = 0, baseAmt = 0, BillTransAmount = 0, BillDiffAmt = 0, dUomTax = 0;
-        decimal CumGross = 0, CumGoods = 0, CumTax = 0, CumNet = 0, CumProdDiscAmt = 0, CumTradeDiscAmt = 0,
+        decimal CumGross = 0, CumTax = 0, CumNet = 0, CumProdDiscAmt = 0, CumTradeDiscAmt = 0,
             CumAddnlDiscAmt = 0, CumDiffGross = 0, CumDiffNet = 0;
         decimal tradeDiscAmt = 0, addnlDiscAmt = 0, grossAmt = 0, taxAmt = 0, itemNetAmt = 0;
         int BaseUOMID = 0, TrackInvYN = 0, TrackBatchYN = 0, TrackPKDYN = 0, TrackSerialYN = 0;
@@ -2313,9 +2312,9 @@ namespace SampWebApi.Import_Utility
                 }
                 return RowError;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
         }
 
@@ -2722,7 +2721,7 @@ namespace SampWebApi.Import_Utility
                     decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
-                    DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
+                    DataTable dtPartyData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterCustomer WHERE ID = @p0", Convert.ToString(headerRow["PARTY NAME *"]));
                     int TaxTypeID = objBL.BL_nValidation(dtPartyData.Rows[0]["TaxTypeID"].ToString());
                     
                     // Filter items
@@ -2733,11 +2732,11 @@ namespace SampWebApi.Import_Utility
                     foreach (var row in items)
                     {
                         // Get tax %
-                        var taxDt = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterTax WHERE TaxID = " + row["TAX NAME *"].ToString());
+                        var taxDt = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterTax WHERE TaxID = @p0", row["TAX NAME *"].ToString());
                         taxValue = objBL.BL_dValidation(taxDt.Rows[0]["GST"].ToString());
                         // Prod Data
-                        DataTable dtProductData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterProduct WHERE ID = " + Convert.ToString(row["PRODUCT NAME *"]));
-                        DataTable dtItemTransPrices = objBL.BL_ExecuteSqlQuery("select * from tblProductTransactionprices where ID = " + Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtProductData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterProduct WHERE ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtItemTransPrices = objBL.BL_ExecuteParamQuery("select * from tblProductTransactionprices where ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         uomcr = objBL.BL_dValidation(dtProductData.Rows[0]["BaseCR"]);
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
@@ -3006,7 +3005,7 @@ namespace SampWebApi.Import_Utility
                     decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
-                    DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
+                    DataTable dtPartyData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterCustomer WHERE ID = @p0", Convert.ToString(headerRow["PARTY NAME *"]));
                     int TaxTypeID = objBL.BL_nValidation(dtPartyData.Rows[0]["TaxTypeID"].ToString());
 
                     // Filter items
@@ -3017,11 +3016,11 @@ namespace SampWebApi.Import_Utility
                     foreach (var row in items)
                     {
                         // Get tax %
-                        var taxDt = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterTax WHERE TaxID = " + row["TAX NAME *"].ToString());
+                        var taxDt = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterTax WHERE TaxID = @p0", row["TAX NAME *"].ToString());
                         taxValue = objBL.BL_dValidation(taxDt.Rows[0]["GST"].ToString());
                         // Prod Data
-                        DataTable dtProductData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterProduct WHERE ID = " + Convert.ToString(row["PRODUCT NAME *"]));
-                        DataTable dtItemTransPrices = objBL.BL_ExecuteSqlQuery("select * from tblProductTransactionprices where ID = " + Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtProductData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterProduct WHERE ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtItemTransPrices = objBL.BL_ExecuteParamQuery("select * from tblProductTransactionprices where ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         uomcr = objBL.BL_dValidation(dtProductData.Rows[0]["BaseCR"]);
                         HSN = dtProductData.Rows[0]["HSNCode"].ToString();
@@ -3346,7 +3345,7 @@ namespace SampWebApi.Import_Utility
                     decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
-                    DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
+                    DataTable dtPartyData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterCustomer WHERE ID = @p0", Convert.ToString(headerRow["PARTY NAME *"]));
                     int TaxTypeID = objBL.BL_nValidation(dtPartyData.Rows[0]["TaxTypeID"].ToString());
 
                     // Filter items
@@ -3357,11 +3356,11 @@ namespace SampWebApi.Import_Utility
                     foreach (var row in items)
                     {
                         // Get tax %
-                        var taxDt = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterTax WHERE TaxID = " + row["TAX NAME *"].ToString());
+                        var taxDt = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterTax WHERE TaxID = @p0", row["TAX NAME *"].ToString());
                         taxValue = objBL.BL_dValidation(taxDt.Rows[0]["GST"].ToString());
                         // Prod Data
-                        DataTable dtProductData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterProduct WHERE ID = " + Convert.ToString(row["PRODUCT NAME *"]));
-                        DataTable dtItemTransPrices = objBL.BL_ExecuteSqlQuery("select * from tblProductTransactionprices where ID = " + Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtProductData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterProduct WHERE ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtItemTransPrices = objBL.BL_ExecuteParamQuery("select * from tblProductTransactionprices where ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         TrackInvYN =  Convert.ToInt32(dtProductData.Rows[0]["TrackInventory"]);
                         TrackBatchYN = Convert.ToInt32(dtProductData.Rows[0]["TrackBatch"]);
@@ -3570,7 +3569,7 @@ namespace SampWebApi.Import_Utility
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             finally
@@ -3660,7 +3659,7 @@ namespace SampWebApi.Import_Utility
                     decimal otherChargePern = objBL.BL_dValidation(headerRow["OTHER CHARGE %"].ToString());
                     decimal headerNetAmt = objBL.BL_dValidation(headerRow["NET AMOUNT *"].ToString());
                     decimal otherChargeAmt = (headerNetAmt * otherChargePern) / 100;
-                    DataTable dtPartyData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterCustomer WHERE ID = " + Convert.ToString(headerRow["PARTY NAME *"]));
+                    DataTable dtPartyData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterCustomer WHERE ID = @p0", Convert.ToString(headerRow["PARTY NAME *"]));
                     int TaxTypeID = objBL.BL_nValidation(dtPartyData.Rows[0]["TaxTypeID"].ToString());
 
                     // Filter items
@@ -3671,11 +3670,11 @@ namespace SampWebApi.Import_Utility
                     foreach (var row in items)
                     {
                         // Get tax %
-                        var taxDt = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterTax WHERE TaxID = " + row["TAX NAME *"].ToString());
+                        var taxDt = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterTax WHERE TaxID = @p0", row["TAX NAME *"].ToString());
                         taxValue = objBL.BL_dValidation(taxDt.Rows[0]["GST"].ToString());
                         // Prod Data
-                        DataTable dtProductData = objBL.BL_ExecuteSqlQuery("SELECT * FROM tblMasterProduct WHERE ID = " + Convert.ToString(row["PRODUCT NAME *"]));
-                        DataTable dtItemTransPrices = objBL.BL_ExecuteSqlQuery("select * from tblProductTransactionprices where ID = " + Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtProductData = objBL.BL_ExecuteParamQuery("SELECT * FROM tblMasterProduct WHERE ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
+                        DataTable dtItemTransPrices = objBL.BL_ExecuteParamQuery("select * from tblProductTransactionprices where ID = @p0", Convert.ToString(row["PRODUCT NAME *"]));
                         BaseUOMID = objBL.BL_nValidation(dtProductData.Rows[0]["BaseUomID"]);
                         TrackInvYN = Convert.ToInt32(dtProductData.Rows[0]["TrackInventory"]);
                         TrackBatchYN = Convert.ToInt32(dtProductData.Rows[0]["TrackBatch"]);
@@ -3901,7 +3900,7 @@ namespace SampWebApi.Import_Utility
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             finally

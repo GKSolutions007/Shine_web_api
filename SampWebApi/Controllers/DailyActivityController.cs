@@ -22,8 +22,6 @@ using System.Web;
 using System.Web.Http;
 using System.Web.UI.WebControls;
 using System.Web.Util;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -82,7 +80,6 @@ namespace SampWebApi.Controllers
                         MRP = DDT.Rows[i][5].ToString(),
                     });
                 }
-                string str = "";
                 var dtjsonData = new
                 {
                     data = from users in list
@@ -719,7 +716,6 @@ namespace SampWebApi.Controllers
                             ChequeValue = DDT.Rows[i]["ChqAging"].ToString(),
                         });
                     }
-                    string str = "";
                     var data = from users in list
                                select
                                    new

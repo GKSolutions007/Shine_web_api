@@ -14,7 +14,6 @@ using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using static iTextSharp.text.pdf.PdfStructTreeController;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -603,7 +602,7 @@ namespace SampWebApi.Controllers
                     List<InvoiceBatchPopup> ulistBatch = new List<InvoiceBatchPopup>();
                     string PKD = "False", BATCH = "False";
                     int qtymode = DocPrefix == "16" ? 1 : 2;// sale qty or damage qty
-                    DataTable dtProdinfo = bl.BL_ExecuteSqlQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = " + CodeName);
+                    DataTable dtProdinfo = bl.BL_ExecuteParamQuery("select TrackBatch,TrackPDK,TrackInventory from tblMasterProduct WHERE ID = @p0", CodeName);
                     if (dtProdinfo.Rows.Count > 0)
                     {
                         PKD = dtProdinfo.Rows[0]["TrackPDK"].ToString();
@@ -1246,7 +1245,7 @@ namespace SampWebApi.Controllers
                                     TempBatchYN = bl.BL_nValidation(drserialrow[0].ItemArray[0]);//
                                 }
                                 //DataTable getConvFact = bl.BL_ExecuteSqlQuery("select dbo.fnGetConvertionFact(" + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomGrpID.Name].Value) + "," + bl.BL_nValidation(dgvProd.Rows[DetailCount].Cells[UomID.Name].Value) + ")");
-                                decimal dUomTax = 0;// bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
+                                //dUomTax = bl.GetUOMTaxValue(bl.BL_nValidation(iRow["TaxID"]), bl.BL_nValidation(txtTaxType.Tag),
                                                     //(bl.BL_dValidation(iRow["Qty"]) + bl.BL_dValidation(iRow["DmgQty"])) * (getConvFact.Rows.Count > 0 ? bl.BL_dValidation(getConvFact.Rows[0][0].ToString()) : 0.00M));// bl.BL_dValidation(dgvProd.Rows[DetailCount].Cells[SelectedUomCF.Name].Value));
                                 DataRow dtRow = dtProd.NewRow();
                                 dtRow["ProdId"] = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));

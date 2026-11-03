@@ -21,7 +21,8 @@ namespace SampWebApi.Controllers
         clsBusinessLayer bl = new clsBusinessLayer();
         public DataTable dtDenominationPMDetail = new DataTable();
         DataTable dtMopDetails = new DataTable("MOP"), dtDetail = new DataTable("CollectionDetail"), dtHeader = new DataTable("CollectionHeader");
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connections"].ConnectionString);
+        // connectionString is lazily decrypted only in actions that open raw SqlConnections.
+        // Removed the class-level decrypt that ran AES on every single request.
         [HttpGet]
         [Route("api/creditdebitnote/get")]
         public IHttpActionResult GetData(string TransID, string Mode, string ID)

@@ -22,11 +22,11 @@ using System.Web;
 using System.Web.Http;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 using Rectangle = iTextSharp.text.Rectangle;
 
 namespace SampWebApi.Controllers
 {
+    [SampWebApi.Utility.CookieAuthorize]
     public class CustomizebillprintController : ApiController
     {
         clsBusinessLayer objBL = new clsBusinessLayer();
@@ -134,7 +134,6 @@ namespace SampWebApi.Controllers
                         }
                         if (dtHeaderData.Rows.Count > 0 && dtItemsData.Rows.Count > 0)
                         {
-                            int nIndex = 1;
                             bool NoErrorsinHeader = true, NoErrorsinItems = true;
                             foreach (DataRow item in dtHeaderData.Rows)
                             {
@@ -678,7 +677,6 @@ namespace SampWebApi.Controllers
                         }
                         // Added By Sriram G
                         // Excel Cell Value Decimal Should be RoundOff 6 Digits
-                        decimal dOutValue = 0.00M;
                         string strCellValue = GetValue(docSelected, cell);
                         //if (!string.IsNullOrEmpty(strCellValue))
                         //{
@@ -776,7 +774,6 @@ namespace SampWebApi.Controllers
                 if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
                 {
                     return doc.WorkbookPart.SharedStringTablePart.SharedStringTable.ChildElements[(int.Parse(cell.CellValue.InnerText))].InnerText;
-                    return null;
                 }
                 else
                 if (cell.StyleIndex != null)

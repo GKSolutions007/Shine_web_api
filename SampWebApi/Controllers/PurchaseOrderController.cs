@@ -14,7 +14,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 namespace SampWebApi.Controllers
 {
@@ -50,22 +49,7 @@ namespace SampWebApi.Controllers
                 {
                     DDT = bl.BL_ExecuteParamSP("uspGetSetPurchaseOrderData", Mode, 3, CodeName);
                     string proddata = JsonConvert.SerializeObject(DDT);
-                    return Ok(proddata);
-                    List<ProductModel> list = new List<ProductModel>();
-                    for (int i = 0; i < DDT.Rows.Count; i++)
-                    {
-                        list.Add(new ProductModel
-                        {
-                            ID = DDT.Rows[i]["ID"].ToString(),
-                            Code = DDT.Rows[i]["Code"].ToString(),
-                            Name = DDT.Rows[i]["Name"].ToString(),
-                            EAN = DDT.Rows[i]["EAN"].ToString(),
-                            HSNCode = DDT.Rows[i]["HSNCode"].ToString(),
-                            PurchasePrice = DDT.Rows[i]["PurchasePrice"].ToString(),
-                            ABSQty = DDT.Rows[i]["ABSQty"].ToString(),
-                        });
-                    }
-                    return Ok(list);
+                    return Ok(proddata);                   
                 }
                 if (Mode == "3")
                 {
@@ -245,7 +229,6 @@ namespace SampWebApi.Controllers
                               //.Select(r => Convert.ToDecimal(r["CumulativeTax"]))
                               //.DefaultIfEmpty(0)
                               //.Sum();
-                                decimal dApponMRPCum = 0;
                                 listProductGrid.Add(new PurchaseGridData
                                 {
 
@@ -538,7 +521,7 @@ namespace SampWebApi.Controllers
                                     return Ok(list);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 bl.bl_Transaction(3);
                             }

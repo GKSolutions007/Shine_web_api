@@ -15,6 +15,7 @@ using System.Web.Http;
 
 namespace SampWebApi.Controllers
 {
+    [SampWebApi.Utility.CookieAuthorize]
     public class CustomizeReportsController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();

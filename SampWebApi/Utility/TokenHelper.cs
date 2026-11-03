@@ -36,6 +36,9 @@ namespace SampWebApi.BuisnessLayer
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                // Subject intentionally not set: the token is stored in the DB (AuthToken column,
+                // size unverified) and the user is resolved from that server-side record by
+                // ApiAuth.TryAuthenticate, so a larger JWT is not needed.
                 //Subject = identity,
                 Expires = DateTime.UtcNow.AddMinutes(AuthTokenExpiresInMins),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -86,7 +89,8 @@ namespace SampWebApi.BuisnessLayer
                 UserId = UserId,
                 Token = refreshToken,
                 ExpiresAt = DateTime.Now.AddDays(RefreshTokenExpiresInDays),
-                Session_id = Sessionidcookie.Value,
+                // Guard against a missing ASP.NET_SessionId cookie (previously a NullReferenceException).
+                Session_id = Sessionidcookie != null ? Sessionidcookie.Value : string.Empty,
                 AuthToken = AuthTokenCookie,
                 AuthTokenExpiresAt = DateTime.Now.AddMinutes(AuthTokenExpiresInMins),
             });
@@ -117,7 +121,7 @@ namespace SampWebApi.BuisnessLayer
     public class RefreshTokenRepo
     {
         clsBusinessLayer bl = new clsBusinessLayer();
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["Connections"].ConnectionString);
+        string connectionString = SampWebApi.Utility.SecretConfig.ConnectionString("Connections");
 
         //private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 

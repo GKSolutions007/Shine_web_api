@@ -1,0 +1,131 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\2026\\api\\Shine_web_api\\SampWebApi.Tests\\SampWebApi.Tests.csproj": {}
+  },
+  "projects": {
+    "D:\\2026\\api\\Shine_web_api\\SampWebApi.Tests\\SampWebApi.Tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\2026\\api\\Shine_web_api\\SampWebApi.Tests\\SampWebApi.Tests.csproj",
+        "projectName": "SampWebApi.Tests",
+        "projectPath": "D:\\2026\\api\\Shine_web_api\\SampWebApi.Tests\\SampWebApi.Tests.csproj",
+        "packagesPath": "C:\\Users\\GKBS SERVER\\.nuget\\packages\\",
+        "outputPath": "D:\\2026\\api\\Shine_web_api\\SampWebApi.Tests\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\GKBS SERVER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net48": {
+            "framework": "net48",
+            "targetAlias": "net48",
+            "projectReferences": {
+              "D:\\2026\\api\\Shine_web_api\\SampWebApi\\SampWebApi.csproj": {
+                "projectPath": "D:\\2026\\api\\Shine_web_api\\SampWebApi\\SampWebApi.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.400"
+      },
+      "frameworks": {
+        "net48": {
+          "framework": "net48",
+          "targetAlias": "net48",
+          "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[6.12.1, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.11.1, )"
+            },
+            "System.Runtime.CompilerServices.Unsafe": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "System.Threading.Tasks.Extensions": {
+              "target": "Package",
+              "version": "[4.5.4, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.2, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.8.2, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.402\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\2026\\api\\Shine_web_api\\SampWebApi\\SampWebApi.csproj": {
+      "restore": {
+        "projectUniqueName": "D:\\2026\\api\\Shine_web_api\\SampWebApi\\SampWebApi.csproj",
+        "projectName": "SampWebApi",
+        "projectPath": "D:\\2026\\api\\Shine_web_api\\SampWebApi\\SampWebApi.csproj",
+        "UsingMicrosoftNETSdk": false,
+        "frameworks": {
+          "net48": {
+            "framework": "net48",
+            "projectReferences": {
+              "D:\\2026\\api\\Shine_web_api\\Shinewebprint\\Shinewebprint.csproj": {
+                "projectPath": "D:\\2026\\api\\Shine_web_api\\Shinewebprint\\Shinewebprint.csproj"
+              }
+            }
+          }
+        }
+      },
+      "frameworks": {
+        "net48": {
+          "framework": "net48"
+        }
+      }
+    },
+    "D:\\2026\\api\\Shine_web_api\\Shinewebprint\\Shinewebprint.csproj": {
+      "restore": {
+        "projectUniqueName": "D:\\2026\\api\\Shine_web_api\\Shinewebprint\\Shinewebprint.csproj",
+        "projectName": "Shinewebprint",
+        "projectPath": "D:\\2026\\api\\Shine_web_api\\Shinewebprint\\Shinewebprint.csproj",
+        "UsingMicrosoftNETSdk": false,
+        "frameworks": {
+          "net48": {
+            "framework": "net48",
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net48": {
+          "framework": "net48"
+        }
+      }
+    }
+  }
+}

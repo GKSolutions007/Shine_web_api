@@ -24,6 +24,7 @@ using System.Web.Http.Cors;
 namespace SampWebApi.Controllers
 {
     //[EnableCors(origins: "*", headers: "*", methods: "*")]
+    [SampWebApi.Utility.CookieAuthorize]
     public class UploadFilesController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();

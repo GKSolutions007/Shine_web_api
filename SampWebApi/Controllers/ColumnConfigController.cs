@@ -16,6 +16,7 @@ using System.Web.Http.Cors;
 
 namespace SampWebApi.Controllers
 {
+    [CookieAuthorize]
     public class ColumnConfigController : ApiController
     {
         clsBusinessLayer bl = new clsBusinessLayer();

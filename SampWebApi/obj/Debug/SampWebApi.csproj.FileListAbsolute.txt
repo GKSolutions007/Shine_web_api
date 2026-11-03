@@ -1182,7 +1182,6 @@ D:\2026\api\Shine_web_api\SampWebApi\bin\roslyn\VBCSCompiler.exe
 D:\2026\api\Shine_web_api\SampWebApi\bin\roslyn\VBCSCompiler.exe.config
 D:\2026\api\Shine_web_api\SampWebApi\bin\Antlr3.Runtime.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\BouncyCastle.Cryptography.dll
-D:\2026\api\Shine_web_api\SampWebApi\bin\BuinessLayer.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\ClosedXML.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\ClosedXML.Parser.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\DocumentFormat.OpenXml.dll
@@ -1267,7 +1266,6 @@ D:\2026\api\Shine_web_api\SampWebApi\bin\ZString.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\Microsoft.mshtml.dll
 D:\2026\api\Shine_web_api\SampWebApi\bin\Shinewebprint.pdb
 D:\2026\api\Shine_web_api\SampWebApi\bin\BouncyCastle.Cryptography.xml
-D:\2026\api\Shine_web_api\SampWebApi\bin\BuinessLayer.pdb
 D:\2026\api\Shine_web_api\SampWebApi\bin\ClosedXML.pdb
 D:\2026\api\Shine_web_api\SampWebApi\bin\ClosedXML.xml
 D:\2026\api\Shine_web_api\SampWebApi\bin\ClosedXML.Parser.xml

@@ -297,7 +297,6 @@ namespace SampWebApi.Controllers
         public IHttpActionResult LoadSelectFiledata()
         {
             string Msg = "";
-            string dt = "";
             List<ImportResults> MTM = new List<ImportResults>();
             try
             {
@@ -329,7 +328,6 @@ namespace SampWebApi.Controllers
                     {
                         lst = AddIRNExport();
                     }
-                    bool ErrorColAlreadyExisist = false;
                     //ColumnValidation(lst, ref blResult);
                     //ColumnValidation_new1(lst, ref blResult);
                     Printing.clsExcelOpenreadwrite clsExcelvalid = new Printing.clsExcelOpenreadwrite();
@@ -350,7 +348,6 @@ namespace SampWebApi.Controllers
                         }
                         //ColumnValidation(lst, ref blResult);
                         clsExcelvalid.ColumnValidation(lst, ref blResult);
-                        ErrorColAlreadyExisist = true;
                     }
                     if (blResult)
                     {
@@ -870,7 +867,6 @@ namespace SampWebApi.Controllers
                         }
                         // Added By Sriram G
                         // Excel Cell Value Decimal Should be RoundOff 6 Digits
-                        decimal dOutValue = 0.00M;
                         string strCellValue = GetValue(docSelected, cell);
                         //if (!string.IsNullOrEmpty(strCellValue))
                         //{
@@ -898,7 +894,6 @@ namespace SampWebApi.Controllers
                 if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
                 {
                     return doc.WorkbookPart.SharedStringTablePart.SharedStringTable.ChildElements[(int.Parse(cell.CellValue.InnerText))].InnerText;
-                    return null;
                 }
                 else
                 if (cell.StyleIndex != null)

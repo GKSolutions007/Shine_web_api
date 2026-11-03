@@ -1,0 +1,36 @@
+Run order
+
+Back up the database.
+Run 04 in a quiet window, then review #IndexLog and the list of tables still without a clustered index.
+Run 05.
+Deploy the API and UI builds together.
+On the server, run Protect-WebConfig.ps1 -SitePath <path> -App Api and then again with -App Ui, both with -DryRun first. It needs the new build already deployed.
+Watch the old-format password count query in 05. Later, force a password reset for anyone who hasn't logged in.
+Still open (flagged, not fixed)
+
+forgotpassword/setpassword has no OTP check and no login check, so anyone with a username and email can set a new password. forgotpassword/validate also returns the OTP to the client. I'd fix these first.
+api/login/get sends the password in the query string.
+App-config passwords (tblAppPasswordSettings) can still be decrypted and are returned by applicationconfig/get (point 1).
+
+Point 10 (report procedures)
+
+Run 06_parameterize_report_procedures.sql after 01 (any time; it does not depend on 04/05).
+Then open each changed report once with and without filters. If one breaks, re-run just that procedure's block from 06_rollback_report_procedures.sql.
+
+Points 11 and 12 (scripts are in Database\Performance)
+
+Run after 01-06 (07 is built from their versions; procedures that don't match are skipped, never overwritten).
+1. Backup, then 07_functions_and_procedure_hygiene.sql. Check the result sets: everything should be APPLIED; review any SKIPPED/FAILED rows. The last result shows whether fnGetRoundedValue is inlineable.
+2. Retest saves (sales, purchase, collection, payment, journal, delivery, assign invoices, van loading) and a few reports.
+3. In a quiet window: 08_integrity_and_snapshot.sql with @EnableRCSI = 0. Review the SKIPPED foreign keys (orphan rows) and the type report.
+4. When you're ready for non-blocking reads: set @EnableRCSI = 1 in section 4 and run 08 again (exclusive access needed; other sessions' open transactions are rolled back). Watch tempdb.
+Undo: 08_rollback first, then 07_rollback.
+
+Point 5 (rotate secrets) - on each server, after the new API+UI build is deployed
+
+1. Deploy\Protect-WebConfig.ps1 for Api and Ui (-DryRun first). Rotation refuses to run before this.
+2. Create a new Gmail app password for the account in appSettings "email" (keep the old one for now).
+3. If not done yet: Database\Security\03 steps 1-5, so the site uses the dedicated login shineweb_app_login (any temporary password).
+4. Deploy\Rotate-Secrets.ps1 -ApiSitePath <api> -UiSitePath <ui> -RotateJwtKey -RotateSmtpPassword -RotateSqlPassword -DryRun, then without -DryRun, in a quiet moment.
+5. Sign in, send a forgot-password mail, open a few pages. Then revoke the OLD Gmail app password and delete the Web.config.bak-* files.
+Every user has to sign in again after the JWT key changes.

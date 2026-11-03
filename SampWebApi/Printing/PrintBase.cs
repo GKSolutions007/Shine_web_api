@@ -1,5 +1,4 @@
-﻿using BuinessLayer;
-using SampWebApi.BuisnessLayer;
+﻿using SampWebApi.BuisnessLayer;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -27,7 +26,6 @@ namespace SampWebApi.Printing
     public class PrintBase
     {
         private bool previewLoaded = false;
-        int PreviousValue = 0;
         #region Public properties
         public clsBusinessLayer GKS_BL
         {
@@ -52,27 +50,22 @@ namespace SampWebApi.Printing
         private Pen pen = new Pen(Color.Black, 0.25f);
 
         private StringFormat strFormat = new StringFormat();
-        private int nItemCount = 0, nCopies, nKeys, nMaiYesNo, topMargin, totalNumber = 0, itemsPerPage = 0, pageNo,
-            nSalesSerialWisePrint = 1, nSRPrintIndex = 0, nSRIndex = 0, totalNumberPrint = 0;
-        private bool nSRPrint = false, nSR = false, IsPrint = false, totalNumberAssigned = false;
+        private int nItemCount = 0, nCopies, nMaiYesNo, topMargin, totalNumber = 0, itemsPerPage = 0, pageNo,
+            nSalesSerialWisePrint = 1, nSRPrintIndex = 0;
+        private bool nSRPrint = false, IsPrint = false;
         private float YPositionDiff = 0, bodyFontHeight = 0;
         private string strHeaderSP, strBodySP, strFooterSP;
         private DataTable dtGetConfigPage, dtGetHeaderVal, dtGetSpecialVal, dtGetBodyVal;
         private PaperSize paperSize;
-        private PaperSource PaperSource;
         private SolidBrush blackBrush = new SolidBrush(Color.Black);
         int nA = 0, nR = 0, nG = 0, nB = 0;
         private delegate void delegateMailTrigger(string pdfFilePath, string strFileName, string strFromId, string strPassword, 
             string strToID, string strSMTPServer, string strSubject, DataTable dtMailData,string MailBody);
         private delegate void delegatePrintTrigger();
-        string dtp;
-        int nPrint;
         string strEmailIDs = "";
         decimal fHVal, fVVal;
         bool hasMorePagesToPrint = false;
-        int nLineFeed = 0, nIncludeCut = 0;
-        int nConfigNamep = 0, nprintID = 0, nTransNamep = 0, nnumofcopy = 0;
-        bool IsTransPrint = false;
+        int nLineFeed = 0;
         PrintDialog PgSetUp = new PrintDialog();
 
         #endregion
@@ -92,7 +85,7 @@ namespace SampWebApi.Printing
                 SetGlobalValues(nTranType, nTranId, ConfigID);
                 SendEmail();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -106,9 +99,9 @@ namespace SampWebApi.Printing
                 SetGlobalValues(nTranType, nTranId, ConfigID);
                 RetunPath = SaveFileinLocation();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return RetunPath;
         }
@@ -131,9 +124,9 @@ namespace SampWebApi.Printing
                     this.nCopies--;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw; // preserve original stack trace
             }
             return RetunPath;
         }
@@ -151,7 +144,6 @@ namespace SampWebApi.Printing
                 {
                     Configuration configFile = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
                     var settings = configFile.AppSettings.Settings;
-                    nPrint = 2;// Convert.ToInt32(settings["Print"].Value);
                     string strMachineName = Environment.MachineName;
                     PrintAndEmail(nTranType, nTranId, bIsEvent, bPreview, IsView, strPrintCust);
                     //if ((!bPreview) && (nPrint == 2))// && (ValidatePrintYesNo(strMachineName, nTranType)
@@ -203,7 +195,7 @@ namespace SampWebApi.Printing
                 //}
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //ErrorLogger.Instance.Log(ex);
             }
@@ -225,7 +217,7 @@ namespace SampWebApi.Printing
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //ErrorLogger.Instance.Log(ex);
             }
@@ -291,7 +283,7 @@ namespace SampWebApi.Printing
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //ErrorLogger.Instance.Log(ex);
             }
@@ -300,7 +292,6 @@ namespace SampWebApi.Printing
         private void LoadLineFeedandIncludeCut(int configID)
         {
             this.nLineFeed = 0;// Convert.ToInt32(GKS_BL.BL_GetSingleValue("tblPrintConfig", "LineFeed", "PrintID='" + configID.ToString() + "'"));
-            this.nIncludeCut = 0;// Convert.ToInt32(GKS_BL.BL_GetSingleValue("tblPrintConfig", "IncludeCut", "PrintID='" + configID.ToString() + "'"));
         }
 
         /// <summary>
@@ -354,7 +345,6 @@ namespace SampWebApi.Printing
 
             previewLoaded = true;
             //totalNumber = nSR && PreviousValue == pageNo ? totalNumber - 1 : totalNumber;
-            nSR = true;
         }
 
         private void PrintDoc_BeginPrint(object sender, PrintEventArgs e)
@@ -394,7 +384,6 @@ namespace SampWebApi.Printing
             this.nCopies = nCopies;
             this.strPrinterName = strPrinterName;
             this.nMaiYesNo = 0;
-            this.IsTransPrint = true;
             CommonPrint();
         }
 
@@ -444,7 +433,7 @@ namespace SampWebApi.Printing
                     }
                 }
             }
-            catch (Exception Ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_ExceptionMsg("ClsPrint", Ex.Message, Ex);
                 //Obj_MDI.ShowMessage("Unable to Print", GKS_BL.ToolStripErrorMsg);
@@ -474,7 +463,7 @@ namespace SampWebApi.Printing
                     paperSize.RawKind = (int)PaperKind.Custom;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_ExceptionMsg("Print", "getConfigDetails", ex);
                 //GKS_BL.BL_LogFileWrite("PrintBase", "TranprintConf", ex.Message);
@@ -598,7 +587,7 @@ namespace SampWebApi.Printing
                     }
                 }
             }
-            catch (Exception Ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_LogFileWrite("Mail Unable to Process that time", "SendEmail", Ex.Message);
                 throw;
@@ -681,7 +670,7 @@ namespace SampWebApi.Printing
             catch (Exception Ex)
             {
                 GKS_BL.BL_WriteErrorMsginLog("PrintBase", "SaveFileinLocation", Ex.Message);
-                throw Ex;
+                throw; // preserve original stack trace
                 //GKS_BL.BL_ExceptionMsg("Mail Unable to Process that time", Ex.Message, Ex);
             }
             return FinalFileName;
@@ -866,7 +855,7 @@ namespace SampWebApi.Printing
                     //Obj_MDI.ShowMessage(Convert.ToString(iAsync.AsyncState), GKS_BL.ToolStripErrorMsg);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //throw;
             }
@@ -907,7 +896,7 @@ namespace SampWebApi.Printing
                 Lines = (int)Math.Round(Convert.ToDouble(dHeight));
                 Chars = (int)Math.Round(Convert.ToDouble(dWidth));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_ExceptionMsg("PrintBase", "PaperHW", ex);
             }
@@ -1193,7 +1182,7 @@ Warm regards,<br/>
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
                 //Obj_MDI.ShowMessage("Mail Unable to Process that time", GKS_BL.ToolStripErrorMsg);
@@ -1236,7 +1225,7 @@ Warm regards,<br/>
                 SetHeaderValue(e.Graphics); // Draw Head value
                 SetBody(e.Graphics, e);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Obj_MDI.ShowMessage("Unable to Print", GKS_BL.ToolStripErrorMsg);
             }
@@ -1268,7 +1257,7 @@ Warm regards,<br/>
                     fVVal = 22.6771653559998M;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_ExceptionMsg("PrintBase", "ChangePaperSizeBasedOnUnit", ex);
             }
@@ -1317,7 +1306,6 @@ Warm regards,<br/>
                         if (dt.Rows.Count > 0)
                         {
                             nSRPrintIndex = dtGetBodyVal.Rows.Count;
-                            nSR = true;
                             nSRPrint = true;
                         }
                         foreach (DataRow IRow in dt.Rows)
@@ -1561,7 +1549,7 @@ Warm regards,<br/>
                                     DrawCustomString(Convert.ToString(dtGetBodyVal.Rows[totalNumber]["SR"]),
                                         FontStyle.Bold, g, e, 35, float.Parse(dtTemp.Rows[0][13].ToString()), ref stringSize, printMode, sw, dtTemp.Rows[0], pointY);
                                     //totalNumber += 1;
-                                    blCheck = false; nSR = false;
+                                    blCheck = false;
                                 }
                             }
                             if (blCheck)
@@ -1642,7 +1630,7 @@ Warm regards,<br/>
                 SetFooterValue((e != null) ? e.Graphics : null, e, 1, 0, pointY, printMode, sw);
                 if (g != null) g.Dispose();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Obj_MDI.ShowMessage("Unable to Print setBody", GKS_BL.ToolStripErrorMsg);
                 //Panthera.Utilities.ErrorLogger.Instance.Log(ex);
@@ -1690,7 +1678,7 @@ Warm regards,<br/>
                                 .Insert(character, toWrite);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1773,7 +1761,7 @@ Warm regards,<br/>
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Obj_MDI.ShowMessage("setFooterLabel", GKS_BL.ToolStripErrorMsg);
                 //GKS_BL.BL_ExceptionMsg("Print", "SetFooterLabel", ex);
@@ -2165,7 +2153,7 @@ Warm regards,<br/>
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -2690,7 +2678,7 @@ Warm regards,<br/>
                     paperSize.RawKind = (int)PaperKind.Custom;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //GKS_BL.BL_ExceptionMsg("Print", "getConfigDetails", ex);
             }

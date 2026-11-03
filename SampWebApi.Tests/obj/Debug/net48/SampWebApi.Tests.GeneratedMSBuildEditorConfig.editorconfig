@@ -1,0 +1,8 @@
+is_global = true
+build_property.RootNamespace = SampWebApi.Tests
+build_property.ProjectDir = D:\2026\api\Shine_web_api\SampWebApi.Tests\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 
