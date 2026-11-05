@@ -1869,7 +1869,8 @@ namespace SampWebApi.Controllers
                             ID = dtPWD.Rows[i][0].ToString(),
                             Name = dtPWD.Rows[i][1].ToString(),
                             Active = dtPWD.Rows[i][3].ToString(),
-                            Passwords = clsEncryptDecrypt.Decrypt(dtPWD.Rows[i][2].ToString()),
+                            // Stored as one-way hashes and never sent to the browser; blank on save = keep.
+                            Passwords = "",
                         });
                     }
                     //lstConfigPasswords
@@ -1883,7 +1884,8 @@ namespace SampWebApi.Controllers
                             RoundoffValue = DDT.Rows[i]["RoundoffValue"].ToString(),
                             SMTPHost = DDT.Rows[i]["SMTPHost"].ToString(),
                             EMail = DDT.Rows[i]["EMail"].ToString(),
-                            Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
+                            // The saved SMTP password is never sent to the browser (blank on save = keep).
+                            Password = "",
                             DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
                             Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
                             ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
@@ -1966,7 +1968,8 @@ namespace SampWebApi.Controllers
                             RoundoffValue = DDT.Rows[i]["RoundoffValue"].ToString(),
                             SMTPHost = DDT.Rows[i]["SMTPHost"].ToString(),
                             EMail = DDT.Rows[i]["EMail"].ToString(),
-                            Password = clsEncryptDecrypt.Decrypt(DDT.Rows[i]["Password"].ToString()),
+                            // The saved SMTP password is never sent to the browser (blank on save = keep).
+                            Password = "",
                             DecimalValues = DDT.Rows[i]["DecimalValues"].ToString(),
                             Showallstatus = DDT.Rows[i]["Showallstatus"].ToString(),
                             ItemOrderby = DDT.Rows[i]["ItemOrderby"].ToString(),
@@ -2031,7 +2034,10 @@ namespace SampWebApi.Controllers
             {
                 DataTable DDT = new DataTable();
                 DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 2, lstMaster.CaseType, lstMaster.Confirmpopup, lstMaster.Roundoff, lstMaster.RoundoffValue,
-                            lstMaster.SMTPHost, lstMaster.EMail, clsEncryptDecrypt.Encrypt(lstMaster.Password), lstMaster.DecimalValues, lstMaster.Showallstatus,
+                            lstMaster.SMTPHost, lstMaster.EMail,
+                            // blank = keep the saved SMTP password (it is no longer sent to the browser)
+                            string.IsNullOrEmpty(lstMaster.Password) ? null : clsEncryptDecrypt.Encrypt(lstMaster.Password),
+                            lstMaster.DecimalValues, lstMaster.Showallstatus,
                             lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
@@ -2057,9 +2063,12 @@ namespace SampWebApi.Controllers
                         bl.BL_ExecuteParamSP("uspManageApplicationConfig", 10, item.ID, item.Active, item.Order);
                     }
                 }
-                foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
+                if (lstMaster.lstConfigPasswords != null)
                 {
-                    bl.BL_ExecuteParamSP("uspManageApplicationConfig", 8, item.ID, clsEncryptDecrypt.Encrypt(item.Passwords));
+                    foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
+                    {
+                        AppPasswordStore.Save(bl, item.ID, item.Passwords);   // blank = keep current
+                    }
                 }
                 List<SaveMessage> list = new List<SaveMessage>();
                 if (DDT.Columns.Count == 1)
@@ -2693,13 +2702,11 @@ namespace SampWebApi.Controllers
         {
             try
             {
-                DataTable DDT = new DataTable();
-                DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, ID);
                 List<SaveMessage> list = new List<SaveMessage>();
-                if (DDT.Rows.Count > 0)
+                bool? valid = AppPasswordStore.Verify(bl, ID, Pwd);
+                if (valid.HasValue)
                 {
-                    string decryptpwd = clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
-                    if (Pwd == decryptpwd)
+                    if (valid.Value)
                     {
                         list.Add(new SaveMessage
                         {

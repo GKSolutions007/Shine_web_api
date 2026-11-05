@@ -42,7 +42,7 @@ namespace SampWebApi.Controllers
                 return _connectionString;
             }
         }
-
+        private DataTable dtUserInfo { get; set; }
         // Hash used when the user name does not exist, so a wrong user name takes as long as a
         // wrong password (otherwise response time reveals which user names exist).
         private static readonly Lazy<string> _dummyHash = new Lazy<string>(() => PasswordHasher.Hash(Guid.NewGuid().ToString()));
@@ -60,6 +60,10 @@ namespace SampWebApi.Controllers
             {
                 PasswordHasher.Verify(password, _dummyHash.Value, out unused);
                 return null;
+            }
+            else
+            {
+                dtUserInfo = dt;
             }
             foreach (DataRow row in dt.Rows)
             {
@@ -167,6 +171,19 @@ namespace SampWebApi.Controllers
             {
                 if (lstMaster != null)
                 {
+                    // Without a signed-in session this endpoint is only the public sign-up page: it may
+                    // create a new, inactive account with no role. Editing users (Mode 2) or choosing
+                    // the role/active flag needs a signed-in user (the Users screen).
+                    string signedInUserId;
+                    if (!ApiAuth.TryAuthenticate(out signedInUserId))
+                    {
+                        if (lstMaster.Mode != "1")
+                            return Content(HttpStatusCode.Unauthorized, new List<SaveMessage> { new SaveMessage { ID = "0", MsgID = "1", Message = "Please sign in again." } });
+                        lstMaster.ID = "0";
+                        lstMaster.RoleID = "0";
+                        lstMaster.Active = "0";
+                        lstMaster.UserID = "0";
+                    }
                     //DataTable dt = bl.BL_ExecuteParamSP("uspManageUsers")
                     SqlConnection sqlConnection = new SqlConnection(connectionString);
                     sqlConnection.Open();
@@ -316,6 +333,7 @@ namespace SampWebApi.Controllers
 </body>
 </html>";
         }
+        [CookieAuthorize]
         [HttpPost]
         [Route("api/signup/updateuser")]
         public IHttpActionResult Saveupdateuser()
@@ -328,6 +346,12 @@ namespace SampWebApi.Controllers
                 string FormID = httpRequest.Form["FormID"];
                 string nMode = httpRequest.Form["Mode"];
                 string ID = httpRequest.Form["ID"];
+                // The profile screen edits the signed-in user only (other users are edited on the
+                // Users screen through signup/save). Without this anyone could change any user's
+                // e-mail and then reset that user's password.
+                string signedInUserId;
+                if (!ApiAuth.TryAuthenticate(out signedInUserId) || string.IsNullOrEmpty(signedInUserId) || signedInUserId != (ID ?? "").Trim())
+                    return Content(HttpStatusCode.Forbidden, new List<SaveMessage> { new SaveMessage { ID = "0", MsgID = "1", Message = "You can only update your own profile." } });
                 string Name = httpRequest.Form["UserName"];
                 string MobileNo = httpRequest.Form["Mobilenumber"];
                 string Email = httpRequest.Form["EMailID"];
@@ -437,6 +461,27 @@ namespace SampWebApi.Controllers
             return Ok();
 
         }
+        /// <summary>
+        ///   ###############################
+        ///   #####  Login Response Mode ####
+        ///   ###############################
+        /// 
+        /// Mode = 1 : Valid Login
+        /// Mode = 2 : New Device Detect(New device OTP Send)
+        /// Mode = 3 : E-Mail Failed or Role Not assign
+        /// Mode = 4 : Lisense Expired
+        /// Mode = 5 : Duplicate Login
+        /// Mode = 6 : Login Exceed
+        /// Mode = 7 : Login Attemp failures
+        /// 
+        /// </summary>
+        /// <param name="UserName"></param>
+        /// <param name="Password"></param>
+        /// <param name="DeviceID"></param>
+        /// <param name="Latitude"></param>
+        /// <param name="Longitude"></param>
+        /// <param name="Pincode"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("api/login/get")]
         public IHttpActionResult GetloginData(string UserName, string Password, string DeviceID,
@@ -455,6 +500,17 @@ namespace SampWebApi.Controllers
                     List<Users> list = new List<Users>();
                     if (DDT.Rows.Count > 0)
                     {
+                        if (string.IsNullOrEmpty(DDT.Rows[0]["RoleID"].ToString()) || DDT.Rows[0]["RoleID"].ToString() == "0")
+                        {
+                            list.Add(new Users
+                            {
+                                Mode = "3",
+                                ResponseMessage = "Role not assigned. Contact admin."
+                            });
+                            return Ok(list);
+                        }
+
+
                         DataTable dtDevData = bl.BL_ExecuteParamSP("uspValidateDevice", 1, DeviceID, DDT.Rows[0]["ID"].ToString());
                         if (dtDevData.Rows.Count > 0 || DDT.Rows[0]["ID"].ToString() == "1")//Device already exists
                         {
@@ -524,7 +580,7 @@ namespace SampWebApi.Controllers
                                     DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, DDT.Rows[0]["RoleID"].ToString(), DDT.Rows[0]["ID"].ToString());
                                     dtPermission.TableName = "UserMenus";
                                     string MenusData = JsonConvert.SerializeObject(dtPermission);
-
+                                    bl.BL_ExecuteParamSP("uspManageUsers", 11, DDT.Rows[0]["ID"].ToString());
                                     list.Add(new Users
                                     {
                                         Mode = "1",
@@ -664,6 +720,22 @@ namespace SampWebApi.Controllers
 
                         }
                         return Ok(list);
+                    }
+                    else
+                    {
+                        if (dtUserInfo != null && dtUserInfo.Rows.Count > 0)
+                        {
+                            DataTable dtValidcredential =  bl.BL_ExecuteParamSP("uspManageUsers", 10, dtUserInfo.Rows[0]["ID"]);
+                            if(dtValidcredential != null && dtValidcredential.Rows.Count > 0)
+                            {
+                                list.Add(new Users
+                                {
+                                    Mode = "7",
+                                    ResponseMessage = dtValidcredential.Rows[0][0].ToString()
+                                });
+                                return Ok(list);
+                            }
+                        }
                     }
                 }
             }
@@ -900,8 +972,7 @@ namespace SampWebApi.Controllers
                 string CCMail = dtCompData.Rows[0]["CCEmail"].ToString();
                 string LoginUserName = dtRes.Rows[0]["UserName"].ToString();
                 string LoginUserEmail = dtRes.Rows[0]["EMailID"].ToString();
-                Random random = new Random();
-                int OTP = random.Next(100000, 999999);
+                string OTP = NewOtp();   // cryptographic RNG (System.Random is predictable)
                 
                 string locationHtml = (!string.IsNullOrWhiteSpace(Latitude) &&
     !string.IsNullOrWhiteSpace(Longitude))
@@ -986,19 +1057,20 @@ Open Location </a>"
             try
             {
 
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 8, 0, UserName, Email);
                 List<Users> list = new List<Users>();
-                if (DDT.Rows.Count > 0)
+                if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Email))
+                    return Ok(list);
+                // The OTP is kept on the server (only its hash is stored) and is never sent back to the
+                // browser: the browser used to receive it and compare it itself, so anyone could skip it.
+                string otp = NewOtp();
+                DataTable dtOtp = bl.BL_ExecuteParamSP("uspPasswordResetOtp", 1, UserName, Email, PasswordHasher.Hash(otp));
+                if (dtOtp.Rows.Count > 0 && Convert.ToInt32(dtOtp.Rows[0]["Status"]) == 1)
                 {
-                    Random random = new Random();
-                    int OTP = random.Next(100000, 999999);
-                    bool Issend = bl.SendEmail("Shine Forgot Password OTP", "Hii user, OTP for forgot password is <b>" + OTP.ToString() + "</b>", Email);
+                    bool Issend = bl.SendEmail("Shine Forgot Password OTP", "Hii user, OTP for forgot password is <b>" + otp + "</b>. It is valid for 10 minutes.", Email);
                     if (Issend)
                     {
-                        list.Add(new Users
-                        {
-                            LPin = OTP.ToString(),
-                        });
+                        // Non-empty list = "OTP sent" for the page; LPin stays empty on purpose.
+                        list.Add(new Users { LPin = "" });
                     }
                 }
                 return Ok(list);
@@ -1009,26 +1081,70 @@ Open Location </a>"
             }
             return Ok();
         }
+        /// <summary>6-digit OTP from a cryptographic random generator (System.Random is predictable).</summary>
+        private static string NewOtp()
+        {
+            byte[] b = new byte[4];
+            using (var rng = RandomNumberGenerator.Create())
+                rng.GetBytes(b);
+            return (100000 + (BitConverter.ToUInt32(b, 0) % 900000)).ToString();
+        }
+
         [HttpGet]
+        [Route("api/forgotpassword/verifyotp")]
+        public IHttpActionResult VerifyFGOtp(string UserName, string Email, string OTP)
+        {
+            var fail = new List<SaveMessage> { new SaveMessage { MsgID = "1", Message = "OTP Mismatched" } };
+            try
+            {
+                if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(OTP))
+                    return Ok(fail);
+                DataTable dt = bl.BL_ExecuteParamSP("uspPasswordResetOtp", 2, UserName, Email);
+                if (dt.Rows.Count == 0)
+                    return Ok(new List<SaveMessage> { new SaveMessage { MsgID = "1", Message = "OTP expired. Please request a new OTP." } });
+                object otpId = dt.Rows[0]["OtpID"];
+                bool unused;
+                if (!PasswordHasher.Verify(OTP.Trim(), dt.Rows[0]["OtpHash"].ToString(), out unused))
+                {
+                    bl.BL_ExecuteParamSP("uspPasswordResetOtp", 3, null, null, null, otpId);   // counts the wrong attempt
+                    return Ok(fail);
+                }
+                DataTable ok = bl.BL_ExecuteParamSP("uspPasswordResetOtp", 4, null, null, null, otpId);
+                if (ok.Rows.Count > 0 && Convert.ToInt32(ok.Rows[0][0]) == 1)
+                    return Ok(new List<SaveMessage> { new SaveMessage { MsgID = "0", Message = "OTP verified" } });
+                return Ok(fail);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Login", "forgotpassword/verifyotp", ex.Message);
+            }
+            return Ok(fail);
+        }
+
+        public class ForgotPasswordRequest
+        {
+            public string UserName { get; set; }
+            public string Email { get; set; }
+            public string Password { get; set; }
+        }
+
+        // POST so the new password is not written to URLs / IIS logs. uspManageUsers mode 9 only
+        // changes the password after forgotpassword/verifyotp succeeded (checked in the database).
+        [HttpPost]
         [Route("api/forgotpassword/setpassword")]
-        public IHttpActionResult GetFGsetpwd(string UserName, string Email, string Password)
+        public IHttpActionResult GetFGsetpwd(ForgotPasswordRequest req)
         {
             try
             {
-
-                if (string.IsNullOrEmpty(Password))
+                if (req == null || string.IsNullOrEmpty(req.Password))
                     return Ok(new List<SaveMessage> { new SaveMessage { MsgID = "1", Message = "Password should not be empty" } });
-                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 9, 0, UserName, PasswordHasher.Hash(Password),
-                    null, Email);
+                DataTable DDT = bl.BL_ExecuteParamSP("uspManageUsers", 9, 0, req.UserName, PasswordHasher.Hash(req.Password),
+                    null, req.Email);
+                bool updated = DDT.Rows.Count > 0 && DDT.Columns.Contains("Updated") && Convert.ToInt32(DDT.Rows[0]["Updated"]) == 1;
                 List<SaveMessage> list = new List<SaveMessage>();
-                //if (DDT.Rows.Count > 0)
-                {
-                    list.Add(new SaveMessage
-                    {
-                        MsgID = "0",
-                        Message = "Password chaged successfully"
-                    });
-                }
+                list.Add(updated
+                    ? new SaveMessage { MsgID = "0", Message = "Password chaged successfully" }
+                    : new SaveMessage { MsgID = "1", Message = "OTP verification expired. Please request a new OTP." });
                 return Ok(list);
             }
             catch (Exception ex)

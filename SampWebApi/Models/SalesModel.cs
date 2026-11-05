@@ -71,7 +71,9 @@ namespace SampWebApi.Models
         public string EWBNo { get; set; }
         public string AckStatus { get; set; }
         public string DiffValueGross { get; set; }
-        public string DiffValueNet { get; set; }
+        public string DiffValueNet { get; set; } = "0";
+        public string DeliveryCount { get; set; } = "0";
+        public string AssignInvoiceCount { get; set; }
         public List<CustomerVendorModel> lstPartyInfo { get; set; }
         public List<SalesDetail> lstProdInfo { get; set; }
         public List<PaymentmodeInfo> lstPaymodeInfo { get; set; }

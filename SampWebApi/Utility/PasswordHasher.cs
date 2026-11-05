@@ -71,11 +71,24 @@ namespace SampWebApi.Utility
             }
 
             // Legacy: the column held clsEncryptDecrypt.Encrypt(password), which is deterministic.
+            // Turned off with appSettings AllowLegacyPasswords=false once Deploy\Migrate-LegacyPasswords.ps1
+            // has converted every database (then a leaked encryption key no longer helps an attacker).
+            if (!AllowLegacy) return false;
             bool legacyOk;
             try { legacyOk = FixedTimeEquals(clsEncryptDecrypt.Encrypt(password), stored); }
             catch (CryptographicException) { legacyOk = false; }
             needsRehash = legacyOk;
             return legacyOk;
+        }
+
+        /// <summary>appSettings AllowLegacyPasswords (default true): accept not-yet-migrated encrypted values.</summary>
+        public static bool AllowLegacy
+        {
+            get
+            {
+                string v = System.Configuration.ConfigurationManager.AppSettings["AllowLegacyPasswords"];
+                return !string.Equals(v, "false", StringComparison.OrdinalIgnoreCase);
+            }
         }
 
         private static byte[] Derive(string password, byte[] salt, int iterations, int length)
@@ -97,6 +110,40 @@ namespace SampWebApi.Utility
         {
             if (a == null || b == null) return false;
             return FixedTimeEquals(System.Text.Encoding.UTF8.GetBytes(a), System.Text.Encoding.UTF8.GetBytes(b));
+        }
+    }
+
+    /// <summary>
+    /// Application action passwords (tblAppPasswordSettings: credit-limit override, cancel print, ...).
+    /// Stored as PasswordHasher hashes; values still in the old reversible format are accepted once and
+    /// replaced with a hash. The stored value is never sent to the browser.
+    /// </summary>
+    public static class AppPasswordStore
+    {
+        /// <summary>
+        /// Checks a typed password against tblAppPasswordSettings.PwdID = id.
+        /// Returns null when the password does not exist or is de-activated.
+        /// </summary>
+        public static bool? Verify(SampWebApi.BuisnessLayer.clsBusinessLayer bl, string id, string password)
+        {
+            System.Data.DataTable dt = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, id);
+            if (dt.Rows.Count == 0) return null;
+            string stored = dt.Rows[0]["Password"].ToString();
+            bool needsRehash;
+            if (!PasswordHasher.Verify(password ?? "", stored, out needsRehash)) return false;
+            if (needsRehash)
+            {
+                try { Save(bl, id, password); }
+                catch (Exception ex) { bl.BL_WriteErrorMsginLog("AppPassword", "rehash", ex.Message); }
+            }
+            return true;
+        }
+
+        /// <summary>Stores a new password as a hash. Empty = keep the current one.</summary>
+        public static void Save(SampWebApi.BuisnessLayer.clsBusinessLayer bl, string id, string password)
+        {
+            if (string.IsNullOrEmpty(password)) return;
+            bl.BL_ExecuteParamSP("uspManageApplicationConfig", 8, id, PasswordHasher.Hash(password));
         }
     }
 }

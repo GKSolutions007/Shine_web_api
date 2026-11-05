@@ -643,6 +643,8 @@ namespace SampWebApi.Controllers
                                     });
                                 }
                             }
+                            string AnyDeliveryassign = DDT.Columns.Contains("DeliveryCount") ? DDT.Rows[0]["DeliveryCount"].ToString() : "0";
+                            string Anyassigninvoice = DDT.Columns.Contains("AssignInvCount") ? DDT.Rows[0]["AssignInvCount"].ToString() : "0";
                             list.Add(new SalesModel
                             {
                                 //Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
@@ -698,6 +700,8 @@ namespace SampWebApi.Controllers
                                 DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
                                 DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
                                 Balance = DDT.Rows[i]["Balance"].ToString(),
+                                DeliveryCount = AnyDeliveryassign,
+                                AssignInvoiceCount = Anyassigninvoice,
                                 lstPartyInfo = listParty,
                                 lstProdInfo = listProductGrid,
                                 lstPaymodeInfo= pmdtl
@@ -1611,12 +1615,10 @@ namespace SampWebApi.Controllers
                 List<SaveMessage> list = new List<SaveMessage>();
                 foreach (PasswordSettingAppconfig item in lstPWD.lstConfigPasswords)
                 {
-                    DataTable DDT = new DataTable();
-                    DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, item.ID);
-                    if (DDT.Rows.Count > 0)
+                    bool? valid = SampWebApi.Utility.AppPasswordStore.Verify(bl, item.ID, item.Passwords);
+                    if (valid.HasValue)
                     {
-                        string decryptpwd = DALHelper.clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
-                        if (item.Passwords != decryptpwd)
+                        if (!valid.Value)
                         {
                             list.Add(new SaveMessage
                             {

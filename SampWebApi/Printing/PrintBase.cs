@@ -1169,7 +1169,13 @@ Warm regards,<br/>
                                     SmtpServer.Port = 587;
                                     SmtpServer.Host = strsmtpServer;//"smtp.gmail.com"
                                     SmtpServer.UseDefaultCredentials = false;
-                                    string MailPassword = clsEncryptDecrypt.Decrypt(strPassword);
+                                    // Same mailbox as the server's own mails: use the protected Web.config secret
+                                    // (rotated by Deploy\Rotate-Secrets.ps1). A different mailbox configured by the
+                                    // company still uses the password saved in Application Config.
+                                    string cfgMail = System.Configuration.ConfigurationManager.AppSettings["email"];
+                                    string MailPassword = (!string.IsNullOrWhiteSpace(cfgMail) && string.Equals(cfgMail.Trim(), (strFromId ?? "").Trim(), StringComparison.OrdinalIgnoreCase))
+                                        ? Utility.SecretConfig.AppSecret("passkey")
+                                        : clsEncryptDecrypt.Decrypt(strPassword);
                                     SmtpServer.Credentials = new System.Net.NetworkCredential(strFromId, MailPassword);
                                     SmtpServer.EnableSsl = true;
                                     SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;

@@ -188,6 +188,16 @@ namespace SampWebApi.DALHelper
             }
             return dt_returnvalue;
         }
+        // Rolls back only if the transaction is still alive. When a procedure runs with
+        // SET XACT_ABORT ON, SQL Server rolls the transaction back itself on error; the
+        // SqlTransaction is then "zombied" (Connection == null) and Rollback() would throw
+        // InvalidOperationException, hiding the real SqlException from the caller/log.
+        private static void SafeRollback(SqlTransaction tx)
+        {
+            if (tx == null || tx.Connection == null) return;
+            try { tx.Rollback(); }
+            catch (InvalidOperationException) { /* already completed on the server */ }
+        }
         public void dl_Transaction(int Action)
         {
             if (Action == 1)
@@ -203,7 +213,7 @@ namespace SampWebApi.DALHelper
             }
             else if (Action == 3)
             {
-                aSqlTransaction.Rollback();
+                SafeRollback(aSqlTransaction);
                 aSqlconnection.Close();
             }
         }
@@ -240,7 +250,7 @@ namespace SampWebApi.DALHelper
             }
             catch (Exception)
             {
-                aSqlTransaction.Rollback();
+                SafeRollback(aSqlTransaction);
                 throw; // preserve original stack trace
             }
         }
@@ -260,7 +270,7 @@ namespace SampWebApi.DALHelper
             }
             else if (Action == 3)
             {
-                aSqlTransactionShinecode.Rollback();
+                SafeRollback(aSqlTransactionShinecode);
                 aSqlconnectionShinecode.Close();
             }
         }
@@ -298,7 +308,7 @@ namespace SampWebApi.DALHelper
             catch (Exception)
             {
                 // Roll back the Shinecode transaction (not the main DB transaction)
-                aSqlTransactionShinecode.Rollback();
+                SafeRollback(aSqlTransactionShinecode);
                 throw; // preserve original stack trace
             }
         }
