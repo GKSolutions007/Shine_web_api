@@ -1,4 +1,5 @@
-﻿using Microsoft.Ajax.Utilities;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -225,6 +226,7 @@ namespace SampWebApi.Models
         public string ThemeData { get; set; }
         public string FilterDatelist { get; set; }
         public string Menuslist { get; set; }
+        public string RefNoMandDocs { get; set; }
         public string ResponseMessage { get; set; }
     }
     public class Chequebook
@@ -352,9 +354,15 @@ namespace SampWebApi.Models
         public string UpdateVendorinProduct { get; set; }
         public string Radius { get; set; }
         public string SpotSalesPriceMode { get; set; }
+        public string TCSPercentage { get; set; }
+        public string TCSApply { get; set; }
+        public string Bouncecharges { get; set; }
+        public string RBSInvoice { get; set; }
+        public string RBSSalesReturn { get; set; }
+        public string RBSCollection { get; set; }
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
-        
+        public List<DocumentRefNoMandatory> lstDocRefNoMandatory { get; set; }
     }
     public class PaymodeAppconfig
     {
@@ -372,6 +380,13 @@ namespace SampWebApi.Models
         public string Value { get; set; }
         public string Active { get; set; }
         public string Passwords { get; set; }
+    }
+    public class DocumentRefNoMandatory
+    {
+        public string TransID { get; set; }
+        public string TransactionName { get; set; }
+        public string IsMandatory { get; set; }
+        public string MenuID { get; set; }
     }
     public class ReportParameters
     {

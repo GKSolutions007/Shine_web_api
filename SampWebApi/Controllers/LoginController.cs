@@ -581,6 +581,9 @@ namespace SampWebApi.Controllers
                                     dtPermission.TableName = "UserMenus";
                                     string MenusData = JsonConvert.SerializeObject(dtPermission);
                                     bl.BL_ExecuteParamSP("uspManageUsers", 11, DDT.Rows[0]["ID"].ToString());
+
+                                    DataTable dtrefNos = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 11);
+                                    string RefnoData= JsonConvert.SerializeObject(dtrefNos);
                                     list.Add(new Users
                                     {
                                         Mode = "1",
@@ -598,6 +601,7 @@ namespace SampWebApi.Controllers
                                         ThemeData = ThemeJson,
                                         FilterDatelist = FilterData,
                                         Menuslist = MenusData,
+                                        RefNoMandDocs = RefnoData,
                                         ResponseMessage = "Login Successful"
                                     });
                                     var authToken = TokenHelper.GenerateToken(DDT.Rows[0]["ID"].ToString(), DeviceID);
@@ -760,13 +764,7 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
-        private static string GetDeviceVerificationMailBody(
-            string OTPType,
-    string loginUserName,
-    string otp,
-    string compCode,
-    string compName,
-    string locationHtml)
+        private static string GetDeviceVerificationMailBody(string OTPType,string loginUserName,string otp,string compCode,string compName,string locationHtml)
         {
             return $@"
 <html>
@@ -930,6 +928,8 @@ namespace SampWebApi.Controllers
                     DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, RID, UserID);
                     dtPermission.TableName = "UserMenus";
                     string MenusData = JsonConvert.SerializeObject(dtPermission);
+                    DataTable dtrefNos = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 11);
+                    string RefnoData = JsonConvert.SerializeObject(dtrefNos);
                     list.Add(new
                     {
                         MsgID = "0",
@@ -937,6 +937,7 @@ namespace SampWebApi.Controllers
                         Message = "OTP Verified Successfully",
                         ThemeData = ThemeJson,
                         Menuslist = MenusData,
+                        RefNoMandDocs = RefnoData,
                         FilterDatelist = FilterData,
                     });
                 }
@@ -1066,14 +1067,18 @@ Open Location </a>"
                 DataTable dtOtp = bl.BL_ExecuteParamSP("uspPasswordResetOtp", 1, UserName, Email, PasswordHasher.Hash(otp));
                 if (dtOtp.Rows.Count > 0 && Convert.ToInt32(dtOtp.Rows[0]["Status"]) == 1)
                 {
-                    bool Issend = bl.SendEmail("Shine Forgot Password OTP", "Hii user, OTP for forgot password is <b>" + otp + "</b>. It is valid for 10 minutes.", Email);
+                    bool Issend = bl.SendEmail("Shine Forgot Password OTP", "Hii "+ UserName + ", OTP for forgot password is <b>" + otp + "</b>. It is valid for 10 minutes.", Email);
                     if (Issend)
                     {
                         // Non-empty list = "OTP sent" for the page; LPin stays empty on purpose.
                         list.Add(new Users { LPin = "" });
                     }
                 }
-                return Ok(list);
+                else if (dtOtp.Rows.Count > 0 && Convert.ToInt32(dtOtp.Rows[0]["Status"]) == -1)
+                {
+
+                }
+                    return Ok(list);
             }
             catch (Exception ex)
             {
@@ -1223,17 +1228,20 @@ Open Location </a>"
         [Route("api/companyregistration")]
         public IHttpActionResult companyregistrationData()
         {
+            string errr = "";
             try
             {
+                bl.BL_WriteErrorMsginLog("Login", "companyregistration", "Initialized");
                 DataTable dt = bl.BL_ExecuteSqlQuery("select * from tblCompanyRegistration");
                 string dtjson = JsonConvert.SerializeObject(dt);
                 return Ok(dtjson);
             }
             catch (Exception ex)
             {
+                errr = ex.Message;
                 bl.BL_WriteErrorMsginLog("Login", "companyregistration", ex.Message);
             }
-            return Ok();
+            return Ok("Data not fetched. Error : " + errr);
         }
         [HttpGet]
         [Route("api/activateaccount")]

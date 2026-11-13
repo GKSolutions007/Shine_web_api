@@ -1873,6 +1873,18 @@ namespace SampWebApi.Controllers
                             Passwords = "",
                         });
                     }
+                    List<DocumentRefNoMandatory> DocrefnoMand = new List<DocumentRefNoMandatory>();
+                    DataTable dtRefnoDocs = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 11);
+                    for (int i = 0; i < dtRefnoDocs.Rows.Count; i++)
+                    {
+                        DocrefnoMand.Add(new DocumentRefNoMandatory
+                        {
+                            TransID = dtRefnoDocs.Rows[i][0].ToString(),
+                            TransactionName = dtRefnoDocs.Rows[i][1].ToString(),
+                            IsMandatory = dtRefnoDocs.Rows[i][2].ToString(),
+                            MenuID = dtRefnoDocs.Rows[i][3].ToString(),
+                        });
+                    }
                     //lstConfigPasswords
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
@@ -1930,8 +1942,17 @@ namespace SampWebApi.Controllers
                             SalesAddnlDiscbeforeProdDisc = DDT.Rows[i]["SalesAddnlDiscbeforeProdDisc"].ToString(),
                             SalesTradeDiscbeforeProdDisc = DDT.Rows[i]["SalesTradeDiscbeforeProdDisc"].ToString(),
 
+                            TCSPercentage = DDT.Rows[i]["TCSPercentage"].ToString(),
+                            TCSApply = DDT.Rows[i]["TCSApply"].ToString(),
+                            Bouncecharges = DDT.Rows[i]["Bouncecharges"].ToString(),
+
+                            RBSInvoice = DDT.Rows[i]["RBSInvoice"].ToString(),
+                            RBSSalesReturn = DDT.Rows[i]["RBSSalesReturn"].ToString(),
+                            RBSCollection = DDT.Rows[i]["RBSCollection"].ToString(),
+
                             lstPaymode = pmlist,
-                            lstConfigPasswords = lstpwd
+                            lstConfigPasswords = lstpwd,
+                            lstDocRefNoMandatory = DocrefnoMand
                         });
                     }
                     return Ok(list);
@@ -1957,6 +1978,7 @@ namespace SampWebApi.Controllers
                     List<PaymodeAppconfig> pmlist = new List<PaymodeAppconfig>();
                     List<PasswordSettingAppconfig> lstpwd = new List<PasswordSettingAppconfig>();
                     List<ApplicationConfig> list = new List<ApplicationConfig>();
+                    List<DocumentRefNoMandatory> listref = new List<DocumentRefNoMandatory>();
                     //lstConfigPasswords
                     for (int i = 0; i < DDT.Rows.Count; i++)
                     {
@@ -2013,8 +2035,15 @@ namespace SampWebApi.Controllers
                             PurchaseTradeDiscbeforeProdDisc = DDT.Rows[i]["PurchaseTradeDiscbeforeProdDisc"].ToString(),
                             SalesAddnlDiscbeforeProdDisc = DDT.Rows[i]["SalesAddnlDiscbeforeProdDisc"].ToString(),
                             SalesTradeDiscbeforeProdDisc = DDT.Rows[i]["SalesTradeDiscbeforeProdDisc"].ToString(),
+                            TCSPercentage = DDT.Rows[i]["TCSPercentage"].ToString(),
+                            TCSApply = DDT.Rows[i]["TCSApply"].ToString(),
+                            Bouncecharges = DDT.Rows[i]["Bouncecharges"].ToString(),
+                            RBSInvoice = DDT.Rows[i]["RBSInvoice"].ToString(),
+                            RBSSalesReturn = DDT.Rows[i]["RBSSalesReturn"].ToString(),
+                            RBSCollection = DDT.Rows[i]["RBSCollection"].ToString(),
                             lstPaymode = pmlist,
-                            lstConfigPasswords = lstpwd
+                            lstConfigPasswords = lstpwd,
+                            lstDocRefNoMandatory = listref
                         });
                     }
                     return Ok(list);
@@ -2037,17 +2066,16 @@ namespace SampWebApi.Controllers
                             lstMaster.SMTPHost, lstMaster.EMail,
                             // blank = keep the saved SMTP password (it is no longer sent to the browser)
                             string.IsNullOrEmpty(lstMaster.Password) ? null : clsEncryptDecrypt.Encrypt(lstMaster.Password),
-                            lstMaster.DecimalValues, lstMaster.Showallstatus,
-                            lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
+                            lstMaster.DecimalValues, lstMaster.Showallstatus, lstMaster.ItemOrderby, lstMaster.EnableReturnPrice, lstMaster.VisaPern, lstMaster.DefaultCustID, lstMaster.UPIID,
                             lstMaster.UPIName, lstMaster.WriteoffAmt, lstMaster.AllSalesmanInvoice, lstMaster.AllowPrint, lstMaster.ApplySchemeinQuotation,
                             lstMaster.SelectinvoiceinSR, lstMaster.ClearConfirmpopup, lstMaster.CloseConfirmpopup, lstMaster.BackupPath,
                             lstMaster.InvoiceStockOnlyProduct, lstMaster.SalesOneView, lstMaster.PurchaseOneView, lstMaster.FilterDate, lstMaster.ItemsperPage,
                             lstMaster.Invoiceallowduplicateitem, lstMaster.CommonAgeingCreditDays, lstMaster.RestrictBlocklistinInvoice, lstMaster.RetainDate,
                             lstMaster.BeatMandatoryinCustomer, lstMaster.DraftAutoSaveTimeInterval, lstMaster.HomePeriod, lstMaster.AutoRefresh, lstMaster.CTPAmount,
                             lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
-                            lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc,
-                            lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
-                            lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith,lstMaster.AssignInvBeatSalesmanfrom);                
+                            lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc, lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
+                            lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith, lstMaster.AssignInvBeatSalesmanfrom, lstMaster.TCSPercentage, lstMaster.TCSApply, lstMaster.Bouncecharges,
+                            lstMaster.RBSInvoice, lstMaster.RBSSalesReturn, lstMaster.RBSCollection);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
                     if (item.TypeID == "1")
@@ -2069,6 +2097,10 @@ namespace SampWebApi.Controllers
                     {
                         AppPasswordStore.Save(bl, item.ID, item.Passwords);   // blank = keep current
                     }
+                }
+                foreach (DocumentRefNoMandatory item in lstMaster.lstDocRefNoMandatory)
+                {
+                    bl.BL_ExecuteParamSP("uspManageApplicationConfig", 12, item.TransID, item.IsMandatory);
                 }
                 List<SaveMessage> list = new List<SaveMessage>();
                 if (DDT.Columns.Count == 1)
