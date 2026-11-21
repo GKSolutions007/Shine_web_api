@@ -1231,7 +1231,6 @@ Open Location </a>"
             string errr = "";
             try
             {
-                bl.BL_WriteErrorMsginLog("Login", "companyregistration", "Initialized");
                 DataTable dt = bl.BL_ExecuteSqlQuery("select * from tblCompanyRegistration");
                 string dtjson = JsonConvert.SerializeObject(dt);
                 return Ok(dtjson);

@@ -917,12 +917,14 @@ namespace SampWebApi.Controllers
                                 if (dtResult.Columns.Count == 1)
                                 {
                                     int nPRID = bl.BL_nValidation(dtResult.Rows[0][0].ToString());
+                                    
+                                    int nIrow = 0, nTranSerial = 1, nSerial = 1;
                                     for (int i = 0; i < dtProducts.Rows.Count; i++)
                                     {
                                         int nProdID = bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ProdID"]));
                                         if (nProdID > 0)
                                         {
-
+                                            nIrow = 1;
                                             DataRow[] dr = dtBatch.Select("ProdID = '" + nProdID + "'", null);
                                             bool PurAddnlDiscb4Prod = listTrans.AddnlDiscb4Prod;
                                             bool PurTrdDiscb4Prod = listTrans.TradeDiscb4Prod;
@@ -967,13 +969,18 @@ namespace SampWebApi.Controllers
                                                         iRow["BatchNo"].ToString(), pkd, exp, bl.BL_dValidation(iRow["OrgRTNPrice"].ToString()),
                                                         bl.BL_dValidation(iRow["MRP"].ToString()), bl.BL_nValidation(iRow["TaxPern"].ToString()), bl.BL_dValidation(iRow["ReturnPrice"].ToString()),
                                                         bl.BL_dValidation(iRow["TaxPern"].ToString()), dgoods, bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["ProdDiscPern"])), dGrs, dTax,
-                                                        dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"])), (i + 1), bl.BL_nValidation(iRow["TaxID"].ToString()), 1, (i + 1),
+                                                        dNet, bl.BL_nValidation(iRow["TaxID"].ToString()), listTrans.TaxTypeID, bl.BL_nValidation(Convert.ToString(dtProducts.Rows[i]["ReasonId"])),
+                                                        nSerial,
+                                                        bl.BL_nValidation(iRow["TaxID"].ToString()), 1,
+                                                        nIrow,
                                                         bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["TradeDiscPern"])), bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["AddnlDiscPern"])), 1,
                                                         bl.BL_nValidation(listTrans.BranchID), listTrans.PriceID, bl.BL_dValidation(iRow["ConversionRate"].ToString()),
                                                         bl.BL_dValidation(Convert.ToString(dtProducts.Rows[i]["DiffAmt"])),
                                                         bl.BL_dValidation(dProdDiscAmt),
                                                         bl.BL_dValidation(dTradeDiscAmt),
                                                         bl.BL_dValidation(dAddnlDiscAmt));
+                                                    nIrow++;
+                                                    nSerial++;
                                                     if (dtResultDetail.Rows.Count > 0)
                                                     {
                                                         string Error = "Qty Mismatched";// dtResultDetail.Rows[0][0].ToString();
@@ -990,7 +997,7 @@ namespace SampWebApi.Controllers
 
                                                     nBillScopeID = bl.BL_nValidation(dtResult.Rows[0][0]);
 
-                                                    int nTaxID = 0, nTaxTypeID = 0, SRSerial = 1, nTranSerial = 1;
+                                                    int nTaxID = 0, nTaxTypeID = 0, PRSerial = 1;
                                                     decimal dQtnGrossAmount = 0.00M, dQtys = 0.00M;
                                                     dtGSTInfo.Rows.Clear();
                                                     //if (bl.BL_dValidation(dtProducts.Rows[nCount]["Qty"]) > 0)
@@ -1033,12 +1040,12 @@ namespace SampWebApi.Controllers
                                                                     bl.BL_dValidation(dtTaxCompInfo.Rows[nTaxComp][2]) * dQtys;//dQtnGrossAmount
                                                             drG["GrossAmount"] = newgrossamt;// dQtnGrossAmount;
                                                                                              //drG["TransSerial"] = nTranSerial;
-                                                            drG["TransSerial"] = (i + 1);
-                                                            drG["SerialNo"] = SRSerial;
+                                                            drG["TransSerial"] = nTranSerial;
+                                                            drG["SerialNo"] = PRSerial;
                                                             dtGSTInfo.Rows.Add(drG);
-                                                            SRSerial++;
+                                                            PRSerial++;
                                                         }
-                                                        nTranSerial++;
+                                                        
                                                     }
                                                     //}
 
@@ -1046,6 +1053,7 @@ namespace SampWebApi.Controllers
                                                     {
                                                         bl.bl_ManageTrans("uspSaveTranGSTInfo", dtGSTInfo);
                                                     }
+                                                    nTranSerial++;
                                                 }
                                             }
                                         }

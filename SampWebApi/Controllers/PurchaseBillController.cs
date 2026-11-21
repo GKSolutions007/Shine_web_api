@@ -985,6 +985,260 @@ namespace SampWebApi.Controllers
             }
             return Ok();
         }
+        [HttpGet]
+        [Route("api/purchasebill/variantdata")]
+        public IHttpActionResult variantdata(string VariantType, string ID, string PartyID)
+        {
+            try
+            {
+                DataSet dtPRData = bl.BL_ExecuteParamSPDataset("uspPurchaseBillVariantData", VariantType, ID, PartyID);
+                DataTable DDT1 = dtPRData.Tables[0];//Vendor Details
+                DataTable DDT = dtPRData.Tables[1];//Header Details
+                DataTable dtPaymodedetails = dtPRData.Tables[2];//Paymentinfo Details
+                DataTable DDT2 = dtPRData.Tables[3];//Item Details
+                DataTable DDT3 = dtPRData.Tables[4];//Batch Details
+                DataTable dtReasons = dtPRData.Tables[5];//Reason Data
+                //////////////////
+               
+                List<PurchaseModel> list = new List<PurchaseModel>();
+                if (DDT.Rows.Count > 0)
+                {
+                    for (int i = 0; i < DDT.Rows.Count; i++)
+                    {
+                        List<CustomerVendorModel> listParty = new List<CustomerVendorModel>();
+                        for (int j = 0; j < DDT1.Rows.Count; j++)
+                        {
+                            listParty.Add(new CustomerVendorModel
+                            {
+                                ID = DDT1.Rows[j]["ID"].ToString(),
+                                Code = DDT1.Rows[j]["Code"].ToString(),
+                                Name = DDT1.Rows[j]["Name"].ToString(),
+                                Billadd1 = DDT1.Rows[j]["Billadd1"].ToString(),
+                                Billadd2 = DDT1.Rows[j]["Billadd2"].ToString(),
+                                Billadd3 = DDT1.Rows[j]["Billadd3"].ToString(),
+                                Shipadd1 = DDT1.Rows[j]["Shipadd1"].ToString(),
+                                Shipadd2 = DDT1.Rows[j]["shipadd2"].ToString(),
+                                Shipadd3 = DDT1.Rows[j]["Shipadd3"].ToString(),
+                                Pincode = DDT1.Rows[j]["Pincode"].ToString(),
+                                ContactPerson = DDT1.Rows[j]["ContactPerson"].ToString(),
+                                Ph1 = DDT1.Rows[j]["Ph1"].ToString(),
+                                Ph2 = DDT1.Rows[j]["Ph2"].ToString(),
+                                Mob1 = DDT1.Rows[j]["Mob1"].ToString(),
+                                Mob2 = DDT1.Rows[j]["Mob2"].ToString(),
+                                Email = DDT1.Rows[j]["Email"].ToString(),
+                                PANNumber = DDT1.Rows[j]["PANNumber"].ToString(),
+                                AadharNo = DDT1.Rows[j]["AadharNo"].ToString(),
+                                DLNo20 = DDT1.Rows[j]["DLNo20"].ToString(),
+                                DLNo21 = DDT1.Rows[j]["DLNo21"].ToString(),
+                                FSSAINo = DDT1.Rows[j]["FSSAINo"].ToString(),
+                                StateID = DDT1.Rows[j]["StateID"].ToString(),
+                                GSTIN = DDT1.Rows[j]["GSTIN"].ToString(),
+                                CreditTermID = DDT1.Rows[j]["CreditTermID"].ToString(),
+                                PaymentModeID = DDT1.Rows[j]["PaymentModeID"].ToString(),
+                                TaxTypeID = DDT1.Rows[j]["TaxTypeID"].ToString(),
+                                FAID = DDT1.Rows[j]["FAID"].ToString(),
+                                WeekCycle = DDT1.Rows[j]["WeekCycle"].ToString(),
+                                Active = DDT1.Rows[j]["Active"].ToString(),
+                                Ratings = DDT1.Rows[j]["Rating"].ToString(),
+                            });
+                        }
+                        List<SingleMasterModel> listReasons = new List<SingleMasterModel>();
+                        for (int j = 0; j < dtReasons.Rows.Count; j++)
+                        {
+                            listReasons.Add(new SingleMasterModel
+                            {
+                                ID = dtReasons.Rows[j][0].ToString(),
+                                Name = dtReasons.Rows[j][1].ToString()
+                            });
+                        }
+                        List<PurchaseGridData> listProductGrid = new List<PurchaseGridData>();
+                       
+                        for (int k = 0; k < DDT2.Rows.Count; k++)
+                        {
+                            listProductGrid.Add(new PurchaseGridData
+                            {
+                                ProdID = DDT2.Rows[k]["ProdID"].ToString(),
+                                UomID = DDT2.Rows[k]["UomID"].ToString(),
+                                Code = DDT2.Rows[k]["Code"].ToString(),
+                                Name = DDT2.Rows[k]["Name"].ToString(),
+                                HSNCode = DDT2.Rows[k]["HSNCode"].ToString(),
+                                UOM = DDT2.Rows[k]["UOM"].ToString(),
+                                Qty = DDT2.Rows[k]["Qty"].ToString(),
+                                FreeQty = DDT2.Rows[k]["FreeQty"].ToString(),
+                                DmgQty = DDT2.Rows[k]["DmgQty"].ToString(),
+                                ProdPern = DDT2.Rows[k]["ProdPern"].ToString(),
+                                TradePern = DDT2.Rows[k]["TradePern"].ToString(),
+                                AddnlPern = DDT2.Rows[k]["AddnlPern"].ToString(),
+                                //ProdDiscAmt,TradeDiscAmt,AddnlDiscAmt
+                                ProdAmt = DDT2.Rows[k]["ProdDiscAmt"].ToString(),
+                                TradeAmt = DDT2.Rows[k]["TradeDiscAmt"].ToString(),
+                                AddnlAmt = DDT2.Rows[k]["AddnlDiscAmt"].ToString(),
+                                TaxPern = DDT2.Rows[k]["TaxPern"].ToString(),
+                                GrossAmt = DDT2.Rows[k]["GrossAmt"].ToString(),
+                                TaxAmt = DDT2.Rows[k]["TaxAmt"].ToString(),
+                                TaxName = DDT2.Rows[k]["TaxName"].ToString(),
+                                NetAmt = DDT2.Rows[k]["NetAmt"].ToString(),
+                                GoodsAmt = DDT2.Rows[k]["GoodsAmt"].ToString(),
+                                ReasonID = DDT2.Rows[k]["ReasonId"].ToString(),
+                                LocationID = DDT2.Rows[k]["LocationID"].ToString(),
+                                TransactionPrice = DDT2.Rows[k]["PurchaseBillPrice"].ToString(),
+                                DiffAmt = DDT2.Rows[k]["DiffAmt"].ToString(),
+                                MRPonTax = DDT2.Rows[k]["MRPonTaxAmt"].ToString(),
+                                CumMRPonTax = DDT2.Rows[k]["CumMRPonTax"].ToString(),
+
+                                ABSQty = DDT2.Rows[k]["ActualQty"].ToString(),
+                                ABSFreeQty = DDT2.Rows[k]["ActualFreeQty"].ToString(),
+                                ABSDmgQty = DDT2.Rows[k]["ActualDmgQty"].ToString(),
+                                lstReason = listReasons,
+                            });
+                        }
+                        List<PurchaseBatchInfo> listBatch = new List<PurchaseBatchInfo>();
+                        
+                        for (int l = 0; l < DDT3.Rows.Count; l++)
+                        {
+                            string PKD = !string.IsNullOrEmpty(DDT3.Rows[l]["PKD"].ToString()) ? Convert.ToDateTime(DDT3.Rows[l]["PKD"].ToString()).ToString("yyyy-MM-dd") : null;
+                            string Exp = !string.IsNullOrEmpty(DDT3.Rows[l]["Expiry"].ToString()) ? Convert.ToDateTime(DDT3.Rows[l]["Expiry"].ToString()).ToString("yyyy-MM-dd") : null;
+                            listBatch.Add(new PurchaseBatchInfo
+                            {
+                                //SalesPrice	ECP1	SPLPrice1	MRP1	ReturnPrice1
+
+                                BillID = DDT3.Rows[l]["HID"].ToString(),
+                                InventoryID = DDT3.Rows[l]["InventoryId"].ToString(),
+                                DmgQty = DDT3.Rows[l]["UomDamageQty"].ToString(),
+                                ECP = DDT3.Rows[l]["ECP1"].ToString(),
+                                FreeQty = DDT3.Rows[l]["UomFreeQty"].ToString(),
+                                MRP = DDT3.Rows[l]["MRP1"].ToString(),
+                                OrgECP = DDT3.Rows[l]["ECP1"].ToString(),
+                                OrgMRP = DDT3.Rows[l]["MRP1"].ToString(),
+                                OrgPPrice = DDT3.Rows[l]["UomPurchasePrice"].ToString(),
+                                OrgRTNPrice = DDT3.Rows[l]["ReturnPrice1"].ToString(),
+                                OrgSPL = DDT3.Rows[l]["SPLPrice1"].ToString(),
+                                OrgSPrice = DDT3.Rows[l]["SalesPrice"].ToString(),
+                                PKDDate = PKD,// DDT3.Rows[l]["PKD"].ToString(),
+                                ExpiryDate = Exp,// DDT3.Rows[l]["Expiry"].ToString(),
+                                BatchNo = DDT3.Rows[l]["BatchNo"].ToString(),
+                                ProdID = DDT3.Rows[l]["ProdID"].ToString(),
+                                PurchasePrice = DDT3.Rows[l]["UomPurchasePrice"].ToString(),
+                                Qty = DDT3.Rows[l]["UomQty"].ToString(),
+                                ReturnPrice = DDT3.Rows[l]["ReturnPrice1"].ToString(),
+                                SPLPrice = DDT3.Rows[l]["SPLPrice1"].ToString(),
+                                SalesPrice = DDT3.Rows[l]["SalesPrice"].ToString(),
+                                TrackBatch = DDT3.Rows[l]["TrackBatch"].ToString(),
+                                TrackInventory = DDT3.Rows[l]["TrackInventory"].ToString(),
+                                UomID = DDT3.Rows[l]["UomID"].ToString(),
+                                TrackPKD = DDT3.Rows[l]["TrackPDK"].ToString(),
+                                TaxID = DDT3.Rows[l]["TaxID"].ToString(),
+                                TaxTypeID = DDT3.Rows[l]["TaxTypeID"].ToString(),
+                                TaxPern = DDT3.Rows[l]["Tax%"].ToString(),
+                                UOMName = DDT3.Rows[l]["UOMName"].ToString(),
+                                HSN = DDT3.Rows[l]["HSNCode"].ToString(),
+                                ConversionRate = DDT3.Rows[l]["UOMCF"].ToString(),
+                            });
+                        }
+                        List<PaymentmodeInfo> pmdtl = new List<PaymentmodeInfo>();
+                        if (dtPaymodedetails.Rows.Count > 0)
+                        {
+                            for (int pmd = 0; pmd < dtPaymodedetails.Rows.Count; pmd++)
+                            {
+                                //PayModeId	Acc_OR_PaytermId	ChequeNo	Cheque_OR_DDNumber_OR_NEFTId	PMDate	
+                                //PayAt	IfscCode	Bank	Branch	Amt	SerialNo	RecdAmt	VisaPer	VisaAmt	PaymentMode	
+                                //AccountNo	AccountName	OrgPMDate                                    
+                                pmdtl.Add(new PaymentmodeInfo
+                                {
+                                    AccID = DDT.Rows[i]["VendorID"].ToString(),
+                                    Mode = dtPaymodedetails.Rows[pmd]["PayModeId"].ToString(),
+                                    ChequeDDNumber = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                    Date = dtPaymodedetails.Rows[pmd]["OrgPMDate"].ToString(),
+                                    BankAccId = dtPaymodedetails.Rows[pmd]["Acc_OR_PaytermId"].ToString(),
+                                    Neft = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                    Amt = dtPaymodedetails.Rows[pmd]["Amt"].ToString(),
+                                    IFSC = dtPaymodedetails.Rows[pmd]["IfscCode"].ToString(),
+                                    Bank = dtPaymodedetails.Rows[pmd]["Bank"].ToString(),
+                                    BankID = dtPaymodedetails.Rows[pmd]["BankID"].ToString(),
+                                    Branch = dtPaymodedetails.Rows[pmd]["Branch"].ToString(),
+                                    BankAccNo = dtPaymodedetails.Rows[pmd]["AccountNo"].ToString(),
+                                    ChequeBkRefNo = dtPaymodedetails.Rows[pmd]["Cheque_OR_DDNumber_OR_NEFTId"].ToString(),
+                                    ChequeBookID = dtPaymodedetails.Rows[pmd]["ChequeNo"].ToString(),
+                                    RecdAmt = dtPaymodedetails.Rows[pmd]["RecdAmt"].ToString(),
+                                    VisaPern = dtPaymodedetails.Rows[pmd]["VisaPer"].ToString(),
+                                    VisaAmt = dtPaymodedetails.Rows[pmd]["VisaAmt"].ToString(),
+                                });
+                            }
+                        }
+                        list.Add(new PurchaseModel
+                        {
+                            ID = DDT.Rows[i]["ID"].ToString(),
+                            DocID = DDT.Rows[i]["DocID"].ToString(),
+                            DocPrefix = DDT.Rows[i]["Prefix"].ToString(),
+                            Date = Convert.ToDateTime(DDT.Rows[i]["Date"].ToString()).ToString("yyyy-MM-dd"),
+                            RefNo = DDT.Rows[i]["RefNo"].ToString(),
+                            BranchID = DDT.Rows[i]["BranchID"].ToString(),
+                            VendorID = DDT.Rows[i]["VendorID"].ToString(),
+                            //VendorName = DDT.Rows[i]["Name"].ToString(),
+                            GrossAmt = DDT.Rows[i]["GrossAmt"].ToString(),
+                            TaxAmt = DDT.Rows[i]["TaxAmt"].ToString(),
+                            NetAmt = DDT.Rows[i]["NetAmt"].ToString(),
+                            Status = DDT.Rows[i]["Status"].ToString(),
+                            ProdGroupID = DDT.Rows[i]["ProdGroupID"].ToString(),
+                            TaxTypeID = DDT.Rows[i]["TaxTypeID"].ToString(),
+                            PaymentModeID = DDT.Rows[i]["PaymentModeID"].ToString(),
+                            PaymentTermID = DDT.Rows[i]["PaymentTermID"].ToString(),
+                            PaymentDate = DDT.Rows[i]["PaymentDate"].ToString(),
+                            VehicleNo = DDT.Rows[i]["VehicleNo"].ToString(),
+                            Frieght = DDT.Rows[i]["Frieght"].ToString(),
+                            OtherChargePern = DDT.Rows[i]["OtherChrgPern"].ToString(),
+                            OtherChargeAmt = DDT.Rows[i]["OtherChargeAmt"].ToString(),
+                            ProdDiscPern = DDT.Rows[i]["ProdPern"].ToString(),
+                            TradeDiscPern = DDT.Rows[i]["TradePern"].ToString(),
+                            AddnlDiscPern = DDT.Rows[i]["AddnlPern"].ToString(),
+                            TotalProdDiscAmt = DDT.Rows[i]["TotalProdDiscAmt"].ToString(),
+                            TotalTradeDiscAmt = DDT.Rows[i]["TotalTradeDiscAmt"].ToString(),
+                            TotalAddnlDiscAmt = DDT.Rows[i]["TotalAddnlDiscAmt"].ToString(),
+                            WriteOffAmt = DDT.Rows[i]["WriteOffAmt"].ToString(),
+                            RoundOffAmt = DDT.Rows[i]["RoundOffAmt"].ToString(),
+                            Balance = DDT.Rows[i]["Balance"].ToString(),
+                            PymtID = DDT.Rows[i]["PymtID"].ToString(),
+                            OrgId = DDT.Rows[i]["OrgId"].ToString(),
+                            UDFId = DDT.Rows[i]["UDFId"].ToString(),
+                            UDFDocId = DDT.Rows[i]["UDFDocId"].ToString(),
+                            UDFDocPrefix = DDT.Rows[i]["UDFDocPrefix"].ToString(),
+                            UDFDocValue = DDT.Rows[i]["UDFDocValue"].ToString(),
+                            ReturnType = DDT.Rows[i]["ReturnType"].ToString(),
+                            TransactionType = DDT.Rows[i]["TransactionType"].ToString(),
+
+                            TCSTaxPern = DDT.Rows[i]["TCSTaxPern"].ToString(),
+                            TCSTaxAmt = DDT.Rows[i]["TCSTaxAmt"].ToString(),
+                            TDSAmount = DDT.Rows[i]["TDSAmount"].ToString(),
+                            IRN = DDT.Rows[i]["IRN"].ToString(),
+                            AckNo = DDT.Rows[i]["AckNo"].ToString(),
+                            AckDate = DDT.Rows[i]["AckDate"].ToString(),
+                            AckStatus = DDT.Rows[i]["AckStatus"].ToString(),
+                            SignedQRCode = DDT.Rows[i]["SignedQRCode"].ToString(),
+                            EWBNo = DDT.Rows[i]["EWBNo"].ToString(),
+                            Distance = DDT.Rows[i]["Distance"].ToString(),
+                            TransMode = DDT.Rows[i]["TransMode"].ToString(),
+                            VehicleType = DDT.Rows[i]["VehicleType"].ToString(),
+                            TransportID = DDT.Rows[i]["TransportID"].ToString(),
+                            TransportName = DDT.Rows[i]["TransportName"].ToString(),
+                            Remarks = DDT.Rows[i]["Remarks"].ToString(),
+                            Narration = DDT.Rows[i]["Narration"].ToString(),
+                            DiffValueGross = DDT.Rows[i]["DiffValueGross"].ToString(),
+                            DiffValueNet = DDT.Rows[i]["DiffValueNet"].ToString(),
+                            lstPartyInfo = listParty,
+                            lstProdGrid = listProductGrid,
+                            lstBatchInfo = listBatch,
+                            lstPaymodeInfo = pmdtl
+                        });
+                    }
+                }
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("PurchaseReturn", "purchasereturn/get", ex.Message);
+            }
+            return Ok();
+        }
         [HttpPost]
         [Route("api/purchasebill/save")]
         public IHttpActionResult Save(PurchaseModel listTrans)

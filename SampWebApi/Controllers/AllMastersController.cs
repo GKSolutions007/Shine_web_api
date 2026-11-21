@@ -1869,8 +1869,7 @@ namespace SampWebApi.Controllers
                             ID = dtPWD.Rows[i][0].ToString(),
                             Name = dtPWD.Rows[i][1].ToString(),
                             Active = dtPWD.Rows[i][3].ToString(),
-                            // Stored as one-way hashes and never sent to the browser; blank on save = keep.
-                            Passwords = "",
+                            Passwords = clsEncryptDecrypt.Decrypt(dtPWD.Rows[i][2].ToString()),
                         });
                     }
                     List<DocumentRefNoMandatory> DocrefnoMand = new List<DocumentRefNoMandatory>();
@@ -2091,11 +2090,19 @@ namespace SampWebApi.Controllers
                         bl.BL_ExecuteParamSP("uspManageApplicationConfig", 10, item.ID, item.Active, item.Order);
                     }
                 }
+                //if (lstMaster.lstConfigPasswords != null)
+                //{
+                //    foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
+                //    {
+                //        AppPasswordStore.Save(bl, item.ID, item.Passwords);   // blank = keep current
+                //    }
+                //}
                 if (lstMaster.lstConfigPasswords != null)
                 {
                     foreach (PasswordSettingAppconfig item in lstMaster.lstConfigPasswords)
                     {
-                        AppPasswordStore.Save(bl, item.ID, item.Passwords);   // blank = keep current
+                        bl.BL_ExecuteParamSP("uspManageApplicationConfig", 8, item.ID,
+                            clsEncryptDecrypt.Encrypt(item.Passwords));
                     }
                 }
                 foreach (DocumentRefNoMandatory item in lstMaster.lstDocRefNoMandatory)
