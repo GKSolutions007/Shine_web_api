@@ -1613,8 +1613,8 @@ namespace SampWebApi.Controllers
             return Ok();
         }
         [HttpPost]
-        [Route("api/invoice/verifycreditlimit")]
-        public IHttpActionResult checkPASSOWRD(ApplicationConfig lstPWD)
+        [Route("api/invoice/verifycreditlimit_withhash")]
+        public IHttpActionResult checkPASSOWRD_withhash(ApplicationConfig lstPWD)
         {
             try
             {
@@ -1647,6 +1647,48 @@ namespace SampWebApi.Controllers
                 return Ok(list);
             }
             catch(Exception ex)
+            {
+                bl.BL_WriteErrorMsginLog("Invoice", "invoice/verifycreditlimit", ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/invoice/verifycreditlimit")]
+        public IHttpActionResult checkPASSOWRD(ApplicationConfig lstPWD)
+        {
+            try
+            {
+                List<SaveMessage> list = new List<SaveMessage>();
+                foreach (PasswordSettingAppconfig item in lstPWD.lstConfigPasswords)
+                {
+                    DataTable DDT = new DataTable();
+                    DDT = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 9, item.ID);
+                    if (DDT.Rows.Count > 0)
+                    {
+                        string decryptpwd = DALHelper.clsEncryptDecrypt.Decrypt(DDT.Rows[0][2].ToString());
+                        if (item.Passwords != decryptpwd)
+                        {
+                            list.Add(new SaveMessage
+                            {
+                                Message = "Invalid Password",
+                                MsgID = "1",
+                                ID = item.ID
+                            });
+                        }
+                    }
+                    else
+                    {
+                        list.Add(new SaveMessage
+                        {
+                            Message = "Password not found or De-activated",
+                            MsgID = "2",
+                            ID = item.ID
+                        });
+                    }
+                }
+                return Ok(list);
+            }
+            catch (Exception ex)
             {
                 bl.BL_WriteErrorMsginLog("Invoice", "invoice/verifycreditlimit", ex.Message);
             }

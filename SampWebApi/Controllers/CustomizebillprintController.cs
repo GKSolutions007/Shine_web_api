@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -384,21 +385,33 @@ namespace SampWebApi.Controllers
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["MRP"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["MRP"].ToString()))
+                decimal dMRP = Price = objBL.BL_dValidation(dtCheck.Rows[0]["MRP"].ToString());
+                if (!objBL.BL_NumericWithDecimal(dMRP.ToString()))//dtCheck.Rows[0]["MRP"].ToString()
                 {
                     RowError += "MRP : Invalid character(Numeric Only)\n";
                 }                
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["Price"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["Price"].ToString()))
+                //Price = Math.Round(Convert.ToDecimal(dtCheck.Rows[0]["Price"]), 2, MidpointRounding.AwayFromZero); // Value : 1.9047619047619046E-2 //objBL.BL_dValidation(dtCheck.Rows[0]["Price"].ToString());
+                string PriceValue = Convert.ToString(dtCheck.Rows[0]["Price"]);
+
+                if (decimal.TryParse(
+                    PriceValue,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal ParsedPrice))
                 {
-                    RowError += "MRP : Invalid character(Numeric Only)\n";
+                    Price = Math.Round(ParsedPrice, 2, MidpointRounding.AwayFromZero);
                 }
-                else
+                if (!objBL.BL_NumericWithDecimal(Price.ToString()))//dtCheck.Rows[0]["Price"].ToString()
                 {
-                    Price = objBL.BL_dValidation(dtCheck.Rows[0]["Price"].ToString());
+                    RowError += "Price : Invalid character(Numeric Only)\n";
                 }
+                //else
+                //{
+                //    Price = objBL.BL_dValidation(dtCheck.Rows[0]["Price"].ToString());
+                //}
             }
             else
             {
@@ -406,14 +419,25 @@ namespace SampWebApi.Controllers
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["Qty"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["Qty"].ToString()))
+                //Price = Math.Round(Convert.ToDecimal(dtCheck.Rows[0]["Price"]), 2, MidpointRounding.AwayFromZero); // Value : 1.9047619047619046E-2 //objBL.BL_dValidation(dtCheck.Rows[0]["Price"].ToString());
+                string QtyValue = Convert.ToString(dtCheck.Rows[0]["Qty"]);
+
+                if (decimal.TryParse(
+                    QtyValue,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal ParsedQty))
+                {
+                    Qty = Math.Round(ParsedQty, 2, MidpointRounding.AwayFromZero);
+                }
+                if (!objBL.BL_NumericWithDecimal(Qty.ToString()))
                 {
                     RowError += "Qty : Invalid character(Numeric Only)\n";
                 }
-                else
-                {
-                    Qty = objBL.BL_dValidation(dtCheck.Rows[0]["Qty"].ToString());
-                }
+                //else
+                //{
+                //    Qty = objBL.BL_dValidation(dtCheck.Rows[0]["Qty"].ToString());
+                //}
             }
             else
             {
@@ -421,14 +445,24 @@ namespace SampWebApi.Controllers
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["Discount Amount"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["Discount Amount"].ToString()))
+                string DiscAmtValue = Convert.ToString(dtCheck.Rows[0]["Discount Amount"]);
+
+                if (decimal.TryParse(
+                    DiscAmtValue,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal ParsedDiscAmt))
+                {
+                    DiscAmt = Math.Round(ParsedDiscAmt, 2, MidpointRounding.AwayFromZero);
+                }
+                if (!objBL.BL_NumericWithDecimal(DiscAmt.ToString()))
                 {
                     RowError += "Discount Amount : Invalid character(Numeric Only)\n";
                 }
-                else
-                {
-                    DiscAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Discount Amount"].ToString());
-                }
+                //else
+                //{
+                //    DiscAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Discount Amount"].ToString());
+                //}
             }
             else
             {
@@ -436,14 +470,24 @@ namespace SampWebApi.Controllers
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["Tax Amount"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["Tax Amount"].ToString()))
+                string TaxAmtValue = Convert.ToString(dtCheck.Rows[0]["Tax Amount"]);
+
+                if (decimal.TryParse(
+                    TaxAmtValue,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal ParsedTaxAmt))
+                {
+                    TaxAmt = Math.Round(ParsedTaxAmt, 2, MidpointRounding.AwayFromZero);
+                }
+                if (!objBL.BL_NumericWithDecimal(TaxAmt.ToString()))
                 {
                     RowError += "Tax Amount : Invalid character(Numeric Only)\n";
                 }
-                else
-                {
-                    TaxAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Tax Amount"].ToString());
-                }
+                //else
+                //{
+                //    TaxAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Tax Amount"].ToString());
+                //}
             }
             else
             {
@@ -451,14 +495,24 @@ namespace SampWebApi.Controllers
             }
             if (!string.IsNullOrEmpty(dtCheck.Rows[0]["Net Amount"].ToString()))
             {
-                if (!objBL.BL_NumericWithDecimal(dtCheck.Rows[0]["Net Amount"].ToString()))
+                string NetAmtValue = Convert.ToString(dtCheck.Rows[0]["Net Amount"]);
+
+                if (decimal.TryParse(
+                    NetAmtValue,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal ParsedNetAmt))
+                {
+                    NetAmt = Math.Round(ParsedNetAmt, 2, MidpointRounding.AwayFromZero);
+                }
+                if (!objBL.BL_NumericWithDecimal(NetAmt.ToString()))
                 {
                     RowError += "Net Amount : Invalid character(Numeric Only)\n";
                 }
-                else
-                {
-                    NetAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Net Amount"].ToString());
-                }
+                //else
+                //{
+                //    NetAmt = objBL.BL_dValidation(dtCheck.Rows[0]["Net Amount"].ToString());
+                //}
             }
             else
             {

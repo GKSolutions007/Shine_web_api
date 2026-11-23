@@ -1948,7 +1948,7 @@ namespace SampWebApi.Controllers
                             RBSInvoice = DDT.Rows[i]["RBSInvoice"].ToString(),
                             RBSSalesReturn = DDT.Rows[i]["RBSSalesReturn"].ToString(),
                             RBSCollection = DDT.Rows[i]["RBSCollection"].ToString(),
-
+                            TaxEditable = DDT.Rows[i]["TaxEditable"].ToString(),
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd,
                             lstDocRefNoMandatory = DocrefnoMand
@@ -2040,6 +2040,7 @@ namespace SampWebApi.Controllers
                             RBSInvoice = DDT.Rows[i]["RBSInvoice"].ToString(),
                             RBSSalesReturn = DDT.Rows[i]["RBSSalesReturn"].ToString(),
                             RBSCollection = DDT.Rows[i]["RBSCollection"].ToString(),
+                            TaxEditable = DDT.Rows[i]["TaxEditable"].ToString(),
                             lstPaymode = pmlist,
                             lstConfigPasswords = lstpwd,
                             lstDocRefNoMandatory = listref
@@ -2074,7 +2075,7 @@ namespace SampWebApi.Controllers
                             lstMaster.CTPPoint, lstMaster.CTPPerPointAmount, lstMaster.UpdateVendorinProduct, lstMaster.Radius, lstMaster.SpotSalesPriceMode,
                             lstMaster.PurchaseAddnlDiscbeforeProdDisc, lstMaster.PurchaseTradeDiscbeforeProdDisc, lstMaster.SalesAddnlDiscbeforeProdDisc, lstMaster.SalesTradeDiscbeforeProdDisc,
                             lstMaster.AllowPostChequeDaysColl, lstMaster.ALSearchstartwith, lstMaster.AssignInvBeatSalesmanfrom, lstMaster.TCSPercentage, lstMaster.TCSApply, lstMaster.Bouncecharges,
-                            lstMaster.RBSInvoice, lstMaster.RBSSalesReturn, lstMaster.RBSCollection);
+                            lstMaster.RBSInvoice, lstMaster.RBSSalesReturn, lstMaster.RBSCollection, lstMaster.TaxEditable);
                 foreach (PaymodeAppconfig item in lstMaster.lstPaymode)
                 {
                     if (item.TypeID == "1")

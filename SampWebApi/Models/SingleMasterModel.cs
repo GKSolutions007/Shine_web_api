@@ -360,6 +360,8 @@ namespace SampWebApi.Models
         public string RBSInvoice { get; set; }
         public string RBSSalesReturn { get; set; }
         public string RBSCollection { get; set; }
+        public string TaxEditable { get; set; }
+        
         public List<PaymodeAppconfig> lstPaymode { get; set; }
         public List<PasswordSettingAppconfig> lstConfigPasswords { get; set; }
         public List<DocumentRefNoMandatory> lstDocRefNoMandatory { get; set; }
