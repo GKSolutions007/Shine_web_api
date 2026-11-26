@@ -382,6 +382,7 @@
     <Compile Include="Controllers\BulkCollectionController.cs" />
     <Compile Include="Controllers\ColumnConfigController.cs" />
     <Compile Include="Controllers\CommonController.cs" />
+    <Compile Include="Controllers\CustomerStockRequestController.cs" />
     <Compile Include="Controllers\CustomizebillprintController.cs" />
     <Compile Include="Controllers\CustomizeReportsController.cs" />
     <Compile Include="Controllers\DailyActivityController.cs" />
@@ -402,6 +403,7 @@
     <Compile Include="Controllers\VanLoadingSlipReturnController.cs" />
     <Compile Include="Import Utility\clsExportData.cs" />
     <Compile Include="Import Utility\ImportFieldValidations.cs" />
+    <Compile Include="Models\CustomerStockModel.cs" />
     <Compile Include="Models\DeliveryModel.cs" />
     <Compile Include="Models\PrintCustomizeModel.cs" />
     <Compile Include="Models\RefreshToken.cs" />
